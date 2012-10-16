@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <ImageView
+        android:id="@+id/menuItemImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/dark"
+        android:padding="10dp" />
+
+    <studip.app.view.util.FontTextView
+        android:id="@+id/menuItemText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/menuItemImage"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/menuItemImage" 
+        android:background="@color/dark"
+        android:textColor="@color/white"
+        android:textSize="21sp"
+        android:padding="12dp"
+        android:layout_centerVertical="true"/>
+    
+</RelativeLayout>

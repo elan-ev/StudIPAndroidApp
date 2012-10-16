@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:background="@drawable/blue_bg" >
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="180dp" >
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/studip" />
+    </RelativeLayout>
+
+    <studip.app.view.util.FontButton
+        android:id="@+id/serverbutton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Facility"
+        android:background="@drawable/white_button"
+        android:drawableLeft="@drawable/institute"
+        android:drawablePadding="-30sp" />
+
+    <studip.app.view.util.FontButton
+        android:id="@+id/signinbutton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Authorize"
+        android:background="@drawable/white_button"
+        android:drawableLeft="@drawable/key"
+        android:drawablePadding="-30sp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.97" >
+
+        <studip.app.view.util.FontButton
+            android:id="@+id/helpbutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="looking for Help?"
+            android:background="@color/transparent" />
+    </RelativeLayout>
+
+</LinearLayout>

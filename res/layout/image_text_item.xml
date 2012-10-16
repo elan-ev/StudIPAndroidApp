@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <studip.app.view.util.FontTextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:padding="4dp"
+        android:textSize="18sp"
+        android:background="@color/light"
+        android:textColor="@color/background"
+        android:drawableLeft="@drawable/institute" />
+    
+</RelativeLayout>
