@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="hello">Hello World, SampleActivity!</string>
-    <string name="app_name">Sample Slide-out Navaigation</string>
-
+    <string name="app_name">StudIPApp</string>
+    <string name="activities_title">Activities</string>
+    <string name="webview_title">Login</string>
+    <string name="background_color">#e1e4e9</string>
+    <string name="dark_color">#34578c</string>
+    <string name="light_color">#899ab9</string>
 </resources>
