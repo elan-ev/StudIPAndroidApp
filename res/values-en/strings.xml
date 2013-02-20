@@ -32,6 +32,6 @@
     <string name="Development">Development</string>
     <string name="Authorize">Authorize</string>
     <string name="upcoming_events">Upcoming Events</string>
-    <string name="choose_facility">Choose facility</string>
+    <string name="choose_server">Choose server</string>
 
 </resources>

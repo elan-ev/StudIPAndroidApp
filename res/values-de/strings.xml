@@ -30,6 +30,6 @@
     <string name="Development">Entwicklung</string>
     <string name="Authorize">Autorisieren</string>
     <string name="upcoming_events">Anstehende Veranstaltungen</string>
-    <string name="choose_facility">Fakultät wählen</string>
+    <string name="choose_server">Server wählen</string>
 
 </resources>

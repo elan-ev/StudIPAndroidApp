@@ -14,6 +14,7 @@ import studip.app.frontend.slideout.SlideoutActivity;
 import studip.app.frontend.util.ArrayAdapterItem;
 import studip.app.frontend.util.GeneralListFragment;
 import studip.app.frontend.util.TextItem;
+import studip.app.util.TempServerDeclares;
 import StudIPApp.app.R;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,21 +23,23 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
+/**
+ * 
+ * @author joern
+ * 
+ */
+// TODO refactoring, extending an AbstractActivity
+// FIXME buttons not showing up correct
 public class ChooseServerActivity extends FragmentActivity {
-
-    private String title;
-
-    public ChooseServerActivity() {
-	this.title = getString(R.string.choose_facility);
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
-
 	this.setContentView(R.layout.general_view);
-
+	((TextView) this.findViewById(R.id.title))
+		.setText(getString(R.string.choose_server));
 	((ImageButton) this.findViewById(R.id.slide_button))
 		.setOnClickListener(new OnClickListener() {
 		    // @Override
@@ -49,7 +52,8 @@ public class ChooseServerActivity extends FragmentActivity {
 	glf.itemList = this.getItems();
 
 	getSupportFragmentManager().beginTransaction()
-		.add(R.id.placeholder, glf, title).commit();
+		.add(R.id.placeholder, glf, getString(R.string.choose_server))
+		.commit();
     }
 
     public void slideButtonPressed(View view) {
@@ -66,20 +70,14 @@ public class ChooseServerActivity extends FragmentActivity {
 
 	ArrayList<ArrayAdapterItem> items = new ArrayList<ArrayAdapterItem>();
 
-	// TODO load serverlist...
-
-	Server alteTestumgebung = new Server("Testumgebung (alt)",
-		"a358cf5509c989479be1bdaafe79adfd050a4c012",
-		"5b7bee2fe2b3a4e3ae25a314b963b3f1",
-		"http://coll.virtuos.uos.de/studip/aklassen/trunk/plugins.php/restipplugin");
-	Server neueTestumgebung = new Server("Testumgebung (neu)",
-		"ee3f4ce2e4fe589a3b5ea681bc00c8a905118d078",
-		"60faf16c8442f09d9736c57646720c99",
-		"http://vm036.rz.uos.de/studip/aklassen/studip-rest/plugins.php/restipplugin");
-
+	/*
+	 * WARNING: you need your own TempServerDeclares Class in the
+	 * studip.app.util package see:
+	 * studip.app.util.TempServerDeclaresExample
+	 */
 	items.add(new TextItem(getString(R.string.Development)));
-	items.add(new ServerItem(this, neueTestumgebung));
-	items.add(new ServerItem(this, alteTestumgebung));
+	items.add(new ServerItem(this, TempServerDeclares.neueTestumgebung));
+	items.add(new ServerItem(this, TempServerDeclares.alteTestumgebung));
 
 	return items;
     }
