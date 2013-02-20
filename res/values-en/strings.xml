@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2013 ELAN e.V.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the GNU Public License v3.0
+  which accompanies this distribution, and is available at
+  http://www.gnu.org/licenses/gpl.html
+-->
+<resources>
+
+    <string name="app_name">StudIPApp</string>
+    <string name="menu_settings">Settings</string>
+    <string name="signin_activity_choose_facility">Choose facility</string>
+    <string name="loading">loading</string>
+    <string name="help">Hilfe</string>
+    <string name="slidein_menu_button">SlideIn Menu Button</string>
+    <string name="title_activity_course_view">CourseViewActivity</string>
+    <string name="studip_logo">Studip Logo</string>
+    <string name="Activities">Activities</string>
+    <string name="News">News</string>
+    <string name="Courses">Courses</string>
+    <string name="Events">Events</string>
+    <string name="Messages">Messages</string>
+    <string name="Contacts">Contacts</string>
+    <string name="Documents">Documents</string>
+    <string name="Settings">Settings</string>
+    <string name="Help">Help</string>
+    <string name="Information">Information</string>
+    <string name="Logout">Logout</string>
+    <string name="General">General</string>
+    <string name="menu">menu</string>
+    <string name="Development">Development</string>
+    <string name="Authorize">Authorize</string>
+    <string name="upcoming_events">Upcoming Events</string>
+    <string name="choose_facility">Choose facility</string>
+
+</resources>

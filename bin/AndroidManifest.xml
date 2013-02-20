@@ -1,55 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2013 ELAN e.V.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the GNU Public License v3.0
+  which accompanies this distribution, and is available at
+  http://www.gnu.org/licenses/gpl.html
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="studip.app"
+    package="StudIPApp.app"
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="15" />
+    <uses-sdk
+        android:maxSdkVersion="17"
+        android:minSdkVersion="9"
+        android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Light.NoTitleBar" >
+        android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" >
+        <service android:name="studip.app.backend.net.services.syncservice.RestIPSyncService" />
+
         <activity
-            android:name=".StudIPAppActivity"
-            android:label="@string/app_name" >
+            android:name="studip.app.StudIPAppActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity 
-            android:name=".net.ChooseServerActivity">
+        <activity
+            android:name="studip.app.backend.net.ChooseServerActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".net.SignInActivity" >
+            android:name="studip.app.backend.net.oauth.SignInActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".net.ConnectorActivity" >
+            android:name="studip.app.frontend.slideout.MenuActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".view.slideout.MenuActivity" >
+            android:name="studip.app.frontend.slideout.SlideoutActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".view.slideout.SlideoutActivity" >
+            android:name="studip.app.frontend.courses.CoursesActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".view.news.NewsActivity" >
+            android:name="studip.app.backend.net.oauth.WebViewActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".view.activities.ActivitiesActivity" >
-        </activity>
-        <activity 
-            android:name=".view.courses.CoursesActivity">
+            android:name="studip.app.frontend.news.NewsActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".ChooseServerActivity" >
+            android:name="studip.app.frontend.activities.ActivitiesActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".net.WebViewActivity">
+            android:name="studip.app.frontend.courses.CourseViewActivity"
+            android:label="@string/title_activity_course_view"
+            android:screenOrientation="portrait" >
         </activity>
-        </application>
+    </application>
 
 </manifest>

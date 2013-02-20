@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2013 ELAN e.V.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the GNU Public License v3.0
+  which accompanies this distribution, and is available at
+  http://www.gnu.org/licenses/gpl.html
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/inner_content"
     android:layout_width="fill_parent"
@@ -12,7 +19,7 @@
         android:paddingLeft="2dip"
         android:paddingRight="2dip" >
 
-        <studip.app.view.util.FontTextView
+        <TextView
             android:id="@+id/webview_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -20,17 +27,16 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:gravity="center_vertical|center_horizontal"
-            android:text="@string/webview_title"
-            android:textColor="#ffffff"
+            android:text="@string/Authorize"
+            android:textColor="@android:color/white"
             android:textSize="19sp"
             android:textStyle="bold" />
 
-        <studip.app.view.util.FontButton
+        <Button
             android:id="@+id/cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:layout_alignRight="@+id/textView1"
-            android:text="cancel"
+            android:text="@android:string/cancel"
             android:padding="10dip"
             android:background="@drawable/blue_button" />
     </RelativeLayout>

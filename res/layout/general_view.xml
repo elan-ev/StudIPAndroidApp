@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2013 ELAN e.V.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the GNU Public License v3.0
+  which accompanies this distribution, and is available at
+  http://www.gnu.org/licenses/gpl.html
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/inner_content"
     android:layout_width="fill_parent"
@@ -19,9 +26,10 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:src="@drawable/reveal"
-            android:background="@drawable/blue_button" />
+            android:background="@drawable/blue_button"
+            android:contentDescription="@+string/slidein_menu_button" />
 
-        <studip.app.view.util.FontTextView
+        <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,6 +40,26 @@
             android:textColor="#ffffff"
             android:textSize="17sp"
             android:textStyle="bold" />
+        
+        <ProgressBar
+            android:id="@+id/generalViewProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:indeterminate="true"
+            android:visibility="gone" />
+        
+           <ImageButton
+            android:id="@+id/general_refresh_button"
+            android:layout_width="45dip"
+            android:layout_height="40dip"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_menu_refresh"
+            android:background="@drawable/blue_button"
+            android:contentDescription="@+string/general_view_refresh_button" />
+        
     </RelativeLayout>
 
     <FrameLayout
