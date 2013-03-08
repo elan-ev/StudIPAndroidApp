@@ -15,29 +15,27 @@ import android.os.AsyncTask;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * @author joern
  * 
  */
 public abstract class AbstractParserTask<T> extends
-		AsyncTask<String, Integer, T> {
+	AsyncTask<String, Integer, T> {
 
-	protected ObjectMapper objectMapper;
-	protected JsonFactory jsonFactory;
+    protected ObjectMapper objectMapper;
+    protected JsonFactory jsonFactory;
 
-	public AbstractParserTask() {
-		objectMapper = rootMapper();
-		jsonFactory = new JsonFactory();
-	}
+    public AbstractParserTask() {
+	objectMapper = rootMapper();
+	jsonFactory = new JsonFactory();
+    }
 
-	protected ObjectMapper rootMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		// mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-		// mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-				false);
-		return mapper;
-	}
+    protected ObjectMapper rootMapper() {
+	ObjectMapper mapper = new ObjectMapper();
+	mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+		false);
+	return mapper;
+    }
 
-	
 }
