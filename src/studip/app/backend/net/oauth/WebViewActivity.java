@@ -7,16 +7,19 @@
  ******************************************************************************/
 package studip.app.backend.net.oauth;
 
-import StudIPApp.app.R;
 import studip.app.util.Prefs;
+import StudIPApp.app.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 
 public class WebViewActivity extends Activity {
 
@@ -27,10 +30,22 @@ public class WebViewActivity extends Activity {
 	super.onCreate(savedInstanceState);
 
 	this.setContentView(R.layout.webview_view);
-
+	Button cancelButton = (Button) this.findViewById(R.id.cancel_button);
 	WebView webView = (WebView) this.findViewById(R.id.webView);
 	webView.setWebViewClient(new LoginWebViewClient(this));
 
+	cancelButton.setOnClickListener(new OnClickListener() {
+	    // @Override
+	    public void onClick(View v) {
+		cancelAuth();
+		finish();
+	    }
+
+	    private void cancelAuth() {
+		// TODO Cancel auth process
+
+	    }
+	});
 	WebSettings webViewSettings = webView.getSettings();
 	webViewSettings.setSavePassword(false);
 	Intent intent = getIntent();

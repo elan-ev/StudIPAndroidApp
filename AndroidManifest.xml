@@ -22,7 +22,7 @@
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" >
+        android:theme="@style/Theme.studipactionbar" >
         <service android:name="studip.app.backend.net.services.syncservice.RestIPSyncService" />
 
         <activity
@@ -44,23 +44,7 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="studip.app.frontend.slideout.MenuActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name="studip.app.frontend.slideout.SlideoutActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name="studip.app.frontend.courses.CoursesActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
             android:name="studip.app.backend.net.oauth.WebViewActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name="studip.app.frontend.news.NewsActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
@@ -70,6 +54,10 @@
         <activity
             android:name="studip.app.frontend.courses.CourseViewActivity"
             android:label="@string/title_activity_course_view"
+            android:screenOrientation="portrait" >
+        </activity>
+                <activity
+            android:name="studip.app.frontend.util.AbstractFragmentActivity"
             android:screenOrientation="portrait" >
         </activity>
     </application>

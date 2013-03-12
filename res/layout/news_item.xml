@@ -8,8 +8,8 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content" 
-    android:background="@color/background">
+    android:layout_height="wrap_content"
+    android:background="@android:color/background_light" >
 
     <ImageView
         android:id="@+id/image"
@@ -27,13 +27,13 @@
         android:layout_marginLeft="80dp"
         android:layout_toRightOf="@+id/image"
         android:orientation="vertical" >
-        
+
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp" />
-        
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
@@ -53,9 +53,8 @@
                 android:layout_below="@+id/title"
                 android:layout_marginRight="10dp"
                 android:textColor="@color/light" />
-
         </RelativeLayout>
-                    
+
         <TextView
             android:id="@+id/body"
             android:layout_width="match_parent"
