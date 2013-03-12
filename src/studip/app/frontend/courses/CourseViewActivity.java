@@ -7,66 +7,178 @@
  ******************************************************************************/
 package studip.app.frontend.courses;
 
-import studip.app.backend.datamodel.Course;
-import studip.app.backend.db.CoursesRepository;
-import studip.app.frontend.slideout.MenuActivity;
-import studip.app.frontend.slideout.SlideoutActivity;
+import java.util.ArrayList;
+
+import studip.app.frontend.util.BaseSlidingFragmentActivity;
 import StudIPApp.app.R;
-import android.content.Intent;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.util.TypedValue;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ImageButton;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 
-public class CourseViewActivity extends FragmentActivity {
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
+import com.slidingmenu.lib.SlidingMenu;
+import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
-    public Course mCourse = null;
+public class CourseViewActivity extends BaseSlidingFragmentActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-	super.onCreate(savedInstanceState);
-	this.setContentView(R.layout.general_view);
-
-	((ProgressBar) this.findViewById(R.id.generalViewProgressBar))
-		.setVisibility(View.GONE);
-
-	TextView mText = (TextView) this.findViewById(R.id.title);
-	mText.setText(getString(R.string.Courses));
-
-	((ImageButton) this.findViewById(R.id.general_refresh_button))
-		.setVisibility(View.GONE);
-
-	((ImageButton) this.findViewById(R.id.slide_button))
-		.setOnClickListener(new OnClickListener() {
-		    public void onClick(View v) {
-			slideButtonPressed(v);
-		    }
-		});
-
-	CoursesRepository coursesDB = CoursesRepository.getInstance(this);
-	mCourse = coursesDB.getCourse(getIntent().getStringExtra("cid"));
-
-	if (savedInstanceState == null) {
-	    CourseDetailFragment details = CourseDetailFragment
-		    .newInstance(mCourse);
-	    getSupportFragmentManager().beginTransaction()
-		    .add(R.id.placeholder, details).addToBackStack(null)
-		    .commit();
-	}
+    /**
+     * @param titleRes
+     */
+    public CourseViewActivity() {
+	super(R.string.Courses);
     }
 
-    public void slideButtonPressed(View view) {
-	view.setSelected(false);
-	int width = (int) TypedValue.applyDimension(
-		TypedValue.COMPLEX_UNIT_DIP, 60, getResources()
-			.getDisplayMetrics());
-	SlideoutActivity.prepare(this, R.id.inner_content, width);
-	startActivity(new Intent(this, MenuActivity.class));
-	overridePendingTransition(0, 0);
+    public String mCourse = null;
+    public static ActionBar mActionbar = null;
+    public static final String ACTIVE_TAB = "activeTab";
+    ViewPager mPager;
+    CoursePagerTabsAdapter mPagerAdapter;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+	super.onCreate(savedInstanceState);
+	mActionbar = getSupportActionBar();
+	mCourse = getIntent().getStringExtra("cid");
+	setContentView(R.layout.pager);
+
+	mPager = new ViewPager(this);
+	mPager.setId("VP".hashCode());
+	setContentView(mPager);
+
+	mActionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+	mActionbar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
+
+	mPagerAdapter = new CoursePagerTabsAdapter(this,
+		getSupportFragmentManager(), mPager);
+	Bundle args = new Bundle();
+	args.putString("cid", mCourse);
+	mPagerAdapter.addTab(mActionbar.newTab(), R.string.appointments,
+		CourseEventsFragment.class, args);
+	mPagerAdapter.addTab(mActionbar.newTab(), R.string.attendees,
+		CourseAttendeesFragment.class, args);
+	mPagerAdapter.addTab(mActionbar.newTab(), R.string.Documents,
+		CourseDocumentsFragment.class, args);
+
+	if (savedInstanceState != null) {
+	    mActionbar.setSelectedNavigationItem(savedInstanceState.getInt(
+		    "tab", 0));
+	}
+
+	if (savedInstanceState != null) {
+	    this.getSupportActionBar().setSelectedNavigationItem(
+		    savedInstanceState.getInt(ACTIVE_TAB));
+	}
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+	outState.putInt(ACTIVE_TAB, this.getSupportActionBar()
+		.getSelectedNavigationIndex());
+	super.onSaveInstanceState(outState);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.app.Activity#setTitle(int)
+     */
+    @Override
+    public void setTitle(int titleId) {
+	getSupportActionBar().setTitle(titleId);
+    }
+
+    public static class CoursePagerTabsAdapter extends FragmentPagerAdapter
+	    implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
+
+	private final ViewPager mViewPager;
+	private final Context mContext;
+	private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+
+	static final class TabInfo {
+	    private final Class<?> clss;
+	    private final Bundle args;
+
+	    TabInfo(Class<?> _class, Bundle _args) {
+		clss = _class;
+		args = _args;
+	    }
+	}
+
+	public CoursePagerTabsAdapter(Activity activity, FragmentManager fm,
+		ViewPager pager) {
+	    super(fm);
+	    mContext = activity;
+	    mViewPager = pager;
+	    mViewPager.setAdapter(this);
+	    mViewPager.setOnPageChangeListener(this);
+	}
+
+	public void addTab(ActionBar.Tab tab, int titleRes, Class<?> clss,
+		Bundle args) {
+	    TabInfo info = new TabInfo(clss, args);
+	    tab.setTag(info);
+	    tab.setText(titleRes);
+	    tab.setTabListener(this);
+	    mTabs.add(info);
+	    mActionbar.addTab(tab);
+	    notifyDataSetChanged();
+	}
+
+	@Override
+	public int getCount() {
+	    return mTabs.size();
+	}
+
+	@Override
+	public Fragment getItem(int position) {
+	    TabInfo info = mTabs.get(position);
+	    return Fragment.instantiate(mContext, info.clss.getName(),
+		    info.args);
+	}
+
+	public void onPageScrolled(int position, float positionOffset,
+		int positionOffsetPixels) {
+	}
+
+	public void onPageSelected(int position) {
+	    switch (position) {
+	    case 0:
+		((SlidingFragmentActivity) mContext).getSlidingMenu()
+			.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+		break;
+	    default:
+		((SlidingFragmentActivity) mContext).getSlidingMenu()
+			.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+		break;
+	    }
+	    mActionbar.setSelectedNavigationItem(position);
+	}
+
+	public void onPageScrollStateChanged(int state) {
+	}
+
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+	    Object tag = tab.getTag();
+	    for (int i = 0; i < mTabs.size(); i++) {
+		if (mTabs.get(i) == tag) {
+		    mViewPager.setCurrentItem(i);
+		}
+	    }
+	}
+
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+	}
+
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+	}
+
     }
 
 }
