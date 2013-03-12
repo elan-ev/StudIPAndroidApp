@@ -30,7 +30,7 @@ public class MessagesRepository {
     private Context mContext;
     private static MessagesRepository mInstance;
 
-    public static MessagesRepository getInstance(Context context) {
+    public static synchronized MessagesRepository getInstance(Context context) {
 	if (mInstance == null)
 	    mInstance = new MessagesRepository(context);
 
@@ -43,8 +43,6 @@ public class MessagesRepository {
 
     @SuppressLint("SimpleDateFormat")
     public void addMessages(ArrayList<Message> msgList) {
-	SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
-		.getWritableDatabase();
 	// Debug
 	// db.execSQL("DELETE FROM " + TABLE_MESSAGES);
 	SimpleDateFormat dateFormat = new SimpleDateFormat(
@@ -67,15 +65,17 @@ public class MessagesRepository {
 			message.priority);
 		values.put(MessagesContract.Columns.MESSAGE_UNREAD,
 			message.unread);
-
+		SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
+			.getWritableDatabase();
+		db.beginTransaction();
 		db.insertWithOnConflict(MessagesContract.TABLE, null, values,
 			SQLiteDatabase.CONFLICT_IGNORE);
+		db.endTransaction();
+		db.close();
 
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
-	} finally {
-	    db.close();
 	}
     }
 
@@ -116,9 +116,6 @@ public class MessagesRepository {
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
-	} finally {
-	    cursor.close();
-	    db.close();
 	}
 	return messages;
     }

@@ -28,7 +28,7 @@ public class SemestersRepository {
     private static SemestersRepository mInstance;
     private Context mContext;
 
-    public static SemestersRepository getInstance(Context context) {
+    public static synchronized SemestersRepository getInstance(Context context) {
 	if (mInstance == null)
 	    mInstance = new SemestersRepository(context);
 
@@ -41,9 +41,7 @@ public class SemestersRepository {
 
     @SuppressLint("SimpleDateFormat")
     public void addSemester(Semester s) {
-	SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
-		.getWritableDatabase();
-
+	SQLiteDatabase db = null;
 	SimpleDateFormat dateFormat = new SimpleDateFormat(
 		"yyyy-MM-dd HH:mm:ss");
 
@@ -62,13 +60,19 @@ public class SemestersRepository {
 		    dateFormat.format(s.seminars_begin));
 	    contentValues.put(SemestersContract.Columns.SEMESTER_SEMINARS_END,
 		    dateFormat.format(s.seminars_end));
-
-	    db.insertWithOnConflict(SemestersContract.TABLE, null,
-		    contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+	    db = DatabaseHandler.getInstance(mContext).getWritableDatabase();
+	    db.beginTransaction();
+	    try {
+		db.insertWithOnConflict(SemestersContract.TABLE, null,
+			contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+		db.setTransactionSuccessful();
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    } finally {
+		db.endTransaction();
+	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
-	} finally {
-	    db.close();
 	}
     }
 
@@ -101,8 +105,6 @@ public class SemestersRepository {
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
-	} finally {
-	    db.close();
 	}
     }
 
@@ -135,9 +137,6 @@ public class SemestersRepository {
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
-	} finally {
-	    cursor.close();
-	    db.close();
 	}
 	return semesters;
     }
@@ -170,9 +169,6 @@ public class SemestersRepository {
 			    .getColumnIndex(SemestersContract.Columns.SEMESTER_SEMINARS_END)));
 	} catch (Exception e) {
 	    e.printStackTrace();
-	} finally {
-	    cursor.close();
-	    db.close();
 	}
 
 	return semester;
@@ -191,9 +187,6 @@ public class SemestersRepository {
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
-	} finally {
-	    cursor.close();
-	    db.close();
 	}
 
 	return false;

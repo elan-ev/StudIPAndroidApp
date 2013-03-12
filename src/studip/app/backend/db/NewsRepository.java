@@ -22,7 +22,7 @@ public class NewsRepository {
     private static NewsRepository mInstance;
     private Context mContext;
 
-    public static NewsRepository getInstance(Context context) {
+    public static synchronized NewsRepository getInstance(Context context) {
 	if (mInstance == null)
 	    mInstance = new NewsRepository(context);
 
@@ -35,11 +35,11 @@ public class NewsRepository {
 
     @SuppressLint("SimpleDateFormat")
     public void addNews(News n) {
+	SQLiteDatabase db = null;
 	// Debug
 	// db.execSQL("DELETE FROM " + TABLE_NEWS);
 	SimpleDateFormat dateFormat = new SimpleDateFormat(
 		"yyyy-MM-dd HH:mm:ss");
-	SQLiteDatabase db = null;
 	try {
 	    for (NewsItem newsItem : n.news) {
 
@@ -58,14 +58,20 @@ public class NewsRepository {
 
 		db = DatabaseHandler.getInstance(mContext)
 			.getWritableDatabase();
-		db.insertWithOnConflict(NewsContract.TABLE, null, values,
-			SQLiteDatabase.CONFLICT_IGNORE);
+		db.beginTransaction();
+		try {
+		    db.insertWithOnConflict(NewsContract.TABLE, null, values,
+			    SQLiteDatabase.CONFLICT_IGNORE);
+		    db.setTransactionSuccessful();
+		} catch (Exception e) {
+		    e.printStackTrace();
+		} finally {
+		    db.endTransaction();
+		}
 
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
-	} finally {
-	    db.close();
 	}
     }
 
@@ -104,11 +110,26 @@ public class NewsRepository {
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
-	} finally {
-	    cursor.close();
-	    db.close();
 	}
-
 	return news;
+    }
+
+    /**
+     * @return
+     */
+    public Cursor getCurrentNewsCursor() {
+	SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
+		.getReadableDatabase();
+	Cursor cursor = null;
+	// cursor = db.query(NewsContract.TABLE, null,
+	// NewsContract.Columns.NEWS_DATE + ">= ?",
+	// new String[] { "strftime('%s','now')" }, null, null,
+	// NewsContract.Columns.NEWS_DATE + " ASC");
+	cursor = db.rawQuery("select * from " + NewsContract.TABLE + ", "
+		+ UsersContract.TABLE + " where " + NewsContract.TABLE + "."
+		+ NewsContract.Columns.NEWS_USER_ID + " = "
+		+ UsersContract.TABLE + "." + UsersContract.Columns.USER_ID,
+		null);
+	return cursor;
     }
 }

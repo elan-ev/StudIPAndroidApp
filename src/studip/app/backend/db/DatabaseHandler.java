@@ -7,12 +7,10 @@
  ******************************************************************************/
 package studip.app.backend.db;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-@SuppressLint("SimpleDateFormat")
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
@@ -25,95 +23,63 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    public static DatabaseHandler getInstance(Context context) {
+    public static synchronized DatabaseHandler getInstance(Context context) {
 	if (instance == null)
-	    instance = new DatabaseHandler(context.getApplicationContext());
+	    instance = new DatabaseHandler(context);
 
 	return instance;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
+	// Semestes
 	db.execSQL(SemestersContract.CREATE_STRING);
+	// Activites
 	db.execSQL(ActivitiesContract.CREATE_STRING);
+	// News
 	db.execSQL(NewsContract.CREATE_STRING);
+	// Courses
 	db.execSQL(CoursesContract.CREATE_STRING);
+	// db.execSQL(CoursesContract.CREATE_STUDENT_USER_STRING);
+	// db.execSQL(CoursesContract.CREATE_TEACHER_USER_STRING);
+	// db.execSQL(CoursesContract.CREATE_TUTOR_USER_STRING);
+	// Users
 	db.execSQL(UsersContract.CREATE_STRING);
+	// Documents
 	db.execSQL(DocumentsContract.CREATE_STRING);
+	// Messages
 	db.execSQL(MessagesContract.CREATE_STRING);
+	// Events
 	db.execSQL(EventsConstract.CREATE_STRING);
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-	// TODO Im Produktiv Umfeld, migration der Daten
+	// Semesters
 	db.execSQL("drop table if exists " + SemestersContract.TABLE);
+	// Activites
 	db.execSQL("drop table if exists " + ActivitiesContract.TABLE);
+	// News
 	db.execSQL("drop table if exists " + NewsContract.TABLE);
+	// Courses
 	db.execSQL("drop table if exists " + CoursesContract.TABLE);
+//	db.execSQL("drop table if exists "
+//		+ CoursesContract.STUDENT_COURSE_USER_TABLE);
+//	db.execSQL("drop table if exists "
+//		+ CoursesContract.TEACHER_COURSE_USER_TABLE);
+//	db.execSQL("drop table if exists "
+//		+ CoursesContract.TUTOR_COURSE_USER_TABLE);
+	// Users
 	db.execSQL("drop table if exists " + UsersContract.TABLE);
+	// Documents
 	db.execSQL("drop table if exists " + DocumentsContract.TABLE);
+	// Messages
 	db.execSQL("drop table if exists " + MessagesContract.TABLE);
+	// Events
 	db.execSQL("drop table if exists " + EventsConstract.TABLE);
 
 	onCreate(db);
     }
-
-    public void close() {
-	SQLiteDatabase db = this.getWritableDatabase();
-	db.close();
-    }
-
-    public void addObject(Object object, String table) {
-	// SQLiteDatabase db = this.getWritableDatabase();
-	//
-	// ContentValues values = new ContentValues();
-	// values.put(KEY_VALUE, Serializer.serializeObject(object));
-	//
-	// db.insertWithOnConflict(table, null, values,
-	// SQLiteDatabase.CONFLICT_REPLACE);
-	// db.close();
-    }
-
-    public Object getObject(int id, String table) {
-	// SQLiteDatabase db = this.getReadableDatabase();
-	//
-	// Cursor cursor = db.query(table, new String[] { KEY_ID, KEY_VALUE },
-	// KEY_ID + "=?", new String[] { String.valueOf(id) }, null, null,
-	// null, null);
-	// if (cursor != null)
-	// cursor.moveToFirst();
-	//
-	// byte[] data = cursor.getBlob(1);
-	// cursor.close();
-	// db.close();
-	// // TODO Jackson Parsing
-	// return Serializer.deserializeObject(data);
-	return null;
-    }
-
-    // public ArrayList<Object> getAllObjects(String table) {
-    //
-    // // TODO getObject benutzen, doppelten Code verhindern
-    // ArrayList<Object> list = new ArrayList<Object>();
-    //
-    // String selectQuery = "SELECT  * FROM " + table;
-    //
-    // SQLiteDatabase db = this.getWritableDatabase();
-    // Cursor cursor = db.rawQuery(selectQuery, null);
-    //
-    // if (cursor.moveToFirst()) {
-    // do {
-    // list.add(Serializer.deserializeObject(cursor.getBlob(1)));
-    // } while (cursor.moveToNext());
-    // }
-    //
-    // cursor.close();
-    // db.close();
-    //
-    // return list;
-    // }
 
 }

@@ -18,7 +18,7 @@ public class EventsRepository {
     private static EventsRepository instance;
     private Context mContext;
 
-    public static EventsRepository getInstance(Context context) {
+    public static synchronized EventsRepository getInstance(Context context) {
 	if (instance == null)
 	    instance = new EventsRepository(context);
 
@@ -30,12 +30,9 @@ public class EventsRepository {
     }
 
     public void addEvents(Events e) {
-	SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
-		.getWritableDatabase();
-	// remove non existing entrys
-	db.execSQL("DELETE FROM " + EventsConstract.TABLE);
+	SQLiteDatabase db = null;
 	try {
-	    for (studip.app.backend.datamodel.Event event : e.events) {
+	    for (Event event : e.events) {
 
 		ContentValues values = new ContentValues();
 		values.put(EventsConstract.Columns.EVENT_ID, event.event_id);
@@ -49,26 +46,28 @@ public class EventsRepository {
 		values.put(EventsConstract.Columns.EVENT_CATEGORIES,
 			event.categories);
 		values.put(EventsConstract.Columns.EVENT_ROOM, event.room);
-
-		db.insertWithOnConflict(EventsConstract.TABLE, null, values,
-			SQLiteDatabase.CONFLICT_IGNORE);
-
+		db = DatabaseHandler.getInstance(mContext)
+			.getWritableDatabase();
+		db.beginTransaction();
+		try {
+		    db.insertWithOnConflict(EventsConstract.TABLE, null,
+			    values, SQLiteDatabase.CONFLICT_IGNORE);
+		    db.setTransactionSuccessful();
+		} catch (Exception ex) {
+		    ex.printStackTrace();
+		} finally {
+		    db.endTransaction();
+		}
 	    }
 	} catch (Exception ex) {
 	    ex.printStackTrace();
-	} finally {
-	    db.close();
 	}
     }
 
-    public Events getEventsForCourse(String cid) {
-	SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
-		.getReadableDatabase();
+    public Events getCurrentEventsForCourse(String cid) {
 	Cursor cursor = null;
 	Events events = new Events();
-	cursor = db.query(EventsConstract.TABLE, null,
-		EventsConstract.Columns.EVENT_COURSE_ID + "=?",
-		new String[] { cid }, null, null, null);
+	cursor = getCurrentEventsCursorForCourse(cid);
 	if (cursor == null) {
 	    return events;
 	}
@@ -98,11 +97,20 @@ public class EventsRepository {
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
-	} finally {
-	    cursor.close();
-	    db.close();
 	}
 
 	return events;
+    }
+
+    public Cursor getCurrentEventsCursorForCourse(String cid) {
+	SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
+		.getReadableDatabase();
+	Cursor cursor = null;
+	cursor = db.query(EventsConstract.TABLE, null,
+		EventsConstract.Columns.EVENT_COURSE_ID + "=? AND "
+			+ EventsConstract.Columns.EVENT_START
+			+ " >= strftime('%s','now')", new String[] { cid },
+		null, null, EventsConstract.Columns.EVENT_START + " ASC");
+	return cursor;
     }
 }
