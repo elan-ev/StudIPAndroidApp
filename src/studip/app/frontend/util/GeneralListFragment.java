@@ -14,30 +14,23 @@ import studip.app.backend.net.ServerItem;
 import studip.app.frontend.activities.ActivitiesItem;
 import studip.app.frontend.courses.CourseViewActivity;
 import studip.app.frontend.courses.CoursesItem;
-import studip.app.frontend.slideout.MenuActivity;
-import studip.app.frontend.slideout.MenuItem;
 import studip.app.util.Prefs;
 import StudIPApp.app.R;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class GeneralListFragment extends ListFragment {
+import com.actionbarsherlock.app.SherlockListFragment;
+
+public class GeneralListFragment extends SherlockListFragment {
 
     public ArrayList<ArrayAdapterItem> itemList;
 
     int mCurCheckPosition = 0;
 
     // private MainActivity myActivity = null;
-
-    @Override
-    public void onAttach(Activity activity) {
-	super.onAttach(activity);
-    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -69,14 +62,8 @@ public class GeneralListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
 	super.onListItemClick(l, v, position, id);
-	// TODO Activity laden
 	mCurCheckPosition = position;
 
-	// MenuItem
-	if (l.getItemAtPosition(position).getClass().equals(MenuItem.class)) {
-	    MenuItem mi = (MenuItem) l.getItemAtPosition(position);
-	    ((MenuActivity) getActivity()).getSlideoutHelper().close(mi.id);
-	}
 	if (l.getItemAtPosition(position) instanceof NewsItem) {
 
 	} else if (l.getItemAtPosition(position) instanceof ActivitiesItem) {

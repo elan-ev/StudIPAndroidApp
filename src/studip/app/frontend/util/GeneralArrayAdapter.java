@@ -13,7 +13,6 @@ import studip.app.backend.net.ServerItem;
 import studip.app.frontend.activities.ActivitiesItem;
 import studip.app.frontend.courses.CoursesItem;
 import studip.app.frontend.news.NewsListItem;
-import studip.app.frontend.slideout.MenuItem;
 import StudIPApp.app.R;
 import android.content.Context;
 import android.text.Html;
@@ -33,25 +32,7 @@ public class GeneralArrayAdapter extends ArrayAdapter<ArrayAdapterItem> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-	// MenuItem
-	if (getItem(position) instanceof MenuItem) {
-	    MenuItem mi;
-	    LayoutInflater inflater = LayoutInflater.from(this.getContext());
-	    convertView = inflater.inflate(R.layout.menu_item, parent, false);
-	    mi = (MenuItem) getItem(position);
-
-	    mi.textTV = (TextView) convertView.findViewById(R.id.menuItemText);
-	    mi.imageIV = (ImageView) convertView
-		    .findViewById(R.id.menuItemImage);
-
-	    convertView.setTag(mi);
-
-	    mi.textTV.setText(((MenuItem) getItem(position)).getTitel());
-	    mi.imageIV
-		    .setImageResource(((MenuItem) getItem(position)).drawableID);
-
-	    // ActivitiesItem
-	} else if (getItem(position) instanceof ActivitiesItem) {
+	if (getItem(position) instanceof ActivitiesItem) {
 	    ActivitiesItem ai;
 	    LayoutInflater inflater = LayoutInflater.from(this.getContext());
 	    convertView = inflater.inflate(R.layout.activities_item, parent,
@@ -110,7 +91,7 @@ public class GeneralArrayAdapter extends ArrayAdapter<ArrayAdapterItem> {
 	    convertView = inflater.inflate(R.layout.text_item, parent, false);
 	    ti = (TextItem) getItem(position);
 
-	    ti.textTV = (TextView) convertView.findViewById(R.id.text);
+	    ti.textTV = (TextView) convertView.findViewById(R.id.title);
 
 	    convertView.setTag(ti);
 
@@ -142,10 +123,9 @@ public class GeneralArrayAdapter extends ArrayAdapter<ArrayAdapterItem> {
 	    si = (ServerItem) getItem(position);
 
 	    si.tv = (TextView) convertView.findViewById(R.id.text);
-
+	    TextView title = (TextView) convertView.findViewById(R.id.text);
+	    title.setText(((ServerItem) getItem(position)).server.NAME);
 	    convertView.setTag(si);
-
-	    si.tv.setText(((ServerItem) getItem(position)).server.NAME);
 	}
 
 	return convertView;

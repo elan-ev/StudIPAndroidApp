@@ -15,7 +15,7 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 import studip.app.backend.net.ChooseServerActivity;
 import studip.app.backend.net.Server;
-import studip.app.frontend.news.NewsActivity;
+import studip.app.frontend.util.AbstractFragmentActivity;
 import studip.app.util.Prefs;
 import StudIPApp.app.R;
 import android.app.Activity;
@@ -133,7 +133,8 @@ public class SignInActivity extends FragmentActivity {
 
 		mConnector.setAccessToken(mConnector.accessToken,
 			mConnector.accessSecret);
-		this.startActivity(new Intent(this, NewsActivity.class));
+		this.startActivity(new Intent(this,
+			AbstractFragmentActivity.class));
 		this.finish();
 	    }
 	}
@@ -249,7 +250,8 @@ public class SignInActivity extends FragmentActivity {
 	@Override
 	protected void onPostExecute(String result) {
 	    if (result.equals("SUCCESS")) {
-		mContext.startActivity(new Intent(mContext, NewsActivity.class));
+		mContext.startActivity(new Intent(mContext,
+			AbstractFragmentActivity.class));
 	    }
 	}
 
