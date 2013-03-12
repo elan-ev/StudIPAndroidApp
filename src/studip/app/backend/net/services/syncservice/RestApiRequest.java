@@ -32,57 +32,57 @@ import android.util.Log;
  */
 public class RestApiRequest {
 
-    public final static String TAG = RestApiRequest.class.getSimpleName();
-    private URI mAction;
-    private OAuthConnector mConnector;
-    private DefaultHttpClient mClient;
-    private HttpGet mRequest;
-    private org.apache.http.HttpResponse mResponse;
+	public final static String TAG = RestApiRequest.class.getSimpleName();
+	private URI mAction;
+	private OAuthConnector mConnector;
+	private DefaultHttpClient mClient;
+	private HttpGet mRequest;
+	private org.apache.http.HttpResponse mResponse;
 
-    public RestApiRequest() {
-	mRequest = new HttpGet(mAction);
-	mClient = new DefaultHttpClient();
-	mConnector = OAuthConnector.getInstance();
-    }
-
-    public String get(String endpoint, String id) {
-	try {
-	    String reqString = String.format(mConnector.server.API_URL + "/"
-		    + endpoint + ".json", id);
-	    Log.i(TAG, reqString);
-	    mRequest = new HttpGet(URI.create(reqString));
-	    mConnector.consumer.sign(mRequest);
-	    mResponse = mClient.execute(mRequest);
-	} catch (OAuthMessageSignerException e) {
-	    e.printStackTrace();
-	} catch (OAuthExpectationFailedException e) {
-	    e.printStackTrace();
-	} catch (OAuthCommunicationException e) {
-	    e.printStackTrace();
-	} catch (ClientProtocolException e) {
-	    e.printStackTrace();
-	} catch (IOException e) {
-	    e.printStackTrace();
+	public RestApiRequest() {
+		mRequest = new HttpGet(mAction);
+		mClient = new DefaultHttpClient();
+		mConnector = OAuthConnector.getInstance();
 	}
 
-	int resultCode = mResponse.getStatusLine().getStatusCode();
-	String resultBody = null;
-	Log.d(TAG, String.valueOf(resultCode));
-	if (resultCode == 200) {
-
-	    try {
-		HttpEntity entity = mResponse.getEntity();
-		if (entity != null) {
-		    resultBody = EntityUtils.toString(entity);
-		    return resultBody;
+	public String get(String endpoint, String... id) {
+		try {
+			String reqString = String.format(mConnector.server.API_URL + "/"
+					+ endpoint + ".json", id);
+			Log.i(TAG, reqString);
+			mRequest = new HttpGet(URI.create(reqString));
+			mConnector.consumer.sign(mRequest);
+			mResponse = mClient.execute(mRequest);
+		} catch (OAuthMessageSignerException e) {
+			e.printStackTrace();
+		} catch (OAuthExpectationFailedException e) {
+			e.printStackTrace();
+		} catch (OAuthCommunicationException e) {
+			e.printStackTrace();
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-	    } catch (IllegalStateException e) {
-		e.printStackTrace();
-	    } catch (IOException e) {
-		e.printStackTrace();
-	    }
-	}
-	return null;
 
-    }
+		int resultCode = mResponse.getStatusLine().getStatusCode();
+		String resultBody = null;
+		Log.d(TAG, String.valueOf(resultCode));
+		if (resultCode == 200) {
+
+			try {
+				HttpEntity entity = mResponse.getEntity();
+				if (entity != null) {
+					resultBody = EntityUtils.toString(entity);
+					return resultBody;
+				}
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+
+	}
 }

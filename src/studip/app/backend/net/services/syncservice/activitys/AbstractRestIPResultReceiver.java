@@ -16,27 +16,30 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
-import android.support.v4.app.Fragment;
 import android.util.Log;
+
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.app.SherlockListFragment;
 
 /**
  * @author joern
  * 
  */
-public abstract class AbstractRestIPResultReceiver<T, A> extends Fragment {
+public abstract class AbstractRestIPResultReceiver<T, A extends SherlockListFragment>
+		extends SherlockFragment {
 
 	private ResultReceiver mReceiver;
 	public T mReturnItem;
-	protected A mActivity;
-	public static Class<?> fragmentReceiverClass;
+	protected SherlockFragmentActivity mContext;
+	protected A mFragment;
 	protected static String TAG = AbstractRestIPResultReceiver.class
 			.getSimpleName();
 
 	protected Uri mServerApiUrl = Uri
 			.parse(OAuthConnector.getInstance().server.API_URL);
 
-	public AbstractRestIPResultReceiver(Class<?> fragmentClass) {
-		fragmentReceiverClass = fragmentClass;
+	public AbstractRestIPResultReceiver() {
 		mReceiver = new ResultReceiver(new Handler()) {
 
 			@Override
@@ -55,11 +58,10 @@ public abstract class AbstractRestIPResultReceiver<T, A> extends Fragment {
 		};
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		mActivity = (A) getActivity();
+		mContext = ((A) mFragment).getSherlockActivity();
 		loadData();
 	}
 
@@ -86,6 +88,10 @@ public abstract class AbstractRestIPResultReceiver<T, A> extends Fragment {
 			Log.d(TAG, "Result code: " + resultCode);
 		}
 
+	}
+
+	public void setFragment(A frag) {
+		this.mFragment = frag;
 	}
 
 	abstract protected void loadData();

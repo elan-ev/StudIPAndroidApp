@@ -25,13 +25,10 @@ import studip.app.backend.net.api.ApiEndpoints;
 import studip.app.backend.net.services.syncservice.AbstractParserTask;
 import studip.app.backend.net.services.syncservice.RestApiRequest;
 import studip.app.backend.net.services.syncservice.RestIPSyncService;
-import studip.app.frontend.courses.CoursesActivity;
-import android.content.Context;
+import studip.app.frontend.courses.CoursesFragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -42,108 +39,103 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * 
  */
 public class CoursesResponderFragment extends
-	AbstractRestIPResultReceiver<Courses, CoursesActivity> {
+		AbstractRestIPResultReceiver<Courses, CoursesFragment> {
+	private static final String TAG = CoursesResponderFragment.class
+			.getSimpleName();
 
-    private Context mContext = this.getActivity();
+	protected void loadData() {
+		if (mReturnItem == null && mContext != null) {
 
-    public CoursesResponderFragment() {
-	super(CoursesResponderFragment.class);
-    }
+			Intent intent = new Intent(mContext, RestIPSyncService.class);
+			intent.setData(Uri.parse(mServerApiUrl + "/" + "courses.json"));
 
-    protected void loadData() {
-	if (mReturnItem == null && mActivity != null) {
-	    mActivity.mRefreshButton.setVisibility(View.GONE);
-	    mActivity.mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	    Intent intent = new Intent(mActivity, RestIPSyncService.class);
-	    intent.setData(Uri.parse(mServerApiUrl + "/" + "courses.json"));
+			intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
+					getResultReceiver());
 
-	    intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
-		    getResultReceiver());
+			mContext.startService(intent);
+		} else if (getActivity() != null) {
 
-	    mActivity.startService(intent);
-	} else if (mActivity != null) {
+			mFragment.setListAdapter(mFragment.getNewListAdapter());
 
-	    mActivity.mProgressBar.setVisibility(ProgressBar.GONE);
-	    mActivity.mRefreshButton.setVisibility(View.VISIBLE);
-	    mActivity.refreshArrayList();
-
+		}
 	}
-    }
-
-    class CoursesParserTask extends AbstractParserTask<Courses> {
 
 	@Override
-	protected Courses doInBackground(String... params) {
-	    Log.i(TAG, "Parsing started");
-	    Courses items = new Courses();
-	    JsonParser jp;
-	    try {
-		jp = jsonFactory.createJsonParser(params[0]);
-		items = objectMapper.readValue(jp, Courses.class);
-	    } catch (JsonParseException e) {
-		e.printStackTrace();
-		cancel(true);
+	protected void parse(String result) {
+		CoursesParserTask pTask = new CoursesParserTask();
+		pTask.execute(result);
+	}
 
-	    } catch (JsonMappingException e) {
-		e.printStackTrace();
-	    } catch (IOException e) {
-		e.printStackTrace();
-	    }
+	class CoursesParserTask extends AbstractParserTask<Courses> {
 
-	    if (items != null && !items.courses.isEmpty()) {
-		RestApiRequest semesterLoader = new RestApiRequest();
-		Semesters semesterList = new Semesters();
-		SemestersRepository semesterDB = SemestersRepository
-			.getInstance(mContext);
-		for (Course c : items.courses) {
-		    if (!semesterDB.semesterExists(c.semester_id)) {
-			String semeserResponse = semesterLoader.get(
-				ApiEndpoints.SEMESTERS_ENDPOINT, c.semester_id);
-			Semester semester = null;
+		@Override
+		protected Courses doInBackground(String... params) {
+			Log.i(TAG, "Parsing started");
+			Courses items = new Courses();
+			JsonParser jp;
 			try {
-			    // unwrap element
-			    JSONObject jsono = (new JSONObject(semeserResponse))
-				    .getJSONObject("semester");
-			    jp = jsonFactory.createJsonParser(jsono.toString());
-			    semester = objectMapper.readValue(jp,
-				    Semester.class);
+				jp = jsonFactory.createJsonParser(params[0]);
+				items = objectMapper.readValue(jp, Courses.class);
 			} catch (JsonParseException e) {
-			    e.printStackTrace();
+				e.printStackTrace();
+				cancel(true);
+
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
 			} catch (IOException e) {
-			    e.printStackTrace();
-			} catch (JSONException e) {
-			    e.printStackTrace();
+				e.printStackTrace();
 			}
-			if (semester != null) {
-			    semesterList.semesters.add(semester);
 
+			if (items != null && !items.courses.isEmpty()) {
+				RestApiRequest semesterLoader = new RestApiRequest();
+				Semesters semesterList = new Semesters();
+				SemestersRepository semesterDB = SemestersRepository
+						.getInstance(mContext);
+				for (Course c : items.courses) {
+					if (!semesterDB.semesterExists(c.semester_id)) {
+						String semeserResponse = semesterLoader.get(
+								ApiEndpoints.SEMESTERS_ENDPOINT, c.semester_id);
+						Semester semester = null;
+						try {
+							// unwrap element
+							JSONObject jsono = (new JSONObject(semeserResponse))
+									.getJSONObject("semester");
+							jp = jsonFactory.createJsonParser(jsono.toString());
+							semester = objectMapper.readValue(jp,
+									Semester.class);
+						} catch (JsonParseException e) {
+							e.printStackTrace();
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						if (semester != null) {
+							semesterList.semesters.add(semester);
+
+						}
+					}
+				}
+				if (!semesterList.semesters.isEmpty()) {
+					SemestersRepository.getInstance(mContext).addSemesters(
+							semesterList);
+				}
 			}
-		    }
-		}
-		if (!semesterList.semesters.isEmpty()) {
-		    semesterDB.addSemesters(semesterList);
-		}
-	    }
-	    if (!items.courses.isEmpty()) {
-		CoursesRepository.getInstance(mContext).addCourses(items);
-	    }
+			if (!items.courses.isEmpty()) {
+				CoursesRepository.getInstance(mContext).addCourses(items);
+			}
 
-	    return items;
+			return items;
+		}
+
+		@Override
+		protected void onPostExecute(Courses result) {
+			super.onPostExecute(result);
+
+			mReturnItem = result;
+			loadData();
+		}
+
 	}
 
-	@Override
-	protected void onPostExecute(Courses result) {
-	    super.onPostExecute(result);
-
-	    mReturnItem = result;
-	    loadData();
-	}
-
-    }
-
-    @Override
-    protected void parse(String result) {
-	CoursesParserTask pTask = new CoursesParserTask();
-	pTask.execute(result);
-    }
 }

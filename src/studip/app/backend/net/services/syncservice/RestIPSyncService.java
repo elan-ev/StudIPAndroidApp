@@ -67,19 +67,6 @@ public class RestIPSyncService extends IntentService {
 		}
 		mRequest = new HttpGet(mAction);
 		mClient = new DefaultHttpClient();
-
-		// @SuppressWarnings("unchecked")
-		// ArrayList<NameValuePair> arrayList = (ArrayList<NameValuePair>)
-		// extras
-		// .get(RESTIP_CALL_PARAMS);
-		// ArrayList<NameValuePair> params = arrayList;
-		//
-		// HttpParams httpParams;
-		// for (NameValuePair pair : params) {
-		// httpParams.setParameter(pair.getName(), pair.getValue());
-		// }
-		// mRequest.setParams(httpParams);
-
 		mReceiver = extras.getParcelable(RESTIP_RESULT_RECEIVER);
 
 		try {
@@ -116,6 +103,12 @@ public class RestIPSyncService extends IntentService {
 			resultData.putString(RESTIP_RESULT, resultBody);
 			mReceiver.send(resultCode, resultData);
 
+		} else {
+			try {
+				Log.d(TAG, EntityUtils.toString(mResponse.getEntity()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 	}
