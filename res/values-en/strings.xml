@@ -22,7 +22,7 @@
     <string name="Events">Events</string>
     <string name="Messages">Messages</string>
     <string name="Contacts">Contacts</string>
-    <string name="Documents">Documents</string>
+    <string name="Documents">Files</string>
     <string name="Settings">Settings</string>
     <string name="Help">Help</string>
     <string name="Information">Information</string>
@@ -33,5 +33,9 @@
     <string name="Authorize">Authorize</string>
     <string name="upcoming_events">Upcoming Events</string>
     <string name="choose_server">Choose server</string>
+    <string name="appointments">Appointments</string>
+    <string name="attendees">Attendees</string>
+    <string name="no_data">No Data</string>
+    <string name="menu_item">Menu Item</string>
 
 </resources>

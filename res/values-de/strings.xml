@@ -20,7 +20,7 @@
     <string name="Events">Veranstaltungen</string>
     <string name="Messages">Nachrichten</string>
     <string name="Contacts">Kontakte</string>
-    <string name="Documents">Dokumente</string>
+    <string name="Documents">Dateien</string>
     <string name="Settings">Einstellungen</string>
     <string name="Help">Hilfe</string>
     <string name="Information">Informationen</string>
@@ -31,5 +31,9 @@
     <string name="Authorize">Autorisieren</string>
     <string name="upcoming_events">Anstehende Veranstaltungen</string>
     <string name="choose_server">Server wählen</string>
+    <string name="appointments">Termine</string>
+    <string name="attendees">Teilnehmer</string>
+    <string name="no_data">Keine Daten</string>
+    <string name="menu_item">Menüpunkt</string>
 
 </resources>
