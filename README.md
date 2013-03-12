@@ -2,8 +2,8 @@ Stud.IP Android App
 ===================
 
 This is a fork of the Stud.IP Android App by University Oldenburg. [uol-studip/StudIPAndroidApp][1]
-I'm trying to refactor it with modern libs and newer Android Features, 
-but also with backward compatibility until 2.3.3.
+We are trying to refactor it with modern libs and newer Android Features, 
+but also with backward compatibility with 2.3.3.
 
 This app is using the studip-rest.ip Rest-API Plugin. [studip/studip-rest.ip][2]
 
@@ -11,10 +11,12 @@ Feel free to fork and contribute to this project.
 
 Setup
 -----
-* Make sure you habe Ecclipse with maven and egit.
-* Install the maven android plugin as described here [http://code.google.com/p/maven-android-plugin/wiki/GettingStarted][3]
-* In eclipse just use File->Import->Check out existing maven repository from scm
+* Make sure you habe Eclipse with Maven and eGit.
+* Install the Maven Android plugin as described here [http://code.google.com/p/maven-android-plugin/wiki/GettingStarted][3]
+* In Eclipse just use File->Import->Check out existing Maven repository from scm
 * Maven will take care of the rest
+* For the time being you need to import the ActionBarSherlock and SlidingMenu manually without Maven.
+For more information on how to do this, see [here][8] and [here][9]
 
     NOTE: To test it with your own installation of the studip-rest.ip plugin, 
     you need to create your own TempServerDeclares in the studip.app.util package.
@@ -35,10 +37,12 @@ Contributing
 * Push the branch to your fork
 * Open a Pull Request
 
-Used Libs
+Libs
 ---------
 * [oauth-signpost][4]
 * [Jackson JSON Processor][5]
+* [ActionBarSherlock][6]
+* [SlidingMenu][7]
 
 License
 -------
@@ -54,3 +58,7 @@ License
 [3]: http://code.google.com/p/maven-android-plugin/wiki/GettingStarted
 [4]: http://code.google.com/p/oauth-signpost/
 [5]: http://wiki.fasterxml.com/JacksonHome
+[6]: http://actionbarsherlock.com/
+[7]: https://github.com/jfeinstein10/SlidingMenu
+[8]: http://actionbarsherlock.com/usage.html
+[9]: https://github.com/jfeinstein10/SlidingMenu#setup-with-actionbarsherlock
