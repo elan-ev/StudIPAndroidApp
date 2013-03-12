@@ -19,8 +19,8 @@ Setup
 For more information on how to do this, see [here][8] and [here][9]
 
     NOTE: To test it with your own installation of the studip-rest.ip plugin, 
-    you need to create your own TempServerDeclares in the studip.app.util package.
-    See the studip.app.util.TempServerDeclaresExample for more information.
+    you need to create your own TempServerDeclares in the de.elanev.studip.android.app.util package.
+    See the de.elanev.studip.android.app.util.TempServerDeclaresExample for more information.
 
 Developed By
 ------------
