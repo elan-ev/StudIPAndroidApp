@@ -1,0 +1,52 @@
+/*******************************************************************************
+ * Copyright (c) 2013 ELAN e.V.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ ******************************************************************************/
+package studip.app.backend.datamodel;
+
+/**
+ * @author joern
+ * 
+ */
+public class Folder {
+    public String folder_id;
+    public String user_id;
+    public String name;
+    public String mkdate;
+    public String chdate;
+    public String description;
+    public Permissions permissions;
+
+    public Folder() {
+    }
+
+    /**
+     * @param folder_id
+     * @param user_id
+     * @param name
+     * @param mkdate
+     * @param chdate
+     * @param description
+     * @param permissions
+     */
+    public Folder(String folder_id, String user_id, String name, String mkdate,
+	    String chdate, String description, Permissions permissions) {
+	this.folder_id = folder_id;
+	this.user_id = user_id;
+	this.name = name;
+	this.mkdate = mkdate;
+	this.chdate = chdate;
+	this.description = description;
+	this.permissions = permissions;
+    }
+
+    public static class Permissions {
+	public Boolean visible;
+	public Boolean writable;
+	public Boolean readable;
+	public Boolean extendable;
+    }
+}
