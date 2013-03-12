@@ -18,11 +18,12 @@ import android.provider.BaseColumns;
  */
 public class NewsContract {
     public static final String TABLE = "news";
-    public static final String CREATE_STRING = String
-	    .format("create table if not exists %s (%s primary key, %s text, %s text, %s date, %s text, %s date, %s date)",
-		    TABLE, Columns.NEWS_ID, Columns.NEWS_TOPIC,
-		    Columns.NEWS_BODY, Columns.NEWS_DATE, Columns.NEWS_USER_ID,
-		    Columns.NEWS_CHDATE, Columns.NEWS_MKDATE);
+    public static final String CREATE_STRING = String.format(
+	    "create table if not exists %s (%s integer primary key, %s text unique,"
+		    + " %s text, %s text, %s date, %s text, %s date, %s date)",
+	    TABLE, BaseColumns._ID, Columns.NEWS_ID, Columns.NEWS_TOPIC,
+	    Columns.NEWS_BODY, Columns.NEWS_DATE, Columns.NEWS_USER_ID,
+	    Columns.NEWS_CHDATE, Columns.NEWS_MKDATE);
 
     public NewsContract() {
     }

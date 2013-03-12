@@ -19,14 +19,17 @@ import android.provider.BaseColumns;
 public class UsersContract {
     public static final String TABLE = "users";
     public static final String CREATE_STRING = String
-	    .format("create table if not exists %s (%s text primary key, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text)",
-		    TABLE, Columns.USER_ID, Columns.USER_USERNAME,
-		    Columns.USER_PERMS, Columns.USER_TITLE_PRE,
-		    Columns.USER_FORENAME, Columns.USER_LASTNAME,
-		    Columns.USER_TITLE_POST, Columns.USER_EMAIL,
-		    Columns.USER_AVATAR_SMALL, Columns.USER_AVATAR_MEDIUM,
-		    Columns.USER_AVATAR_NORMAL, Columns.USER_PHONE,
-		    Columns.USER_HOMEPAGE, Columns.USER_PRIVADR);
+	    .format("create table if not exists %s (%s integer primary key, %s text unique,"
+		    + " %s text, %s text, %s text, %s text, %s text, %s text, %s text,"
+		    + " %s text, %s text, %s text, %s text, %s text, %s text)",
+		    TABLE, BaseColumns._ID, Columns.USER_ID,
+		    Columns.USER_USERNAME, Columns.USER_PERMS,
+		    Columns.USER_TITLE_PRE, Columns.USER_FORENAME,
+		    Columns.USER_LASTNAME, Columns.USER_TITLE_POST,
+		    Columns.USER_EMAIL, Columns.USER_AVATAR_SMALL,
+		    Columns.USER_AVATAR_MEDIUM, Columns.USER_AVATAR_NORMAL,
+		    Columns.USER_PHONE, Columns.USER_HOMEPAGE,
+		    Columns.USER_PRIVADR);
 
     public UsersContract() {
     }

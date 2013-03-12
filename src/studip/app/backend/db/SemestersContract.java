@@ -20,12 +20,13 @@ public class SemestersContract {
 
     public static final String TABLE = "semesters";
 
-    public static final String CREATE_STRING = String
-	    .format("create table if not exists %s (%s text primary key, %s text, %s text, %s date, %s date, %s date, %s date)",
-		    TABLE, Columns.SEMESTER_ID, Columns.SEMESTER_TITLE,
-		    Columns.SEMESTER_DESCRIPTION, Columns.SEMESTER_BEGIN,
-		    Columns.SEMESTER_END, Columns.SEMESTER_SEMINARS_BEGIN,
-		    Columns.SEMESTER_SEMINARS_END);
+    public static final String CREATE_STRING = String.format(
+	    "create table if not exists %s (%s integer primary key, %s text unique,"
+		    + " %s text, %s text, %s date, %s date, %s date, %s date)",
+	    TABLE, BaseColumns._ID, Columns.SEMESTER_ID,
+	    Columns.SEMESTER_TITLE, Columns.SEMESTER_DESCRIPTION,
+	    Columns.SEMESTER_BEGIN, Columns.SEMESTER_END,
+	    Columns.SEMESTER_SEMINARS_BEGIN, Columns.SEMESTER_SEMINARS_END);
 
     private SemestersContract() {
     }

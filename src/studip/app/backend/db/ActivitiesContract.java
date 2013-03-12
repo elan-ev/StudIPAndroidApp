@@ -19,8 +19,9 @@ import android.provider.BaseColumns;
 public class ActivitiesContract {
     public static final String TABLE = "activities";
     public static final String CREATE_STRING = String
-	    .format("create table if not exists %s (%s text primary key, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s date)",
-		    TABLE, Columns.ACTIVITY_ID, Columns.ACTIVITY_TITLE,
+	    .format("create table if not exists %s (%s integer primary key, %s text unique, " +
+	    		"%s text, %s text, %s text, %s text, %s text, %s text, %s text, %s date)",
+		    TABLE, BaseColumns._ID, Columns.ACTIVITY_ID, Columns.ACTIVITY_TITLE,
 		    Columns.ACTIVITY_AUTHOR, Columns.ACTIVITY_AUTHOR_ID,
 		    Columns.ACTIVITY_LINK, Columns.ACTIVITY_SUMMARY,
 		    Columns.ACTIVITY_CONTENT, Columns.ACTIVITY_CATEGORY,

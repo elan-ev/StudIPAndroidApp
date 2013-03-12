@@ -19,11 +19,13 @@ import android.provider.BaseColumns;
 public class MessagesContract extends AbstractContract {
     public static final String TABLE = "messages";
     public static final String CREATE_STRING = String
-	    .format("create table if not exists %s (%s text primary key, %s text, %s text, %s text, %s text, %s date, %s text, %s boolean)",
-		    TABLE, Columns.MESSAGE_ID, Columns.MESSAGE_SENDER_ID,
-		    Columns.MESSAGE_RECEIVER_ID, Columns.MESSAGE_SUBJECT,
-		    Columns.MESSAGE, Columns.MESSAGE_MKDATE,
-		    Columns.MESSAGE_PRIORITY, Columns.MESSAGE_UNREAD);
+	    .format("create table if not exists %s (%s integer primary key, %s text unique,"
+		    + " %s text, %s text, %s text, %s text, %s date, %s text, %s boolean)",
+		    TABLE, BaseColumns._ID, Columns.MESSAGE_ID,
+		    Columns.MESSAGE_SENDER_ID, Columns.MESSAGE_RECEIVER_ID,
+		    Columns.MESSAGE_SUBJECT, Columns.MESSAGE,
+		    Columns.MESSAGE_MKDATE, Columns.MESSAGE_PRIORITY,
+		    Columns.MESSAGE_UNREAD);
 
     public MessagesContract() {
     }

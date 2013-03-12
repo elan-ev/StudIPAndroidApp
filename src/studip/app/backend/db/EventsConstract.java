@@ -14,28 +14,30 @@ import android.provider.BaseColumns;
  * 
  */
 public class EventsConstract extends AbstractContract {
-	public static final String TABLE = "events";
-	public static final String CREATE_STRING = String
-			.format("create table if not exists %s (%s text primary key, %s text, %s text, %s text, %s text, %s text, %s text, %s text)",
-					TABLE, Columns.EVENT_ID, Columns.EVENT_COURSE_ID,
-					Columns.EVENT_START, Columns.EVENT_END,
-					Columns.EVENT_TITLE, Columns.EVENT_DESCRIPTION,
-					Columns.EVENT_CATEGORIES, Columns.EVENT_ROOM);
+    public static final String TABLE = "events";
+    public static final String CREATE_STRING = String.format(
+	    "create table if not exists %s (%s integer primary key, "
+		    + "%s text unique, " + "%s text, " + "%s text, "
+		    + "%s text, " + "%s text, " + "%s text, " + "%s text, "
+		    + "%s text)", TABLE, BaseColumns._ID, Columns.EVENT_ID,
+	    Columns.EVENT_COURSE_ID, Columns.EVENT_START, Columns.EVENT_END,
+	    Columns.EVENT_TITLE, Columns.EVENT_DESCRIPTION,
+	    Columns.EVENT_CATEGORIES, Columns.EVENT_ROOM);
 
-	private EventsConstract() {
+    private EventsConstract() {
+    }
+
+    public static final class Columns implements BaseColumns {
+	private Columns() {
 	}
 
-	public static final class Columns implements BaseColumns {
-		private Columns() {
-		}
-
-		public static final String EVENT_ID = "event_id";
-		public static final String EVENT_COURSE_ID = "course_id";
-		public static final String EVENT_START = "start";
-		public static final String EVENT_END = "end";
-		public static final String EVENT_TITLE = "title";
-		public static final String EVENT_DESCRIPTION = "description";
-		public static final String EVENT_CATEGORIES = "categories";
-		public static final String EVENT_ROOM = "room";
-	}
+	public static final String EVENT_ID = "event_id";
+	public static final String EVENT_COURSE_ID = "course_id";
+	public static final String EVENT_START = "start";
+	public static final String EVENT_END = "end";
+	public static final String EVENT_TITLE = "title";
+	public static final String EVENT_DESCRIPTION = "description";
+	public static final String EVENT_CATEGORIES = "categories";
+	public static final String EVENT_ROOM = "room";
+    }
 }
