@@ -85,16 +85,6 @@ public class CourseViewActivity extends BaseSlidingFragmentActivity {
 		super.onSaveInstanceState(outState);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#setTitle(int)
-	 */
-	@Override
-	public void setTitle(int titleId) {
-		getSupportActionBar().setTitle(titleId);
-	}
-
 	public static class CoursePagerTabsAdapter extends FragmentPagerAdapter
 			implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
 

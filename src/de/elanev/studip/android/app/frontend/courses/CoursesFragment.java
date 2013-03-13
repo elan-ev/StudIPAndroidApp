@@ -70,16 +70,15 @@ public class CoursesFragment extends SherlockListFragment {
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		if (l.getItemAtPosition(position) instanceof CourseAdapterItem
-				&& !((CourseAdapterItem) l.getItemAtPosition(position)).header) {
+		if (l.getItemAtPosition(position) instanceof CourseAdapterItem) {
 			CourseAdapterItem item = (CourseAdapterItem) l
 					.getItemAtPosition(position);
-			if (!item.header) {
-				Intent intent = new Intent();
-				intent.setClass(getActivity(), CourseViewActivity.class);
-				intent.putExtra("cid", item.cid);
-				mContext.startActivity(intent);
-			}
+
+			Intent intent = new Intent();
+			intent.setClass(getActivity(), CourseViewActivity.class);
+			intent.putExtra("cid", item.cid);
+			mContext.startActivity(intent);
+
 		}
 	}
 
@@ -92,12 +91,12 @@ public class CoursesFragment extends SherlockListFragment {
 			Semesters semesters = SemestersRepository.getInstance(mContext)
 					.getAllSemesters();
 			CourseAdapter adapter = new CourseAdapter(mContext);
+			adapter.clear();
 			for (Semester sem : semesters.semesters) {
-				adapter.add(new CourseAdapterItem(sem.title, null, true));
+				adapter.add(new SemesterItem(sem.title));
 				for (Course c : courses.courses) {
 					if (c.semester_id.equals(sem.semester_id)) {
-						adapter.add(new CourseAdapterItem(c.type + ": "
-								+ c.title, c.course_id, false));
+						adapter.add(new CourseAdapterItem(c.title, c.course_id));
 					}
 				}
 			}
@@ -106,41 +105,83 @@ public class CoursesFragment extends SherlockListFragment {
 
 	}
 
-	private class CourseAdapterItem {
-		public String tag;
-		public String cid;
-		public Boolean header;
-
-		public CourseAdapterItem(String tag, String cid, Boolean type) {
-			this.tag = tag;
-			this.header = type;
-			this.cid = cid;
-		}
+	/*
+	 * ArrayAdapter and items for SemesterHeader and Courses
+	 */
+	private interface Item {
+		public boolean isHeader();
 	}
 
-	public class CourseAdapter extends ArrayAdapter<CourseAdapterItem> {
+	private class CourseAdapterItem implements Item {
+		public String tag;
+		public String cid;
+
+		public CourseAdapterItem(String tag, String cid) {
+			this.tag = tag;
+			this.cid = cid;
+		}
+
+		public boolean isHeader() {
+			return false;
+		}
+
+	}
+
+	private class SemesterItem implements Item {
+		String title;
+
+		public SemesterItem(String title) {
+			this.title = title;
+		}
+
+		public boolean isHeader() {
+			return true;
+		}
+
+	}
+
+	public class CourseAdapter extends ArrayAdapter<Item> {
 
 		public CourseAdapter(Context context) {
 			super(context, 0);
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
-			if (convertView == null && !getItem(position).header) {
-				convertView = LayoutInflater.from(getContext()).inflate(
-						R.layout.courses_item, null);
-				ImageView icon = (ImageView) convertView
-						.findViewById(R.id.course_icon);
-				// icon.setImageResource(getItem(position).iconRes);
-				icon.setImageDrawable(this.getContext().getResources()
-						.getDrawable(R.drawable.seminar));
-			} else {
-				convertView = LayoutInflater.from(getContext()).inflate(
-						R.layout.text_item, null);
+			final Item item = getItem(position);
+			if (item != null) {
+
+				if (item.isHeader()) {
+
+					// it's a semester header
+					convertView = LayoutInflater.from(getContext()).inflate(
+							R.layout.text_item, null);
+
+					// killing all listeners for headers
+					convertView.setOnClickListener(null);
+					convertView.setOnLongClickListener(null);
+					convertView.setLongClickable(false);
+
+					final TextView semesterTitle = (TextView) convertView
+							.findViewById(R.id.title);
+					semesterTitle.setText(((SemesterItem) item).title);
+
+				} else {
+
+					// it's a course item
+					convertView = LayoutInflater.from(getContext()).inflate(
+							R.layout.courses_item, null);
+
+					final ImageView icon = (ImageView) convertView
+							.findViewById(R.id.course_icon);
+					icon.setImageResource(R.drawable.seminar);
+
+					final TextView tag = (TextView) convertView
+							.findViewById(R.id.title);
+					tag.setText(((CourseAdapterItem) item).tag);
+
+				}
+
 			}
-
-			TextView title = (TextView) convertView.findViewById(R.id.title);
-			title.setText(getItem(position).tag);
-
 			return convertView;
 		}
 	}

@@ -57,9 +57,8 @@ public class NewsFragment extends SherlockListFragment {
 		return new SimpleCursorAdapter(mContext, R.layout.news_item,
 				getNewCursor(), new String[] { NewsContract.Columns.NEWS_TOPIC,
 						UsersContract.Columns.USER_FORENAME,
-						NewsContract.Columns.NEWS_DATE,
-						NewsContract.Columns.NEWS_BODY }, new int[] {
-						R.id.title, R.id.author, R.id.time, R.id.body });
+						NewsContract.Columns.NEWS_DATE }, new int[] {
+						R.id.title, R.id.author, R.id.time });
 	}
 
 	public Cursor getNewCursor() {
