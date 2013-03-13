@@ -44,7 +44,6 @@ public class CourseDocumentsFragment extends SherlockListFragment {
 		super.onCreate(savedInstanceState);
 
 		mCid = getArguments().getString("cid");
-		getSherlockActivity().getSupportActionBar().setTitle(R.string.Events);
 
 		FragmentManager fm = getFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();

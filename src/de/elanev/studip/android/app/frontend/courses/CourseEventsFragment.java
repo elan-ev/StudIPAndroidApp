@@ -45,7 +45,6 @@ public class CourseEventsFragment extends SherlockListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mCid = getArguments().getString("cid");
-		getSherlockActivity().getSupportActionBar().setTitle(R.string.Events);
 
 		FragmentManager fm = getFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();

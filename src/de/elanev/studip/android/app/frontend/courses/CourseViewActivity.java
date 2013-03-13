@@ -24,6 +24,7 @@ import com.slidingmenu.lib.SlidingMenu;
 import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 
 public class CourseViewActivity extends BaseSlidingFragmentActivity {
@@ -45,7 +46,7 @@ public class CourseViewActivity extends BaseSlidingFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mActionbar = getSupportActionBar();
-		mCourse = getIntent().getStringExtra("cid");
+		mCourse = getIntent().getStringExtra(CoursesContract.Columns.COURSE_ID);
 		setContentView(R.layout.pager);
 
 		mPager = new ViewPager(this);
@@ -53,8 +54,8 @@ public class CourseViewActivity extends BaseSlidingFragmentActivity {
 		setContentView(mPager);
 
 		mActionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		mActionbar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
-
+		setTitle(getIntent().getStringExtra(
+				CoursesContract.Columns.COURSE_TITLE));
 		mPagerAdapter = new CoursePagerTabsAdapter(this,
 				getSupportFragmentManager(), mPager);
 		Bundle args = new Bundle();

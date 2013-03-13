@@ -48,7 +48,6 @@ public class CourseAttendeesFragment extends AbstractBaseListFragment {
 		super.onCreate(savedInstanceState);
 
 		mCid = getArguments().getString("cid");
-		getActivity().setTitle(R.string.attendees);
 		Course course = CoursesRepository.getInstance(getSherlockActivity())
 				.getCourse(mCid);
 
@@ -141,12 +140,10 @@ public class CourseAttendeesFragment extends AbstractBaseListFragment {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			convertView = LayoutInflater.from(getContext()).inflate(
 					R.layout.user_item, null);
+			// TODO load user image and show it
 			// ImageView icon = (ImageView) convertView
 			// .findViewById(R.id.user_image);
-			// TODO load user image and show it
-			// icon.setImageResource(R.drawable.nobody_medium);
-			// setImageDrawable(this.getContext().getResources()
-			// .getDrawable(R.drawable.nobody_medium));
+			// icon.setImageResource(USERICON);
 
 			TextView title = (TextView) convertView.findViewById(R.id.fullname);
 			title.setText(getItem(position).fullname);

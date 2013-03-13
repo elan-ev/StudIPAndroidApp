@@ -27,6 +27,7 @@ import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Courses;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
 import de.elanev.studip.android.app.backend.datamodel.Semesters;
+import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.CoursesRepository;
 import de.elanev.studip.android.app.backend.db.SemestersRepository;
 import de.elanev.studip.android.app.backend.net.services.syncservice.activitys.CoursesResponderFragment;
@@ -76,7 +77,8 @@ public class CoursesFragment extends SherlockListFragment {
 
 			Intent intent = new Intent();
 			intent.setClass(getActivity(), CourseViewActivity.class);
-			intent.putExtra("cid", item.cid);
+			intent.putExtra(CoursesContract.Columns.COURSE_ID, item.cid);
+			intent.putExtra(CoursesContract.Columns.COURSE_TITLE, item.tag);
 			mContext.startActivity(intent);
 
 		}
