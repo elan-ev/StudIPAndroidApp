@@ -7,14 +7,18 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.util;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
+import de.elanev.studip.android.app.frontend.messages.MessagesFragment;
 import de.elanev.studip.android.app.frontend.news.NewsFragment;
 
 public class AbstractFragmentActivity extends BaseSlidingFragmentActivity {
 
 	private Fragment mContent;
+	private Fragment mFragment;
 
 	/**
 	 * @param titleRes
@@ -30,17 +34,56 @@ public class AbstractFragmentActivity extends BaseSlidingFragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.content_frame);
 
 		/* Content */
+		Fragment frag = null;
 		if (savedInstanceState != null)
-			mContent = getSupportFragmentManager().getFragment(
-					savedInstanceState, "mContent");
-		if (mContent == null)
-			mContent = new NewsFragment();
+			frag = getSupportFragmentManager().getFragment(savedInstanceState,
+					"mContent");
 
-		setContentView(R.layout.content_frame);
-		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.content_frame, mContent, "content").commit();
+		if (frag == null)
+			frag = new NewsFragment();
+
+		switchContent(frag);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.FragmentActivity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		if (mFragment != null)
+			switchContent(mFragment);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onNewIntent(android.content.Intent)
+	 */
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		if (intent != null) {
+			String fragName = intent.getStringExtra("frag");
+
+			if (fragName != null) {
+				if (fragName.equals(CoursesFragment.class.getName())) {
+					mFragment = new CoursesFragment();
+				} else if (fragName.equals(MessagesFragment.class.getName())) {
+					mFragment = new MessagesFragment();
+				} else {
+					mFragment = new NewsFragment();
+				}
+			}
+
+		}
 	}
 
 	@Override

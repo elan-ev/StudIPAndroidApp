@@ -7,11 +7,11 @@
  ******************************************************************************/
 package de.elanev.studip.android.app;
 
-import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
 
 public class StudIPAppActivity extends Activity {
 
@@ -26,8 +26,8 @@ public class StudIPAppActivity extends Activity {
 		 * Clear shared prefs for debugging
 		 */
 		// Prefs.getInstance(getApplicationContext()).clearPrefs();
-		this.startActivity(new Intent(StudIPAppActivity.this,
-				SignInActivity.class));
+		Intent intent = new Intent(StudIPAppActivity.this, SignInActivity.class);
+		this.startActivity(intent);
 		this.finish();
 	}
 }

@@ -7,7 +7,9 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.util;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
@@ -85,10 +87,22 @@ public class MenuFragment extends ListFragment {
 	}
 
 	private void switchFragment(Fragment fragment) {
-		if (getActivity() == null)
+		Activity activity = getActivity();
+		if (!(activity instanceof AbstractFragmentActivity)) {
+			activity.finish();
+			Intent intent = new Intent();
+			intent.setClass(getActivity(), AbstractFragmentActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+					| Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			intent.putExtra("frag", fragment.getClass().getName());
+			startActivity(intent);
+		}
+
+		activity = getActivity();
+		if (activity == null)
 			return;
 
-		if (getActivity() instanceof AbstractFragmentActivity) {
+		if (activity instanceof AbstractFragmentActivity) {
 			AbstractFragmentActivity afa = (AbstractFragmentActivity) getActivity();
 			afa.switchContent(fragment);
 		}

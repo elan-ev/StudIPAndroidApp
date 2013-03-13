@@ -26,6 +26,7 @@ import android.widget.ProgressBar;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.net.ChooseServerActivity;
 import de.elanev.studip.android.app.backend.net.Server;
+import de.elanev.studip.android.app.frontend.news.NewsFragment;
 import de.elanev.studip.android.app.frontend.util.AbstractFragmentActivity;
 import de.elanev.studip.android.app.util.Prefs;
 
@@ -250,8 +251,12 @@ public class SignInActivity extends FragmentActivity {
 		@Override
 		protected void onPostExecute(String result) {
 			if (result.equals("SUCCESS")) {
-				mContext.startActivity(new Intent(mContext,
-						AbstractFragmentActivity.class));
+				Intent intent = new Intent(mContext,
+						AbstractFragmentActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+						| Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				intent.putExtra("frag", NewsFragment.class.getName());
+				mContext.startActivity(intent);
 			}
 		}
 
