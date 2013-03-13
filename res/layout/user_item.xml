@@ -8,23 +8,20 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:layout_height="wrap_content"
     android:background="@android:color/background_light" >
-
-    <ImageView
-        android:id="@+id/user_image"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_toLeftOf="@+id/fullname"
-        android:contentDescription="@string/user_image" />
 
     <TextView
         android:id="@+id/fullname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:layout_margin="4dp"
-        android:drawableLeft="@drawable/institute"
+        android:drawableLeft="@drawable/nobody_medium"
+        android:text="@android:string/unknownName"
         android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textIsSelectable="true" />
+        android:textIsSelectable="true"
+        android:drawablePadding="8dp" />
 
 </RelativeLayout>

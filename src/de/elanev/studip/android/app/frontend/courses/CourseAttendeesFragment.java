@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -49,8 +48,7 @@ public class CourseAttendeesFragment extends AbstractBaseListFragment {
 		super.onCreate(savedInstanceState);
 
 		mCid = getArguments().getString("cid");
-		getSherlockActivity().getSupportActionBar()
-				.setTitle(R.string.attendees);
+		getActivity().setTitle(R.string.attendees);
 		Course course = CoursesRepository.getInstance(getSherlockActivity())
 				.getCourse(mCid);
 
@@ -141,15 +139,14 @@ public class CourseAttendeesFragment extends AbstractBaseListFragment {
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
-			if (convertView == null) {
-				convertView = LayoutInflater.from(getContext()).inflate(
-						R.layout.user_item, null);
-				ImageView icon = (ImageView) convertView
-						.findViewById(R.id.user_image);
-				// TODO load user image and show it
-				icon.setImageDrawable(this.getContext().getResources()
-						.getDrawable(R.drawable.seminar));
-			}
+			convertView = LayoutInflater.from(getContext()).inflate(
+					R.layout.user_item, null);
+			// ImageView icon = (ImageView) convertView
+			// .findViewById(R.id.user_image);
+			// TODO load user image and show it
+			// icon.setImageResource(R.drawable.nobody_medium);
+			// setImageDrawable(this.getContext().getResources()
+			// .getDrawable(R.drawable.nobody_medium));
 
 			TextView title = (TextView) convertView.findViewById(R.id.fullname);
 			title.setText(getItem(position).fullname);
