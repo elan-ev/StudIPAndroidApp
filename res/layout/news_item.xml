@@ -13,54 +13,45 @@
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:padding="8dp"
         android:src="@drawable/ic_launcher" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="110dp"
-        android:layout_alignLeft="@+id/image"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="80dp"
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
         android:layout_toRightOf="@+id/image"
-        android:orientation="vertical" >
+        android:textAppearance="@android:style/TextAppearance.Medium" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/title"
+        android:layout_margin="4dp"
+        android:layout_toRightOf="@+id/image" >
 
         <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
+            android:id="@+id/author"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/author"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/title"
-                android:textColor="@color/light" />
-
-            <TextView
-                android:id="@+id/time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/title"
-                android:layout_marginRight="10dp"
-                android:textColor="@color/light" />
-        </RelativeLayout>
+            android:layout_below="@+id/title"
+            android:textAppearance="@android:style/TextAppearance.Small"
+            android:textColor="@android:color/black" />
 
         <TextView
-            android:id="@+id/body"
-            android:layout_width="match_parent"
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:textSize="13sp" />
-    </LinearLayout>
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/title"
+            android:textAppearance="@android:style/TextAppearance.Small"
+            android:textColor="@android:color/black" />
+    </RelativeLayout>
 
 </RelativeLayout>

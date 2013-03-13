@@ -2,22 +2,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/background_light"
     android:orientation="vertical"
     android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:background="@android:color/background_light" >
+    android:paddingRight="8dp" >
+
+    <TextView
+        android:id="@id/android:empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/list_padding"
+        android:gravity="center"
+        android:text="@+string/no_data"
+        android:textAppearance="@android:style/TextAppearance.Large" />
 
     <ListView
         android:id="@id/android:list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:drawSelectorOnTop="false" />
-
-    <TextView
-        android:id="@id/android:empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@+string/no_data" />
+        android:drawSelectorOnTop="false" >
+    </ListView>
 
 </LinearLayout>
