@@ -35,5 +35,7 @@
     <string name="attendees">Teilnehmer</string>
     <string name="no_data">Keine Daten</string>
     <string name="menu_item">Menüpunkt</string>
+    <string name="file_icon">Datei Icon</string>
+    <string name="user_image">Benutzeravatar</string>
 
 </resources>

@@ -9,8 +9,6 @@
 <resources>
 
     <string name="app_name">StudIPApp</string>
-    <string name="menu_settings">Settings</string>
-    <string name="signin_activity_choose_facility">Choose facility</string>
     <string name="loading">loading</string>
     <string name="help">Hilfe</string>
     <string name="slidein_menu_button">SlideIn Menu Button</string>
@@ -37,5 +35,7 @@
     <string name="attendees">Attendees</string>
     <string name="no_data">No Data</string>
     <string name="menu_item">Menu Item</string>
+    <string name="file_icon">file icon</string>
+    <string name="user_image">user image</string>
 
 </resources>
