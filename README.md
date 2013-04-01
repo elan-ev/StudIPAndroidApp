@@ -2,8 +2,7 @@ Stud.IP Android App
 ===================
 
 This is a fork of the Stud.IP Android App by University Oldenburg. [uol-studip/StudIPAndroidApp][1]
-We are trying to refactor it with modern libs and newer Android Features, 
-but also with backward compatibility with 2.3.3.
+We are trying to refactor it with modern libs, new features and backward compatibility down to 2.3.3.
 
 This app is using the studip-rest.ip Rest-API Plugin. [studip/studip-rest.ip][2]
 
@@ -11,7 +10,7 @@ Feel free to fork and contribute to this project.
 
 Setup
 -----
-* Make sure you habe Eclipse with Maven and eGit.
+* Make sure you've installed Eclipse with Maven and EGit.
 * Install the Maven Android plugin as described here [http://code.google.com/p/maven-android-plugin/wiki/GettingStarted][3]
 * In Eclipse just use File->Import->Check out existing Maven repository from scm
 * Maven will take care of the rest
@@ -33,9 +32,10 @@ Contributing
 ------------
 * Fork it
 * Create branch
-* Make and commit your changes
+* Make your improvements and commit your changes
 * Push the branch to your fork
 * Open a Pull Request
+* We will take care of the rest
 
 Libs
 ---------
