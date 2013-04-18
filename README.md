@@ -18,12 +18,13 @@ Setup
 For more information on how to do this, see [here][8] and [here][9]
 
     NOTE: To test it with your own installation of the studip-rest.ip plugin, 
-    you need to create your own TempServerDeclares in the de.elanev.studip.android.app.util package.
+    you need to create your own TempServerDeclares in the de.elanev.studip.android.app.util package
+	and add them to the list in de.elanev.studip.android.app.backend.net.ChooseServerFragment.java.
     See the de.elanev.studip.android.app.util.TempServerDeclaresExample for more information.
 
 Developed By
 ------------
-* ELAN e.V
+* [ELAN e.V][10]
 
 Contributors
 ------------
@@ -62,3 +63,4 @@ License
 [7]: https://github.com/jfeinstein10/SlidingMenu
 [8]: http://actionbarsherlock.com/usage.html
 [9]: https://github.com/jfeinstein10/SlidingMenu#setup-with-actionbarsherlock
+[10]: http://www.elan-niedersachsen.de/startseite/
