@@ -36,6 +36,7 @@ public abstract class AbstractRestIPResultReceiver<T, A extends SherlockListFrag
 	protected A mFragment;
 	protected static String TAG = AbstractRestIPResultReceiver.class
 			.getSimpleName();
+	protected Uri mResponseUri;
 
 	protected Uri mServerApiUrl = Uri
 			.parse(OAuthConnector.getInstance().server.API_URL);
@@ -47,12 +48,20 @@ public abstract class AbstractRestIPResultReceiver<T, A extends SherlockListFrag
 			protected void onReceiveResult(int resultCode, Bundle resultData) {
 				if (resultData != null
 						&& resultData
-								.containsKey(RestIPSyncService.RESTIP_RESULT)) {
-					onRestIPResult(resultCode,
-							resultData
-									.getString(RestIPSyncService.RESTIP_RESULT));
-				} else {
-					onRestIPResult(resultCode, null);
+								.containsKey(RestIPSyncService.RESTIP_RESULT)
+						&& resultData
+								.containsKey(RestIPSyncService.RESTIP_ACTION)) {
+					String result = resultData
+							.getString(RestIPSyncService.RESTIP_RESULT);
+					mResponseUri = Uri.parse(resultData
+							.getString(RestIPSyncService.RESTIP_ACTION));
+					if (resultCode == 200 && result != null) {
+						parse(result);
+
+					} else {
+						Log.d(TAG, "Result code: " + resultCode + "\n Result: "
+								+ result);
+					}
 				}
 			}
 
@@ -80,15 +89,6 @@ public abstract class AbstractRestIPResultReceiver<T, A extends SherlockListFrag
 
 	public ResultReceiver getResultReceiver() {
 		return mReceiver;
-	}
-
-	public void onRestIPResult(int resultCode, String result) {
-		if (resultCode == 200 && result != null) {
-			parse(result);
-		} else {
-			Log.d(TAG, "Result code: " + resultCode);
-		}
-
 	}
 
 	public void setFragment(A frag) {

@@ -36,10 +36,11 @@ import android.util.Log;
  * 
  */
 public class RestIPSyncService extends IntentService {
-	public final static String TAG = RestIPSyncService.class.getSimpleName();
+	public static final String TAG = RestIPSyncService.class.getSimpleName();
 	public static final String RESTIP_CALL_PARAMS = "de.elanev.studip.android.app.backend.net.services.syncservice.RESTIP_CALL_PARAMS";
 	public static final String RESTIP_RESULT_RECEIVER = "de.elanev.studip.android.app.backend.net.services.syncservice.RESTIP_RESULT_RECEIVER";
 	public static final String RESTIP_RESULT = "de.elanev.studip.android.app.backend.net.services.syncservice.RESTIP_RESULT";
+	public static final String RESTIP_ACTION = "de.elanev.studip.android.app.backend.net.services.syncservice.RESTIP_ACTION";
 
 	private URI mAction;
 	private ResultReceiver mReceiver;
@@ -49,6 +50,17 @@ public class RestIPSyncService extends IntentService {
 
 	public RestIPSyncService() {
 		super(TAG);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.IntentService#onCreate()
+	 */
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		mClient = new DefaultHttpClient();
 	}
 
 	/*
@@ -66,8 +78,7 @@ public class RestIPSyncService extends IntentService {
 			Log.e(TAG, "Result receiver fehlt.");
 			return;
 		}
-		mRequest = new HttpGet(mAction);
-		mClient = new DefaultHttpClient();
+		mRequest = new HttpGet(mAction + ".json");
 		mReceiver = extras.getParcelable(RESTIP_RESULT_RECEIVER);
 
 		try {
@@ -87,7 +98,7 @@ public class RestIPSyncService extends IntentService {
 
 		int resultCode = mResponse.getStatusLine().getStatusCode();
 		String resultBody = null;
-		Log.d(TAG, String.valueOf(resultCode));
+		Log.d(TAG, String.valueOf(resultCode) + " " + mAction.toASCIIString());
 		if (resultCode == 200) {
 
 			try {
@@ -102,11 +113,13 @@ public class RestIPSyncService extends IntentService {
 			}
 			Bundle resultData = new Bundle();
 			resultData.putString(RESTIP_RESULT, resultBody);
+			resultData.putString(RESTIP_ACTION, mAction.toASCIIString());
 			mReceiver.send(resultCode, resultData);
 
 		} else {
 			try {
-				Log.d(TAG, EntityUtils.toString(mResponse.getEntity()));
+				Log.d(TAG, EntityUtils.toString(mResponse.getEntity()) + "\n"
+						+ mAction.toASCIIString());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
