@@ -17,19 +17,21 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ProgressBar;
+
+import com.actionbarsherlock.app.SherlockActivity;
+
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.net.ChooseServerActivity;
 import de.elanev.studip.android.app.backend.net.Server;
 import de.elanev.studip.android.app.frontend.news.NewsViewActivity;
 import de.elanev.studip.android.app.util.Prefs;
 
-public class SignInActivity extends FragmentActivity {
+public class SignInActivity extends SherlockActivity {
 
 	private static final String TAG = SignInActivity.class.getSimpleName();
 
@@ -41,22 +43,22 @@ public class SignInActivity extends FragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i(TAG, " onCreate");
-		this.setContentView(R.layout.choose_server_view);
-		mProgressBar = (ProgressBar) findViewById(R.id.chooseServerProgressBar);
-		mSignInButton = (Button) findViewById(R.id.signinbutton);
+		getSupportActionBar().hide();
+
+		this.setContentView(R.layout.activity_sign_in);
+		mProgressBar = (ProgressBar) findViewById(R.id.sign_in_progressbar);
+		mSignInButton = (Button) findViewById(R.id.sign_in_button);
 		mConnector = OAuthConnector.getInstance();
 
 		mSignInButton.setVisibility(View.GONE);
 		mProgressBar.setVisibility(View.VISIBLE);
 
-		((Button) this.findViewById(R.id.signinbutton))
-				.setOnClickListener(new OnClickListener() {
-					// @Override
-					public void onClick(View v) {
-						signInButtonPressed(v);
-					}
-				});
+		mSignInButton.setOnClickListener(new OnClickListener() {
+			// @Override
+			public void onClick(View v) {
+				signInButtonPressed(v);
+			}
+		});
 
 	}
 
@@ -133,8 +135,6 @@ public class SignInActivity extends FragmentActivity {
 
 				mConnector.setAccessToken(mConnector.accessToken,
 						mConnector.accessSecret);
-				// this.startActivity(new Intent(this,
-				// AbstractFragmentActivity.class));
 				this.startActivity(new Intent(this, NewsViewActivity.class));
 				this.finish();
 			}
@@ -251,17 +251,9 @@ public class SignInActivity extends FragmentActivity {
 		@Override
 		protected void onPostExecute(String result) {
 			if (result.equals("SUCCESS")) {
-				// Intent intent = new Intent(mContext,
-				// AbstractFragmentActivity.class);
-				// intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-				// | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-				// intent.putExtra("frag", CourseNewsFragment.class.getName());
-				// mContext.startActivity(intent);
-
 				Intent intent = new Intent(mContext, NewsViewActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 						| Intent.FLAG_ACTIVITY_SINGLE_TOP);
-				// intent.putExtra("frag", CourseNewsFragment.class.getName());
 				mContext.startActivity(intent);
 			}
 		}

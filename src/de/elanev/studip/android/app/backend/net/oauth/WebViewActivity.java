@@ -7,6 +7,8 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.net.oauth;
 
+import com.actionbarsherlock.app.SherlockActivity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,14 +23,14 @@ import android.widget.Button;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.Prefs;
 
-public class WebViewActivity extends Activity {
+public class WebViewActivity extends SherlockActivity {
 
 	private static final String TAG = WebViewActivity.class.getSimpleName();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		getSupportActionBar().hide();
 		this.setContentView(R.layout.webview_view);
 		Button cancelButton = (Button) this.findViewById(R.id.cancel_button);
 		WebView webView = (WebView) this.findViewById(R.id.webView);
