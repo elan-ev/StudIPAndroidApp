@@ -65,12 +65,6 @@ public class CoursesRepository {
 						course.location);
 				values.put(CoursesContract.Columns.COURSE_SEMESERT_ID,
 						course.semester_id);
-				values.put(CoursesContract.Columns.COURSE_TEACHERS,
-						mMapper.writeValueAsString(course.teachers));
-				values.put(CoursesContract.Columns.COURSE_TUTORS,
-						mMapper.writeValueAsString(course.tutors));
-				values.put(CoursesContract.Columns.COURSE_STUDENTS,
-						mMapper.writeValueAsString(course.students));
 				values.put(CoursesContract.Columns.COURSE_COLORS, course.colors);
 				db = DatabaseHandler.getInstance(mContext)
 						.getWritableDatabase();
@@ -126,6 +120,20 @@ public class CoursesRepository {
 		}
 
 		return course;
+	}
+
+	public Cursor getAllCoursesCoursor() {
+		SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
+				.getReadableDatabase();
+		Cursor cursor = null;
+		try {
+			cursor = db.query(CoursesContract.TABLE, null, null, null, null,
+					null, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return cursor;
+
 	}
 
 }

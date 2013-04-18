@@ -10,15 +10,9 @@
  */
 package de.elanev.studip.android.app.backend.datamodel;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import android.database.Cursor;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 
 /**
@@ -86,33 +80,10 @@ public class Course {
 	}
 
 	public Course(Cursor cursor) {
-		ObjectMapper mMapper = new ObjectMapper();
 		ArrayList<String> students = null;
 		ArrayList<String> tutors = null;
 		ArrayList<String> teachers = null;
 		Modules modules = null;
-
-		try {
-			students = mMapper.readValue(cursor.getString(cursor
-					.getColumnIndex(CoursesContract.Columns.COURSE_STUDENTS)),
-					ArrayList.class);
-			tutors = mMapper.readValue(cursor.getString(cursor
-					.getColumnIndex(CoursesContract.Columns.COURSE_STUDENTS)),
-					ArrayList.class);
-			teachers = mMapper.readValue(cursor.getString(cursor
-					.getColumnIndex(CoursesContract.Columns.COURSE_STUDENTS)),
-					ArrayList.class);
-			modules = mMapper.readValue(cursor.getString(cursor
-					.getColumnIndex(CoursesContract.Columns.COURSE_MODULES)),
-					Modules.class);
-
-		} catch (JsonParseException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
 		this.course_id = cursor.getString(cursor
 				.getColumnIndex(CoursesContract.Columns.COURSE_ID));

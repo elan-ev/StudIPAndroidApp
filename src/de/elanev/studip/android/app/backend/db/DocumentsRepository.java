@@ -9,7 +9,7 @@ package de.elanev.studip.android.app.backend.db;
 
 import de.elanev.studip.android.app.backend.datamodel.Document;
 import de.elanev.studip.android.app.backend.datamodel.Documents;
-import de.elanev.studip.android.app.util.FileUtils;
+import de.elanev.studip.android.app.util.TextTools;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -51,7 +51,7 @@ public class DocumentsRepository {
 						document.chdate);
 				values.put(DocumentsContract.Columns.DOCUMENT_FILENAME,
 						document.filename);
-				String fsize = FileUtils.readableFileSize(document.filesize
+				String fsize = TextTools.readableFileSize(document.filesize
 						.longValue());
 				values.put(DocumentsContract.Columns.DOCUMENT_FILESIZE, fsize);
 				values.put(DocumentsContract.Columns.DOCUMENT_DOWNLOADS,

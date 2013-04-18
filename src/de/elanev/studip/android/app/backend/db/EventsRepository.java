@@ -35,23 +35,24 @@ public class EventsRepository {
 			for (Event event : e.events) {
 
 				ContentValues values = new ContentValues();
-				values.put(EventsConstract.Columns.EVENT_ID, event.event_id);
-				values.put(EventsConstract.Columns.EVENT_COURSE_ID,
+				values.put(EventsContract.Columns.EVENT_ID, event.event_id);
+				values.put(EventsContract.Columns.EVENT_COURSE_ID,
 						event.course_id);
-				values.put(EventsConstract.Columns.EVENT_START, event.start);
-				values.put(EventsConstract.Columns.EVENT_END, event.end);
-				values.put(EventsConstract.Columns.EVENT_TITLE, event.title);
-				values.put(EventsConstract.Columns.EVENT_DESCRIPTION,
+				values.put(EventsContract.Columns.EVENT_START,
+						event.start * 1000L);
+				values.put(EventsContract.Columns.EVENT_END, event.end * 1000L);
+				values.put(EventsContract.Columns.EVENT_TITLE, event.title);
+				values.put(EventsContract.Columns.EVENT_DESCRIPTION,
 						event.description);
-				values.put(EventsConstract.Columns.EVENT_CATEGORIES,
+				values.put(EventsContract.Columns.EVENT_CATEGORIES,
 						event.categories);
-				values.put(EventsConstract.Columns.EVENT_ROOM, event.room);
+				values.put(EventsContract.Columns.EVENT_ROOM, event.room);
 				db = DatabaseHandler.getInstance(mContext)
 						.getWritableDatabase();
 				db.beginTransaction();
 				try {
-					db.insertWithOnConflict(EventsConstract.TABLE, null,
-							values, SQLiteDatabase.CONFLICT_IGNORE);
+					db.insertWithOnConflict(EventsContract.TABLE, null, values,
+							SQLiteDatabase.CONFLICT_IGNORE);
 					db.setTransactionSuccessful();
 				} catch (Exception ex) {
 					ex.printStackTrace();
@@ -78,21 +79,21 @@ public class EventsRepository {
 					events.events
 							.add(new Event(
 									cursor.getString(cursor
-											.getColumnIndex(EventsConstract.Columns.EVENT_ID)),
+											.getColumnIndex(EventsContract.Columns.EVENT_ID)),
 									cursor.getString(cursor
-											.getColumnIndex(EventsConstract.Columns.EVENT_COURSE_ID)),
+											.getColumnIndex(EventsContract.Columns.EVENT_COURSE_ID)),
+									cursor.getLong(cursor
+											.getColumnIndex(EventsContract.Columns.EVENT_START)),
+									cursor.getLong(cursor
+											.getColumnIndex(EventsContract.Columns.EVENT_END)),
 									cursor.getString(cursor
-											.getColumnIndex(EventsConstract.Columns.EVENT_START)),
+											.getColumnIndex(EventsContract.Columns.EVENT_TITLE)),
 									cursor.getString(cursor
-											.getColumnIndex(EventsConstract.Columns.EVENT_END)),
+											.getColumnIndex(EventsContract.Columns.EVENT_DESCRIPTION)),
 									cursor.getString(cursor
-											.getColumnIndex(EventsConstract.Columns.EVENT_TITLE)),
+											.getColumnIndex(EventsContract.Columns.EVENT_CATEGORIES)),
 									cursor.getString(cursor
-											.getColumnIndex(EventsConstract.Columns.EVENT_DESCRIPTION)),
-									cursor.getString(cursor
-											.getColumnIndex(EventsConstract.Columns.EVENT_CATEGORIES)),
-									cursor.getString(cursor
-											.getColumnIndex(EventsConstract.Columns.EVENT_ROOM))));
+											.getColumnIndex(EventsContract.Columns.EVENT_ROOM))));
 				} while (cursor.moveToNext());
 			}
 		} catch (Exception e) {
@@ -106,11 +107,11 @@ public class EventsRepository {
 		SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
 				.getReadableDatabase();
 		Cursor cursor = null;
-		cursor = db.query(EventsConstract.TABLE, null,
-				EventsConstract.Columns.EVENT_COURSE_ID + "=? AND "
-						+ EventsConstract.Columns.EVENT_START
+		cursor = db.query(EventsContract.TABLE, null,
+				EventsContract.Columns.EVENT_COURSE_ID + "=? AND "
+						+ EventsContract.Columns.EVENT_START
 						+ " >= strftime('%s','now')", new String[] { cid },
-				null, null, EventsConstract.Columns.EVENT_START + " ASC");
+				null, null, EventsContract.Columns.EVENT_START + " ASC");
 		return cursor;
 	}
 }

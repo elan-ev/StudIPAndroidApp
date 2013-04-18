@@ -29,6 +29,7 @@ public class User {
 	public String phone;
 	public String homepage;
 	public String privadr;
+	public int role;
 
 	/**
 	 * Default constructor
@@ -51,13 +52,13 @@ public class User {
 	 * @param phone
 	 * @param homepage
 	 * @param privadr
+	 * @param role
 	 */
 	public User(String user_id, String username, String perms,
 			String title_pre, String forename, String lastname,
 			String title_post, String email, String avatar_small,
 			String avatar_medium, String avatar_normal, String phone,
-			String homepage, String privadr) {
-
+			String homepage, String privadr, int role) {
 		this.user_id = user_id;
 		this.username = username;
 		this.perms = perms;
@@ -72,6 +73,7 @@ public class User {
 		this.phone = phone;
 		this.homepage = homepage;
 		this.privadr = privadr;
+		this.role = role;
 	}
 
 	public String getFullName() {

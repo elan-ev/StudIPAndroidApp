@@ -17,8 +17,8 @@ package de.elanev.studip.android.app.backend.datamodel;
 public class Event {
 	public String event_id;
 	public String course_id;
-	public String start;
-	public String end;
+	public Long start;
+	public Long end;
 	public String title;
 	public String description;
 	public String categories;
@@ -37,7 +37,7 @@ public class Event {
 	 * @param categories
 	 * @param room
 	 */
-	public Event(String event_id, String course_id, String start, String end,
+	public Event(String event_id, String course_id, Long start, Long end,
 			String title, String description, String categories, String room) {
 		this.event_id = event_id;
 		this.course_id = course_id;
@@ -47,11 +47,6 @@ public class Event {
 		this.description = description;
 		this.categories = categories;
 		this.room = room;
-	}
-
-	@Override
-	public String toString() {
-		return this.title + "\n " + this.room;
 	}
 
 }

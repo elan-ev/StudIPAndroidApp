@@ -78,7 +78,8 @@ public class UsersRepository {
 						cursor.getString(cursor
 								.getColumnIndex(UsersContract.Columns.USER_HOMEPAGE)),
 						cursor.getString(cursor
-								.getColumnIndex(UsersContract.Columns.USER_PRIVADR)));
+								.getColumnIndex(UsersContract.Columns.USER_PRIVADR)),
+						-1);
 			} else {
 				return null;
 			}

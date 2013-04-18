@@ -7,19 +7,17 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.db;
 
-import java.text.SimpleDateFormat;
-
-import de.elanev.studip.android.app.backend.datamodel.News;
-import de.elanev.studip.android.app.backend.datamodel.NewsItem;
-
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+import de.elanev.studip.android.app.backend.datamodel.News;
+import de.elanev.studip.android.app.backend.datamodel.NewsItem;
 
 public class NewsRepository {
 
+	public static final String TAG = NewsRepository.class.getSimpleName();
 	private static NewsRepository mInstance;
 	private Context mContext;
 
@@ -34,13 +32,11 @@ public class NewsRepository {
 		this.mContext = context;
 	}
 
-	@SuppressLint("SimpleDateFormat")
 	public void addNews(News n) {
 		SQLiteDatabase db = null;
 		// Debug
 		// db.execSQL("DELETE FROM " + TABLE_NEWS);
-		SimpleDateFormat dateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss");
+
 		try {
 			for (NewsItem newsItem : n.news) {
 
@@ -49,13 +45,17 @@ public class NewsRepository {
 				values.put(NewsContract.Columns.NEWS_ID, newsItem.news_id);
 				values.put(NewsContract.Columns.NEWS_TOPIC, newsItem.topic);
 				values.put(NewsContract.Columns.NEWS_BODY, newsItem.body);
-				values.put(NewsContract.Columns.NEWS_DATE,
-						dateFormat.format(newsItem.date));
+				values.put(NewsContract.Columns.NEWS_DATE, newsItem.date);
 				values.put(NewsContract.Columns.NEWS_USER_ID, newsItem.user_id);
-				values.put(NewsContract.Columns.NEWS_CHDATE,
-						dateFormat.format(newsItem.chdate));
-				values.put(NewsContract.Columns.NEWS_MKDATE,
-						dateFormat.format(newsItem.mkdate));
+				values.put(NewsContract.Columns.NEWS_CHDATE, newsItem.chdate);
+				values.put(NewsContract.Columns.NEWS_MKDATE, newsItem.mkdate);
+				values.put(NewsContract.Columns.NEWS_EXPIRE, newsItem.expire);
+				values.put(NewsContract.Columns.NEWS_ALLOW_COMMENTS,
+						newsItem.allow_comments);
+				values.put(NewsContract.Columns.NEWS_CHDATE_UID,
+						newsItem.chdate_uid);
+				values.put(NewsContract.Columns.NEWS_BODY_ORIGINAL,
+						newsItem.body_original);
 
 				db = DatabaseHandler.getInstance(mContext)
 						.getWritableDatabase();
@@ -76,12 +76,9 @@ public class NewsRepository {
 		}
 	}
 
-	@SuppressLint("SimpleDateFormat")
 	public News getAllNews() {
-		// TODO getObject benutzen, doppelten Code verhindern
+
 		String selectQuery = "SELECT  * FROM " + NewsContract.TABLE;
-		SimpleDateFormat dateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss");
 		SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
 				.getReadableDatabase();
 		Cursor cursor = db.rawQuery(selectQuery, null);
@@ -98,14 +95,22 @@ public class NewsRepository {
 											.getColumnIndex(NewsContract.Columns.NEWS_TOPIC)),
 									cursor.getString(cursor
 											.getColumnIndex(NewsContract.Columns.NEWS_BODY)),
-									dateFormat.parse(cursor.getString(cursor
-											.getColumnIndex(NewsContract.Columns.NEWS_DATE))),
+									cursor.getLong(cursor
+											.getColumnIndex(NewsContract.Columns.NEWS_DATE)),
 									cursor.getString(cursor
 											.getColumnIndex(NewsContract.Columns.NEWS_USER_ID)),
-									dateFormat.parse(cursor.getString(cursor
-											.getColumnIndex(NewsContract.Columns.NEWS_CHDATE))),
-									dateFormat.parse(cursor.getString(cursor
-											.getColumnIndex(NewsContract.Columns.NEWS_MKDATE)))));
+									cursor.getLong(cursor
+											.getColumnIndex(NewsContract.Columns.NEWS_CHDATE)),
+									cursor.getLong(cursor
+											.getColumnIndex(NewsContract.Columns.NEWS_MKDATE)),
+									cursor.getLong(cursor
+											.getColumnIndex(NewsContract.Columns.NEWS_EXPIRE)),
+									cursor.getInt(cursor
+											.getColumnIndex(NewsContract.Columns.NEWS_ALLOW_COMMENTS)),
+									cursor.getString(cursor
+											.getColumnIndex(NewsContract.Columns.NEWS_CHDATE_UID)),
+									cursor.getString(cursor
+											.getColumnIndex(NewsContract.Columns.NEWS_BODY_ORIGINAL))));
 
 				} while (cursor.moveToNext());
 			}
@@ -126,11 +131,19 @@ public class NewsRepository {
 		// NewsContract.Columns.NEWS_DATE + ">= ?",
 		// new String[] { "strftime('%s','now')" }, null, null,
 		// NewsContract.Columns.NEWS_DATE + " ASC");
-		cursor = db.rawQuery("select * from " + NewsContract.TABLE + ", "
-				+ UsersContract.TABLE + " where " + NewsContract.TABLE + "."
-				+ NewsContract.Columns.NEWS_USER_ID + " = "
-				+ UsersContract.TABLE + "." + UsersContract.Columns.USER_ID,
-				null);
+		// String query = String.format(
+		// "select * from %s, %s where %s.%s = %s.%s AND %s.%s >= %s",
+		// NewsContract.TABLE, UsersContract.TABLE, NewsContract.TABLE,
+		// NewsContract.Columns.NEWS_USER_ID, UsersContract.TABLE,
+		// UsersContract.Columns.USER_ID, NewsContract.TABLE,
+		// NewsContract.Columns.NEWS_EXPIRE, "strftime('%s','now')");
+		String query = String.format(
+				"select * from %s, %s where %s.%s = %s.%s", NewsContract.TABLE,
+				UsersContract.TABLE, NewsContract.TABLE,
+				NewsContract.Columns.NEWS_USER_ID, UsersContract.TABLE,
+				UsersContract.Columns.USER_ID, NewsContract.TABLE);
+		Log.d(TAG, query);
+		cursor = db.rawQuery(query, null);
 		return cursor;
 	}
 }
