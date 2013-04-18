@@ -10,10 +10,6 @@
  */
 package de.elanev.studip.android.app.backend.datamodel;
 
-import android.annotation.SuppressLint;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * @author joern
  * 
@@ -23,8 +19,9 @@ public class NewsItem {
 	public NewsItem() {
 	}
 
-	public NewsItem(String news_id, String topic, String body, Date date,
-			String user_id, Date chdate, Date mkdate) {
+	public NewsItem(String news_id, String topic, String body, Long date,
+			String user_id, Long chdate, Long mkdate, Long expire,
+			int allow_comments, String chdate_uid, String body_original) {
 		this.news_id = news_id;
 		this.topic = topic;
 		this.body = body;
@@ -32,22 +29,22 @@ public class NewsItem {
 		this.user_id = user_id;
 		this.chdate = chdate;
 		this.mkdate = mkdate;
+		this.expire = expire;
+		this.allow_comments = allow_comments;
+		this.chdate_uid = chdate_uid;
+		this.body_original = body_original;
 	}
 
 	public String news_id;
 	public String topic;
 	public String body;
-	public Date date;
+	public Long date;
 	public String user_id;
-	public Date chdate;
-	public Date mkdate;
+	public Long chdate;
+	public Long mkdate;
+	public Long expire;
+	public int allow_comments;
+	public String chdate_uid;
+	public String body_original;
 
-	// public String expire;
-	// public Boolean allow_comments;
-	// public String chdate_uid;
-	// public String body_original;
-	@SuppressLint("SimpleDateFormat")
-	public String getTime() {
-		return new SimpleDateFormat("HH:mm").format(date);
-	}
 }
