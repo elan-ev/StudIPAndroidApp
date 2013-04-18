@@ -14,13 +14,16 @@ package de.elanev.studip.android.app.backend.net.api;
  * @author joern
  * 
  */
-public class ApiEndpoints {
+public interface ApiEndpoints {
 	/* Users */
 	public static final String USER_ENDPOINT = "user/%s";
 	/* Semesters */
 	public static final String SEMESTERS_ENDPOINT = "semesters/%s";
 	/* News */
 	public static final String NEWS_ENDPOINT = "news/range/%s";
+	public static final String NEWS_GLOBAL_RANGE_IDENITFIER = "studip";
+	public static final String NEWS_GLOBAL_ENDPOINT = "news/range/"
+			+ NEWS_GLOBAL_RANGE_IDENITFIER;
 	/* Courses */
 	public static final String COURSES_ENDPOINT = "courses";
 	public static final String COURSE_EVENTS_ENDPOINT = COURSES_ENDPOINT
