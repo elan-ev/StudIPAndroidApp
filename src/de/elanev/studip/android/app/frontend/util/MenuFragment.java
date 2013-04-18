@@ -143,7 +143,7 @@ public class MenuFragment extends ListFragment {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
 				convertView = LayoutInflater.from(getContext()).inflate(
-						R.layout.menu_item, null);
+						R.layout.list_item_menu, null);
 			}
 			ImageView icon = (ImageView) convertView
 					.findViewById(R.id.menuItemImage);

@@ -257,7 +257,7 @@ public class CoursesFragment extends SherlockListFragment implements
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
 			return getActivity().getLayoutInflater().inflate(
-					R.layout.courses_item, parent, false);
+					R.layout.list_item_course, parent, false);
 		}
 
 	}

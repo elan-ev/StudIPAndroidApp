@@ -17,17 +17,17 @@
         android:layout_height="180dp" >
 
         <ImageView
-            android:id="@+id/imageView1"
+            android:id="@+id/sign_in_imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/studip"
-            android:contentDescription="@+string/studip_logo"/>
+            android:contentDescription="@+string/studip_logo"
+            android:src="@drawable/studip" />
     </RelativeLayout>
 
     <Button
-        android:id="@+id/signinbutton"
+        android:id="@+id/sign_in_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -37,7 +37,7 @@
         android:text="@+string/Authorize" />
 
     <ProgressBar
-        android:id="@+id/chooseServerProgressBar"
+        android:id="@+id/sign_in_progressbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -49,7 +49,7 @@
         android:layout_height="0dip" >
 
         <Button
-            android:id="@+id/helpbutton"
+            android:id="@+id/sign_in_help_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
