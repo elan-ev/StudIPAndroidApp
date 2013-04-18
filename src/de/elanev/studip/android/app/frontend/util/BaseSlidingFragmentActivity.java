@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.slidingmenu.lib.SlidingMenu;
@@ -26,6 +27,7 @@ public class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 
 	private int mTitleRes;
 	protected ListFragment mFrag;
+	public static ActionBar mActionbar = null;
 
 	public BaseSlidingFragmentActivity(int titleRes) {
 		mTitleRes = titleRes;
@@ -34,14 +36,25 @@ public class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mActionbar = getSupportActionBar();
+		mActionbar.setDisplayHomeAsUpEnabled(true);
+		setSlidingActionBarEnabled(true);
 
 		setTitle(mTitleRes);
 
-		/* Set menu */
+		// Sliding menu setup
 		setBehindContentView(R.layout.menu_frame);
+
+		if (savedInstanceState == null) {
+
+			mFrag = new MenuFragment();
+
+		} else {
+			mFrag = (ListFragment) this.getSupportFragmentManager()
+					.findFragmentById(R.id.menu_frame);
+		}
 		FragmentTransaction t = this.getSupportFragmentManager()
 				.beginTransaction();
-		mFrag = new MenuFragment();
 		t.replace(R.id.menu_frame, mFrag);
 		t.commit();
 
@@ -51,9 +64,14 @@ public class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		sm.setFadeDegree(0.35f);
 		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+		sm.setSelectorEnabled(true);
+		sm.setSelectorDrawable(R.drawable.white_button);
+	}
 
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		setSlidingActionBarEnabled(true);
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getSupportMenuInflater().inflate(R.menu.main, menu);
+		return true;
 	}
 
 	@Override
@@ -64,12 +82,6 @@ public class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getSupportMenuInflater().inflate(R.menu.main, menu);
-		return true;
 	}
 
 }

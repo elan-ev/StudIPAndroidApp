@@ -7,11 +7,9 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.util;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,11 +18,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.slidingmenu.lib.app.SlidingFragmentActivity;
+
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.frontend.contacts.ContactsFragment;
-import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
-import de.elanev.studip.android.app.frontend.messages.MessagesFragment;
-import de.elanev.studip.android.app.frontend.news.NewsFragment;
+import de.elanev.studip.android.app.frontend.courses.CoursesActivity;
+import de.elanev.studip.android.app.frontend.news.NewsViewActivity;
+import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * @author joern
@@ -32,10 +32,31 @@ import de.elanev.studip.android.app.frontend.news.NewsFragment;
  */
 public class MenuFragment extends ListFragment {
 
+	private static final String ACTIVE_ITEM = "activeItem";
+	private Context mContext;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		mContext = getActivity();
+		setRetainInstance(true);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putInt(ACTIVE_ITEM, getSelectedItemPosition());
+		super.onSaveInstanceState(outState);
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.list, null);
+		return inflater.inflate(R.layout.fragment_menu, null);
 	}
 
 	@Override
@@ -43,69 +64,64 @@ public class MenuFragment extends ListFragment {
 		super.onActivityCreated(savedInstanceState);
 		getView().setBackgroundColor(getResources().getColor(R.color.dark));
 		MenuAdapter adapter = new MenuAdapter(getActivity());
-		// adapter.add(new MenuItem(R.drawable.activity,
-		// getString(R.string.Activities)));
-		adapter.add(new MenuItem(R.drawable.news, getString(R.string.News)));
-		adapter.add(new MenuItem(R.drawable.seminar,
-				getString(R.string.Courses)));
-		// adapter.add(new MenuItem(R.drawable.schedule,
-		// getString(R.string.Events)));
-		adapter.add(new MenuItem(R.drawable.mail, getString(R.string.Messages)));
-		adapter.add(new MenuItem(R.drawable.community,
-				getString(R.string.Contacts)));
-		adapter.add(new MenuItem(R.drawable.files,
-				getString(R.string.Documents)));
+		if (Prefs.getInstance(mContext).isAppAuthorized()) {
+			adapter.add(new MenuItem(R.drawable.news, getString(R.string.News)));
+			adapter.add(new MenuItem(R.drawable.seminar,
+					getString(R.string.Courses)));
+			adapter.add(new MenuItem(R.drawable.mail,
+					getString(R.string.Messages)));
+			adapter.add(new MenuItem(R.drawable.community,
+					getString(R.string.Contacts)));
+			adapter.add(new MenuItem(R.drawable.files,
+					getString(R.string.Documents)));
+		}
 		adapter.add(new MenuItem(R.drawable.admin, getString(R.string.Settings)));
 		adapter.add(new MenuItem(R.drawable.question_circle,
 				getString(R.string.Help)));
 		adapter.add(new MenuItem(R.drawable.info_circle,
 				getString(R.string.Information)));
-		adapter.add(new MenuItem(android.R.drawable.ic_menu_revert,
-				getString(R.string.Logout)));
+		if (Prefs.getInstance(mContext).isAppAuthorized()) {
+			adapter.add(new MenuItem(android.R.drawable.ic_menu_revert,
+					getString(R.string.Logout)));
+		}
 		setListAdapter(adapter);
+		if (savedInstanceState != null) {
+			getListView().setSelection(savedInstanceState.getInt(ACTIVE_ITEM));
+			View v = getListView().getSelectedView();
+			((SlidingFragmentActivity) mContext).getSlidingMenu()
+					.setSelectedView(v);
+		}
+
 	}
 
 	@Override
 	public void onListItemClick(ListView lv, View v, int position, long id) {
-		Fragment newContent = null;
+		Class<?> cls = null;
 		switch (position) {
 		case 0:
-			newContent = new NewsFragment();
+			cls = NewsViewActivity.class;
+
 			break;
 		case 1:
-			newContent = new CoursesFragment();
-			break;
-		case 2:
-			newContent = new MessagesFragment();
-			break;
-		case 3:
-			newContent = new ContactsFragment();
+			cls = CoursesActivity.class;
 			break;
 		}
-		if (newContent != null)
-			switchFragment(newContent);
+		if (cls != null) {
+			((SlidingFragmentActivity) mContext).getSlidingMenu()
+					.setSelectedView(v);
+			switchFragment(cls);
+		}
 	}
 
-	private void switchFragment(Fragment fragment) {
-		Activity activity = getActivity();
-		if (!(activity instanceof AbstractFragmentActivity)) {
-			activity.finish();
-			Intent intent = new Intent();
-			intent.setClass(getActivity(), AbstractFragmentActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-					| Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			intent.putExtra("frag", fragment.getClass().getName());
+	private void switchFragment(Class<?> cls) {
+		((SlidingFragmentActivity) mContext).getSlidingMenu().showContent();
+		Class<?> clz = getActivity().getClass();
+		if (!cls.equals(clz)) {
+			Intent intent = new Intent(getActivity(), cls);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			startActivity(intent);
 		}
 
-		activity = getActivity();
-		if (activity == null)
-			return;
-
-		if (activity instanceof AbstractFragmentActivity) {
-			AbstractFragmentActivity afa = (AbstractFragmentActivity) getActivity();
-			afa.switchContent(fragment);
-		}
 	}
 
 	private class MenuItem {

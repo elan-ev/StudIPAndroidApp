@@ -16,7 +16,6 @@
         android:layout_height="50dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:background="@color/dark"
         android:contentDescription="@string/menu_item"
         android:padding="10dp"
         android:src="@drawable/ic_launcher" />
@@ -29,7 +28,6 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/menuItemImage"
-        android:background="@color/dark"
         android:gravity="center_vertical"
         android:padding="10dp"
         android:text="@string/menu_item"
