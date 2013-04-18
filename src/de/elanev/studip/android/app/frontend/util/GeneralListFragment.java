@@ -13,14 +13,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.NewsItem;
 import de.elanev.studip.android.app.backend.net.ServerItem;
-import de.elanev.studip.android.app.frontend.activities.ActivitiesItem;
 import de.elanev.studip.android.app.frontend.courses.CourseViewActivity;
 import de.elanev.studip.android.app.frontend.courses.CoursesItem;
 import de.elanev.studip.android.app.util.Prefs;
@@ -67,11 +65,6 @@ public class GeneralListFragment extends SherlockListFragment {
 
 		if (l.getItemAtPosition(position) instanceof NewsItem) {
 
-		} else if (l.getItemAtPosition(position) instanceof ActivitiesItem) {
-			String str = ((ActivitiesItem) l.getItemAtPosition(position)).activity.title;
-			Toast toast = Toast.makeText(this.getActivity()
-					.getApplicationContext(), str, Toast.LENGTH_LONG);
-			toast.show();
 		} else if (l.getItemAtPosition(position) instanceof ServerItem) {
 			ServerItem si = (ServerItem) l.getItemAtPosition(position);
 			Prefs.getInstance(getActivity().getApplicationContext()).setServer(
