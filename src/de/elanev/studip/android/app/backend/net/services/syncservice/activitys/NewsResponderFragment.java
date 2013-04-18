@@ -16,58 +16,84 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Log;
 
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import de.elanev.studip.android.app.backend.datamodel.Course;
+import de.elanev.studip.android.app.backend.datamodel.Courses;
 import de.elanev.studip.android.app.backend.datamodel.News;
 import de.elanev.studip.android.app.backend.datamodel.NewsItem;
 import de.elanev.studip.android.app.backend.datamodel.User;
-import de.elanev.studip.android.app.backend.db.NewsRepository;
+import de.elanev.studip.android.app.backend.db.CoursesRepository;
+import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersRepository;
 import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 import de.elanev.studip.android.app.backend.net.services.syncservice.AbstractParserTask;
 import de.elanev.studip.android.app.backend.net.services.syncservice.RestApiRequest;
 import de.elanev.studip.android.app.backend.net.services.syncservice.RestIPSyncService;
-import de.elanev.studip.android.app.frontend.news.NewsFragment;
 
 /**
  * @author joern
  * 
  */
 public class NewsResponderFragment extends
-		AbstractRestIPResultReceiver<News, NewsFragment> {
+		AbstractRestIPResultReceiver<News, SherlockListFragment> {
 
-	private static final String TAG = NewsResponderFragment.class
-			.getSimpleName();
+	// private static final String TAG =
+	// NewsResponderFragment.class.getSimpleName();
+	private boolean newData = false;
 
 	protected void loadData() {
-		if (mReturnItem == null && mContext != null) {
-			Intent intent = new Intent(mContext, RestIPSyncService.class);
-			intent.setData(Uri.parse(mServerApiUrl + "/news/range/"
-					+ "studip.json"));
-
-			intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
-					getResultReceiver());
-
-			mContext.startService(intent);
-		} else if (mContext != null) {
-			SimpleCursorAdapter adapter = (SimpleCursorAdapter) mFragment
-					.getListAdapter();
-			adapter.swapCursor(mFragment.getNewCursor());
+		if (getActivity() != null) {
+			if (mContext != null && !newData) {
+				loadNews();
+			}
 		}
 	}
 
+	private void loadNews() {
+		Intent intent = new Intent(mContext, RestIPSyncService.class);
+		intent.setData(Uri.parse(mServerApiUrl + "/"
+				+ ApiEndpoints.NEWS_GLOBAL_ENDPOINT));
+
+		intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
+				getResultReceiver());
+
+		mContext.startService(intent);
+
+		Courses c = CoursesRepository.getInstance(mContext).getAllCourses();
+
+		if (c != null) {
+			for (Course course : c.courses) {
+				String cid = course.course_id;
+				if (cid != null) {
+					Intent i = new Intent(mContext, RestIPSyncService.class);
+					i.setData(Uri.parse(mServerApiUrl + "/"
+							+ String.format(ApiEndpoints.NEWS_ENDPOINT, cid)));
+
+					i.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
+							getResultReceiver());
+
+					mContext.startService(i);
+				}
+			}
+
+		}
+
+	}
+
 	class NewsParserTask extends AbstractParserTask<News> {
+		ContentResolver resolver = mContext.getContentResolver();
 
 		@Override
 		protected News doInBackground(String... params) {
-			Log.i(TAG, "Parsing started");
 			News items = new News();
 			JsonParser jp;
 			try {
@@ -116,7 +142,35 @@ public class NewsResponderFragment extends
 				}
 			}
 			if (!items.news.isEmpty()) {
-				NewsRepository.getInstance(mContext).addNews(items);
+				// NewsRepository.getInstance(mContext).addNews(items);
+				for (NewsItem newsItem : items.news) {
+
+					ContentValues values = new ContentValues();
+
+					values.put(NewsContract.Columns.NEWS_ID, newsItem.news_id);
+					values.put(NewsContract.Columns.NEWS_TOPIC, newsItem.topic);
+					values.put(NewsContract.Columns.NEWS_BODY, newsItem.body);
+					values.put(NewsContract.Columns.NEWS_DATE,
+							newsItem.date * 1000L);
+					values.put(NewsContract.Columns.NEWS_USER_ID,
+							newsItem.user_id);
+					values.put(NewsContract.Columns.NEWS_CHDATE,
+							newsItem.chdate * 1000L);
+					values.put(NewsContract.Columns.NEWS_MKDATE,
+							newsItem.mkdate * 1000L);
+					values.put(NewsContract.Columns.NEWS_EXPIRE,
+							newsItem.expire * 1000L);
+					values.put(NewsContract.Columns.NEWS_ALLOW_COMMENTS,
+							newsItem.allow_comments);
+					values.put(NewsContract.Columns.NEWS_CHDATE_UID,
+							newsItem.chdate_uid);
+					values.put(NewsContract.Columns.NEWS_BODY_ORIGINAL,
+							newsItem.body_original);
+					values.put(NewsContract.Columns.NEWS_COURSE_ID,
+							mResponseUri.getLastPathSegment());
+
+					resolver.insert(NewsContract.CONTENT_URI, values);
+				}
 			}
 			return items;
 		}
@@ -124,8 +178,7 @@ public class NewsResponderFragment extends
 		@Override
 		protected void onPostExecute(News result) {
 			super.onPostExecute(result);
-
-			mReturnItem = result;
+			newData = true;
 			loadData();
 		}
 

@@ -7,15 +7,27 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.courses;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -23,23 +35,22 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.backend.datamodel.Course;
-import de.elanev.studip.android.app.backend.datamodel.Courses;
-import de.elanev.studip.android.app.backend.datamodel.Semester;
-import de.elanev.studip.android.app.backend.datamodel.Semesters;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
-import de.elanev.studip.android.app.backend.db.CoursesRepository;
-import de.elanev.studip.android.app.backend.db.SemestersRepository;
+import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.net.services.syncservice.activitys.CoursesResponderFragment;
-import de.elanev.studip.android.app.frontend.news.NewsFragment;
+import de.elanev.studip.android.app.frontend.news.CourseNewsFragment;
+import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 
 /**
  * @author joern
  * 
  */
-public class CoursesFragment extends SherlockListFragment {
-	public static final String TAG = NewsFragment.class.getSimpleName();
+public class CoursesFragment extends SherlockListFragment implements
+		LoaderCallbacks<Cursor> {
+	public static final String TAG = CourseNewsFragment.class.getSimpleName();
 	private Context mContext = null;
+	private CourseAdapter mCourseAdapter;
+	private SimpleSectionedListAdapter mAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -58,7 +69,58 @@ public class CoursesFragment extends SherlockListFragment {
 		}
 		ft.commit();
 
-		setListAdapter(getNewListAdapter());
+		mCourseAdapter = new CourseAdapter(mContext);
+		mAdapter = new SimpleSectionedListAdapter(mContext,
+				R.layout.list_item_header, mCourseAdapter);
+		setListAdapter(mAdapter);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.list, null);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		getLoaderManager().initLoader(0, null, this);
+	}
+
+	protected final ContentObserver mObserver = new ContentObserver(
+			new Handler()) {
+		@Override
+		public void onChange(boolean selfChange) {
+			if (getActivity() == null) {
+				return;
+			}
+
+			Loader<Cursor> loader = getLoaderManager().getLoader(0);
+			if (loader != null) {
+				loader.forceLoad();
+			}
+		}
+	};
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
+	 * (android.app.Activity)
+	 */
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		activity.getContentResolver().registerContentObserver(
+				CoursesContract.CONTENT_URI, true, mObserver);
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		getActivity().getContentResolver().unregisterContentObserver(mObserver);
 	}
 
 	/*
@@ -71,121 +133,133 @@ public class CoursesFragment extends SherlockListFragment {
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		if (l.getItemAtPosition(position) instanceof CourseAdapterItem) {
-			CourseAdapterItem item = (CourseAdapterItem) l
-					.getItemAtPosition(position);
-
+		Object selectedObject = l.getItemAtPosition(position);
+		if (selectedObject instanceof CursorWrapper) {
 			Intent intent = new Intent();
 			intent.setClass(getActivity(), CourseViewActivity.class);
-			intent.putExtra(CoursesContract.Columns.COURSE_ID, item.cid);
-			intent.putExtra(CoursesContract.Columns.COURSE_TITLE, item.tag);
+			intent.putExtra(
+					CoursesContract.Columns.COURSE_ID,
+					((CursorWrapper) selectedObject).getString(((CursorWrapper) selectedObject)
+							.getColumnIndex(CoursesContract.Columns.COURSE_ID)));
+			intent.putExtra(
+					CoursesContract.Columns._ID,
+					((CursorWrapper) selectedObject).getString(((CursorWrapper) selectedObject)
+							.getColumnIndex(CoursesContract.Columns._ID)));
+
 			mContext.startActivity(intent);
-
 		}
-	}
-
-	public CourseAdapter getNewListAdapter() {
-		Courses courses = CoursesRepository.getInstance(mContext)
-				.getAllCourses();
-		if (courses.courses.size() == 0) {
-			return null;
-		} else {
-			Semesters semesters = SemestersRepository.getInstance(mContext)
-					.getAllSemesters();
-			CourseAdapter adapter = new CourseAdapter(mContext);
-			adapter.clear();
-			for (Semester sem : semesters.semesters) {
-				adapter.add(new SemesterItem(sem.title));
-				for (Course c : courses.courses) {
-					if (c.semester_id.equals(sem.semester_id)) {
-						adapter.add(new CourseAdapterItem(c.title, c.course_id));
-					}
-				}
-			}
-			return adapter;
-		}
-
 	}
 
 	/*
-	 * ArrayAdapter and items for SemesterHeader and Courses
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
+	 * android.os.Bundle)
 	 */
-	private interface Item {
-		public boolean isHeader();
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		return new CursorLoader(getActivity(), CoursesContract.CONTENT_URI,
+				CourseQuery.PROJECTION, null, null,
+				CoursesContract.Qualified.COURSES_COURSE_SEMESERT_ID + " ASC");
 	}
 
-	private class CourseAdapterItem implements Item {
-		public String tag;
-		public String cid;
-
-		public CourseAdapterItem(String tag, String cid) {
-			this.tag = tag;
-			this.cid = cid;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
+	 * .support.v4.content.Loader, java.lang.Object)
+	 */
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		if (getActivity() == null) {
+			return;
 		}
 
-		public boolean isHeader() {
-			return false;
+		List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
+		cursor.moveToFirst();
+		String prevSemesterId = null;
+		String currSemesterId = null;
+		while (!cursor.isAfterLast()) {
+			currSemesterId = cursor
+					.getString(cursor
+							.getColumnIndex(CoursesContract.Columns.COURSE_SEMESERT_ID));
+			if (!TextUtils.equals(prevSemesterId, currSemesterId)) {
+				sections.add(new SimpleSectionedListAdapter.Section(
+						cursor.getPosition(),
+						cursor.getString(cursor
+								.getColumnIndex(SemestersContract.Columns.SEMESTER_TITLE))));
+			}
+			prevSemesterId = currSemesterId;
+			cursor.moveToNext();
 		}
+
+		mCourseAdapter.changeCursor(cursor);
+
+		SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
+				.size()];
+		mAdapter.setSections(sections.toArray(dummy));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
+	 * .support.v4.content.Loader)
+	 */
+	public void onLoaderReset(Loader<Cursor> arg0) {
 
 	}
 
-	private class SemesterItem implements Item {
-		String title;
+	public interface CourseQuery {
 
-		public SemesterItem(String title) {
-			this.title = title;
-		}
-
-		public boolean isHeader() {
-			return true;
-		}
+		String[] PROJECTION = { CoursesContract.Qualified.COURSES_ID,
+				CoursesContract.Qualified.COURSES_COURSE_TITLE,
+				CoursesContract.Qualified.COURSES_COURSE_ID,
+				SemestersContract.Qualified.SEMESTERS_SEMESTER_ID,
+				SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE };
 
 	}
 
-	public class CourseAdapter extends ArrayAdapter<Item> {
+	class CourseAdapter extends CursorAdapter {
 
 		public CourseAdapter(Context context) {
-			super(context, 0);
+			super(context, null, false);
 		}
 
-		public View getView(int position, View convertView, ViewGroup parent) {
-			final Item item = getItem(position);
-			if (item != null) {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.support.v4.widget.CursorAdapter#bindView(android.view.View,
+		 * android.content.Context, android.database.Cursor)
+		 */
+		@Override
+		public void bindView(View view, Context context, final Cursor cursor) {
+			final String courseTitle = cursor.getString(1);
 
-				if (item.isHeader()) {
+			final TextView courseTitleTextVew = (TextView) view
+					.findViewById(R.id.title);
 
-					// it's a semester header
-					convertView = LayoutInflater.from(getContext()).inflate(
-							R.layout.text_item, null);
+			courseTitleTextVew.setText(courseTitle);
 
-					// killing all listeners for headers
-					convertView.setOnClickListener(null);
-					convertView.setOnLongClickListener(null);
-					convertView.setLongClickable(false);
-
-					final TextView semesterTitle = (TextView) convertView
-							.findViewById(R.id.title);
-					semesterTitle.setText(((SemesterItem) item).title);
-
-				} else {
-
-					// it's a course item
-					convertView = LayoutInflater.from(getContext()).inflate(
-							R.layout.courses_item, null);
-
-					final ImageView icon = (ImageView) convertView
-							.findViewById(R.id.course_icon);
-					icon.setImageResource(R.drawable.seminar);
-
-					final TextView tag = (TextView) convertView
-							.findViewById(R.id.title);
-					tag.setText(((CourseAdapterItem) item).tag);
-
-				}
-
-			}
-			return convertView;
+			final ImageView icon = (ImageView) view
+					.findViewById(R.id.course_icon);
+			icon.setImageResource(R.drawable.seminar);
 		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.support.v4.widget.CursorAdapter#newView(android.content.Context
+		 * , android.database.Cursor, android.view.ViewGroup)
+		 */
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			return getActivity().getLayoutInflater().inflate(
+					R.layout.courses_item, parent, false);
+		}
+
 	}
 
 }

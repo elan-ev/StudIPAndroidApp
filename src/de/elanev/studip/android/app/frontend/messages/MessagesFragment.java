@@ -7,12 +7,20 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.messages;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.frontend.util.TabbedSlidingFragmentActivity;
 
 /**
  * @author joern
  * 
  */
-public class MessagesFragment extends SherlockListFragment {
+public class MessagesFragment extends TabbedSlidingFragmentActivity {
+
+	/**
+	 * @param titleRes
+	 */
+	public MessagesFragment() {
+		super(R.string.Messages);
+	}
 
 }

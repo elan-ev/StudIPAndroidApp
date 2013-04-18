@@ -8,16 +8,22 @@
 package de.elanev.studip.android.app.backend.net.services.syncservice.activitys;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
+import android.content.ContentProviderOperation;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.net.Uri;
+import android.os.RemoteException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.datamodel.Events;
-import de.elanev.studip.android.app.backend.db.EventsRepository;
+import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.backend.db.EventsContract;
 import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 import de.elanev.studip.android.app.backend.net.services.syncservice.AbstractParserTask;
 import de.elanev.studip.android.app.backend.net.services.syncservice.RestIPSyncService;
@@ -39,23 +45,20 @@ public class EventsResponderFragment extends
 	 */
 	@Override
 	protected void loadData() {
-		String cid = getArguments().getString("cid");
-		if (mReturnItem == null && mContext != null) {
+		if (getActivity() != null) {
+			String cid = getArguments().getString("cid");
+			if (mReturnItem == null && mContext != null) {
 
-			Intent intent = new Intent(mContext, RestIPSyncService.class);
-			intent.setData(Uri.parse(String.format(mServerApiUrl + "/"
-					+ ApiEndpoints.COURSE_EVENTS_ENDPOINT + ".json", cid)));
+				Intent intent = new Intent(mContext, RestIPSyncService.class);
+				intent.setData(Uri.parse(String.format(mServerApiUrl + "/"
+						+ ApiEndpoints.COURSE_EVENTS_ENDPOINT, cid)));
 
-			intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
-					getResultReceiver());
+				intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
+						getResultReceiver());
 
-			mContext.startService(intent);
-		} else if (getActivity() != null) {
-
-			mFragment.setListAdapter(mFragment.getNewListAdapter());
-
+				mContext.startService(intent);
+			}
 		}
-
 	}
 
 	/*
@@ -72,6 +75,7 @@ public class EventsResponderFragment extends
 	}
 
 	class EventsLoaderTask extends AbstractParserTask<Events> {
+		ArrayList<ContentProviderOperation> mBatch = new ArrayList<ContentProviderOperation>();
 
 		@Override
 		protected Events doInBackground(String... params) {
@@ -89,8 +93,41 @@ public class EventsResponderFragment extends
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			EventsRepository.getInstance(getSherlockActivity())
-					.addEvents(items);
+
+			for (Event e : items.events) {
+				ContentProviderOperation.Builder builder;
+				builder = ContentProviderOperation
+						.newInsert(EventsContract.CONTENT_URI)
+						.withValue(EventsContract.Columns.EVENT_ID, e.event_id)
+						.withValue(EventsContract.Columns.EVENT_TITLE, e.title)
+						.withValue(EventsContract.Columns.EVENT_DESCRIPTION,
+								e.description)
+						.withValue(EventsContract.Columns.EVENT_ROOM, e.room)
+						.withValue(EventsContract.Columns.EVENT_START,
+								e.start * 1000L)
+						.withValue(EventsContract.Columns.EVENT_END,
+								e.end * 1000L)
+						.withValue(EventsContract.Columns.EVENT_CATEGORIES,
+								e.categories)
+						.withValue(EventsContract.Columns.EVENT_COURSE_ID,
+								e.course_id);
+
+				mBatch.add(builder.build());
+			}
+
+			if (!mBatch.isEmpty()) {
+				try {
+					mContext.getContentResolver().applyBatch(
+							AbstractContract.CONTENT_AUTHORITY, mBatch);
+				} catch (RemoteException e) {
+					throw new RuntimeException(
+							"Problem applying batch operation", e);
+				} catch (OperationApplicationException e) {
+					throw new RuntimeException(
+							"Problem applying batch operation", e);
+				}
+			}
+
 			return items;
 		}
 

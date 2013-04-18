@@ -8,22 +8,31 @@
 package de.elanev.studip.android.app.backend.net.services.syncservice.activitys;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import android.content.ContentProviderOperation;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.net.Uri;
+import android.os.RemoteException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import de.elanev.studip.android.app.backend.datamodel.Document;
 import de.elanev.studip.android.app.backend.datamodel.Documents;
 import de.elanev.studip.android.app.backend.datamodel.Folder;
 import de.elanev.studip.android.app.backend.datamodel.Folders;
-import de.elanev.studip.android.app.backend.db.DocumentsRepository;
+import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.backend.db.CoursesContract;
+import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 import de.elanev.studip.android.app.backend.net.services.syncservice.AbstractParserTask;
 import de.elanev.studip.android.app.backend.net.services.syncservice.RestIPSyncService;
 import de.elanev.studip.android.app.frontend.courses.CourseDocumentsFragment;
+import de.elanev.studip.android.app.util.TextTools;
 
 /**
  * @author joern
@@ -43,41 +52,42 @@ public class DocumentsResponderFragment extends
 	@Override
 	protected void loadData() {
 		String cid = null;
-		if (mContext != null) {
-			cid = getArguments().getString("cid");
+		if (getActivity() != null) {
+			if (mContext != null) {
+				cid = getArguments().getString(
+						CoursesContract.Columns.COURSE_ID);
 
-			if (mFolders == null) {
-
-				Intent intent = new Intent(mContext, RestIPSyncService.class);
-				intent.setData(Uri.parse(String.format(mServerApiUrl + "/"
-						+ ApiEndpoints.COURSE_DOCUMENTS_FOLDERS_ENDPOINT, cid)));
-
-				intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
-						getResultReceiver());
-				mContext.startService(intent);
-
-			} else if (mFolders != null && mReturnItem == null) {
-
-				for (Folder f : mFolders.folders) {
+				if (mFolders == null) {
 
 					Intent intent = new Intent(mContext,
 							RestIPSyncService.class);
-					intent.setData(Uri.parse(String
-							.format(mServerApiUrl
-									+ "/"
-									+ ApiEndpoints.COURSE_DOCUMENTS_FOLDERS_FILES_ENDPOINT,
-									new Object[] { cid, f.folder_id })));
+					intent.setData(Uri.parse(String.format(mServerApiUrl + "/"
+							+ ApiEndpoints.COURSE_DOCUMENTS_FOLDERS_ENDPOINT,
+							cid)));
 
 					intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
 							getResultReceiver());
 					mContext.startService(intent);
 
+				} else if (mFolders != null && mReturnItem == null) {
+
+					for (Folder f : mFolders.folders) {
+
+						Intent intent = new Intent(mContext,
+								RestIPSyncService.class);
+						intent.setData(Uri.parse(String
+								.format(mServerApiUrl
+										+ "/"
+										+ ApiEndpoints.COURSE_DOCUMENTS_FOLDERS_FILES_ENDPOINT,
+										new Object[] { cid, f.folder_id })));
+
+						intent.putExtra(
+								RestIPSyncService.RESTIP_RESULT_RECEIVER,
+								getResultReceiver());
+						mContext.startService(intent);
+
+					}
 				}
-
-			} else if (getActivity() != null) {
-
-				mFragment.setListAdapter(mFragment.getNewListAdapter());
-
 			}
 		}
 	}
@@ -96,8 +106,9 @@ public class DocumentsResponderFragment extends
 			fTask.execute(result);
 		} else {
 			DocumentsParserTask pTask = new DocumentsParserTask();
-			pTask.execute(new String[] { result,
-					getArguments().getString("cid") });
+			List<String> uriSegment = mResponseUri.getPathSegments();
+			String cid = uriSegment.get(uriSegment.size() - 3);
+			pTask.execute(new String[] { result, cid });
 		}
 	}
 
@@ -140,6 +151,7 @@ public class DocumentsResponderFragment extends
 	}
 
 	class DocumentsParserTask extends AbstractParserTask<Documents> {
+		ArrayList<ContentProviderOperation> mBatch = new ArrayList<ContentProviderOperation>();
 
 		@Override
 		protected Documents doInBackground(String... params) {
@@ -157,8 +169,54 @@ public class DocumentsResponderFragment extends
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			DocumentsRepository.getInstance(getSherlockActivity())
-					.addDocuments(items, params[1]);
+
+			ContentProviderOperation.Builder builder;
+			for (Document d : items.documents) {
+
+				builder = ContentProviderOperation
+						.newInsert(DocumentsContract.CONTENT_URI)
+						.withValue(DocumentsContract.Columns.DOCUMENT_ID,
+								d.document_id)
+						.withValue(DocumentsContract.Columns.DOCUMENT_FILENAME,
+								d.filename)
+						.withValue(
+								DocumentsContract.Columns.DOCUMENT_DESCRIPTION,
+								d.description)
+						.withValue(DocumentsContract.Columns.DOCUMENT_FILESIZE,
+								TextTools.readableFileSize(d.filesize))
+						.withValue(DocumentsContract.Columns.DOCUMENT_CHDATE,
+								d.chdate)
+						.withValue(DocumentsContract.Columns.DOCUMENT_MKDATE,
+								d.mkdate)
+						.withValue(
+								DocumentsContract.Columns.DOCUMENT_DOWNLOADS,
+								d.downloads)
+						.withValue(DocumentsContract.Columns.DOCUMENT_ICON,
+								d.icon)
+						.withValue(
+								DocumentsContract.Columns.DOCUMENT_PROTECTED,
+								d.file_protected)
+						.withValue(DocumentsContract.Columns.DOCUMENT_USER_ID,
+								d.user_id)
+						.withValue(
+								DocumentsContract.Columns.DOCUMENT_COURSE_ID,
+								params[1])
+						.withValue(
+								DocumentsContract.Columns.DOCUMENT_MIME_TYPE,
+								d.mime_type)
+						.withValue(DocumentsContract.Columns.DOCUMENT_NAME,
+								d.name);
+
+				mBatch.add(builder.build());
+			}
+			try {
+				mContext.getContentResolver().applyBatch(
+						AbstractContract.CONTENT_AUTHORITY, mBatch);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			} catch (OperationApplicationException e) {
+				e.printStackTrace();
+			}
 			return items;
 		}
 

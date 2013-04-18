@@ -40,9 +40,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		db.execSQL(NewsContract.CREATE_STRING);
 		// Courses
 		db.execSQL(CoursesContract.CREATE_STRING);
-		// db.execSQL(CoursesContract.CREATE_STUDENT_USER_STRING);
-		// db.execSQL(CoursesContract.CREATE_TEACHER_USER_STRING);
-		// db.execSQL(CoursesContract.CREATE_TUTOR_USER_STRING);
+		db.execSQL(CoursesContract.CREATE_COURSE_USER_STRING);
+
 		// Users
 		db.execSQL(UsersContract.CREATE_STRING);
 		// Documents
@@ -50,7 +49,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		// Messages
 		db.execSQL(MessagesContract.CREATE_STRING);
 		// Events
-		db.execSQL(EventsConstract.CREATE_STRING);
+		db.execSQL(EventsContract.CREATE_STRING);
 
 	}
 
@@ -64,12 +63,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		db.execSQL("drop table if exists " + NewsContract.TABLE);
 		// Courses
 		db.execSQL("drop table if exists " + CoursesContract.TABLE);
-		// db.execSQL("drop table if exists "
-		// + CoursesContract.STUDENT_COURSE_USER_TABLE);
-		// db.execSQL("drop table if exists "
-		// + CoursesContract.TEACHER_COURSE_USER_TABLE);
-		// db.execSQL("drop table if exists "
-		// + CoursesContract.TUTOR_COURSE_USER_TABLE);
+		db.execSQL("drop table if exists " + CoursesContract.COURSE_USER_TABLE);
 		// Users
 		db.execSQL("drop table if exists " + UsersContract.TABLE);
 		// Documents
@@ -77,7 +71,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		// Messages
 		db.execSQL("drop table if exists " + MessagesContract.TABLE);
 		// Events
-		db.execSQL("drop table if exists " + EventsConstract.TABLE);
+		db.execSQL("drop table if exists " + EventsContract.TABLE);
 
 		onCreate(db);
 	}

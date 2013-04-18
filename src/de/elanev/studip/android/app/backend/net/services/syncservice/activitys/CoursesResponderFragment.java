@@ -11,24 +11,33 @@
 package de.elanev.studip.android.app.backend.net.services.syncservice.activitys;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.ContentProviderOperation;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Courses;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
-import de.elanev.studip.android.app.backend.datamodel.Semesters;
-import de.elanev.studip.android.app.backend.db.CoursesRepository;
+import de.elanev.studip.android.app.backend.datamodel.User;
+import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.backend.db.CoursesContract;
+import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.SemestersRepository;
+import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.db.UsersRepository;
 import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 import de.elanev.studip.android.app.backend.net.services.syncservice.AbstractParserTask;
 import de.elanev.studip.android.app.backend.net.services.syncservice.RestApiRequest;
@@ -45,19 +54,18 @@ public class CoursesResponderFragment extends
 			.getSimpleName();
 
 	protected void loadData() {
-		if (mReturnItem == null && mContext != null) {
+		if (getActivity() != null) {
+			if (mReturnItem == null && mContext != null) {
 
-			Intent intent = new Intent(mContext, RestIPSyncService.class);
-			intent.setData(Uri.parse(mServerApiUrl + "/" + "courses.json"));
+				Intent intent = new Intent(mContext, RestIPSyncService.class);
+				intent.setData(Uri.parse(mServerApiUrl + "/"
+						+ ApiEndpoints.COURSES_ENDPOINT));
 
-			intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
-					getResultReceiver());
+				intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
+						getResultReceiver());
 
-			mContext.startService(intent);
-		} else if (getActivity() != null) {
-
-			mFragment.setListAdapter(mFragment.getNewListAdapter());
-
+				mContext.startService(intent);
+			}
 		}
 	}
 
@@ -68,15 +76,17 @@ public class CoursesResponderFragment extends
 	}
 
 	class CoursesParserTask extends AbstractParserTask<Courses> {
+		JsonParser mJsonParser;
+		ArrayList<ContentProviderOperation> mBatch = new ArrayList<ContentProviderOperation>();
 
 		@Override
 		protected Courses doInBackground(String... params) {
 			Log.i(TAG, "Parsing started");
 			Courses items = new Courses();
-			JsonParser jp;
+
 			try {
-				jp = jsonFactory.createJsonParser(params[0]);
-				items = objectMapper.readValue(jp, Courses.class);
+				mJsonParser = jsonFactory.createJsonParser(params[0]);
+				items = objectMapper.readValue(mJsonParser, Courses.class);
 			} catch (JsonParseException e) {
 				e.printStackTrace();
 				cancel(true);
@@ -89,10 +99,59 @@ public class CoursesResponderFragment extends
 
 			if (items != null && !items.courses.isEmpty()) {
 				RestApiRequest semesterLoader = new RestApiRequest();
-				Semesters semesterList = new Semesters();
+
 				SemestersRepository semesterDB = SemestersRepository
 						.getInstance(mContext);
 				for (Course c : items.courses) {
+					if (c != null) {
+						ContentProviderOperation.Builder builder;
+						try {
+							builder = ContentProviderOperation
+									.newInsert(CoursesContract.CONTENT_URI)
+									.withValue(
+											CoursesContract.Columns.COURSE_ID,
+											c.course_id)
+									.withValue(
+											CoursesContract.Columns.COURSE_TITLE,
+											c.title)
+									.withValue(
+											CoursesContract.Columns.COURSE_DESCIPTION,
+											c.description)
+									.withValue(
+											CoursesContract.Columns.COURSE_SUBTITLE,
+											c.subtitle)
+									.withValue(
+											CoursesContract.Columns.COURSE_LOCATION,
+											c.location)
+									.withValue(
+											CoursesContract.Columns.COURSE_SEMESERT_ID,
+											c.semester_id)
+									.withValue(
+											CoursesContract.Columns.COURSE_DURATION_TIME,
+											c.duration_time)
+									.withValue(
+											CoursesContract.Columns.COURSE_COLORS,
+											c.colors)
+									.withValue(
+											CoursesContract.Columns.COURSE_NUMBER,
+											c.number)
+									.withValue(
+											CoursesContract.Columns.COURSE_TYPE,
+											c.type)
+									.withValue(
+											CoursesContract.Columns.COURSE_MODULES,
+											objectMapper
+													.writeValueAsString(c.modules))
+									.withValue(
+											CoursesContract.Columns.COURSE_START_TIME,
+											c.start_time);
+							mBatch.add(builder.build());
+						} catch (JsonProcessingException e) {
+							e.printStackTrace();
+						}
+
+					}
+					// Load semester information for course
 					if (!semesterDB.semesterExists(c.semester_id)) {
 						String semeserResponse = semesterLoader.get(
 								ApiEndpoints.SEMESTERS_ENDPOINT, c.semester_id);
@@ -101,8 +160,9 @@ public class CoursesResponderFragment extends
 							// unwrap element
 							JSONObject jsono = (new JSONObject(semeserResponse))
 									.getJSONObject("semester");
-							jp = jsonFactory.createJsonParser(jsono.toString());
-							semester = objectMapper.readValue(jp,
+							mJsonParser = jsonFactory.createJsonParser(jsono
+									.toString());
+							semester = objectMapper.readValue(mJsonParser,
 									Semester.class);
 						} catch (JsonParseException e) {
 							e.printStackTrace();
@@ -112,21 +172,146 @@ public class CoursesResponderFragment extends
 							e.printStackTrace();
 						}
 						if (semester != null) {
-							semesterList.semesters.add(semester);
-
+							final ContentProviderOperation.Builder semesterBuilder = ContentProviderOperation
+									.newInsert(SemestersContract.CONTENT_URI)
+									.withValue(
+											SemestersContract.Columns.SEMESTER_ID,
+											semester.semester_id)
+									.withValue(
+											SemestersContract.Columns.SEMESTER_TITLE,
+											semester.title)
+									.withValue(
+											SemestersContract.Columns.SEMESTER_DESCRIPTION,
+											semester.description)
+									.withValue(
+											SemestersContract.Columns.SEMESTER_BEGIN,
+											semester.begin)
+									.withValue(
+											SemestersContract.Columns.SEMESTER_END,
+											semester.end)
+									.withValue(
+											SemestersContract.Columns.SEMESTER_SEMINARS_BEGIN,
+											semester.seminars_begin)
+									.withValue(
+											SemestersContract.Columns.SEMESTER_SEMINARS_END,
+											semester.seminars_end);
+							mBatch.add(semesterBuilder.build());
 						}
 					}
-				}
-				if (!semesterList.semesters.isEmpty()) {
-					SemestersRepository.getInstance(mContext).addSemesters(
-							semesterList);
+
+					// Load teacher and tutor information for course
+					for (String userId : c.teachers) {
+						User usr = loadUser(userId);
+						if (usr != null) {
+							usr.role = CoursesContract.USER_ROLE_TEACHER;
+							addUserToBatch(usr, c.course_id);
+						}
+					}
+					for (String userId : c.tutors) {
+						User usr = loadUser(userId);
+						if (usr != null) {
+							usr.role = CoursesContract.USER_ROLE_TUTOR;
+							addUserToBatch(usr, c.course_id);
+						}
+					}
+					for (String userId : c.students) {
+						final ContentProviderOperation.Builder courseUserBuilder = ContentProviderOperation
+								.newInsert(
+										CoursesContract.COURSES_USERS_CONTENT_URI)
+								.withValue(
+										CoursesContract.Columns.COURSE_USER_COURSE_ID,
+										c.course_id)
+								.withValue(
+										CoursesContract.Columns.COURSE_USER_USER_ID,
+										userId)
+								.withValue(
+										CoursesContract.Columns.COURSE_USER_USER_ROLE,
+										CoursesContract.USER_ROLE_STUDENT);
+						mBatch.add(courseUserBuilder.build());
+					}
 				}
 			}
-			if (!items.courses.isEmpty()) {
-				CoursesRepository.getInstance(mContext).addCourses(items);
+			if (!mBatch.isEmpty()) {
+				try {
+					mContext.getContentResolver().applyBatch(
+							AbstractContract.CONTENT_AUTHORITY, mBatch);
+				} catch (RemoteException e) {
+					throw new RuntimeException(
+							"Problem applying batch operation", e);
+				} catch (OperationApplicationException e) {
+					throw new RuntimeException(
+							"Problem applying batch operation", e);
+				}
 			}
 
 			return items;
+		}
+
+		private User loadUser(String userId) {
+			RestApiRequest userLoader = new RestApiRequest();
+			UsersRepository userDb = UsersRepository.getInstance(mContext);
+			User usr = null;
+			if (!userDb.userExists(userId)) {
+				String userResponse = userLoader.get(
+						ApiEndpoints.USER_ENDPOINT, userId);
+
+				try {
+					// unwrap element
+					JSONObject jsono = (new JSONObject(userResponse))
+							.getJSONObject("user");
+					mJsonParser = jsonFactory
+							.createJsonParser(jsono.toString());
+					usr = objectMapper.readValue(mJsonParser, User.class);
+				} catch (JsonParseException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			} else {
+				usr = userDb.getUser(userId);
+			}
+			return usr;
+		}
+
+		private void addUserToBatch(User usr, String courseId) {
+			final ContentProviderOperation.Builder builder = ContentProviderOperation
+					.newInsert(UsersContract.CONTENT_URI)
+					.withValue(UsersContract.Columns.USER_ID, usr.user_id)
+					.withValue(UsersContract.Columns.USER_USERNAME,
+							usr.username)
+					.withValue(UsersContract.Columns.USER_TITLE_PRE,
+							usr.title_pre)
+					.withValue(UsersContract.Columns.USER_FORENAME,
+							usr.forename)
+					.withValue(UsersContract.Columns.USER_LASTNAME,
+							usr.lastname)
+					.withValue(UsersContract.Columns.USER_TITLE_POST,
+							usr.title_post)
+					.withValue(UsersContract.Columns.USER_EMAIL, usr.email)
+					.withValue(UsersContract.Columns.USER_HOMEPAGE,
+							usr.homepage)
+					.withValue(UsersContract.Columns.USER_PHONE, usr.phone)
+					.withValue(UsersContract.Columns.USER_PRIVADR, usr.privadr)
+					.withValue(UsersContract.Columns.USER_PERMS, usr.perms)
+					.withValue(UsersContract.Columns.USER_AVATAR_SMALL,
+							usr.avatar_small)
+					.withValue(UsersContract.Columns.USER_AVATAR_MEDIUM,
+							usr.avatar_medium)
+					.withValue(UsersContract.Columns.USER_AVATAR_NORMAL,
+							usr.avatar_normal);
+			mBatch.add(builder.build());
+
+			final ContentProviderOperation.Builder courseUserBuilder = ContentProviderOperation
+					.newInsert(CoursesContract.COURSES_USERS_CONTENT_URI)
+					.withValue(CoursesContract.Columns.COURSE_USER_COURSE_ID,
+							courseId)
+					.withValue(CoursesContract.Columns.COURSE_USER_USER_ID,
+							usr.user_id)
+					.withValue(CoursesContract.Columns.COURSE_USER_USER_ROLE,
+							usr.role);
+			mBatch.add(courseUserBuilder.build());
 		}
 
 		@Override

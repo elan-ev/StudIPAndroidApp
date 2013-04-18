@@ -60,6 +60,24 @@
             android:name=".frontend.util.AbstractFragmentActivity"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name=".frontend.news.NewsViewActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".frontend.news.NewsItemView"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".frontend.courses.CoursesActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+
+        <provider
+            android:name=".backend.provider.RestIpProvider"
+            android:authorities="de.elanev.studip.android.app"
+            android:label="@string/app_name"
+            android:syncable="true" />
     </application>
 
 </manifest>

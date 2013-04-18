@@ -7,11 +7,14 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.db;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 public abstract class AbstractContract {
 	public String TABLE;
 	public static String CREATE_STRING;
+	public static final String CONTENT_AUTHORITY = "de.elanev.studip.android.app";
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 	protected AbstractContract() {
 	}
