@@ -44,7 +44,7 @@ public class CourseViewActivity extends TabbedSlidingFragmentActivity {
 		setContentView(mPager);
 		mPagerAdapter = new BasePagerTabsAdapter(this,
 				getSupportFragmentManager(), mPager, mActionbar);
-		mPagerAdapter.addTab(mActionbar.newTab(), R.string.appointments,
+		mPagerAdapter.addTab(mActionbar.newTab(), R.string.Overview,
 				CourseEventsFragment.class, intentExtras);
 		mPagerAdapter.addTab(mActionbar.newTab(), R.string.attendees,
 				CourseAttendeesFragment.class, intentExtras);

@@ -72,8 +72,6 @@ public class MenuFragment extends ListFragment {
 					getString(R.string.Messages)));
 			adapter.add(new MenuItem(R.drawable.community,
 					getString(R.string.Contacts)));
-			adapter.add(new MenuItem(R.drawable.files,
-					getString(R.string.Documents)));
 		}
 		adapter.add(new MenuItem(R.drawable.admin, getString(R.string.Settings)));
 		adapter.add(new MenuItem(R.drawable.question_circle,
@@ -109,11 +107,11 @@ public class MenuFragment extends ListFragment {
 		if (cls != null) {
 			((SlidingFragmentActivity) mContext).getSlidingMenu()
 					.setSelectedView(v);
-			switchFragment(cls);
+			switchActivity(cls);
 		}
 	}
 
-	private void switchFragment(Class<?> cls) {
+	private void switchActivity(Class<?> cls) {
 		((SlidingFragmentActivity) mContext).getSlidingMenu().showContent();
 		Class<?> clz = getActivity().getClass();
 		if (!cls.equals(clz)) {
