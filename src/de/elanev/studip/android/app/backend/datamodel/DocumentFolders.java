@@ -13,10 +13,10 @@ import java.util.ArrayList;
  * @author joern
  * 
  */
-public class Folders {
-	public ArrayList<Folder> folders;
+public class DocumentFolders {
+	public ArrayList<DocumentFolder> folders;
 
-	public Folders() {
-		folders = new ArrayList<Folder>();
+	public DocumentFolders() {
+		folders = new ArrayList<DocumentFolder>();
 	}
 }

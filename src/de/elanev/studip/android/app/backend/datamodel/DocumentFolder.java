@@ -11,7 +11,7 @@ package de.elanev.studip.android.app.backend.datamodel;
  * @author joern
  * 
  */
-public class Folder {
+public class DocumentFolder {
 	public String folder_id;
 	public String user_id;
 	public String name;
@@ -20,7 +20,7 @@ public class Folder {
 	public String description;
 	public Permissions permissions;
 
-	public Folder() {
+	public DocumentFolder() {
 	}
 
 	/**
@@ -32,8 +32,9 @@ public class Folder {
 	 * @param description
 	 * @param permissions
 	 */
-	public Folder(String folder_id, String user_id, String name, String mkdate,
-			String chdate, String description, Permissions permissions) {
+	public DocumentFolder(String folder_id, String user_id, String name,
+			String mkdate, String chdate, String description,
+			Permissions permissions) {
 		this.folder_id = folder_id;
 		this.user_id = user_id;
 		this.name = name;

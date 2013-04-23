@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.elanev.studip.android.app.backend.datamodel.Document;
 import de.elanev.studip.android.app.backend.datamodel.Documents;
-import de.elanev.studip.android.app.backend.datamodel.Folder;
-import de.elanev.studip.android.app.backend.datamodel.Folders;
+import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
+import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
@@ -40,7 +40,7 @@ import de.elanev.studip.android.app.util.TextTools;
  */
 public class DocumentsResponderFragment extends
 		AbstractRestIPResultReceiver<Documents, CourseDocumentsFragment> {
-	private Folders mFolders = null;
+	private DocumentFolders mFolders = null;
 
 	/*
 	 * (non-Javadoc)
@@ -71,7 +71,7 @@ public class DocumentsResponderFragment extends
 
 				} else if (mFolders != null && mReturnItem == null) {
 
-					for (Folder f : mFolders.folders) {
+					for (DocumentFolder f : mFolders.folders) {
 
 						Intent intent = new Intent(mContext,
 								RestIPSyncService.class);
@@ -112,7 +112,7 @@ public class DocumentsResponderFragment extends
 		}
 	}
 
-	class FolderParserTask extends AbstractParserTask<Folders> {
+	class FolderParserTask extends AbstractParserTask<DocumentFolders> {
 
 		/*
 		 * (non-Javadoc)
@@ -120,12 +120,12 @@ public class DocumentsResponderFragment extends
 		 * @see android.os.AsyncTask#doInBackground(Params[])
 		 */
 		@Override
-		protected Folders doInBackground(String... params) {
+		protected DocumentFolders doInBackground(String... params) {
 			JsonParser jp;
-			Folders folders = null;
+			DocumentFolders folders = null;
 			try {
 				jp = jsonFactory.createJsonParser(params[0]);
-				folders = objectMapper.readValue(jp, Folders.class);
+				folders = objectMapper.readValue(jp, DocumentFolders.class);
 			} catch (JsonParseException e) {
 				e.printStackTrace();
 				cancel(true);
@@ -142,7 +142,7 @@ public class DocumentsResponderFragment extends
 		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
 		 */
 		@Override
-		protected void onPostExecute(Folders result) {
+		protected void onPostExecute(DocumentFolders result) {
 			super.onPostExecute(result);
 			mFolders = result;
 			loadData();
