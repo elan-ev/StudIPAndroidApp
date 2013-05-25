@@ -15,7 +15,7 @@ import android.text.Html;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.slidingmenu.lib.SlidingMenu;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.NewsContract;
@@ -77,7 +77,7 @@ public class NewsItemView extends BaseSlidingFragmentActivity {
 
 		SlidingMenu sm = getSlidingMenu();
 		sm.setShadowWidthRes(R.dimen.shadow_width);
-		sm.setShadowDrawable(R.drawable.shadow);
+		sm.setShadowDrawable(R.drawable.shadow_left);
 		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		sm.setFadeDegree(0.35f);
 		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);

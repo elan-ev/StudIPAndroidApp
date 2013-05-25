@@ -244,7 +244,7 @@ public class CoursesFragment extends SherlockListFragment implements
 
 			final ImageView icon = (ImageView) view
 					.findViewById(R.id.course_icon);
-			icon.setImageResource(R.drawable.seminar);
+			icon.setImageResource(R.drawable.ic_menu_seminar);
 		}
 
 		/*

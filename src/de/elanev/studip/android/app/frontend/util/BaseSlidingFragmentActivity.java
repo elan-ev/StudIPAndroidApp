@@ -14,8 +14,8 @@ import android.support.v4.app.ListFragment;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.slidingmenu.lib.SlidingMenu;
-import com.slidingmenu.lib.app.SlidingFragmentActivity;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import de.elanev.studip.android.app.R;
 
@@ -37,7 +37,8 @@ public class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mActionbar = getSupportActionBar();
-		mActionbar.setDisplayHomeAsUpEnabled(true);
+		mActionbar.setDisplayHomeAsUpEnabled(false);
+		mActionbar.setHomeButtonEnabled(true);
 		setSlidingActionBarEnabled(true);
 
 		setTitle(mTitleRes);
@@ -60,7 +61,7 @@ public class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 
 		SlidingMenu sm = getSlidingMenu();
 		sm.setShadowWidthRes(R.dimen.shadow_width);
-		sm.setShadowDrawable(R.drawable.shadow);
+		sm.setShadowDrawable(R.drawable.shadow_left);
 		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		sm.setFadeDegree(0.35f);
 		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
