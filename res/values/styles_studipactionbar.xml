@@ -20,10 +20,10 @@
 <resources>
 
     <style name="Theme.studipactionbar" parent="@style/Theme.Sherlock.Light.DarkActionBar">
-        <item name="android:icon">@drawable/new_indicator</item>
+        <item name="android:icon">@drawable/menu_indicator</item>
         <item name="homeAsUpIndicator">@null</item>
         <item name="android:homeAsUpIndicator">@null</item>
-        <item name="icon">@drawable/new_indicator</item>
+        <item name="icon">@drawable/menu_indicator</item>
         <item name="actionBarItemBackground">@drawable/selectable_background_studipactionbar</item>
         <item name="popupMenuStyle">@style/studipactionbar_PopupMenu</item>
         <item name="dropDownListViewStyle">@style/studipactionbar_DropDownListView</item>
