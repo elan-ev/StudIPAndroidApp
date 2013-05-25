@@ -6,31 +6,31 @@
   which accompanies this distribution, and is available at
   http://www.gnu.org/licenses/gpl.html
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
     <ImageView
         android:id="@+id/menuItemImage"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="left|center"
         android:contentDescription="@string/menu_item"
-        android:padding="10dp"
-        android:src="@drawable/ic_launcher" />
+        android:padding="8dp" />
 
-    <TextView
+    <de.elanev.studip.android.app.widget.TypefacedTextView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
         android:id="@+id/menuItemText"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_alignBottom="@+id/menuItemImage"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/menuItemImage"
-        android:gravity="center_vertical"
-        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|center"
+        android:paddingBottom="14dp"
+        android:paddingTop="14dp"
+        android:layout_marginLeft="48dp"
         android:text="@string/menu_item"
-        android:textAppearance="@android:style/TextAppearance.Large.Inverse" />
+        android:textColor="@android:color/primary_text_dark"
+        android:textSize="16sp"
+        font:typeface="Roboto-Regular.ttf" />
 
-</RelativeLayout>
+</FrameLayout>
