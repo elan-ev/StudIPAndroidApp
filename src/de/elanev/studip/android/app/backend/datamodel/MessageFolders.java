@@ -5,22 +5,18 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
-package de.elanev.studip.android.app.frontend.messages;
+package de.elanev.studip.android.app.backend.datamodel;
 
-import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.frontend.util.TabbedSlidingFragmentActivity;
+import java.util.ArrayList;
 
 /**
  * @author joern
  * 
  */
-public class MessagesFragment extends TabbedSlidingFragmentActivity {
+public class MessageFolders {
+	public ArrayList<String> folders;
 
-	/**
-	 * @param titleRes
-	 */
-	public MessagesFragment() {
-		super(R.string.Messages);
+	public MessageFolders() {
+		folders = new ArrayList<String>();
 	}
-
 }
