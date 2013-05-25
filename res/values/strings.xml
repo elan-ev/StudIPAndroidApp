@@ -51,6 +51,35 @@
     <string name="Teacher">DozentIn</string>
     <string name="next_appointments">Nächste Termin</string>
     <string name="Tutor">TutorIn</string>
-	<string name="Student">StudentIn</string>
-	<string name="no_appointments">Keine Termine</string>
+    <string name="Student">StudentIn</string>
+    <string name="no_appointments">Keine Termine</string>
+    <string name="Inbox">Eingang</string>
+    <string name="Outbox">Ausgang</string>
+    <string name="Compose">Erstellen</string>
+    <string name="message_unread_icon">Nachricht nicht gelesen icon</string>
+    <string name="Menu">Menü</string>
+    <string name="mark_as_read">als gelesen markieren</string>
+    <string name="read">gelesen</string>
+    <string name="delete_message">Nachricht löschen</string>
+    <string name="delete">löschen</string>
+    <string name="forward_message">Nachricht weiterleiten</string>
+    <string name="forward">weiterleiten</string>
+    <string name="reply_message">Nachricht antworten</string>
+    <string name="reply">antworten</string>
+    <string name="message_marked_read">Nachricht als gelesen markiert</string>
+    <string name="message_deleted">Nachricht gelöscht</string>
+    <string name="Receiver">Empfänger</string>
+    <string name="Subject">Betreff</string>
+    <string name="original_message">Original Nachricht</string>
+    <string name="message_forward_string">WG</string>
+    <string name="message_reply_string">AW</string>
+    <string name="Send">Senden</string>
+    <string name="compose_message">Nachricht schreiben</string>
+    <string name="message_sent">Nachricht versandt</string>
+    <string name="internal_error">Interner Server Fehler</string>
+    <string name="wrong_parameter">Falsche Parameter</string>
+    <string name="receiver_not_found">Empfänger unbekannt</string>
+    <string name="unknown_error">Unbekannter Fehler aufgetreten</string>
+    <string name="something_went_wrong">Es ist ein Fehler aufgetreten</string>
+
 </resources>

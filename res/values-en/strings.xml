@@ -53,5 +53,33 @@
     <string name="Tutor">Tutor</string>
     <string name="Student">Student</string>
     <string name="no_appointments">No Appointments</string>
+    <string name="Inbox">Inbox</string>
+    <string name="Outbox">Outbox</string>
+    <string name="Compose">Compose</string>
+    <string name="message_unread_icon">message unread icon</string>
+    <string name="Menu">Menu</string>
+    <string name="mark_as_read">mark as read</string>
+    <string name="read">read</string>
+    <string name="delete_message">delete message</string>
+    <string name="delete">delete</string>
+    <string name="forward_message">forward message</string>
+    <string name="forward">forward</string>
+    <string name="reply_message">reply message</string>
+    <string name="reply">reply</string>
+    <string name="message_marked_read">message marked as read</string>
+    <string name="message_deleted">message deleted</string>
+    <string name="Receiver">Receiver</string>
+    <string name="Subject">Subject</string>
+    <string name="original_message">original message</string>
+    <string name="message_forward_string">FWD</string>
+    <string name="message_reply_string">RE</string>
+    <string name="Send">send</string>
+    <string name="compose_message">Compose message</string>
+    <string name="message_sent">Message sent</string>
+    <string name="internal_error">Internal Error</string>
+    <string name="wrong_parameter">Wrong parameter</string>
+    <string name="receiver_not_found">Unknown receiver</string>
+    <string name="unknown_error">Unknwon error</string>
+    <string name="something_went_wrong">Something went wrong</string>
 
 </resources>

@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TempServerDeclares;
 
@@ -40,7 +39,7 @@ public class ChooseServerFragment extends SherlockListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = getActivity();
-		mAdapter = new ServerAdapter(mContext, R.layout.list_item_image_text,
+		mAdapter = new ServerAdapter(mContext, android.R.layout.simple_list_item_1,
 				getItems());
 	}
 
@@ -120,7 +119,7 @@ public class ChooseServerFragment extends SherlockListFragment {
 
 			}
 			Server server = data[position];
-			((TextView) convertView.findViewById(R.id.text))
+			((TextView) convertView.findViewById(android.R.id.text1))
 					.setText(server.NAME);
 			convertView.setTag(server);
 			return convertView;
