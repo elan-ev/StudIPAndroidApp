@@ -2,9 +2,9 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:left="8dp"
+        android:left="10dp"
         android:right="8dp" >
-        <bitmap android:src="@drawable/reveal" />
+        <bitmap android:src="@drawable/ic_action_menu" />
     </item>
 
 </layer-list>
