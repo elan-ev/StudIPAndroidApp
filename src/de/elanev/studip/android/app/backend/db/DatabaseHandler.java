@@ -34,8 +34,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		// Semestes
 		db.execSQL(SemestersContract.CREATE_STRING);
-		// Activites
-		db.execSQL(ActivitiesContract.CREATE_STRING);
 		// News
 		db.execSQL(NewsContract.CREATE_STRING);
 		// Courses
@@ -46,8 +44,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		db.execSQL(UsersContract.CREATE_STRING);
 		// Documents
 		db.execSQL(DocumentsContract.CREATE_STRING);
+		db.execSQL(DocumentsContract.CREATE_DOCUMENT_FOLDER_STRING);
 		// Messages
-		db.execSQL(MessagesContract.CREATE_STRING);
+		db.execSQL(MessagesContract.CREATE_TABLE_MESSAGES_STRING);
+		db.execSQL(MessagesContract.CREATE_TABLE_MESSAGE_FOLDERS_STRING);
 		// Events
 		db.execSQL(EventsContract.CREATE_STRING);
 
@@ -57,8 +57,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Semesters
 		db.execSQL("drop table if exists " + SemestersContract.TABLE);
-		// Activites
-		db.execSQL("drop table if exists " + ActivitiesContract.TABLE);
 		// News
 		db.execSQL("drop table if exists " + NewsContract.TABLE);
 		// Courses
@@ -68,12 +66,36 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		db.execSQL("drop table if exists " + UsersContract.TABLE);
 		// Documents
 		db.execSQL("drop table if exists " + DocumentsContract.TABLE);
+		db.execSQL("drop table if exists "
+				+ DocumentsContract.DOCUMENT_FOLDER_TABLE);
 		// Messages
-		db.execSQL("drop table if exists " + MessagesContract.TABLE);
+		db.execSQL("drop table if exists " + MessagesContract.TABLE_MESSAGES);
+		db.execSQL("drop table if exists "
+				+ MessagesContract.TABLE_MESSAGE_FOLDERS);
 		// Events
 		db.execSQL("drop table if exists " + EventsContract.TABLE);
 
 		onCreate(db);
+	}
+
+	/**
+	 * 
+	 */
+	public void deleteDatabase(Context context) {
+		context.deleteDatabase(DATABASE_NAME);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.database.sqlite.SQLiteOpenHelper#onOpen(android.database.sqlite
+	 * .SQLiteDatabase)
+	 */
+	@Override
+	public void onOpen(SQLiteDatabase db) {
+		db.execSQL("PRAGMA foreign_keys = ON;");
+		super.onOpen(db);
 	}
 
 }

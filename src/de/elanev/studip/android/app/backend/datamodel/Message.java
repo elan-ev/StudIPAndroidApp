@@ -7,31 +7,75 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.datamodel;
 
-import java.util.Date;
-
+/**
+ * Represents a message as java object
+ * 
+ * @author joern
+ * 
+ */
 public class Message {
+	/**
+	 * the studip internal id of the message
+	 */
 	public String message_id;
+	/**
+	 * the studip internal id of the message sender
+	 */
 	public String sender_id;
+	/**
+	 * the studip internal id of the message receiver
+	 */
 	public String receiver_id;
+	/**
+	 * the message subject
+	 */
 	public String subject;
+	/**
+	 * the message
+	 */
 	public String message;
-	public Date mkdate;
+	/**
+	 * the date timestamp of the message
+	 */
+	public Long mkdate;
+	/**
+	 * the priority of the message
+	 */
 	public String priority;
-	public Boolean unread;
+	/**
+	 * signals if the message is read or not
+	 */
+	public int unread;
 
 	/**
+	 * default constructor, needed for Jackson
+	 */
+	public Message() {
+	}
+
+	/**
+	 * constructor for creating a object with all attributes
+	 * 
 	 * @param message_id
+	 *            the message id
 	 * @param sender_id
+	 *            the sender id
 	 * @param receiver_id
+	 *            the receiver id
 	 * @param subject
+	 *            the message subject
 	 * @param message
+	 *            the message
 	 * @param mkdate
+	 *            the message date timestamp
 	 * @param priority
+	 *            the message priority
 	 * @param unread
+	 *            message read or nod
 	 */
 	public Message(String message_id, String sender_id, String receiver_id,
-			String subject, String message, Date mkdate, String priority,
-			Boolean unread) {
+			String subject, String message, Long mkdate, String priority,
+			int unread) {
 		this.message_id = message_id;
 		this.sender_id = sender_id;
 		this.receiver_id = receiver_id;
