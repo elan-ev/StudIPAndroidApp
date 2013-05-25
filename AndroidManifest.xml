@@ -9,11 +9,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.elanev.studip.android.app"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="0.5.0.1" >
 
     <uses-sdk
-        android:maxSdkVersion="17"
-        android:minSdkVersion="9"
+        android:minSdkVersion="10"
         android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -22,7 +21,8 @@
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.studipactionbar" >
+        android:theme="@style/Theme.studipactionbar"
+        android:uiOptions="splitActionBarWhenNarrow" >
         <service android:name="de.elanev.studip.android.app.backend.net.services.syncservice.RestIPSyncService" />
 
         <activity
@@ -48,16 +48,8 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".frontend.activities.ActivitiesActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
             android:name=".frontend.courses.CourseViewActivity"
             android:label="@string/title_activity_course_view"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".frontend.util.AbstractFragmentActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
@@ -72,10 +64,23 @@
             android:name=".frontend.courses.CoursesActivity"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name=".frontend.messages.MessagesActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".frontend.messages.MessageDetailActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".frontend.messages.MessageComposeActivity"
+            android:screenOrientation="portrait" >
+        </activity>
 
         <provider
             android:name=".backend.provider.RestIpProvider"
             android:authorities="de.elanev.studip.android.app"
+            android:exported="false"
             android:label="@string/app_name"
             android:syncable="true" />
     </application>
