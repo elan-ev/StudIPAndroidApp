@@ -20,9 +20,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.slidingmenu.lib.app.SlidingFragmentActivity;
+import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.StudIPAppActivity;
+import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.frontend.courses.CoursesActivity;
 import de.elanev.studip.android.app.frontend.messages.MessagesActivity;
 import de.elanev.studip.android.app.frontend.news.NewsViewActivity;
@@ -78,23 +80,23 @@ public class MenuFragment extends ListFragment {
 		getView().setBackgroundColor(getResources().getColor(R.color.dark));
 		MenuAdapter adapter = new MenuAdapter(getActivity());
 		if (Prefs.getInstance(mContext).isAppAuthorized()) {
-			adapter.add(new MenuItem(R.drawable.news, getString(R.string.News),
+			adapter.add(new MenuItem(R.drawable.ic_menu_news, getString(R.string.News),
 					NEWS_MENU_ITEM));
-			adapter.add(new MenuItem(R.drawable.seminar,
+			adapter.add(new MenuItem(R.drawable.ic_menu_seminar,
 					getString(R.string.Courses), COURSES_MENU_ITEM));
-			adapter.add(new MenuItem(R.drawable.mail,
+			adapter.add(new MenuItem(R.drawable.ic_menu_messages,
 					getString(R.string.Messages), MESSAGES_MENU_ITEM));
-			adapter.add(new MenuItem(R.drawable.community,
+			adapter.add(new MenuItem(R.drawable.ic_menu_users,
 					getString(R.string.Contacts), CONTACTS_MENU_ITEM));
 		}
-		adapter.add(new MenuItem(R.drawable.admin,
+		adapter.add(new MenuItem(R.drawable.ic_menu_settings,
 				getString(R.string.Settings), SETTINGS_MENU_ITEM));
-		adapter.add(new MenuItem(R.drawable.question_circle,
+		adapter.add(new MenuItem(R.drawable.ic_menu_info,
 				getString(R.string.Help), HELP_MENU_ITEM));
-		adapter.add(new MenuItem(R.drawable.info_circle,
+		adapter.add(new MenuItem(R.drawable.ic_menu_help,
 				getString(R.string.Information), INFO_MENU_ITEM));
 		if (Prefs.getInstance(mContext).isAppAuthorized()) {
-			adapter.add(new MenuItem(android.R.drawable.ic_menu_revert,
+			adapter.add(new MenuItem(R.drawable.ic_menu_logout,
 					getString(R.string.Logout), LOGOUT_MENU_ITEM));
 		}
 		setListAdapter(adapter);
@@ -135,7 +137,7 @@ public class MenuFragment extends ListFragment {
 				Log.i(TAG, "Info selected");
 				break;
 			case LOGOUT_MENU_ITEM:
-				Log.i(TAG, "Logout selected");
+				logout();
 				break;
 			}
 			if (cls != null) {
@@ -155,6 +157,16 @@ public class MenuFragment extends ListFragment {
 			startActivity(intent);
 		}
 
+	}
+
+	private void logout() {
+		((SlidingFragmentActivity) mContext).getSlidingMenu().showContent();
+		mContext.getContentResolver().delete(AbstractContract.BASE_CONTENT_URI,
+				null, null);
+		Prefs.getInstance(mContext).clearPrefs();
+		Intent intent = new Intent(getActivity(), StudIPAppActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		startActivity(intent);
 	}
 
 	private class MenuItem {

@@ -32,7 +32,6 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:background="@drawable/white_button"
-        android:drawableLeft="@drawable/key"
         android:drawablePadding="-30sp"
         android:text="@+string/Authorize" />
 
