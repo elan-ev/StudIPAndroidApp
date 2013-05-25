@@ -10,6 +10,7 @@
  */
 package de.elanev.studip.android.app.backend.net.services.syncservice.activitys;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,7 +18,6 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.app.SherlockListFragment;
 
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
@@ -32,7 +32,7 @@ public abstract class AbstractRestIPResultReceiver<T, A extends SherlockListFrag
 
 	private ResultReceiver mReceiver;
 	public T mReturnItem;
-	protected SherlockFragmentActivity mContext;
+	protected Context mContext;
 	protected A mFragment;
 	protected static String TAG = AbstractRestIPResultReceiver.class
 			.getSimpleName();
@@ -71,7 +71,7 @@ public abstract class AbstractRestIPResultReceiver<T, A extends SherlockListFrag
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		mContext = ((A) mFragment).getSherlockActivity();
+		mContext = getActivity();
 		loadData();
 	}
 
@@ -95,7 +95,7 @@ public abstract class AbstractRestIPResultReceiver<T, A extends SherlockListFrag
 		this.mFragment = frag;
 	}
 
-	abstract protected void loadData();
+	abstract public void loadData();
 
 	abstract protected void parse(String result);
 }

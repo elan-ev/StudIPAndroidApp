@@ -44,7 +44,7 @@ public class EventsResponderFragment extends
 	 * AbstractRestIPResultReceiver#loadData()
 	 */
 	@Override
-	protected void loadData() {
+	public void loadData() {
 		if (getActivity() != null) {
 			String cid = getArguments().getString("cid");
 			if (mReturnItem == null && mContext != null) {

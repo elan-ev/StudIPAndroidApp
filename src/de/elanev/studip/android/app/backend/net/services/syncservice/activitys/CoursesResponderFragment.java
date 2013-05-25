@@ -53,7 +53,7 @@ public class CoursesResponderFragment extends
 	private static final String TAG = CoursesResponderFragment.class
 			.getSimpleName();
 
-	protected void loadData() {
+	public void loadData() {
 		if (getActivity() != null) {
 			if (mReturnItem == null && mContext != null) {
 

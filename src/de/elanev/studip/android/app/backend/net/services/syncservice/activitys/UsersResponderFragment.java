@@ -25,7 +25,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.elanev.studip.android.app.backend.datamodel.User;
-import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 import de.elanev.studip.android.app.backend.net.services.syncservice.AbstractParserTask;
@@ -46,39 +45,39 @@ public class UsersResponderFragment extends
 	 * AbstractRestIPResultReceiver#loadData()
 	 */
 	@Override
-	protected void loadData() {
+	public void loadData() {
 		if (getActivity() != null) {
 			Bundle args = getArguments();
 			if (args != null) {
-				Cursor users = getActivity()
-						.getContentResolver()
-						.query(UsersContract.CONTENT_URI,
-								new String[] { CoursesContract.Qualified.COURSES_USERS_TABLE_COURSE_USER_USER_ID },
-								CoursesContract.Qualified.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID
-										+ " = ? AND "
-										+ UsersContract.Qualified.USERS_ID
-										+ " IS NULL",
-								new String[] { args
-										.getString(CoursesContract.Columns.COURSE_ID) },
-								null);
+				ArrayList<String> userList = args
+						.getStringArrayList(UsersContract.Columns.USER_ID);
+				Cursor c = null;
 
-				if (users != null) {
-					users.moveToFirst();
-					while (!users.isAfterLast()) {
-						Intent intent = new Intent(mContext,
-								RestIPSyncService.class);
-						intent.setData(Uri.parse(String.format(
-								mServerApiUrl + "/"
-										+ ApiEndpoints.USER_ENDPOINT,
-								users.getString(users
-										.getColumnIndex(UsersContract.Columns.USER_ID)))));
-						intent.putExtra(
-								RestIPSyncService.RESTIP_RESULT_RECEIVER,
-								getResultReceiver());
-						mContext.startService(intent);
-						users.moveToNext();
+				for (String user : userList) {
+					try {
+						c = mContext.getContentResolver().query(
+								UsersContract.CONTENT_URI,
+								new String[] { UsersContract.Columns.USER_ID },
+								UsersContract.Columns.USER_ID + " = ?",
+								new String[] { user },
+								UsersContract.Columns.USER_ID + " ASC");
+						if (c.getCount() < 1) {
+							Intent intent = new Intent(mContext,
+									RestIPSyncService.class);
+							intent.setData(Uri.parse(String.format(
+									mServerApiUrl + "/"
+											+ ApiEndpoints.USER_ENDPOINT, user)));
+							intent.putExtra(
+									RestIPSyncService.RESTIP_RESULT_RECEIVER,
+									getResultReceiver());
+							mContext.startService(intent);
+
+						}
+					} finally {
+						c.close();
 					}
 				}
+				args = null;
 			}
 		}
 

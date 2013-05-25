@@ -50,7 +50,7 @@ public class DocumentsResponderFragment extends
 	 * AbstractRestIPResultReceiver#loadData()
 	 */
 	@Override
-	protected void loadData() {
+	public void loadData() {
 		String cid = null;
 		if (getActivity() != null) {
 			if (mContext != null) {

@@ -50,7 +50,7 @@ public class NewsResponderFragment extends
 	// NewsResponderFragment.class.getSimpleName();
 	private boolean newData = false;
 
-	protected void loadData() {
+	public void loadData() {
 		if (getActivity() != null) {
 			if (mContext != null && !newData) {
 				loadNews();
