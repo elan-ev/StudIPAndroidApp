@@ -47,9 +47,9 @@ public class DocumentsContract extends AbstractContract {
 					TABLE, UsersContract.TABLE,
 					Qualified.DOCUMENTS_DOCUMENT_USER_ID,
 					UsersContract.Qualified.USERS_USER_ID,
-					CoursesContract.TABLE,
+					CoursesContract.TABLE_COURSES,
 					Qualified.DOCUMENTS_DOCUMENT_COURSE_ID,
-					CoursesContract.Qualified.COURSES_COURSE_ID);
+					CoursesContract.Qualified.Courses.COURSES_COURSE_ID);
 
 	/*
 	 * content provider

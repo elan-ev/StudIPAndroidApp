@@ -131,11 +131,13 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 	 * android.os.Bundle)
 	 */
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(mContext, DocumentsContract.CONTENT_URI,
+		return new CursorLoader(
+				mContext,
+				DocumentsContract.CONTENT_URI,
 				DocumentsQuery.projection,
 				DocumentsContract.Columns.DOCUMENT_COURSE_ID + "= ? ",
 				new String[] { mArgs
-						.getString(CoursesContract.Columns.COURSE_ID) },
+						.getString(CoursesContract.Columns.Courses.COURSE_ID) },
 				DocumentsContract.DEFAULT_SORT_ORDER);
 	}
 

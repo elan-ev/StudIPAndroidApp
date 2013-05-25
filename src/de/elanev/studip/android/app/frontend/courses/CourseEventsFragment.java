@@ -80,7 +80,7 @@ public class CourseEventsFragment extends SherlockListFragment implements
 			responderFragment.setFragment(this);
 			Bundle args = new Bundle();
 			args.putString("cid",
-					mArgs.getString(CoursesContract.Columns.COURSE_ID));
+					mArgs.getString(CoursesContract.Columns.Courses.COURSE_ID));
 			responderFragment.setArguments(args);
 			ft.add(responderFragment, "eventsResponder");
 		}
@@ -184,19 +184,24 @@ public class CourseEventsFragment extends SherlockListFragment implements
 		CursorLoader loader;
 		switch (id) {
 		case COURSE_ITEM_LOADER:
-			loader = new CursorLoader(mContext, CoursesContract.CONTENT_URI
-					.buildUpon()
-					.appendPath(data.getString(CoursesContract.Columns._ID))
-					.build(), CourseItemQuery.projection, null, null,
+			loader = new CursorLoader(
+					mContext,
+					CoursesContract.CONTENT_URI
+							.buildUpon()
+							.appendPath(
+									data.getString(CoursesContract.Columns.Courses._ID))
+							.build(), CourseItemQuery.projection, null, null,
 					CoursesContract.DEFAULT_SORT_ORDER);
 			break;
 		default:
-			loader = new CursorLoader(mContext, CoursesContract.CONTENT_URI
-					.buildUpon()
-					.appendPath("events")
-					.appendPath(
-							data.getString(CoursesContract.Columns.COURSE_ID))
-					.build(), CourseEventsListQuery.projection,
+			loader = new CursorLoader(
+					mContext,
+					CoursesContract.CONTENT_URI
+							.buildUpon()
+							.appendPath("events")
+							.appendPath(
+									data.getString(CoursesContract.Columns.Courses.COURSE_ID))
+							.build(), CourseEventsListQuery.projection,
 					EventsContract.Columns.EVENT_START
 							+ " >= strftime('%s','now')", null,
 					EventsContract.DEFAULT_SORT_ORDER);
@@ -221,10 +226,12 @@ public class CourseEventsFragment extends SherlockListFragment implements
 		switch (loaderId) {
 		case COURSE_ITEM_LOADER:
 			cursor.moveToFirst();
-			String courseTitle = cursor.getString(cursor
-					.getColumnIndex(CoursesContract.Columns.COURSE_TITLE));
-			String courseDescription = cursor.getString(cursor
-					.getColumnIndex(CoursesContract.Columns.COURSE_DESCIPTION));
+			String courseTitle = cursor
+					.getString(cursor
+							.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
+			String courseDescription = cursor
+					.getString(cursor
+							.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
 			getSherlockActivity().setTitle(courseTitle);
 			mTitleTextView.setText(courseTitle);
 
@@ -291,8 +298,9 @@ public class CourseEventsFragment extends SherlockListFragment implements
 	}
 
 	private interface CourseItemQuery {
-		String[] projection = { CoursesContract.Qualified.COURSES_COURSE_TITLE,
-				CoursesContract.Qualified.COURSES_COURSE_DESCIPTION,
+		String[] projection = {
+				CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
+				CoursesContract.Qualified.Courses.COURSES_COURSE_DESCIPTION,
 				UsersContract.Qualified.USERS_USER_TITLE_PRE,
 				UsersContract.Qualified.USERS_USER_FORENAME,
 				UsersContract.Qualified.USERS_USER_LASTNAME,

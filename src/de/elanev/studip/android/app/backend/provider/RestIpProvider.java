@@ -305,7 +305,7 @@ public class RestIpProvider extends ContentProvider {
 		}
 		case COURSES_USERS: {
 			long rowId = db.insertWithOnConflict(
-					CoursesContract.COURSE_USER_TABLE, null, values,
+					CoursesContract.TABLE_COURSE_USER, null, values,
 					SQLiteDatabase.CONFLICT_IGNORE);
 			getContext().getContentResolver().notifyChange(uri, null);
 			return ContentUris.withAppendedId(
@@ -319,7 +319,7 @@ public class RestIpProvider extends ContentProvider {
 					.withAppendedId(EventsContract.CONTENT_URI, rowId);
 		}
 		case COURSES: {
-			long rowId = db.insertWithOnConflict(CoursesContract.TABLE, null,
+			long rowId = db.insertWithOnConflict(CoursesContract.TABLE_COURSES, null,
 					values, SQLiteDatabase.CONFLICT_IGNORE);
 			getContext().getContentResolver().notifyChange(uri, null);
 			return ContentUris.withAppendedId(CoursesContract.CONTENT_URI,
@@ -453,7 +453,7 @@ public class RestIpProvider extends ContentProvider {
 			}
 			long courseId = ContentUris.parseId(uri);
 			c = db.query(CoursesContract.COURSES_JOIN_USERS_SEMESTERS,
-					projection, CoursesContract.Qualified.COURSES_ID
+					projection, CoursesContract.Qualified.Courses.COURSES_ID
 							+ " = "
 							+ courseId
 							+ (!TextUtils.isEmpty(selection) ? " AND ("

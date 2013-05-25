@@ -100,9 +100,7 @@ public final class MessagesContract extends AbstractContract {
 			+ Qualified.MessageFolders.MESSAGES_FOLDERS_MESSAGE_FOLDER_NAME
 			+ " ASC";
 
-	/*
-	 * private constructor
-	 */
+	// no constructor
 	private MessagesContract() {
 	}
 
@@ -138,6 +136,9 @@ public final class MessagesContract extends AbstractContract {
 
 	}
 
+	/*
+	 * qualified column names
+	 */
 	public static final class Qualified {
 		/*
 		 * messages

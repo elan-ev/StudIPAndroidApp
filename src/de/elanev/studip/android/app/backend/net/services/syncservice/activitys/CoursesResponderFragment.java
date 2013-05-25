@@ -109,41 +109,41 @@ public class CoursesResponderFragment extends
 							builder = ContentProviderOperation
 									.newInsert(CoursesContract.CONTENT_URI)
 									.withValue(
-											CoursesContract.Columns.COURSE_ID,
+											CoursesContract.Columns.Courses.COURSE_ID,
 											c.course_id)
 									.withValue(
-											CoursesContract.Columns.COURSE_TITLE,
+											CoursesContract.Columns.Courses.COURSE_TITLE,
 											c.title)
 									.withValue(
-											CoursesContract.Columns.COURSE_DESCIPTION,
+											CoursesContract.Columns.Courses.COURSE_DESCIPTION,
 											c.description)
 									.withValue(
-											CoursesContract.Columns.COURSE_SUBTITLE,
+											CoursesContract.Columns.Courses.COURSE_SUBTITLE,
 											c.subtitle)
 									.withValue(
-											CoursesContract.Columns.COURSE_LOCATION,
+											CoursesContract.Columns.Courses.COURSE_LOCATION,
 											c.location)
 									.withValue(
-											CoursesContract.Columns.COURSE_SEMESERT_ID,
+											CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
 											c.semester_id)
 									.withValue(
-											CoursesContract.Columns.COURSE_DURATION_TIME,
+											CoursesContract.Columns.Courses.COURSE_DURATION_TIME,
 											c.duration_time)
 									.withValue(
-											CoursesContract.Columns.COURSE_COLORS,
+											CoursesContract.Columns.Courses.COURSE_COLORS,
 											c.colors)
 									.withValue(
-											CoursesContract.Columns.COURSE_NUMBER,
+											CoursesContract.Columns.Courses.COURSE_NUMBER,
 											c.number)
 									.withValue(
-											CoursesContract.Columns.COURSE_TYPE,
+											CoursesContract.Columns.Courses.COURSE_TYPE,
 											c.type)
 									.withValue(
-											CoursesContract.Columns.COURSE_MODULES,
+											CoursesContract.Columns.Courses.COURSE_MODULES,
 											objectMapper
 													.writeValueAsString(c.modules))
 									.withValue(
-											CoursesContract.Columns.COURSE_START_TIME,
+											CoursesContract.Columns.Courses.COURSE_START_TIME,
 											c.start_time);
 							mBatch.add(builder.build());
 						} catch (JsonProcessingException e) {
@@ -219,13 +219,13 @@ public class CoursesResponderFragment extends
 								.newInsert(
 										CoursesContract.COURSES_USERS_CONTENT_URI)
 								.withValue(
-										CoursesContract.Columns.COURSE_USER_COURSE_ID,
+										CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID,
 										c.course_id)
 								.withValue(
-										CoursesContract.Columns.COURSE_USER_USER_ID,
+										CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID,
 										userId)
 								.withValue(
-										CoursesContract.Columns.COURSE_USER_USER_ROLE,
+										CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE,
 										CoursesContract.USER_ROLE_STUDENT);
 						mBatch.add(courseUserBuilder.build());
 					}
@@ -305,11 +305,14 @@ public class CoursesResponderFragment extends
 
 			final ContentProviderOperation.Builder courseUserBuilder = ContentProviderOperation
 					.newInsert(CoursesContract.COURSES_USERS_CONTENT_URI)
-					.withValue(CoursesContract.Columns.COURSE_USER_COURSE_ID,
+					.withValue(
+							CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID,
 							courseId)
-					.withValue(CoursesContract.Columns.COURSE_USER_USER_ID,
+					.withValue(
+							CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID,
 							usr.user_id)
-					.withValue(CoursesContract.Columns.COURSE_USER_USER_ROLE,
+					.withValue(
+							CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE,
 							usr.role);
 			mBatch.add(courseUserBuilder.build());
 		}

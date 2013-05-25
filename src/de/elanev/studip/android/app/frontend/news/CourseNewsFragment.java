@@ -199,12 +199,14 @@ public class CourseNewsFragment extends SherlockListFragment implements
 		String prevCourseId = null;
 		String currentCourseId = null;
 		while (!cursor.isAfterLast()) {
-			currentCourseId = cursor.getString(cursor
-					.getColumnIndex(CoursesContract.Columns.COURSE_TITLE));
+			currentCourseId = cursor
+					.getString(cursor
+							.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
 			if (!TextUtils.equals(prevCourseId, currentCourseId)) {
-				sections.add(new SimpleSectionedListAdapter.Section(cursor
-						.getPosition(), cursor.getString(cursor
-						.getColumnIndex(CoursesContract.Columns.COURSE_TITLE))));
+				sections.add(new SimpleSectionedListAdapter.Section(
+						cursor.getPosition(),
+						cursor.getString(cursor
+								.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE))));
 			}
 			prevCourseId = currentCourseId;
 			cursor.moveToNext();
@@ -237,7 +239,7 @@ public class CourseNewsFragment extends SherlockListFragment implements
 				UsersContract.Qualified.USERS_USER_ID,
 				UsersContract.Qualified.USERS_USER_FORENAME,
 				UsersContract.Qualified.USERS_USER_LASTNAME,
-				CoursesContract.Qualified.COURSES_COURSE_TITLE };
+				CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE };
 
 	}
 

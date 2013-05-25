@@ -36,9 +36,9 @@ public final class NewsContract extends AbstractContract {
 	public static final String NEWS_JOIN_USER_COURSES = String.format(
 			"%s INNER JOIN %s ON %s = %s" + "	INNER JOIN %s ON %s = %s", TABLE,
 			UsersContract.TABLE, Qualified.NEWS_NEWS_USER_ID,
-			UsersContract.Qualified.USERS_USER_ID, CoursesContract.TABLE,
-			Qualified.NEWS_NEWS_COURSE_ID,
-			CoursesContract.Qualified.COURSES_COURSE_ID);
+			UsersContract.Qualified.USERS_USER_ID,
+			CoursesContract.TABLE_COURSES, Qualified.NEWS_NEWS_COURSE_ID,
+			CoursesContract.Qualified.Courses.COURSES_COURSE_ID);
 
 	// ContentProvider
 	public static final String PATH = "news";

@@ -32,11 +32,12 @@ public class UsersContract extends AbstractContract {
 					Columns.USER_PHONE, Columns.USER_HOMEPAGE,
 					Columns.USER_PRIVADR);
 
-	public static final String USERS_JOIN_COURSES = String.format(
-			"%s LEFT JOIN %s  ON %s = %s", CoursesContract.COURSE_USER_TABLE,
-			TABLE,
-			CoursesContract.Qualified.COURSES_USERS_TABLE_COURSE_USER_USER_ID,
-			Qualified.USERS_USER_ID);
+	public static final String USERS_JOIN_COURSES = String
+			.format("%s LEFT JOIN %s  ON %s = %s",
+					CoursesContract.TABLE_COURSE_USER,
+					TABLE,
+					CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ID,
+					Qualified.USERS_USER_ID);
 
 	// Content Provider
 	public static final String PATH = "users";

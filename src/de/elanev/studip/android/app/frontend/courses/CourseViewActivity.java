@@ -53,7 +53,7 @@ public class CourseViewActivity extends TabbedSlidingFragmentActivity {
 
 		// Setting Activity title
 		setTitle(getIntent().getStringExtra(
-				CoursesContract.Columns.COURSE_TITLE));
+				CoursesContract.Columns.Courses.COURSE_TITLE));
 
 	}
 

@@ -55,7 +55,7 @@ public class DocumentsResponderFragment extends
 		if (getActivity() != null) {
 			if (mContext != null) {
 				cid = getArguments().getString(
-						CoursesContract.Columns.COURSE_ID);
+						CoursesContract.Columns.Courses.COURSE_ID);
 
 				if (mFolders == null) {
 

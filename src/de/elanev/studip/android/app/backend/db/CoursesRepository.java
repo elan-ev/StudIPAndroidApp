@@ -36,42 +36,48 @@ public class CoursesRepository {
 
 	public void addCourses(Courses c) {
 		SQLiteDatabase db = null;
-		// .getWritableDatabase();
+		// .getWriTABLE_COURSESDatabase();
 		// // remove non existing entries
-		// db.execSQL("DELETE FROM " + CoursesContract.TABLE);
+		// db.execSQL("DELETE FROM " + CoursesContract.TABLE_COURSES);
 		// db.close();
 
 		for (de.elanev.studip.android.app.backend.datamodel.Course course : c.courses) {
 			try {
 				ContentValues values = new ContentValues();
 
-				values.put(CoursesContract.Columns.COURSE_ID, course.course_id);
-				values.put(CoursesContract.Columns.COURSE_START_TIME,
+				values.put(CoursesContract.Columns.Courses.COURSE_ID,
+						course.course_id);
+				values.put(CoursesContract.Columns.Courses.COURSE_START_TIME,
 						course.start_time);
-				values.put(CoursesContract.Columns.COURSE_DURATION_TIME,
+				values.put(
+						CoursesContract.Columns.Courses.COURSE_DURATION_TIME,
 						course.duration_time);
-				values.put(CoursesContract.Columns.COURSE_NUMBER, course.number);
-				values.put(CoursesContract.Columns.COURSE_TITLE, course.title);
-				values.put(CoursesContract.Columns.COURSE_SUBTITLE,
+				values.put(CoursesContract.Columns.Courses.COURSE_NUMBER,
+						course.number);
+				values.put(CoursesContract.Columns.Courses.COURSE_TITLE,
+						course.title);
+				values.put(CoursesContract.Columns.Courses.COURSE_SUBTITLE,
 						course.subtitle);
-				values.put(CoursesContract.Columns.COURSE_TYPE, course.type);
+				values.put(CoursesContract.Columns.Courses.COURSE_TYPE,
+						course.type);
 
-				values.put(CoursesContract.Columns.COURSE_MODULES,
+				values.put(CoursesContract.Columns.Courses.COURSE_MODULES,
 						mMapper.writeValueAsString(course.modules));
 
-				values.put(CoursesContract.Columns.COURSE_DESCIPTION,
+				values.put(CoursesContract.Columns.Courses.COURSE_DESCIPTION,
 						course.description);
-				values.put(CoursesContract.Columns.COURSE_LOCATION,
+				values.put(CoursesContract.Columns.Courses.COURSE_LOCATION,
 						course.location);
-				values.put(CoursesContract.Columns.COURSE_SEMESERT_ID,
+				values.put(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
 						course.semester_id);
-				values.put(CoursesContract.Columns.COURSE_COLORS, course.colors);
+				values.put(CoursesContract.Columns.Courses.COURSE_COLORS,
+						course.colors);
 				db = DatabaseHandler.getInstance(mContext)
 						.getWritableDatabase();
 				db.beginTransaction();
 				try {
-					db.insertWithOnConflict(CoursesContract.TABLE, null,
-							values, SQLiteDatabase.CONFLICT_IGNORE);
+					db.insertWithOnConflict(CoursesContract.TABLE_COURSES,
+							null, values, SQLiteDatabase.CONFLICT_IGNORE);
 					db.setTransactionSuccessful();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -86,7 +92,7 @@ public class CoursesRepository {
 	}
 
 	public Courses getAllCourses() {
-		String selectQuery = "SELECT  * FROM " + CoursesContract.TABLE;
+		String selectQuery = "SELECT  * FROM " + CoursesContract.TABLE_COURSES;
 
 		SQLiteDatabase db = DatabaseHandler.getInstance(mContext)
 				.getReadableDatabase();
@@ -110,8 +116,8 @@ public class CoursesRepository {
 		Cursor cursor = null;
 		Course course = null;
 		try {
-			cursor = db.query(CoursesContract.TABLE, null,
-					CoursesContract.Columns.COURSE_ID + "=?",
+			cursor = db.query(CoursesContract.TABLE_COURSES, null,
+					CoursesContract.Columns.Courses.COURSE_ID + "=?",
 					new String[] { cid }, null, null, null);
 			cursor.moveToFirst();
 			course = new Course(cursor);
@@ -127,8 +133,8 @@ public class CoursesRepository {
 				.getReadableDatabase();
 		Cursor cursor = null;
 		try {
-			cursor = db.query(CoursesContract.TABLE, null, null, null, null,
-					null, null);
+			cursor = db.query(CoursesContract.TABLE_COURSES, null, null, null,
+					null, null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

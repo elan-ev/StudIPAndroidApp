@@ -138,13 +138,13 @@ public class CoursesFragment extends SherlockListFragment implements
 			Intent intent = new Intent();
 			intent.setClass(getActivity(), CourseViewActivity.class);
 			intent.putExtra(
-					CoursesContract.Columns.COURSE_ID,
+					CoursesContract.Columns.Courses.COURSE_ID,
 					((CursorWrapper) selectedObject).getString(((CursorWrapper) selectedObject)
-							.getColumnIndex(CoursesContract.Columns.COURSE_ID)));
+							.getColumnIndex(CoursesContract.Columns.Courses.COURSE_ID)));
 			intent.putExtra(
-					CoursesContract.Columns._ID,
+					CoursesContract.Columns.Courses._ID,
 					((CursorWrapper) selectedObject).getString(((CursorWrapper) selectedObject)
-							.getColumnIndex(CoursesContract.Columns._ID)));
+							.getColumnIndex(CoursesContract.Columns.Courses._ID)));
 
 			mContext.startActivity(intent);
 		}
@@ -159,7 +159,8 @@ public class CoursesFragment extends SherlockListFragment implements
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new CursorLoader(getActivity(), CoursesContract.CONTENT_URI,
 				CourseQuery.PROJECTION, null, null,
-				CoursesContract.Qualified.COURSES_COURSE_SEMESERT_ID + " ASC");
+				CoursesContract.Qualified.Courses.COURSES_COURSE_SEMESERT_ID
+						+ " ASC");
 	}
 
 	/*
@@ -181,7 +182,7 @@ public class CoursesFragment extends SherlockListFragment implements
 		while (!cursor.isAfterLast()) {
 			currSemesterId = cursor
 					.getString(cursor
-							.getColumnIndex(CoursesContract.Columns.COURSE_SEMESERT_ID));
+							.getColumnIndex(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID));
 			if (!TextUtils.equals(prevSemesterId, currSemesterId)) {
 				sections.add(new SimpleSectionedListAdapter.Section(
 						cursor.getPosition(),
@@ -212,9 +213,9 @@ public class CoursesFragment extends SherlockListFragment implements
 
 	public interface CourseQuery {
 
-		String[] PROJECTION = { CoursesContract.Qualified.COURSES_ID,
-				CoursesContract.Qualified.COURSES_COURSE_TITLE,
-				CoursesContract.Qualified.COURSES_COURSE_ID,
+		String[] PROJECTION = { CoursesContract.Qualified.Courses.COURSES_ID,
+				CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
+				CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
 				SemestersContract.Qualified.SEMESTERS_SEMESTER_ID,
 				SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE };
 

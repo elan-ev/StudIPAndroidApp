@@ -37,8 +37,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		// News
 		db.execSQL(NewsContract.CREATE_STRING);
 		// Courses
-		db.execSQL(CoursesContract.CREATE_STRING);
-		db.execSQL(CoursesContract.CREATE_COURSE_USER_STRING);
+		db.execSQL(CoursesContract.CREATE_TABLE_COURSES_STRING);
+		db.execSQL(CoursesContract.CREATE_TABLE_COURSE_USERS_STRING);
 
 		// Users
 		db.execSQL(UsersContract.CREATE_STRING);
@@ -60,8 +60,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		// News
 		db.execSQL("drop table if exists " + NewsContract.TABLE);
 		// Courses
-		db.execSQL("drop table if exists " + CoursesContract.TABLE);
-		db.execSQL("drop table if exists " + CoursesContract.COURSE_USER_TABLE);
+		db.execSQL("drop table if exists " + CoursesContract.TABLE_COURSES);
+		db.execSQL("drop table if exists " + CoursesContract.TABLE_COURSE_USER);
 		// Users
 		db.execSQL("drop table if exists " + UsersContract.TABLE);
 		// Documents

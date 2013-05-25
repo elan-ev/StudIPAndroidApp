@@ -68,6 +68,7 @@ public class NewsResponderFragment extends
 
 		mContext.startService(intent);
 
+		// TODO change to contentprovider
 		Courses c = CoursesRepository.getInstance(mContext).getAllCourses();
 
 		if (c != null) {

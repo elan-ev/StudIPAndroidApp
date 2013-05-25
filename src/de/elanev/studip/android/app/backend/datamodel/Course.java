@@ -86,31 +86,37 @@ public class Course {
 		Modules modules = null;
 
 		this.course_id = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_ID));
-		this.start_time = cursor.getLong(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_START_TIME));
-		this.duration_time = cursor.getLong(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_DURATION_TIME));
+				.getColumnIndex(CoursesContract.Columns.Courses.COURSE_ID));
+		this.start_time = cursor
+				.getLong(cursor
+						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_START_TIME));
+		this.duration_time = cursor
+				.getLong(cursor
+						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DURATION_TIME));
 		this.number = cursor.getDouble(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_NUMBER));
+				.getColumnIndex(CoursesContract.Columns.Courses.COURSE_NUMBER));
 		this.title = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_TITLE));
-		this.subtitle = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_SUBTITLE));
+				.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
+		this.subtitle = cursor
+				.getString(cursor
+						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_SUBTITLE));
 		this.type = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_TYPE));
+				.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TYPE));
 		this.modules = modules;
-		this.description = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_DESCIPTION));
-		this.location = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_LOCATION));
-		this.semester_id = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_SEMESERT_ID));
+		this.description = cursor
+				.getString(cursor
+						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
+		this.location = cursor
+				.getString(cursor
+						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_LOCATION));
+		this.semester_id = cursor
+				.getString(cursor
+						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID));
 		this.teachers = teachers;
 		this.tutors = tutors;
 		this.students = students;
 		this.colors = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.COURSE_COLORS));
+				.getColumnIndex(CoursesContract.Columns.Courses.COURSE_COLORS));
 
 	}
 

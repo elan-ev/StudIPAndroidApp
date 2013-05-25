@@ -136,17 +136,18 @@ public class CourseAttendeesFragment extends SherlockListFragment implements
 	 * android.os.Bundle)
 	 */
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		String courseId = data.getString(CoursesContract.Columns.COURSE_ID);
+		String courseId = data
+				.getString(CoursesContract.Columns.Courses.COURSE_ID);
 		CursorLoader loader = new CursorLoader(
 				mContext,
 				UsersContract.CONTENT_URI,
 				UsersQuery.projection,
-				CoursesContract.Qualified.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID
+				CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID
 						+ " = ? AND "
 						+ UsersContract.Qualified.USERS_USER_ID
 						+ " NOT NULL",
 				new String[] { courseId },
-				CoursesContract.Qualified.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE
+				CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE
 						+ " ASC, " + UsersContract.DEFAULT_SORT_ORDER);
 		return loader;
 	}
@@ -170,7 +171,7 @@ public class CourseAttendeesFragment extends SherlockListFragment implements
 		while (!cursor.isAfterLast()) {
 			currRole = cursor
 					.getInt(cursor
-							.getColumnIndex(CoursesContract.Columns.COURSE_USER_USER_ROLE));
+							.getColumnIndex(CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE));
 			if (currRole != prevRole) {
 				String role = null;
 				switch (currRole) {
@@ -221,7 +222,7 @@ public class CourseAttendeesFragment extends SherlockListFragment implements
 				UsersContract.Qualified.USERS_USER_FORENAME,
 				UsersContract.Qualified.USERS_USER_LASTNAME,
 				UsersContract.Qualified.USERS_USER_TITLE_POST,
-				CoursesContract.Qualified.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE };
+				CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE };
 	}
 
 	private class UsersAdapter extends CursorAdapter {
