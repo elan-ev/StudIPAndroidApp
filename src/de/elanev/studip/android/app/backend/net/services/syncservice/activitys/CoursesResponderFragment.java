@@ -55,17 +55,15 @@ public class CoursesResponderFragment extends
 
 	public void loadData() {
 		if (getActivity() != null) {
-			if (mReturnItem == null && mContext != null) {
+			Intent intent = new Intent(mContext, RestIPSyncService.class);
+			Uri request = Uri.parse(mServerApiUrl + "/"
+					+ ApiEndpoints.COURSES_ENDPOINT);
+			Log.v(TAG, request.toString());
+			intent.setData(request);
 
-				Intent intent = new Intent(mContext, RestIPSyncService.class);
-				intent.setData(Uri.parse(mServerApiUrl + "/"
-						+ ApiEndpoints.COURSES_ENDPOINT));
-
-				intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
-						getResultReceiver());
-
-				mContext.startService(intent);
-			}
+			intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
+					getResultReceiver());
+			mContext.startService(intent);
 		}
 	}
 
@@ -81,7 +79,7 @@ public class CoursesResponderFragment extends
 
 		@Override
 		protected Courses doInBackground(String... params) {
-			Log.i(TAG, "Parsing started");
+			Log.v(TAG, "Parsing started");
 			Courses items = new Courses();
 
 			try {
@@ -204,33 +202,27 @@ public class CoursesResponderFragment extends
 						User usr = loadUser(userId);
 						if (usr != null) {
 							usr.role = CoursesContract.USER_ROLE_TEACHER;
-							addUserToBatch(usr, c.course_id);
+							addUserToBatch(usr);
 						}
 					}
 					for (String userId : c.tutors) {
 						User usr = loadUser(userId);
 						if (usr != null) {
 							usr.role = CoursesContract.USER_ROLE_TUTOR;
-							addUserToBatch(usr, c.course_id);
+							addUserToBatch(usr);
 						}
 					}
-					for (String userId : c.students) {
-						final ContentProviderOperation.Builder courseUserBuilder = ContentProviderOperation
-								.newInsert(
-										CoursesContract.COURSES_USERS_CONTENT_URI)
-								.withValue(
-										CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID,
-										c.course_id)
-								.withValue(
-										CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID,
-										userId)
-								.withValue(
-										CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE,
-										CoursesContract.USER_ROLE_STUDENT);
-						mBatch.add(courseUserBuilder.build());
-					}
+
+					// Save user to course relations
+					addUserIdToBatch(c.teachers, c.course_id,
+							CoursesContract.USER_ROLE_TEACHER);
+					addUserIdToBatch(c.tutors, c.course_id,
+							CoursesContract.USER_ROLE_TUTOR);
+					addUserIdToBatch(c.students, c.course_id,
+							CoursesContract.USER_ROLE_STUDENT);
 				}
 			}
+
 			if (!mBatch.isEmpty()) {
 				try {
 					mContext.getContentResolver().applyBatch(
@@ -275,7 +267,26 @@ public class CoursesResponderFragment extends
 			return usr;
 		}
 
-		private void addUserToBatch(User usr, String courseId) {
+		private void addUserIdToBatch(ArrayList<String> userList,
+				String courseId, int role) {
+
+			for (String userId : userList) {
+				final ContentProviderOperation.Builder courseUserBuilder = ContentProviderOperation
+						.newInsert(CoursesContract.COURSES_USERS_CONTENT_URI)
+						.withValue(
+								CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID,
+								courseId)
+						.withValue(
+								CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID,
+								userId)
+						.withValue(
+								CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE,
+								role);
+				mBatch.add(courseUserBuilder.build());
+			}
+		}
+
+		private void addUserToBatch(User usr) {
 			final ContentProviderOperation.Builder builder = ContentProviderOperation
 					.newInsert(UsersContract.CONTENT_URI)
 					.withValue(UsersContract.Columns.USER_ID, usr.user_id)
@@ -302,27 +313,6 @@ public class CoursesResponderFragment extends
 					.withValue(UsersContract.Columns.USER_AVATAR_NORMAL,
 							usr.avatar_normal);
 			mBatch.add(builder.build());
-
-			final ContentProviderOperation.Builder courseUserBuilder = ContentProviderOperation
-					.newInsert(CoursesContract.COURSES_USERS_CONTENT_URI)
-					.withValue(
-							CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID,
-							courseId)
-					.withValue(
-							CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID,
-							usr.user_id)
-					.withValue(
-							CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE,
-							usr.role);
-			mBatch.add(courseUserBuilder.build());
-		}
-
-		@Override
-		protected void onPostExecute(Courses result) {
-			super.onPostExecute(result);
-
-			mReturnItem = result;
-			loadData();
 		}
 
 	}

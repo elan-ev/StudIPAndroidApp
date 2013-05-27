@@ -80,8 +80,8 @@ public class MenuFragment extends ListFragment {
 		getView().setBackgroundColor(getResources().getColor(R.color.dark));
 		MenuAdapter adapter = new MenuAdapter(getActivity());
 		if (Prefs.getInstance(mContext).isAppAuthorized()) {
-			adapter.add(new MenuItem(R.drawable.ic_menu_news, getString(R.string.News),
-					NEWS_MENU_ITEM));
+			adapter.add(new MenuItem(R.drawable.ic_menu_news,
+					getString(R.string.News), NEWS_MENU_ITEM));
 			adapter.add(new MenuItem(R.drawable.ic_menu_seminar,
 					getString(R.string.Courses), COURSES_MENU_ITEM));
 			adapter.add(new MenuItem(R.drawable.ic_menu_messages,
@@ -161,12 +161,12 @@ public class MenuFragment extends ListFragment {
 
 	private void logout() {
 		((SlidingFragmentActivity) mContext).getSlidingMenu().showContent();
-		mContext.getContentResolver().delete(AbstractContract.BASE_CONTENT_URI,
-				null, null);
 		Prefs.getInstance(mContext).clearPrefs();
 		Intent intent = new Intent(getActivity(), StudIPAppActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 		startActivity(intent);
+		mContext.getContentResolver().delete(AbstractContract.BASE_CONTENT_URI,
+				null, null);
 	}
 
 	private class MenuItem {

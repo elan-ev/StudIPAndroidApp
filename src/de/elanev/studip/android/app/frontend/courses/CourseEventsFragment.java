@@ -226,34 +226,36 @@ public class CourseEventsFragment extends SherlockListFragment implements
 		switch (loaderId) {
 		case COURSE_ITEM_LOADER:
 			cursor.moveToFirst();
-			String courseTitle = cursor
-					.getString(cursor
-							.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
-			String courseDescription = cursor
-					.getString(cursor
-							.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
-			getSherlockActivity().setTitle(courseTitle);
-			mTitleTextView.setText(courseTitle);
+			if (!cursor.isAfterLast()) {
+				String courseTitle = cursor
+						.getString(cursor
+								.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
+				String courseDescription = cursor
+						.getString(cursor
+								.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
+				getSherlockActivity().setTitle(courseTitle);
+				mTitleTextView.setText(courseTitle);
 
-			if (!TextUtils.isEmpty(courseDescription)) {
-				mDescriptionTextView.setText(courseDescription);
-				mDescriptionTextView
-						.setMovementMethod(new ScrollingMovementMethod());
-				mDescriptionTextView.setVisibility(View.VISIBLE);
+				if (!TextUtils.isEmpty(courseDescription)) {
+					mDescriptionTextView.setText(courseDescription);
+					mDescriptionTextView
+							.setMovementMethod(new ScrollingMovementMethod());
+					mDescriptionTextView.setVisibility(View.VISIBLE);
+				}
+
+				mTeacherNameTextView
+						.setText(cursor.getString(cursor
+								.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE))
+								+ " "
+								+ cursor.getString(cursor
+										.getColumnIndex(UsersContract.Columns.USER_FORENAME))
+								+ " "
+								+ cursor.getString(cursor
+										.getColumnIndex(UsersContract.Columns.USER_LASTNAME))
+								+ " "
+								+ cursor.getString(cursor
+										.getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
 			}
-
-			mTeacherNameTextView
-					.setText(cursor.getString(cursor
-							.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE))
-							+ " "
-							+ cursor.getString(cursor
-									.getColumnIndex(UsersContract.Columns.USER_FORENAME))
-							+ " "
-							+ cursor.getString(cursor
-									.getColumnIndex(UsersContract.Columns.USER_LASTNAME))
-							+ " "
-							+ cursor.getString(cursor
-									.getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
 			break;
 
 		default:

@@ -134,7 +134,6 @@ public class EventsResponderFragment extends
 		@Override
 		protected void onPostExecute(Events result) {
 			mReturnItem = result;
-			loadData();
 		}
 
 	}

@@ -48,17 +48,11 @@ public class CoursesContract extends AbstractContract {
 
 	// course users table
 	public static final String CREATE_TABLE_COURSE_USERS_STRING = String
-			.format("CREATE TABLE IF NOT EXISTS %s (%s INTEGER PRIMARY KEY, %s TEXT, %s TEXT, %s INTEGER,"
-					+ "FOREIGN KEY(%s) REFERENCES %s(%s), "
-					+ "FOREIGN KEY(%s) REFERENCES %s(%s));", TABLE_COURSE_USER,
-					Columns.CourseUsers._ID,
+			.format("CREATE TABLE IF NOT EXISTS %s (%s INTEGER PRIMARY KEY, %s TEXT, %s TEXT, %s INTEGER);",
+					TABLE_COURSE_USER, Columns.CourseUsers._ID,
 					Columns.CourseUsers.COURSE_USER_USER_ID,
 					Columns.CourseUsers.COURSE_USER_COURSE_ID,
-					Columns.CourseUsers.COURSE_USER_USER_ROLE,
-					Columns.CourseUsers.COURSE_USER_USER_ID,
-					UsersContract.TABLE, UsersContract.Columns.USER_ID,
-					Columns.CourseUsers.COURSE_USER_COURSE_ID, TABLE_COURSES,
-					Columns.Courses.COURSE_ID);
+					Columns.CourseUsers.COURSE_USER_USER_ROLE);
 
 	/*
 	 * joins
@@ -74,6 +68,15 @@ public class CoursesContract extends AbstractContract {
 			UsersContract.Qualified.USERS_USER_ID, SemestersContract.TABLE,
 			Qualified.Courses.COURSES_COURSE_SEMESERT_ID,
 			SemestersContract.Qualified.SEMESTERS_SEMESTER_ID);
+
+	// courses and users joined
+	public static final String COURSES_JOIN_USERS = String.format(
+			"%s INNER JOIN %s on %s = %s " + "INNER JOIN %s on %s = %s ",
+			TABLE_COURSES, TABLE_COURSE_USER,
+			Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID,
+			Qualified.Courses.COURSES_COURSE_ID, UsersContract.TABLE,
+			Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ID,
+			UsersContract.Qualified.USERS_USER_ID);
 
 	// courses and semesters joined
 	public static final String COURSES_JOIN_SEMESTERS = String.format(

@@ -59,6 +59,7 @@ public class RestIpProvider extends ContentProvider {
 
 	private static final int USERS = 300;
 	private static final int USERS_ID = 301;
+	private static final int USERS_COURSE_ID = 302;
 
 	private static final int EVENTS = 400;
 	private static final int EVENTS_ID = 401;
@@ -97,6 +98,7 @@ public class RestIpProvider extends ContentProvider {
 		matcher.addURI(authority, "courses/#", COURSES_ID);
 
 		matcher.addURI(authority, "users", USERS);
+		matcher.addURI(authority, "users/course/*", USERS_COURSE_ID);
 		matcher.addURI(authority, "users/#", USERS_ID);
 
 		matcher.addURI(authority, "events", EVENTS);
@@ -158,6 +160,8 @@ public class RestIpProvider extends ContentProvider {
 		case COURSES_ID:
 			return CoursesContract.CONTENT_ITEM_TYPE;
 		case USERS:
+			return UsersContract.CONTENT_TYPE;
+		case USERS_COURSE_ID:
 			return UsersContract.CONTENT_TYPE;
 		case USERS_ID:
 			return UsersContract.CONTENT_ITEM_TYPE;
@@ -319,8 +323,8 @@ public class RestIpProvider extends ContentProvider {
 					.withAppendedId(EventsContract.CONTENT_URI, rowId);
 		}
 		case COURSES: {
-			long rowId = db.insertWithOnConflict(CoursesContract.TABLE_COURSES, null,
-					values, SQLiteDatabase.CONFLICT_IGNORE);
+			long rowId = db.insertWithOnConflict(CoursesContract.TABLE_COURSES,
+					null, values, SQLiteDatabase.CONFLICT_IGNORE);
 			getContext().getContentResolver().notifyChange(uri, null);
 			return ContentUris.withAppendedId(CoursesContract.CONTENT_URI,
 					rowId);
@@ -491,6 +495,31 @@ public class RestIpProvider extends ContentProvider {
 			}
 			c = db.query(UsersContract.TABLE, projection, selection,
 					selectionArgs, null, null, orderBy);
+			c.setNotificationUri(getContext().getContentResolver(),
+					UsersContract.CONTENT_URI);
+			break;
+		case USERS_COURSE_ID:
+			String usersCourseId = uri.getLastPathSegment();
+
+			if (TextUtils.isEmpty(sortOrder)) {
+				orderBy = UsersContract.DEFAULT_SORT_ORDER;
+			} else {
+				orderBy = sortOrder;
+			}
+
+			c = db.query(
+					CoursesContract.COURSES_JOIN_USERS,
+					projection,
+					CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID
+							+ " = "
+							+ '"'
+							+ usersCourseId
+							+ '"'
+							+ (!TextUtils.isEmpty(selection) ? " AND ("
+									+ selection + ")" : ""), selectionArgs,
+					CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ID,
+					null, orderBy);
+
 			c.setNotificationUri(getContext().getContentResolver(),
 					UsersContract.CONTENT_URI);
 			break;

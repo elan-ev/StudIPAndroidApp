@@ -16,8 +16,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -32,7 +30,6 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.services.syncservice.activitys.UsersResponderFragment;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 
 /**
@@ -58,18 +55,6 @@ public class CourseAttendeesFragment extends SherlockListFragment implements
 		super.onCreate(savedInstanceState);
 		mArgs = getArguments();
 		mContext = getActivity();
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = fm.beginTransaction();
-		UsersResponderFragment responderFragment = (UsersResponderFragment) fm
-				.findFragmentByTag("userResponder");
-		if (responderFragment == null) {
-			responderFragment = new UsersResponderFragment();
-			responderFragment.setFragment(this);
-
-			responderFragment.setArguments(mArgs);
-			ft.add(responderFragment, "userResponder");
-		}
-		ft.commit();
 
 		// Creating the adapters for the listview
 		mUsersAdapter = new UsersAdapter(mContext);
@@ -140,13 +125,11 @@ public class CourseAttendeesFragment extends SherlockListFragment implements
 				.getString(CoursesContract.Columns.Courses.COURSE_ID);
 		CursorLoader loader = new CursorLoader(
 				mContext,
-				UsersContract.CONTENT_URI,
+				UsersContract.CONTENT_URI.buildUpon().appendPath("course")
+						.appendPath(courseId).build(),
 				UsersQuery.projection,
-				CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID
-						+ " = ? AND "
-						+ UsersContract.Qualified.USERS_USER_ID
-						+ " NOT NULL",
-				new String[] { courseId },
+				UsersContract.Qualified.USERS_USER_ID + " NOT NULL",
+				null,
 				CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE
 						+ " ASC, " + UsersContract.DEFAULT_SORT_ORDER);
 		return loader;
