@@ -22,6 +22,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
@@ -85,7 +86,10 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.list, container, false);
+		View v = inflater.inflate(R.layout.list, container, false);
+		((TextView) v.findViewById(R.id.empty_message))
+				.setText(R.string.no_documents);
+		return v;
 	}
 
 	protected final ContentObserver mObserver = new ContentObserver(

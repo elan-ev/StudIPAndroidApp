@@ -84,5 +84,15 @@
     <string name="Favorites">Favoriten</string>
     <string name="Groups">Gruppen</string>
     <string name="All">Alle</string>
+    <string name="sorry">Sorry!</string>
+    <string name="no_groups">Du hast noch keine Gruppen erstellt!</string>
+    <string name="no_contacts">Es sind keine Kontakte vorhanden!</string>
+    <string name="no_favorites">Du hast noch keine Favoriten markiert!</string>
+    <string name="no_global_news">Keine Neuigkeiten von Stud.IP vorhanden.</string>
+    <string name="no_course_news">Nichts Neues bei den Kursen.</string>
+    <string name="no_attendees">Es sind keine Teilnehmer vorhanden.</string>
+    <string name="no_documents">Es wurden noch keine Dokumente hochgeladen.</string>
+    <string name="no_messages">Du hast keine Nachrichten!</string>
+    <string name="no_courses">Du bist in keinem Kurs eingetragen.</string>
 
 </resources>

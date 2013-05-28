@@ -84,5 +84,15 @@
     <string name="Favorites">Favorites</string>
     <string name="Groups">Groups</string>
     <string name="All">All</string>
+    <string name="sorry">Sorry!</string>
+    <string name="no_groups">You haven\'t created any groups!</string>
+    <string name="no_contacts">You have no contacts!</string>
+    <string name="no_favorites">You haven\'t selected any favorites!</string>
+    <string name="no_global_news">No Stud.IP news.</string>
+    <string name="no_course_news">No course news.</string>
+    <string name="no_attendees">No one is attending.</string>
+    <string name="no_documents">Nothing uploaded yet.</string>
+    <string name="no_messages">You don\'t have any messages!</string>
+    <string name="no_courses">You are not attending any courses.</string>
 
 </resources>

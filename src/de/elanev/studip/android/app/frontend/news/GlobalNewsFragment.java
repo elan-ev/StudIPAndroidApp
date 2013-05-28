@@ -59,7 +59,7 @@ public class GlobalNewsFragment extends SherlockListFragment implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = getSherlockActivity();
-		getActivity().setTitle(getString(R.string.News));
+
 		FragmentManager fm = getFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();
 
@@ -80,13 +80,16 @@ public class GlobalNewsFragment extends SherlockListFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.list, null);
+		View v = inflater.inflate(R.layout.list, null);
+		((TextView) v.findViewById(R.id.empty_message))
+				.setText(R.string.no_global_news);
+		return v;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
+		getActivity().setTitle(getString(R.string.News));
 		// initialize CursorLoader
 		getLoaderManager().initLoader(0, null, this);
 	}
