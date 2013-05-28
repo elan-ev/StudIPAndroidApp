@@ -38,6 +38,7 @@ import org.apache.http.util.EntityUtils;
 
 import android.os.Bundle;
 import android.util.Log;
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 
 /**

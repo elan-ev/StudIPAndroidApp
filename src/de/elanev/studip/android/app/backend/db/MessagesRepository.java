@@ -10,6 +10,8 @@
  */
 package de.elanev.studip.android.app.backend.db;
 
+import de.elanev.studip.android.app.R;
+
 /**
  * @author joern
  * 

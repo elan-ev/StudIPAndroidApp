@@ -23,6 +23,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 
 import android.app.IntentService;

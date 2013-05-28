@@ -8,6 +8,7 @@
 package de.elanev.studip.android.app.backend.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.elanev.studip.android.app.R;
 
 /**
  * @author joern

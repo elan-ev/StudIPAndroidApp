@@ -7,6 +7,8 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.datamodel;
 
+import de.elanev.studip.android.app.R;
+
 /**
  * @author joern
  * 

@@ -10,6 +10,7 @@ package de.elanev.studip.android.app.backend.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import de.elanev.studip.android.app.R;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 

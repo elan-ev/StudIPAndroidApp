@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Courses;
 import de.elanev.studip.android.app.backend.datamodel.Semester;

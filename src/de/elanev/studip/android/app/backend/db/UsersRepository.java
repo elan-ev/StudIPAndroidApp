@@ -9,6 +9,7 @@ package de.elanev.studip.android.app.backend.db;
 
 import java.util.ArrayList;
 
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.User;
 
 import android.content.ContentValues;

@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.elanev.studip.android.app.R;
 
 /**
  * @author joern

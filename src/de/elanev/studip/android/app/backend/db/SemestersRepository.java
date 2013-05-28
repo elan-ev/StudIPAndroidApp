@@ -12,6 +12,7 @@ package de.elanev.studip.android.app.backend.db;
 
 import java.text.SimpleDateFormat;
 
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
 import de.elanev.studip.android.app.backend.datamodel.Semesters;
 

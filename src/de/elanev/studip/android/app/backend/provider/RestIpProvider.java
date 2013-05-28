@@ -27,6 +27,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DatabaseHandler;

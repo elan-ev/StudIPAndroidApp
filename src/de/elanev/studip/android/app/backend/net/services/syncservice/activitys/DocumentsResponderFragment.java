@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Document;
 import de.elanev.studip.android.app.backend.datamodel.Documents;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;

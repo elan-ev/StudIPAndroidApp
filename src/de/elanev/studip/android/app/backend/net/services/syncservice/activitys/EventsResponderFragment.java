@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.datamodel.Events;
 import de.elanev.studip.android.app.backend.db.AbstractContract;

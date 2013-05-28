@@ -13,6 +13,7 @@ package de.elanev.studip.android.app.backend.datamodel;
 import java.util.ArrayList;
 
 import android.database.Cursor;
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 
 /**

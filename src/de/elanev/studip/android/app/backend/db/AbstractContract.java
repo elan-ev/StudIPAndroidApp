@@ -9,6 +9,7 @@ package de.elanev.studip.android.app.backend.db;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
+import de.elanev.studip.android.app.R;
 
 public abstract class AbstractContract {
 	public String TABLE;
