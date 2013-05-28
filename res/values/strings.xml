@@ -81,5 +81,8 @@
     <string name="receiver_not_found">Empfänger unbekannt</string>
     <string name="unknown_error">Unbekannter Fehler aufgetreten</string>
     <string name="something_went_wrong">Es ist ein Fehler aufgetreten</string>
+    <string name="Favorites">Favoriten</string>
+    <string name="Groups">Gruppen</string>
+    <string name="All">Alle</string>
 
 </resources>

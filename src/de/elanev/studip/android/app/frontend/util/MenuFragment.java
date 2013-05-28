@@ -25,6 +25,7 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPAppActivity;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.frontend.contacts.ContactsActivity;
 import de.elanev.studip.android.app.frontend.courses.CoursesActivity;
 import de.elanev.studip.android.app.frontend.messages.MessagesActivity;
 import de.elanev.studip.android.app.frontend.news.NewsViewActivity;
@@ -125,7 +126,7 @@ public class MenuFragment extends ListFragment {
 				cls = MessagesActivity.class;
 				break;
 			case CONTACTS_MENU_ITEM:
-				Log.i(TAG, "Contacts selected");
+				cls = ContactsActivity.class;
 				break;
 			case SETTINGS_MENU_ITEM:
 				Log.i(TAG, "Settings selected");

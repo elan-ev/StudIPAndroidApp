@@ -76,6 +76,10 @@
             android:name=".frontend.messages.MessageComposeActivity"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name=".frontend.contacts.ContactsActivity"
+            android:screenOrientation="portrait" >
+        </activity>
 
         <provider
             android:name=".backend.provider.RestIpProvider"

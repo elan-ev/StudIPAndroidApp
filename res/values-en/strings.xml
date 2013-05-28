@@ -81,5 +81,8 @@
     <string name="receiver_not_found">Unknown receiver</string>
     <string name="unknown_error">Unknwon error</string>
     <string name="something_went_wrong">Something went wrong</string>
+    <string name="Favorites">Favorites</string>
+    <string name="Groups">Groups</string>
+    <string name="All">All</string>
 
 </resources>
