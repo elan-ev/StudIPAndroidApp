@@ -7,6 +7,7 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.contacts;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -14,10 +15,13 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
+import de.elanev.studip.android.app.widget.ListAdapterUsers;
 
 /**
  * @author joern
@@ -25,11 +29,32 @@ import de.elanev.studip.android.app.R;
  */
 public class ContactsFavoritesFragment extends SherlockListFragment implements
 		LoaderCallbacks<Cursor> {
+	private Context mContext;
+	private ListAdapterUsers mUserAdapter;
+	private SimpleSectionedListAdapter mAdapter;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		mContext = getActivity();
+		mUserAdapter = new ListAdapterUsers(mContext);
+		mAdapter = new SimpleSectionedListAdapter(mContext,
+				R.layout.list_item_header, mUserAdapter);
+		setListAdapter(mAdapter);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.list, null);
+		View v = inflater.inflate(R.layout.list, null);
+		((TextView) v.findViewById(R.id.empty_message))
+				.setText(R.string.no_favorites);
+		return v;
 	}
 
 	/*

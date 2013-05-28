@@ -7,10 +7,11 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.contacts;
 
-import com.actionbarsherlock.app.ActionBar;
-
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+
+import com.actionbarsherlock.app.ActionBar;
+
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 import de.elanev.studip.android.app.frontend.util.TabbedSlidingFragmentActivity.BasePagerTabsAdapter;
