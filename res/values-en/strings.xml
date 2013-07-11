@@ -94,5 +94,12 @@
     <string name="no_documents">Nothing uploaded yet.</string>
     <string name="no_messages">You don\'t have any messages!</string>
     <string name="no_courses">You are not attending any courses.</string>
+    <string name="studip_app_contacts_favorites">StudipApp Favorites</string>
+    <string name="Add_to_favorites">Add/remove favorite</string>
+    <string name="Remove_from_favorites">Favorit entfernen</string>
+    <string name="Remove_from_contacts">Remove from contacts</string>
+    <string name="Add_to_group">Add to group</string>
+    <string name="choose_group">Choose group</string>
+    <string name="Remove_from_group">Remove from group</string>
 
 </resources>

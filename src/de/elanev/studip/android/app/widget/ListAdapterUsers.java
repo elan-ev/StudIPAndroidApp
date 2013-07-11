@@ -13,19 +13,26 @@ import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
+
+import com.android.volley.toolbox.NetworkImageView;
+
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * @author joern
  * 
  */
 public class ListAdapterUsers extends CursorAdapter {
+	protected static final String TAG = ListAdapterUsers.class
+			.getCanonicalName();
 
 	public ListAdapterUsers(Context context) {
 		super(context, null, false);
+
 	}
 
 	/*
@@ -44,10 +51,16 @@ public class ListAdapterUsers extends CursorAdapter {
 				.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
 		final String userTitlePost = cursor.getString(cursor
 				.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
+		final String userImageUrl = cursor.getString(cursor
+				.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
 
+		final NetworkImageView userImage = (NetworkImageView) view
+				.findViewById(R.id.user_image);
 		final TextView fullnameTextView = (TextView) view
 				.findViewById(R.id.fullname);
 
+		userImage.setImageUrl(userImageUrl, VolleyHttp.getImageLoader());
+		userImage.setScaleType(ScaleType.CENTER_CROP);
 		fullnameTextView.setText(usertTitlePre + " " + userForename + " "
 				+ userLastname + " " + userTitlePost);
 	}
@@ -66,12 +79,12 @@ public class ListAdapterUsers extends CursorAdapter {
 	}
 
 	public interface UsersQuery {
-		String[] projection = {
-				UsersContract.Qualified.USERS_ID,
+		String[] projection = { UsersContract.Qualified.USERS_ID,
+				UsersContract.Qualified.USERS_USER_ID,
 				UsersContract.Qualified.USERS_USER_TITLE_PRE,
 				UsersContract.Qualified.USERS_USER_FORENAME,
 				UsersContract.Qualified.USERS_USER_LASTNAME,
 				UsersContract.Qualified.USERS_USER_TITLE_POST,
-				CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE };
+				UsersContract.Qualified.USERS_USER_AVATAR_NORMAL };
 	}
 }

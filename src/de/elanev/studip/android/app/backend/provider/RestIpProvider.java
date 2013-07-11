@@ -27,8 +27,8 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DatabaseHandler;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
@@ -37,6 +37,7 @@ import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 
 /**
@@ -46,7 +47,11 @@ import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 public class RestIpProvider extends ContentProvider {
 	public static final String TAG = RestIpProvider.class.getSimpleName();
 
+	// Time to wait for the next sync (in ms)
+	private static final long SYNC_THRESHOLD = 10000;
 	private static final UriMatcher sUriMatcher = buildUriMatcher();
+
+	private long mLastSync = -1;
 
 	private static final int NEWS = 100;
 	private static final int NEWS_ID = 101;
@@ -84,33 +89,50 @@ public class RestIpProvider extends ContentProvider {
 	private static final int MESSAGES_ID = 710;
 	private static final int MESSAGES_STRING_ID = 711;
 
+	private static final int CONTACTS = 800;
+	private static final int CONTACTS_ID = 801;
+	private static final int CONTACTS_GROUPS = 802;
+	private static final int CONTACTS_GROUPS_ID = 803;
+	private static final int CONTACTS_GROUP_MEMBERS = 804;
+	private static final int CONTACTS_GROUP_MEMBERS_GROUPID = 805;
+
+	/*
+	 * Uri Matcher
+	 */
 	private static UriMatcher buildUriMatcher() {
 		final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 		final String authority = AbstractContract.CONTENT_AUTHORITY;
 
+		// matches for news
 		matcher.addURI(authority, "news", NEWS);
 		matcher.addURI(authority, "news/global", NEWS_GLOBAL);
 		matcher.addURI(authority, "news/courses", NEWS_COURSES);
 		matcher.addURI(authority, "news/#", NEWS_ID);
 
+		// matches for courses
 		matcher.addURI(authority, "courses", COURSES);
 		matcher.addURI(authority, "courses/users", COURSES_USERS);
 		matcher.addURI(authority, "courses/events/*", COURSES_ID_EVENTS);
 		matcher.addURI(authority, "courses/#", COURSES_ID);
 
+		// matches for users
 		matcher.addURI(authority, "users", USERS);
 		matcher.addURI(authority, "users/course/*", USERS_COURSE_ID);
 		matcher.addURI(authority, "users/#", USERS_ID);
 
+		// matches for events
 		matcher.addURI(authority, "events", EVENTS);
 		matcher.addURI(authority, "events/#", EVENTS_ID);
 
+		// matches for semesters
 		matcher.addURI(authority, "semesters", SEMESTERS);
 		matcher.addURI(authority, "semesters/#", SEMESTERS_ID);
 
+		// matches for documents
 		matcher.addURI(authority, "documents", DOCUMENTS);
 		matcher.addURI(authority, "documents/#", DOCUMENTS_ID);
 
+		// matches for messages
 		matcher.addURI(authority, "messages/in", MESSAGES_IN);
 		matcher.addURI(authority, "messages/out", MESSAGES_OUT);
 		matcher.addURI(authority, "messages/folders", MESSAGES_FOLDERS);
@@ -126,6 +148,16 @@ public class RestIpProvider extends ContentProvider {
 		matcher.addURI(authority, "messages/out/#", MESSAGES_OUT_ID);
 		matcher.addURI(authority, "messages/#", MESSAGES_ID);
 		matcher.addURI(authority, "messages/*", MESSAGES_STRING_ID);
+
+		// matches for contacts
+		matcher.addURI(authority, "contacts", CONTACTS);
+		matcher.addURI(authority, "contacts/groups", CONTACTS_GROUPS);
+		matcher.addURI(authority, "contacts/groups/members",
+				CONTACTS_GROUP_MEMBERS);
+		matcher.addURI(authority, "contacts/groups/members/*",
+				CONTACTS_GROUP_MEMBERS_GROUPID);
+		matcher.addURI(authority, "contacts/groups/*", CONTACTS_GROUPS_ID);
+		matcher.addURI(authority, "contacts/*", CONTACTS_ID);
 		return matcher;
 	}
 
@@ -200,6 +232,14 @@ public class RestIpProvider extends ContentProvider {
 			return MessagesContract.CONTENT_ITEM_TYPE;
 		case MESSAGES_STRING_ID:
 			return MessagesContract.CONTENT_ITEM_TYPE;
+		case CONTACTS:
+			return ContactsContract.CONTENT_TYPE_CONTACTS;
+		case CONTACTS_ID:
+			return ContactsContract.CONTENT_ITEM_TYPE_CONTACTS;
+		case CONTACTS_GROUPS:
+			return ContactsContract.CONTENT_TYPE_CONTACT_GROUPS;
+		case CONTACTS_GROUPS_ID:
+			return ContactsContract.CONTENT_ITEM_TYPE_CONTACT_GROUPS;
 		default:
 			throw new UnsupportedOperationException("Unknown mime type: " + uri);
 		}
@@ -222,12 +262,14 @@ public class RestIpProvider extends ContentProvider {
 		SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
 				.getWritableDatabase();
 		int retVal = -1;
+
 		// Deleting the whole db
 		if (uri == AbstractContract.BASE_CONTENT_URI) {
 			deleteDatabase();
 			getContext().getContentResolver().notifyChange(uri, null, false);
 			return 1;
 		}
+
 		final int match = sUriMatcher.match(uri);
 		switch (match) {
 		case NEWS: {
@@ -270,10 +312,57 @@ public class RestIpProvider extends ContentProvider {
 									+ selection + ")" : ""), selectionArgs);
 			break;
 		}
-		case MESSAGES_IN_FOLDERS: {
+		case CONTACTS_ID: {
+			String userId = uri.getLastPathSegment();
+			retVal = db.delete(ContactsContract.TABLE_CONTACTS,
+					ContactsContract.Columns.Contacts.USER_ID
+							+ " = "
+							+ '"'
+							+ userId
+							+ '"'
+							+ (!TextUtils.isEmpty(selection) ? " AND ("
+									+ selection + ")" : ""), selectionArgs);
 			break;
 		}
 
+		case CONTACTS_GROUP_MEMBERS_GROUPID: {
+			String groupId = uri.getLastPathSegment();
+			retVal = db.delete(
+					ContactsContract.TABLE_CONTACT_GROUP_MEMBERS,
+					ContactsContract.Columns.ContactGroupMembers.GROUP_ID
+							+ " = "
+							+ '"'
+							+ groupId
+							+ '"'
+							+ (!TextUtils.isEmpty(selection) ? " AND ("
+									+ selection + ")" : ""), selectionArgs);
+			break;
+		}
+		case CONTACTS: {
+			retVal = db.delete(ContactsContract.TABLE_CONTACTS, (!TextUtils
+					.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+					selectionArgs);
+			return retVal;
+		}
+		case CONTACTS_GROUPS: {
+			retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUPS,
+					(!TextUtils.isEmpty(selection) ? " AND (" + selection + ")"
+							: ""), selectionArgs);
+			return retVal;
+		}
+		case CONTACTS_GROUPS_ID: {
+			String groupId = uri.getLastPathSegment();
+			retVal = db.delete(
+					ContactsContract.TABLE_CONTACT_GROUPS,
+					ContactsContract.Columns.ContactGroups.GROUP_ID
+							+ " = "
+							+ '"'
+							+ groupId
+							+ '"'
+							+ (!TextUtils.isEmpty(selection) ? " AND ("
+									+ selection + ")" : ""), selectionArgs);
+			return retVal;
+		}
 		default: {
 			throw new UnsupportedOperationException("Unsupported delete uri: "
 					+ uri);
@@ -344,14 +433,6 @@ public class RestIpProvider extends ContentProvider {
 			return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
 					rowId);
 		}
-		case MESSAGES_IN: {
-			long rowId = insertIgnoringConflict(db,
-					MessagesContract.TABLE_MESSAGES,
-					MessagesContract.Columns.Messages._ID, values, false);
-			getContext().getContentResolver().notifyChange(uri, null);
-			return ContentUris.withAppendedId(
-					MessagesContract.CONTENT_URI_MESSAGES, rowId);
-		}
 		case MESSAGES_FOLDERS: {
 			long rowId = insertIgnoringConflict(db,
 					MessagesContract.TABLE_MESSAGE_FOLDERS,
@@ -359,6 +440,31 @@ public class RestIpProvider extends ContentProvider {
 			getContext().getContentResolver().notifyChange(uri, null);
 			return ContentUris.withAppendedId(
 					MessagesContract.CONTENT_URI_MESSAGE_FOLDERS, rowId);
+		}
+
+		case CONTACTS: {
+			long rowId = insertIgnoringConflict(db,
+					ContactsContract.TABLE_CONTACTS,
+					ContactsContract.Columns.Contacts._ID, values, false);
+			getContext().getContentResolver().notifyChange(uri, null);
+			return ContentUris.withAppendedId(
+					ContactsContract.CONTENT_URI_CONTACTS, rowId);
+		}
+		case CONTACTS_GROUPS: {
+			long rowId = insertIgnoringConflict(db,
+					ContactsContract.TABLE_CONTACT_GROUPS,
+					ContactsContract.Columns.ContactGroups._ID, values, false);
+			getContext().getContentResolver().notifyChange(uri, null);
+			return ContentUris.withAppendedId(
+					ContactsContract.CONTENT_URI_CONTACT_GROUPS, rowId);
+		}
+		case CONTACTS_GROUP_MEMBERS: {
+			long rowId = db.insertWithOnConflict(
+					ContactsContract.TABLE_CONTACT_GROUP_MEMBERS, null, values,
+					SQLiteDatabase.CONFLICT_IGNORE);
+			getContext().getContentResolver().notifyChange(uri, null);
+			return ContentUris.withAppendedId(
+					ContactsContract.CONTENT_URI_CONTACT_GROUPS, rowId);
 		}
 		default: {
 			throw new UnsupportedOperationException("Unsupported insert uri: "
@@ -517,7 +623,8 @@ public class RestIpProvider extends ContentProvider {
 							+ usersCourseId
 							+ '"'
 							+ (!TextUtils.isEmpty(selection) ? " AND ("
-									+ selection + ")" : ""), selectionArgs,
+									+ selection + ")" : ""),
+					selectionArgs,
 					CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ID,
 					null, orderBy);
 
@@ -586,6 +693,57 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					MessagesContract.CONTENT_URI_MESSAGES);
 			break;
+		case CONTACTS:
+			long currTime = System.currentTimeMillis();
+			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+				SyncHelper.getInstance(getContext()).performContactsSync();
+				mLastSync = currTime;
+			}
+
+			if (TextUtils.isEmpty(sortOrder)) {
+				orderBy = ContactsContract.DEFAULT_SORT_ORDER_CONTACTS;
+			} else {
+				orderBy = sortOrder;
+			}
+
+			c = db.query(ContactsContract.TABLE_CONTACTS + " "
+					+ ContactsContract.CONTACTS_JOIN_USERS, projection,
+					selection, selectionArgs, null, null, orderBy);
+			c.setNotificationUri(getContext().getContentResolver(),
+					ContactsContract.CONTENT_URI_CONTACTS);
+			break;
+		case CONTACTS_GROUPS:
+
+			if (TextUtils.isEmpty(sortOrder)) {
+				orderBy = ContactsContract.DEFAULT_SORT_ORDER_CONTACT_GROUPS;
+			} else {
+				orderBy = sortOrder;
+			}
+
+			c = db.query(ContactsContract.TABLE_CONTACT_GROUPS, projection,
+					selection, selectionArgs, null, null, orderBy);
+			c.setNotificationUri(getContext().getContentResolver(),
+					ContactsContract.CONTENT_URI_CONTACT_GROUPS);
+			break;
+		case CONTACTS_GROUP_MEMBERS:
+			long ctime = System.currentTimeMillis();
+			if ((ctime - mLastSync) > SYNC_THRESHOLD) {
+				SyncHelper.getInstance(getContext()).performContactsSync();
+				mLastSync = ctime;
+			}
+
+			if (TextUtils.isEmpty(sortOrder)) {
+				orderBy = ContactsContract.DEFAULT_SORT_ORDER_CONTACT_GROUPS;
+			} else {
+				orderBy = sortOrder;
+			}
+
+			c = db.query(ContactsContract.TABLE_CONTACTS + " "
+					+ ContactsContract.COURSES_JOIN_USERS_JOIN_GROUPS,
+					projection, selection, selectionArgs, null, null, orderBy);
+			c.setNotificationUri(getContext().getContentResolver(),
+					ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS);
+			break;
 		default:
 			throw new IllegalArgumentException("Unsupported uri: " + uri);
 		}
@@ -602,8 +760,22 @@ public class RestIpProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
+				.getReadableDatabase();
+		int affectedRows = 0;
+		final int match = sUriMatcher.match(uri);
+
+		switch (match) {
+		case CONTACTS:
+			affectedRows = db.update(ContactsContract.TABLE_CONTACTS, values,
+					selection, selectionArgs);
+			getContext().getContentResolver().notifyChange(uri, null);
+			break;
+
+		default:
+			throw new IllegalArgumentException("Unsupported uri: " + uri);
+		}
+		return affectedRows;
 	}
 
 	@Override
@@ -637,12 +809,14 @@ public class RestIpProvider extends ContentProvider {
 		SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
 				.getWritableDatabase();
 		final int match = sUriMatcher.match(uri);
+		int rowsInserted = 0;
 		switch (match) {
+
 		case MESSAGES_FOLDER_MESSAGES:
 			long folderId = ContentUris.parseId(uri);
-			int numInserted = 0;
 			db.beginTransaction();
 			try {
+
 				// first clear the messages table
 				StringBuilder deleteSql = new StringBuilder();
 				deleteSql
@@ -725,20 +899,21 @@ public class RestIpProvider extends ContentProvider {
 				}
 
 				db.setTransactionSuccessful();
-				numInserted = values.length;
+				rowsInserted = values.length;
 
 			} finally {
 				db.endTransaction();
 			}
+			break;
 
-			getContext().getContentResolver().notifyChange(uri, null);
-			return numInserted;
-
-		default: {
+		default:
 			throw new UnsupportedOperationException(
 					"Unsupported bulk insert uri: " + uri);
+
 		}
-		}
+
+		getContext().getContentResolver().notifyChange(uri, null);
+		return rowsInserted;
 
 	}
 
