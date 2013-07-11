@@ -23,14 +23,12 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
-import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
-
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
+import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 
 /**
  * @author joern
@@ -97,32 +95,35 @@ public class RestIPSyncService extends IntentService {
 			e.printStackTrace();
 		}
 
-		int resultCode = mResponse.getStatusLine().getStatusCode();
-		String resultBody = null;
-		Log.d(TAG, String.valueOf(resultCode) + " " + mAction.toASCIIString());
-		if (resultCode == 200) {
+		if (mResponse != null) {
+			int resultCode = mResponse.getStatusLine().getStatusCode();
+			String resultBody = null;
+			Log.d(TAG,
+					String.valueOf(resultCode) + " " + mAction.toASCIIString());
+			if (resultCode == 200) {
 
-			try {
-				HttpEntity entity = mResponse.getEntity();
-				if (entity != null) {
-					resultBody = EntityUtils.toString(entity);
+				try {
+					HttpEntity entity = mResponse.getEntity();
+					if (entity != null) {
+						resultBody = EntityUtils.toString(entity);
+					}
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-			} catch (IllegalStateException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			Bundle resultData = new Bundle();
-			resultData.putString(RESTIP_RESULT, resultBody);
-			resultData.putString(RESTIP_ACTION, mAction.toASCIIString());
-			mReceiver.send(resultCode, resultData);
+				Bundle resultData = new Bundle();
+				resultData.putString(RESTIP_RESULT, resultBody);
+				resultData.putString(RESTIP_ACTION, mAction.toASCIIString());
+				mReceiver.send(resultCode, resultData);
 
-		} else {
-			try {
-				Log.d(TAG, EntityUtils.toString(mResponse.getEntity()) + "\n"
-						+ mAction.toASCIIString());
-			} catch (IOException e) {
-				e.printStackTrace();
+			} else {
+				try {
+					Log.d(TAG, EntityUtils.toString(mResponse.getEntity())
+							+ "\n" + mAction.toASCIIString());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 

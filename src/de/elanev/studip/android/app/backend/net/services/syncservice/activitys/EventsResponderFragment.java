@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.datamodel.Events;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
@@ -51,8 +50,8 @@ public class EventsResponderFragment extends
 			if (mReturnItem == null && mContext != null) {
 
 				Intent intent = new Intent(mContext, RestIPSyncService.class);
-				intent.setData(Uri.parse(String.format(mServerApiUrl + "/"
-						+ ApiEndpoints.COURSE_EVENTS_ENDPOINT, cid)));
+				intent.setData(Uri.parse(String.format(
+						ApiEndpoints.COURSE_EVENTS_ENDPOINT, cid)));
 
 				intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
 						getResultReceiver());

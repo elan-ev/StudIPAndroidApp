@@ -24,7 +24,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Message;
 import de.elanev.studip.android.app.backend.datamodel.MessageFolders;
 import de.elanev.studip.android.app.backend.datamodel.Messages;
@@ -57,15 +56,11 @@ public class MessagesResponderFragment extends
 				mSyncStarted = true;
 			}
 
-			createAndStartIntent(Uri.parse(mServerApiUrl
-					+ "/"
-					+ String.format(ApiEndpoints.MESSAGES_FOLDERS_ENDPOINT,
-							"in")));
+			createAndStartIntent(Uri.parse(String.format(
+					ApiEndpoints.MESSAGES_FOLDERS_ENDPOINT, "in")));
 
-			createAndStartIntent(Uri.parse(mServerApiUrl
-					+ "/"
-					+ String.format(ApiEndpoints.MESSAGES_FOLDERS_ENDPOINT,
-							"out")));
+			createAndStartIntent(Uri.parse(String.format(
+					ApiEndpoints.MESSAGES_FOLDERS_ENDPOINT, "out")));
 		}
 	}
 
@@ -81,9 +76,8 @@ public class MessagesResponderFragment extends
 	private void loadFolderMessages(String box, MessageFolders folders) {
 		if (getActivity() != null) {
 			for (String f : folders.folders) {
-				createAndStartIntent(Uri.parse(String.format(mServerApiUrl
-						+ "/"
-						+ String.format(
+				createAndStartIntent(Uri
+						.parse(String.format(String.format(
 								ApiEndpoints.MESSAGES_FOLDER_MESSAGES_ENDPOINT,
 								box, f))));
 			}

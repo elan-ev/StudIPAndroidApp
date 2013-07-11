@@ -10,38 +10,45 @@
  */
 package de.elanev.studip.android.app.backend.net.api;
 
-import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 
 /**
  * @author joern
  * 
  */
 public interface ApiEndpoints {
+
+	static OAuthConnector sOauthConnector = OAuthConnector.getInstance();
 	/*
 	 * Users
 	 */
-	public static final String USER_ENDPOINT = "user/%s";
+	public static final String USER_ENDPOINT = sOauthConnector.server.API_URL
+			+ "/user/%s";
 	/*
 	 * Semesters
 	 */
-	public static final String SEMESTERS_ENDPOINT = "semesters/%s";
+	public static final String SEMESTERS_ENDPOINT = sOauthConnector.server.API_URL
+			+ "/semesters/%s";
 	/*
 	 * News
 	 */
-	public static final String NEWS_ENDPOINT = "news/range/%s";
+	public static final String NEWS_ENDPOINT = sOauthConnector.server.API_URL
+			+ "/news/range/%s";
 	public static final String NEWS_GLOBAL_RANGE_IDENITFIER = "studip";
-	public static final String NEWS_GLOBAL_ENDPOINT = "news/range/"
-			+ NEWS_GLOBAL_RANGE_IDENITFIER;
+	public static final String NEWS_GLOBAL_ENDPOINT = String.format(
+			NEWS_ENDPOINT, NEWS_GLOBAL_RANGE_IDENITFIER);
 	/*
 	 * Courses
 	 */
-	public static final String COURSES_ENDPOINT = "courses";
+	public static final String COURSES_ENDPOINT = sOauthConnector.server.API_URL
+			+ "/courses";
 	public static final String COURSE_EVENTS_ENDPOINT = COURSES_ENDPOINT
 			+ "/%s/events";
 	/*
 	 * Documents
 	 */
-	public static final String DOCUMENTS_ENDPOINT = "documents";
+	public static final String DOCUMENTS_ENDPOINT = sOauthConnector.server.API_URL
+			+ "/documents";
 	public static final String COURSE_DOCUMENTS_ENDPOINT = DOCUMENTS_ENDPOINT
 			+ "/%s";
 	public static final String COURSE_DOCUMENTS_FOLDERS_ENDPOINT = DOCUMENTS_ENDPOINT
@@ -51,7 +58,8 @@ public interface ApiEndpoints {
 	/*
 	 * Messages
 	 */
-	public static final String MESSAGES_ENDPOINT = "messages";
+	public static final String MESSAGES_ENDPOINT = sOauthConnector.server.API_URL
+			+ "/messages";
 	public static final String MESSAGES_FOLDERS_ENDPOINT = MESSAGES_ENDPOINT
 			+ "/%s";
 	public static final String MESSAGES_MESSAGE_ENDPOINT = MESSAGES_ENDPOINT
@@ -61,5 +69,19 @@ public interface ApiEndpoints {
 	public static final String MESSAGE_MARK_AS_READ_ENDPOINT = MESSAGES_ENDPOINT
 			+ "/%s/read";
 	public static final String MESSAGE_DELETE_ENDPOINT = MESSAGES_ENDPOINT
+			+ "/%s";
+
+	/*
+	 * Contacts
+	 */
+	public static final String CONTACTS_ENDPOINT = sOauthConnector.server.API_URL
+			+ "/contacts";
+	public static final String CONTACTS_USER_ID_ENDPOINT = CONTACTS_ENDPOINT
+			+ "/%s";
+	public static final String CONTACT_GROUPS_ENDPOINT = CONTACTS_ENDPOINT
+			+ "/groups";
+	public static final String CONTACT_GROUPS_GROUP_ID_ENDPOINT = CONTACT_GROUPS_ENDPOINT
+			+ "/%s";
+	public static final String CONTACT_GROUPS_GROUP_ID_USER_ID_ENDPOINT = CONTACT_GROUPS_GROUP_ID_ENDPOINT
 			+ "/%s";
 }

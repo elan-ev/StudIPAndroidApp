@@ -21,11 +21,10 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Document;
-import de.elanev.studip.android.app.backend.datamodel.Documents;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
+import de.elanev.studip.android.app.backend.datamodel.Documents;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
@@ -62,9 +61,9 @@ public class DocumentsResponderFragment extends
 
 					Intent intent = new Intent(mContext,
 							RestIPSyncService.class);
-					intent.setData(Uri.parse(String.format(mServerApiUrl + "/"
-							+ ApiEndpoints.COURSE_DOCUMENTS_FOLDERS_ENDPOINT,
-							cid)));
+					intent.setData(Uri.parse(String
+							.format(ApiEndpoints.COURSE_DOCUMENTS_FOLDERS_ENDPOINT,
+									cid)));
 
 					intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
 							getResultReceiver());
@@ -77,9 +76,7 @@ public class DocumentsResponderFragment extends
 						Intent intent = new Intent(mContext,
 								RestIPSyncService.class);
 						intent.setData(Uri.parse(String
-								.format(mServerApiUrl
-										+ "/"
-										+ ApiEndpoints.COURSE_DOCUMENTS_FOLDERS_FILES_ENDPOINT,
+								.format(ApiEndpoints.COURSE_DOCUMENTS_FOLDERS_FILES_ENDPOINT,
 										new Object[] { cid, f.folder_id })));
 
 						intent.putExtra(

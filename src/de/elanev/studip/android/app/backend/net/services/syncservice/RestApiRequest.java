@@ -38,7 +38,6 @@ import org.apache.http.util.EntityUtils;
 
 import android.os.Bundle;
 import android.util.Log;
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 
 /**
@@ -80,8 +79,7 @@ public class RestApiRequest {
 	public String get(String endpoint, String... id) {
 		String resultBody = null;
 		try {
-			String reqString = String.format(mConnector.server.API_URL + "/"
-					+ endpoint + ".json", (Object[]) id);
+			String reqString = String.format(endpoint + ".json", (Object[]) id);
 			Log.i(TAG, reqString);
 			HttpGet request = new HttpGet(URI.create(reqString));
 			mConnector.consumer.sign(request);
@@ -113,8 +111,7 @@ public class RestApiRequest {
 
 	public ApiResponse post(String endpoint, Bundle postParameters) {
 		ApiResponse result = null;
-		String postUrl = String.format(mConnector.server.API_URL + "/"
-				+ endpoint);
+		String postUrl = String.format(endpoint + ".json");
 
 		try {
 			HttpPost request = new HttpPost(URI.create(postUrl));
@@ -158,8 +155,7 @@ public class RestApiRequest {
 
 	public RestApiRequest.ApiResponse put(String endpoint, String... params) {
 		ApiResponse result = null;
-		String reqString = String.format(mConnector.server.API_URL + "/"
-				+ endpoint, (Object[]) params);
+		String reqString = String.format(endpoint + ".json", (Object[]) params);
 		String resultBody = "";
 		Log.v(TAG, reqString);
 

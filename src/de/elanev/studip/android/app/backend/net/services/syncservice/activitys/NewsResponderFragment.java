@@ -26,7 +26,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Courses;
 import de.elanev.studip.android.app.backend.datamodel.News;
@@ -61,8 +60,7 @@ public class NewsResponderFragment extends
 
 	private void loadNews() {
 		Intent intent = new Intent(mContext, RestIPSyncService.class);
-		intent.setData(Uri.parse(mServerApiUrl + "/"
-				+ ApiEndpoints.NEWS_GLOBAL_ENDPOINT));
+		intent.setData(Uri.parse(ApiEndpoints.NEWS_GLOBAL_ENDPOINT));
 
 		intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
 				getResultReceiver());
@@ -77,8 +75,8 @@ public class NewsResponderFragment extends
 				String cid = course.course_id;
 				if (cid != null) {
 					Intent i = new Intent(mContext, RestIPSyncService.class);
-					i.setData(Uri.parse(mServerApiUrl + "/"
-							+ String.format(ApiEndpoints.NEWS_ENDPOINT, cid)));
+					i.setData(Uri.parse(String.format(
+							ApiEndpoints.NEWS_ENDPOINT, cid)));
 
 					i.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
 							getResultReceiver());
