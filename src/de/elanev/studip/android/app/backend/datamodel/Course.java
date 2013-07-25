@@ -13,14 +13,16 @@ package de.elanev.studip.android.app.backend.datamodel;
 import java.util.ArrayList;
 
 import android.database.Cursor;
-import de.elanev.studip.android.app.R;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 
 /**
  * @author joern
  * 
  */
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Course {
 	public String course_id;
 	public Long start_time;
@@ -121,6 +123,7 @@ public class Course {
 
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class Modules {
 		public Boolean calendar = false;
 		public Boolean chat = false;

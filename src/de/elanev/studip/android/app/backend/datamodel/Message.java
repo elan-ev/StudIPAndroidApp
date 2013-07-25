@@ -7,7 +7,7 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.datamodel;
 
-import de.elanev.studip.android.app.R;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Represents a message as java object
@@ -15,6 +15,7 @@ import de.elanev.studip.android.app.R;
  * @author joern
  * 
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Message {
 	/**
 	 * the studip internal id of the message

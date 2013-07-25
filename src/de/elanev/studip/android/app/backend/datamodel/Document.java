@@ -7,13 +7,14 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.elanev.studip.android.app.R;
 
 /**
  * @author joern
  * 
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Document {
 	public String document_id;
 	public String user_id;

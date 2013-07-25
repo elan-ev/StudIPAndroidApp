@@ -10,12 +10,15 @@
  */
 package de.elanev.studip.android.app.backend.datamodel;
 
-import de.elanev.studip.android.app.R;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 /**
  * @author joern
  * 
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonRootName(value = "user")
 public class User {
 	public String user_id;
 	public String username;

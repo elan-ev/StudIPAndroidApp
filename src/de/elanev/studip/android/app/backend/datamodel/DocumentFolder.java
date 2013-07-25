@@ -7,12 +7,13 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.datamodel;
 
-import de.elanev.studip.android.app.R;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * @author joern
  * 
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentFolder {
 	public String folder_id;
 	public String user_id;

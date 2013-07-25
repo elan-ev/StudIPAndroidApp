@@ -10,12 +10,13 @@
  */
 package de.elanev.studip.android.app.backend.datamodel;
 
-import de.elanev.studip.android.app.R;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * @author joern
  * 
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Semester {
 
 	public String semester_id;
