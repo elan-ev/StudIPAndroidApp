@@ -2,10 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/add_remove_favorite"
+        android:id="@+id/add_to_favorites"
         android:icon="@drawable/ic_action_send"
         android:showAsAction="ifRoom|withText"
         android:title="@string/Add_to_favorites">
+    </item>
+    <item
+        android:id="@+id/remove_from_favorites"
+        android:icon="@drawable/ic_action_send"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/Remove_from_favorites"
+        android:visible="false">
     </item>
     <item
         android:id="@+id/remove_from_contacts"
@@ -14,16 +21,10 @@
         android:title="@string/Remove_from_contacts">
     </item>
     <item
-        android:id="@+id/add_to_group"
+        android:id="@+id/manage_groups"
         android:icon="@drawable/ic_action_send"
         android:showAsAction="ifRoom|withText"
-        android:title="@string/Add_to_group">
-    </item>
-    <item
-        android:id="@+id/remove_from_group"
-        android:icon="@drawable/ic_action_send"
-        android:showAsAction="ifRoom|withText"
-        android:title="@string/Remove_from_group">
+        android:title="@string/manage_groups">
     </item>
 
 </menu>

@@ -95,11 +95,13 @@
     <string name="no_messages">Du hast keine Nachrichten!</string>
     <string name="no_courses">Du bist in keinem Kurs eingetragen.</string>
     <string name="studip_app_contacts_favorites">StudipApp Favoriten</string>
-    <string name="Add_to_favorites">Favorit hinzufügen/entfernen</string>
-    <string name="Remove_from_favorites">Favorit entfernen</string>
-    <string name="Remove_from_contacts">Als Kontakt entfernen</string>
-    <string name="Add_to_group">Zu Gruppe hinzufügen</string>
-    <string name="choose_group">Gruppe wählen</string>
-    <string name="Remove_from_group">Aus Gruppe entfernen</string>
+    <string name="Add_to_favorites">Zu Favoriten hinzufügen</string>
+    <string name="Remove_from_favorites">Aus Favoriten entfernen</string>
+    <string name="Add_to_contacts">Zu Kontakte hinzufügen </string>
+    <string name="Remove_from_contacts">Aus Kontakte entfernen</string>
+    <string name="manage_groups">Gruppen verwalten</string>
+    <string name="user">Benutzer</string>
+    <string name="Send_message">Nachricht senden</string>
+    <string name="Message">Nachricht</string>
 
 </resources>
