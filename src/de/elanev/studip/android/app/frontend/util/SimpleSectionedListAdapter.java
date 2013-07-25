@@ -26,8 +26,6 @@ import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import de.elanev.studip.android.app.R;
-
 import java.util.Arrays;
 import java.util.Comparator;
 

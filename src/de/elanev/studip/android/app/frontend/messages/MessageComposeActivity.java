@@ -16,7 +16,6 @@ import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 public class MessageComposeActivity extends BaseSlidingFragmentActivity {
 
 	/**
-	 * @param titleRes
 	 */
 	public MessageComposeActivity() {
 		super(R.string.Messages);

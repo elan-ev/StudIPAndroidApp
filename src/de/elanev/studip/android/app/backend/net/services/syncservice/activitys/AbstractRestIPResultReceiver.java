@@ -20,8 +20,6 @@ import android.util.Log;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.app.SherlockListFragment;
 
-import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.services.syncservice.RestIPSyncService;
 
 /**
@@ -38,9 +36,6 @@ public abstract class AbstractRestIPResultReceiver<T, A extends SherlockListFrag
 	protected static String TAG = AbstractRestIPResultReceiver.class
 			.getSimpleName();
 	protected Uri mResponseUri;
-
-	protected Uri mServerApiUrl = Uri
-			.parse(OAuthConnector.getInstance().server.API_URL);
 
 	public AbstractRestIPResultReceiver() {
 		mReceiver = new ResultReceiver(new Handler()) {

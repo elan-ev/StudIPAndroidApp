@@ -7,7 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.net;
 
-import de.elanev.studip.android.app.R;
 import java.io.Serializable;
 
 public class Server implements Serializable {

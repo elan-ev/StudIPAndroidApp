@@ -48,8 +48,6 @@ public class ContactsActivity extends BaseSlidingFragmentActivity {
 				ContactsFavoritesFragment.class, null);
 		mPagerAdapter.addTab(mActionbar.newTab(), R.string.Groups,
 				ContactsGroupsFragment.class, null);
-		mPagerAdapter.addTab(mActionbar.newTab(), R.string.All,
-				ContactsAllFragment.class, null);
 	}
 
 }

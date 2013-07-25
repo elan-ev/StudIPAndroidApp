@@ -7,7 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.db;
 
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.datamodel.Events;
 import android.content.ContentValues;

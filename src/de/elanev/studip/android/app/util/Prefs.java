@@ -10,7 +10,6 @@
  */
 package de.elanev.studip.android.app.util;
 
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.net.Server;
 import android.app.Activity;
 import android.content.Context;

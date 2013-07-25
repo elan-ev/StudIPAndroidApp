@@ -28,7 +28,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Courses;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
@@ -57,8 +56,7 @@ public class CoursesResponderFragment extends
 	public void loadData() {
 		if (getActivity() != null) {
 			Intent intent = new Intent(mContext, RestIPSyncService.class);
-			Uri request = Uri.parse(mServerApiUrl + "/"
-					+ ApiEndpoints.COURSES_ENDPOINT);
+			Uri request = Uri.parse(ApiEndpoints.COURSES_ENDPOINT);
 			Log.v(TAG, request.toString());
 			intent.setData(request);
 

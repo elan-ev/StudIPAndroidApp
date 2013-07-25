@@ -10,14 +10,15 @@
  */
 package de.elanev.studip.android.app.backend.datamodel;
 
-import de.elanev.studip.android.app.R;
 import java.util.ArrayList;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * @author joern
  * 
  */
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class News {
 	public ArrayList<NewsItem> news;
 

@@ -7,12 +7,11 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.net.oauth;
 
-import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.backend.net.Server;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
+import de.elanev.studip.android.app.backend.net.Server;
 
 public class OAuthConnector {
 

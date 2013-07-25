@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
+import de.elanev.studip.android.app.util.VolleyHttp;
 
 public class StudIPAppActivity extends Activity {
 
@@ -22,6 +23,7 @@ public class StudIPAppActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, " onCreate");
 
+		init();
 		/*
 		 * Clear shared prefs for debugging
 		 */
@@ -29,5 +31,12 @@ public class StudIPAppActivity extends Activity {
 		Intent intent = new Intent(StudIPAppActivity.this, SignInActivity.class);
 		this.startActivity(intent);
 		this.finish();
+	}
+
+	/**
+	 * 
+	 */
+	private void init() {
+		VolleyHttp.init(this);
 	}
 }
