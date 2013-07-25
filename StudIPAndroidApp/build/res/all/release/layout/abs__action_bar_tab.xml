@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<view
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    class="com.actionbarsherlock.internal.widget.ScrollingTabContainerView$TabView"
+    style="?attr/actionBarTabStyle"
+/><!-- From: /Users/joern/Developer/ELAN/studip/StudIPApp/libprojects/ActionBarSherlock/actionbarsherlock/res/layout/abs__action_bar_tab.xml --><!-- From: /Users/joern/Developer/ELAN/studip/StudIPApp/libprojects/SlidingMenu/library/build/exploded-bundles/StudIPAppLibprojectsActionBarSherlockActionbarsherlockUnspecified.aar/res/layout/abs__action_bar_tab.xml --><!-- From: /Users/joern/Developer/ELAN/studip/StudIPApp/StudIPAndroidApp/build/exploded-bundles/StudIPAppLibprojectsSlidingMenuLibraryUnspecified.aar/res/layout/abs__action_bar_tab.xml -->

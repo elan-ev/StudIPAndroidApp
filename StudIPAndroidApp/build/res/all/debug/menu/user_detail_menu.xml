@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+            android:id="@+id/send_message"
+            android:icon="@drawable/ic_action_mail"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/Send_message"
+            android:titleCondensed="@string/Message"/>
+    <item
+            android:id="@+id/add_to_favorites"
+            android:icon="@drawable/ic_action_star_full"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/Add_to_favorites"
+            android:titleCondensed="@string/Favorites"/>
+    <item
+            android:id="@+id/add_to_contacts"
+            android:icon="@drawable/ic_menu_users"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/Add_to_contacts"
+            android:titleCondensed="@string/Contacts"/>
+</menu><!-- From: /Users/joern/Developer/ELAN/studip/StudIPApp/StudIPAndroidApp/res/menu/user_detail_menu.xml -->

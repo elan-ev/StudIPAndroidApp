@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/delete_message"
+        android:icon="@drawable/ic_action_trash"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/delete_message"
+        android:titleCondensed="@string/delete"/>
+    <item
+        android:id="@+id/forward_message"
+        android:icon="@drawable/ic_action_forward"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/forward_message"
+        android:titleCondensed="@string/forward"/>
+    <item
+        android:id="@+id/reply_message"
+        android:icon="@drawable/ic_action_reply"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/reply_message"
+        android:titleCondensed="@string/reply"/>
+
+</menu><!-- From: /Users/joern/Developer/ELAN/studip/StudIPApp/StudIPAndroidApp/res/menu/message_detail_menu.xml -->

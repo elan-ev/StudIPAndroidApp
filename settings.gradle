@@ -1,0 +1,4 @@
+include ':StudIPAndroidApp'
+include ':libprojects:ActionBarSherlock:actionbarsherlock'
+include ':libprojects:volley'
+include ':libprojects:SlidingMenu:library'

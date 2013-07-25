@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2013 ELAN e.V.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the GNU Public License v3.0
+  which accompanies this distribution, and is available at
+  http://www.gnu.org/licenses/gpl.html
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/background_light" >
+
+    <RelativeLayout
+        android:id="@+id/senderinfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp" >
+
+        <ImageView
+            android:id="@+id/message_user_avatar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/nobody_medium" />
+
+        <TextView
+            android:id="@+id/message_sender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_toRightOf="@id/message_user_avatar"
+            android:textAppearance="@android:style/TextAppearance.Small"
+            android:textColor="@android:color/black"
+            android:textIsSelectable="false" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/senderinfo"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp" >
+
+        <ImageView
+            android:id="@+id/message_unread_icon"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="4dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/message_unread_icon"
+            android:scaleType="fitCenter"
+            android:src="@drawable/blue_dot"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/message_subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/senderinfo"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_toRightOf="@id/message_unread_icon"
+            android:gravity="center_vertical"
+            android:textAppearance="@android:style/TextAppearance.Small"
+            android:textColor="@android:color/black"
+            android:textIsSelectable="false" />
+    </RelativeLayout>
+
+</RelativeLayout><!-- From: /Users/joern/Developer/ELAN/studip/StudIPApp/StudIPAndroidApp/res/layout/list_item_message.xml -->

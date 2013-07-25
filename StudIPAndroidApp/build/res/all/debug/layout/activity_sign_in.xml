@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2013 ELAN e.V.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the GNU Public License v3.0
+  which accompanies this distribution, and is available at
+  http://www.gnu.org/licenses/gpl.html
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/blue_bg"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="180dp" >
+
+        <ImageView
+            android:id="@+id/sign_in_imageview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@+string/studip_logo"
+            android:src="@drawable/studip" />
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/sign_in_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/white_button"
+        android:drawablePadding="-30sp"
+        android:text="@+string/Authorize" />
+
+    <ProgressBar
+        android:id="@+id/sign_in_progressbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip" >
+
+        <Button
+            android:id="@+id/sign_in_help_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@color/transparent"
+            android:text="@+string/Help" />
+    </RelativeLayout>
+
+</RelativeLayout><!-- From: /Users/joern/Developer/ELAN/studip/StudIPApp/StudIPAndroidApp/res/layout/activity_sign_in.xml -->
