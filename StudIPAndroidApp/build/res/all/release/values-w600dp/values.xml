@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <!-- From: /Users/joern/Developer/ELAN/studip/StudIPApp/StudIPAndroidApp/build/exploded-bundles/StudIPAppLibprojectsSlidingMenuLibraryUnspecified.aar/res/values-w600dp/values.xml -->
-    <integer name="abs__max_action_buttons">5</integer>
-
-</resources>
