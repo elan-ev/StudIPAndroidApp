@@ -19,28 +19,22 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import com.actionbarsherlock.app.SherlockListFragment;
-
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
+import de.elanev.studip.android.app.widget.ListAdapterUsers;
+import de.elanev.studip.android.app.widget.UserListFragment;
 
 /**
  * @author joern
  * 
  */
-public class CourseAttendeesFragment extends SherlockListFragment implements
+public class CourseAttendeesFragment extends UserListFragment implements
 		LoaderCallbacks<Cursor> {
 	public static final String TAG = CourseAttendeesFragment.class
 			.getSimpleName();
-	private UsersAdapter mUsersAdapter;
+	private ListAdapterUsers mUsersAdapter;
 	private SimpleSectionedListAdapter mAdapter;
 	private Context mContext;
 	private Bundle mArgs;
@@ -57,7 +51,7 @@ public class CourseAttendeesFragment extends SherlockListFragment implements
 		mContext = getActivity();
 
 		// Creating the adapters for the listview
-		mUsersAdapter = new UsersAdapter(mContext);
+		mUsersAdapter = new ListAdapterUsers(mContext);
 		mAdapter = new SimpleSectionedListAdapter(mContext,
 				R.layout.list_item_header, mUsersAdapter);
 
@@ -70,15 +64,6 @@ public class CourseAttendeesFragment extends SherlockListFragment implements
 
 		// initialize CursorLoader
 		getLoaderManager().initLoader(0, mArgs, this);
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.list, null);
-		((TextView) v.findViewById(R.id.empty_message))
-				.setText(R.string.no_attendees);
-		return v;
 	}
 
 	protected final ContentObserver mObserver = new ContentObserver(
@@ -110,6 +95,11 @@ public class CourseAttendeesFragment extends SherlockListFragment implements
 				UsersContract.CONTENT_URI, true, mObserver);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.actionbarsherlock.app.SherlockListFragment#onDetach()
+	 */
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -131,7 +121,7 @@ public class CourseAttendeesFragment extends SherlockListFragment implements
 				UsersContract.CONTENT_URI.buildUpon().appendPath("course")
 						.appendPath(courseId).build(),
 				UsersQuery.projection,
-				UsersContract.Qualified.USERS_USER_ID + " NOT NULL",
+				null, // UsersContract.Qualified.USERS_USER_ID + " NOT NULL",
 				null,
 				CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE
 						+ " ASC, " + UsersContract.DEFAULT_SORT_ORDER);
@@ -204,57 +194,12 @@ public class CourseAttendeesFragment extends SherlockListFragment implements
 	private interface UsersQuery {
 		String[] projection = {
 				UsersContract.Qualified.USERS_ID,
+				UsersContract.Qualified.USERS_USER_ID,
 				UsersContract.Qualified.USERS_USER_TITLE_PRE,
 				UsersContract.Qualified.USERS_USER_FORENAME,
 				UsersContract.Qualified.USERS_USER_LASTNAME,
 				UsersContract.Qualified.USERS_USER_TITLE_POST,
+				UsersContract.Qualified.USERS_USER_AVATAR_NORMAL,
 				CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE };
 	}
-
-	private class UsersAdapter extends CursorAdapter {
-
-		public UsersAdapter(Context context) {
-			super(context, null, false);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.support.v4.widget.CursorAdapter#bindView(android.view.View,
-		 * android.content.Context, android.database.Cursor)
-		 */
-		@Override
-		public void bindView(View view, Context context, final Cursor cursor) {
-			final String usertTitlePre = cursor.getString(cursor
-					.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
-			final String userForename = cursor.getString(cursor
-					.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-			final String userLastname = cursor.getString(cursor
-					.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
-			final String userTitlePost = cursor.getString(cursor
-					.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
-
-			final TextView fullnameTextView = (TextView) view
-					.findViewById(R.id.fullname);
-
-			fullnameTextView.setText(usertTitlePre + " " + userForename + " "
-					+ userLastname + " " + userTitlePost);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.support.v4.widget.CursorAdapter#newView(android.content.Context
-		 * , android.database.Cursor, android.view.ViewGroup)
-		 */
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return getActivity().getLayoutInflater().inflate(
-					R.layout.list_item_user, parent, false);
-		}
-
-	}
-
 }

@@ -12,7 +12,6 @@ package de.elanev.studip.android.app.backend.db;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
-import de.elanev.studip.android.app.R;
 
 /**
  * @author joern
@@ -34,11 +33,13 @@ public class UsersContract extends AbstractContract {
 					Columns.USER_PRIVADR);
 
 	public static final String USERS_JOIN_COURSES = String
-			.format("%s LEFT JOIN %s  ON %s = %s",
+			.format("JOIN %s  ON %s = %s JOIN %s ON %s = %s",
 					CoursesContract.TABLE_COURSE_USER,
-					TABLE,
 					CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ID,
-					Qualified.USERS_USER_ID);
+					Qualified.USERS_USER_ID,
+					CoursesContract.TABLE_COURSES,
+					CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
+					CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID);
 
 	// Content Provider
 	public static final String PATH = "users";

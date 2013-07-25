@@ -70,15 +70,16 @@ public class ContactsContract extends AbstractContract {
 			UsersContract.Qualified.USERS_USER_ID);
 
 	// contacts joines users joined groups
-	public static final String COURSES_JOIN_USERS_JOIN_GROUPS = CONTACTS_JOIN_USERS
-			+ String.format(
-					"INNER JOIN %s on %s = %s INNER JOIN %s on %s = %s ",
-					TABLE_CONTACT_GROUPS,
-					Qualified.ContactGroups.CONTACT_GROUPS_ID,
-					Qualified.ContactGroupMembers.CONTACT_GROUP_MEMBERS_GROUP_ID,
-					TABLE_CONTACT_GROUP_MEMBERS,
-					Qualified.Contacts.CONTACTS_ID,
-					Qualified.ContactGroupMembers.CONTACT_GROUP_MEMBERS_USER_ID);
+	public static final String CONTATCS_JOIN_GROUPS = String.format(
+			"INNER JOIN %s on %s = %s INNER JOIN %s on %s = %s ",
+			TABLE_CONTACT_GROUPS, Qualified.ContactGroups.CONTACT_GROUPS_ID,
+			Qualified.ContactGroupMembers.CONTACT_GROUP_MEMBERS_GROUP_ID,
+			TABLE_CONTACT_GROUP_MEMBERS, Qualified.Contacts.CONTACTS_ID,
+			Qualified.ContactGroupMembers.CONTACT_GROUP_MEMBERS_USER_ID);
+
+	// contacts joines users joined groups
+	public static final String CONTATCS_JOIN_USERS_JOIN_GROUPS = CONTACTS_JOIN_USERS
+			+ CONTATCS_JOIN_GROUPS;
 
 	/*
 	 * content provider
