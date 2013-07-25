@@ -115,7 +115,7 @@ public class MessageComposeFragment extends SherlockFragment implements
 				.findViewById(R.id.message_compose_message);
 
 		// fill the views with message details from the arguments if existing
-		if (mUserItem != null && mMessageFlag == MESSAGE_REPLY) {
+		if (mUserItem != null) {
 			mAutoCompleteTextView.setText(mUserItem.getFullname());
 			mAutoCompleteTextView.setTag(mUserItem);
 		}
