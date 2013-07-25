@@ -227,7 +227,7 @@ public class MessageDetailFragment extends SherlockFragment implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity
 	 * #onCreateOptionsMenu(com.actionbarsherlock.view.Menu)
@@ -239,7 +239,7 @@ public class MessageDetailFragment extends SherlockFragment implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity
 	 * #onOptionsItemSelected(com.actionbarsherlock.view.MenuItem)

@@ -7,7 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.db;
 
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Document;
 import de.elanev.studip.android.app.backend.datamodel.Documents;
 import de.elanev.studip.android.app.util.TextTools;

@@ -14,7 +14,6 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Courses;
 
