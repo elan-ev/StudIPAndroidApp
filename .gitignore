@@ -101,4 +101,7 @@ target/
 *.ipr
 *~
 *.swp
-/build
+idealib/
+build/
+out/
+gradle.properties
