@@ -193,8 +193,7 @@ public class RestApiRequest {
 
 	public RestApiRequest.ApiResponse delete(String endpoint, String... params) {
 		ApiResponse result = null;
-		String reqString = String.format(mConnector.server.API_URL + "/"
-				+ endpoint, (Object[]) params);
+		String reqString = String.format(endpoint+".json", (Object[]) params);
 		String resultBody = "";
 		Log.v(TAG, reqString);
 
