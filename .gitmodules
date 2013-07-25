@@ -1,9 +1,9 @@
 [submodule "libprojects/volley"]
 	path = libprojects/volley
 	url = https://android.googlesource.com/platform/frameworks/volley
-[submodule "libprojects/SlidingMenu"]
-	path = libprojects/SlidingMenu
-	url = https://github.com/jfeinstein10/SlidingMenu.git
 [submodule "libprojects/ActionBarSherlock"]
 	path = libprojects/ActionBarSherlock
 	url = https://github.com/JakeWharton/ActionBarSherlock.git
+[submodule "libprojects/SlidingMenu"]
+	path = libprojects/SlidingMenu
+	url = https://github.com/mndfcked/SlidingMenu.git
