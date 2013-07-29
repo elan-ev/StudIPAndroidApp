@@ -100,7 +100,11 @@
     <string name="Add_to_contacts">Add to contacts</string>
     <string name="Remove_from_contacts">Remove from contacts</string>
     <string name="manage_groups">Manage groups</string>
+    <string name="user">User</string>
     <string name="Send_message">Send message</string>
     <string name="Message">Message</string>
+    <string name="choose_receiver">Please choose a receiver</string>
+    <string name="enter_subject">Please enter a message subject</string>
+    <string name="enter_message">Please enter a message</string>
 
 </resources>

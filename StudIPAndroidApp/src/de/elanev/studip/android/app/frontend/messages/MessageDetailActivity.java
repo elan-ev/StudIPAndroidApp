@@ -20,7 +20,7 @@ public class MessageDetailActivity extends BaseSlidingFragmentActivity {
 	 * @param titleRes
 	 */
 	public MessageDetailActivity() {
-		super(R.string.Messages);
+		super(R.string.Message);
 	}
 
 	@Override

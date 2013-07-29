@@ -103,5 +103,8 @@
     <string name="user">Benutzer</string>
     <string name="Send_message">Nachricht senden</string>
     <string name="Message">Nachricht</string>
+    <string name="choose_receiver">Bitte Empfänger angeben</string>
+    <string name="enter_subject">Bitte einen Betreff angeben</string>
+    <string name="enter_message">Bitte eine Nachricht eingeben</string>
 
 </resources>

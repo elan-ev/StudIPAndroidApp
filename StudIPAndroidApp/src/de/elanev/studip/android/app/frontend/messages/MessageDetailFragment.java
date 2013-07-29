@@ -69,6 +69,25 @@ public class MessageDetailFragment extends SherlockFragment implements
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
+	 * android.view.ViewGroup, android.os.Bundle)
+	 */
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_message_detail, null);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -76,13 +95,7 @@ public class MessageDetailFragment extends SherlockFragment implements
 		// initialize CursorLoader
 		getLoaderManager().initLoader(0, mArgs, this);
 		setHasOptionsMenu(true);
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_message_detail, null);
-
+		getActivity().setTitle(R.string.Message);
 	}
 
 	protected final ContentObserver mObserver = new ContentObserver(
@@ -227,7 +240,7 @@ public class MessageDetailFragment extends SherlockFragment implements
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity
 	 * #onCreateOptionsMenu(com.actionbarsherlock.view.Menu)
@@ -239,7 +252,7 @@ public class MessageDetailFragment extends SherlockFragment implements
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity
 	 * #onOptionsItemSelected(com.actionbarsherlock.view.MenuItem)

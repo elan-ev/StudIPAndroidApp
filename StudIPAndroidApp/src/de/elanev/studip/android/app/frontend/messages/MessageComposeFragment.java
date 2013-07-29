@@ -18,9 +18,12 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -60,7 +63,7 @@ public class MessageComposeFragment extends SherlockFragment implements
 	private String mSubject, mMessage;
 	private UserItem mUserItem;
 	private long mDate;
-	private int mMessageFlag;
+	private int mMessageFlag = -1;
 	private AutoCompleteTextView mAutoCompleteTextView;
 	private UserAdapter mAdapter;
 	private EditText mSubjectEditTextView, mMessageEditTextView;
@@ -76,7 +79,7 @@ public class MessageComposeFragment extends SherlockFragment implements
 		mArgs = getArguments();
 		mContext = getActivity();
 
-		// saving message details if existing
+		// get message details if provided in advance
 		if (mArgs != null && !mArgs.isEmpty()) {
 
 			mSubject = mArgs
@@ -88,7 +91,6 @@ public class MessageComposeFragment extends SherlockFragment implements
 			mMessageFlag = mArgs.getInt("MessageFlag");
 
 			String senderId = mArgs.getString(UsersContract.Columns.USER_ID);
-
 			String senderTitlePre = mArgs
 					.getString(UsersContract.Columns.USER_TITLE_PRE);
 			String senderForename = mArgs
@@ -114,21 +116,40 @@ public class MessageComposeFragment extends SherlockFragment implements
 		mMessageEditTextView = (EditText) v
 				.findViewById(R.id.message_compose_message);
 
+		return v;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		// initialize CursorLoader
+		getLoaderManager().initLoader(0, mArgs, this);
+		// initializing OptionsMenu and Actionbar
+		setHasOptionsMenu(true);
+
 		// fill the views with message details from the arguments if existing
-		if (mUserItem != null) {
+		if (mUserItem != null && mMessageFlag != MESSAGE_FORWARD) {
 			mAutoCompleteTextView.setText(mUserItem.getFullname());
 			mAutoCompleteTextView.setTag(mUserItem);
 		}
 
+		// set message subject and fragment title according to the messageFlag
 		if (mSubject != null) {
 			switch (mMessageFlag) {
 			case MESSAGE_FORWARD:
 				mSubject = String.format("%s: %s",
 						getString(R.string.message_forward_string), mSubject);
+				getActivity().setTitle(R.string.forward_message);
 				break;
 			case MESSAGE_REPLY:
 				mSubject = String.format("%s: %s",
 						getString(R.string.message_reply_string), mSubject);
+				getActivity().setTitle(R.string.reply_message);
 				break;
 			}
 
@@ -144,34 +165,42 @@ public class MessageComposeFragment extends SherlockFragment implements
 									mUserItem.getFullname(), mDate, mContext),
 							mMessage));
 
-		return v;
+		mAutoCompleteTextView.setOnItemClickListener(new OnItemClickListener() {
+
+			// set the selected item
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				UserItem item = (UserItem) parent.getItemAtPosition(position);
+				mAutoCompleteTextView.setTag(item);
+			}
+		});
+
+		mAutoCompleteTextView.setOnKeyListener(new OnKeyListener() {
+
+			// Check if there is a valid receiver set an delete it completely
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_DEL) {
+					if (mAutoCompleteTextView.getTag() != null) {
+						mAutoCompleteTextView.setTag(null);
+						mAutoCompleteTextView.setText("");
+					}
+				}
+				return false;
+			}
+		});
+
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 * @see android.support.v4.app.Fragment#onResume()
 	 */
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		// initialize CursorLoader
-		getLoaderManager().initLoader(0, mArgs, this);
-
-		// initializing OptionsMenu and Actionbar
-		setHasOptionsMenu(true);
-		getActivity().setTitle(R.string.Compose);
-
-		// attaching the OnItemClickListener for the ACTV
-		mAutoCompleteTextView.setOnItemClickListener(new OnItemClickListener() {
-
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				UserItem item = (UserItem) parent.getItemAtPosition(position);
-				// mAutoCompleteTextView.setText(item.getFullname());
-				mAutoCompleteTextView.setTag(item);
-			}
-		});
+	public void onResume() {
+		super.onResume();
+		// prevent the dropDown to show up on start
+		mAutoCompleteTextView.dismissDropDown();
 	}
 
 	/*
@@ -198,14 +227,30 @@ public class MessageComposeFragment extends SherlockFragment implements
 		switch (item.getItemId()) {
 		case R.id.send_icon:
 
+			// Check if all fields are filled
 			UserItem user = (UserItem) mAutoCompleteTextView.getTag();
-			Bundle param = new Bundle();
-			param.putString("user_id", user.userId);
-			param.putString("subject", mSubjectEditTextView.getText()
-					.toString());
-			param.putString("message", mMessageEditTextView.getText()
-					.toString());
-			new SendMessageTask().execute(param);
+			if (user == null
+					|| TextUtils.isEmpty(mAutoCompleteTextView.getText())) {
+				Toast.makeText(mContext, R.string.choose_receiver,
+						Toast.LENGTH_LONG).show();
+				mAutoCompleteTextView.requestFocus();
+			} else if (TextUtils.isEmpty(mSubjectEditTextView.getText())) {
+				Toast.makeText(mContext, R.string.enter_subject,
+						Toast.LENGTH_LONG).show();
+				mSubjectEditTextView.requestFocus();
+			} else if (TextUtils.isEmpty(mMessageEditTextView.getText())) {
+				Toast.makeText(mContext, R.string.enter_message,
+						Toast.LENGTH_LONG).show();
+				mMessageEditTextView.requestFocus();
+			} else {
+				Bundle param = new Bundle();
+				param.putString("user_id", user.userId);
+				param.putString("subject", mSubjectEditTextView.getText()
+						.toString());
+				param.putString("message", mMessageEditTextView.getText()
+						.toString());
+				new SendMessageTask().execute(param);
+			}
 			return true;
 
 		default:
