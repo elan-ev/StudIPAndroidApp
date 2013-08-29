@@ -17,5 +17,8 @@
     <color name="transparent">#00000000</color>
     <color name="dark_color">#34578c</color>
     <color name="light_color">#899ab9</color>
+    <color name="studip_mobile_dark">#34598f</color>
+    <color name="primary_text_light">#c000</color>
+    <color name="secondary_text_light">#6000</color>
 
 </resources>

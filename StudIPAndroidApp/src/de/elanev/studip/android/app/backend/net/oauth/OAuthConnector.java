@@ -24,36 +24,95 @@ public class OAuthConnector {
 	public static final String RESTIP_CONSUMER_KEY = "de.elanev.studip.android.app.backend.net.oauth.RESTIP_CONSUMER_KEY";
 	public static final String RESTIP_CONSUMER_SECRET = "de.elanev.studip.android.app.backend.net.oauth.RESTIP_CONSUMER_SECRET";
 
-	public String accessToken;
-	public String accessSecret;
+	private static OAuthConnector sInstance = null;
+	private static Server sServer = null;
+	private static OAuthProvider sProvider = null;
+	private static OAuthConsumer sConsumer = null;
+	private static String sAuthUrl = null;
 
-	private static OAuthConnector instance = null;
-	public Server server = null;
-	public OAuthProvider provider = null;
-	public OAuthConsumer consumer = null;
-	public String authUrl = null;
-
+	/*
+	 * Empty
+	 */
 	private OAuthConnector() {
-
 	}
 
 	public static OAuthConnector getInstance() {
-		if (instance == null) {
-			instance = new OAuthConnector();
+		if (sInstance == null) {
+			sInstance = new OAuthConnector();
 		}
-		return instance;
+		return sInstance;
 	}
 
-	public void init(Server s) {
-		this.server = s;
-		this.consumer = new CommonsHttpOAuthConsumer(s.CONSUMER_KEY,
-				s.CONSUMER_SECRET);
-		this.provider = new CommonsHttpOAuthProvider(s.REQUEST_URL,
-				s.ACCESS_URL, s.AUTHORIZATION_URL);
+	public static void init(Server s) {
+		setServer(s);
+		setConsumer(new CommonsHttpOAuthConsumer(s.CONSUMER_KEY,
+				s.CONSUMER_SECRET));
+		setProvider(new CommonsHttpOAuthProvider(s.REQUEST_URL, s.ACCESS_URL,
+				s.AUTHORIZATION_URL));
 	}
 
-	public void setAccessToken(String accessToken, String accessSecret) {
-		consumer.setTokenWithSecret(accessToken, accessSecret);
+	public static void setAccessToken(String accessToken, String accessSecret) {
+		getConsumer().setTokenWithSecret(accessToken, accessSecret);
+	}
+
+	/**
+	 * @return the sServer
+	 */
+	public static Server getServer() {
+		return sServer;
+	}
+
+	/**
+	 * @param sServer
+	 *            the sServer to set
+	 */
+	public static void setServer(Server sServer) {
+		OAuthConnector.sServer = sServer;
+	}
+
+	/**
+	 * @return the sProvider
+	 */
+	public static OAuthProvider getProvider() {
+		return sProvider;
+	}
+
+	/**
+	 * @param sProvider
+	 *            the sProvider to set
+	 */
+	public static void setProvider(OAuthProvider sProvider) {
+		OAuthConnector.sProvider = sProvider;
+	}
+
+	/**
+	 * @return the sConsumer
+	 */
+	public static OAuthConsumer getConsumer() {
+		return sConsumer;
+	}
+
+	/**
+	 * @param sConsumer
+	 *            the sConsumer to set
+	 */
+	public static void setConsumer(OAuthConsumer sConsumer) {
+		OAuthConnector.sConsumer = sConsumer;
+	}
+
+	/**
+	 * @return the sAuthUrl
+	 */
+	public static String getAuthUrl() {
+		return sAuthUrl;
+	}
+
+	/**
+	 * @param sAuthUrl
+	 *            the sAuthUrl to set
+	 */
+	public static void setAuthUrl(String sAuthUrl) {
+		OAuthConnector.sAuthUrl = sAuthUrl;
 	}
 
 }

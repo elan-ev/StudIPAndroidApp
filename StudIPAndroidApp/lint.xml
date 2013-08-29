@@ -3,4 +3,7 @@
     <issue id="NewApi">
         <ignore path="res/values/styles_studipactionbar.xml" />
     </issue>
+    <issue id="TypographyDashes">
+        <ignore path="res/values/com_crashlytics_export_strings.xml" />
+    </issue>
 </lint>

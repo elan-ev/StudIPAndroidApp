@@ -7,65 +7,66 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.net.oauth;
 
-import com.actionbarsherlock.app.SherlockActivity;
-
+import oauth.signpost.OAuthConsumer;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
+
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.Prefs;
 
 public class WebViewActivity extends SherlockActivity {
 
-	private static final String TAG = WebViewActivity.class.getSimpleName();
+	public static final String TAG = WebViewActivity.class.getSimpleName();
 
+	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getSupportActionBar().hide();
-		this.setContentView(R.layout.webview_view);
-		Button cancelButton = (Button) this.findViewById(R.id.cancel_button);
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setDisplayShowHomeEnabled(true);
+		actionBar.setIcon(R.drawable.left_indicator);
+
+		setTitle(android.R.string.cancel);
+		setContentView(R.layout.webview_view);
+
 		WebView webView = (WebView) this.findViewById(R.id.webView);
 		webView.setWebViewClient(new LoginWebViewClient(this));
-
-		cancelButton.setOnClickListener(new OnClickListener() {
-			// @Override
-			public void onClick(View v) {
-				cancelAuth();
-				finish();
-			}
-
-			private void cancelAuth() {
-				// TODO Cancel auth process
-
-			}
-		});
 		WebSettings webViewSettings = webView.getSettings();
 		webViewSettings.setSavePassword(false);
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
-		String authUrl = extras.getString("authUrl");
-		Log.d(TAG, authUrl);
+		String authUrl = extras.getString("sAuthUrl");
 		webView.loadUrl(authUrl);
 
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		// Respond to the action bar's Up/Home button
+		case android.R.id.home:
+			NavUtils.navigateUpTo(this, new Intent(this, SignInActivity.class));
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	class LoginWebViewClient extends WebViewClient {
 
-		public final String TAG = LoginWebViewClient.class.getSimpleName();
+		public final String TAG = LoginWebViewClient.class.getCanonicalName();
 		Activity activity;
 
 		public LoginWebViewClient(Activity activity) {
@@ -75,14 +76,15 @@ public class WebViewActivity extends SherlockActivity {
 		@Override
 		public void onPageStarted(WebView view, String url, Bitmap favicon) {
 			if (url.contains("user")) {
-				Log.d(TAG, url);
+				Log.i(TAG, "AUTHURL" + url);
 				Prefs.getInstance(getApplicationContext()).setAuthorized(true);
 
 				Intent intent = new Intent();
-				intent.putExtra("token",
-						OAuthConnector.getInstance().consumer.getToken());
-				intent.putExtra("tokenSecret",
-						OAuthConnector.getInstance().consumer.getTokenSecret());
+				OAuthConsumer consumer = OAuthConnector.getConsumer();
+				intent.putExtra("token", consumer.getToken());
+				intent.putExtra("tokenSecret", consumer.getTokenSecret());
+				Log.i(TAG,
+						consumer.getToken() + " " + consumer.getTokenSecret());
 				setResult(RESULT_OK, intent);
 				finish();
 			}
