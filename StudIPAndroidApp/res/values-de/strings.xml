@@ -8,7 +8,7 @@
 -->
 <resources>
 
-    <string name="app_name">StudIPApp</string>
+    <string name="app_name">Stud.IP mobile</string>
     <string name="loading">laden</string>
     <string name="help">Hilfe</string>
     <string name="slidein_menu_button">SlideIn Menu Button</string>
@@ -32,7 +32,7 @@
     <string name="upcoming_events">Anstehende Veranstaltungen</string>
     <string name="choose_server">Server wählen</string>
     <string name="appointments">Termine</string>
-    <string name="attendees">Teilnehmer</string>
+    <string name="attendees">Mitglieder</string>
     <string name="no_data">Keine Daten</string>
     <string name="menu_item">Menüpunkt</string>
     <string name="file_icon">Datei Icon</string>
@@ -88,12 +88,12 @@
     <string name="no_groups">Du hast noch keine Gruppen erstellt!</string>
     <string name="no_contacts">Es sind keine Kontakte vorhanden!</string>
     <string name="no_favorites">Du hast noch keine Favoriten markiert!</string>
-    <string name="no_global_news">Keine Neuigkeiten von Stud.IP vorhanden.</string>
-    <string name="no_course_news">Nichts Neues bei den Kursen.</string>
+    <string name="no_news">Keine Ankündigungen vorhanden.</string>
     <string name="no_attendees">Es sind keine Teilnehmer vorhanden.</string>
     <string name="no_documents">Es wurden noch keine Dokumente hochgeladen.</string>
     <string name="no_messages">Du hast keine Nachrichten!</string>
     <string name="no_courses">Du bist in keinem Kurs eingetragen.</string>
+    <string name="no_details">Keine Beschreibung vorhanden.</string>
     <string name="studip_app_contacts_favorites">StudipApp Favoriten</string>
     <string name="Add_to_favorites">Zu Favoriten hinzufügen</string>
     <string name="Remove_from_favorites">Aus Favoriten entfernen</string>
@@ -106,5 +106,13 @@
     <string name="choose_receiver">Bitte Empfänger angeben</string>
     <string name="enter_subject">Bitte einen Betreff angeben</string>
     <string name="enter_message">Bitte eine Nachricht eingeben</string>
+    <string name="personal_info">Persönliche Informationen</string>
+    <string name="contact_info">Kontakt Informationen</string>
+    <string name="crash_toast_string">Es ist ein Problem aufgetreten. Ein Absturzbericht wird gesendet.</string>
+    <string name="user_details_icon">UserDetailsIcon</string>
+    <string name="Schedule">Ablaufplan</string>
+    <string name="show_more">Mehr anzeigen</string>
+    <string name="Details">Beschreibung</string>
+    <string name="latest_news">Neueste Nachricht</string>
 
 </resources>

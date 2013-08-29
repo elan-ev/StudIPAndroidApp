@@ -7,21 +7,24 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.news;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.text.Html;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.actionbarsherlock.app.SherlockFragment;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
-import de.elanev.studip.android.app.frontend.util.MenuFragment;
 import de.elanev.studip.android.app.util.TextTools;
 
 /**
@@ -54,39 +57,92 @@ public class NewsItemView extends BaseSlidingFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mActionbar = getSupportActionBar();
-		mActionbar.setDisplayHomeAsUpEnabled(true);
+		setContentView(R.layout.content_frame);
 
-		Intent intent = this.getIntent();
-		Bundle extras = intent.getExtras();
-		mTitle = extras.getString(NewsContract.Columns.NEWS_TOPIC);
-		mBody = extras.getString(NewsContract.Columns.NEWS_BODY);
-		mTimestamp = extras.getLong(NewsContract.Columns.NEWS_DATE, 0);
-		mAuthor = extras.getString(UsersContract.Columns.USER_FORENAME);
-		setTitle(mTitle);
+		Bundle args = getIntent().getExtras();
+		if (args != null) {
+			FragmentManager fm = getSupportFragmentManager();
 
-		setSlidingActionBarEnabled(true);
+			// find exisiting fragment
+			Fragment frag = fm.findFragmentByTag(NewsItemFragment.class
+					.getName());
+			if (frag == null)
+				// otherwise create new
+				frag = NewsItemFragment.instantiate(this,
+						NewsItemFragment.class.getName());
 
-		// Sliding menu setup
-		setBehindContentView(R.layout.menu_frame);
-		FragmentTransaction t = this.getSupportFragmentManager()
-				.beginTransaction();
-		mFrag = new MenuFragment();
-		t.replace(R.id.menu_frame, mFrag);
-		t.commit();
+			// Set new arguments and replace fragment
+			frag.setArguments(args);
+			fm.beginTransaction()
+					.replace(R.id.content_frame, frag,
+							NewsItemFragment.class.getName()).commit();
+		}
 
-		SlidingMenu sm = getSlidingMenu();
-		sm.setShadowWidthRes(R.dimen.shadow_width);
-		sm.setShadowDrawable(R.drawable.shadow_left);
-		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-		sm.setFadeDegree(0.35f);
-		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+	}
 
-		setContentView(R.layout.news_item_view_activity);
-		((TextView) findViewById(R.id.news_title)).setText(mTitle);
-		((TextView) findViewById(R.id.news_author)).setText(TextTools
-				.getLocalizedAuthorAndDateString(mAuthor, mTimestamp, this));
-		((TextView) findViewById(R.id.news_body)).setText(Html.fromHtml(mBody));
+	public static class NewsItemFragment extends SherlockFragment {
+		private Bundle mArgs = null;
+		private Context mContext = null;
+
+		private TextView mTitleTextView;
+		private TextView mBodyTextView;
+		private TextView mAuthorTextView;
+
+		private String mTitle;
+		private String mBody;
+		private String mAuthor;
+		private long mTimestamp;
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			mContext = getActivity();
+			mArgs = getArguments();
+
+			mTitle = mArgs.getString(NewsContract.Columns.NEWS_TOPIC);
+			mBody = mArgs.getString(NewsContract.Columns.NEWS_BODY);
+			mAuthor = mArgs.getString(UsersContract.Columns.USER_FORENAME);
+			mTimestamp = mArgs.getLong(NewsContract.Columns.NEWS_DATE);
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater
+		 * , android.view.ViewGroup, android.os.Bundle)
+		 */
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View v = inflater.inflate(R.layout.fragment_news_details, null);
+			mTitleTextView = ((TextView) v.findViewById(R.id.news_title));
+			mBodyTextView = ((TextView) v.findViewById(R.id.news_body));
+			mAuthorTextView = ((TextView) v.findViewById(R.id.news_author));
+			return v;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+		 */
+		@Override
+		public void onActivityCreated(Bundle savedInstanceState) {
+			super.onActivityCreated(savedInstanceState);
+
+			mTitleTextView.setText(mTitle);
+			mAuthorTextView.setText(TextTools.getLocalizedAuthorAndDateString(
+					mAuthor, mTimestamp, mContext));
+			mBodyTextView.setText(Html.fromHtml(mBody));
+		}
 	}
 
 }

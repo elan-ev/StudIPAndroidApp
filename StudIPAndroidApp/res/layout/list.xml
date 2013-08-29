@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
-            android:layout_marginTop="@dimen/list_padding"
+            android:layout_marginTop="@dimen/list_item_hor_margin"
             android:drawableEnd="@drawable/ic_action_sad"
             android:drawablePadding="4dp"
             android:gravity="center"

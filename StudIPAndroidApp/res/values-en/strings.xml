@@ -8,7 +8,7 @@
 -->
 <resources>
 
-    <string name="app_name">StudIPApp</string>
+    <string name="app_name">Stud.IP mobile</string>
     <string name="loading">loading</string>
     <string name="help">Hilfe</string>
     <string name="slidein_menu_button">SlideIn Menu Button</string>
@@ -88,12 +88,12 @@
     <string name="no_groups">You haven\'t created any groups!</string>
     <string name="no_contacts">You have no contacts!</string>
     <string name="no_favorites">You haven\'t selected any favorites!</string>
-    <string name="no_global_news">No Stud.IP news.</string>
-    <string name="no_course_news">No course news.</string>
+    <string name="no_news">No announcements available.</string>
     <string name="no_attendees">No one is attending.</string>
     <string name="no_documents">Nothing uploaded yet.</string>
     <string name="no_messages">You don\'t have any messages!</string>
     <string name="no_courses">You are not attending any courses.</string>
+    <string name="no_details">No details available.</string>
     <string name="studip_app_contacts_favorites">StudipApp Favorites</string>
     <string name="Add_to_favorites">Add to favorites</string>
     <string name="Remove_from_favorites">Remove from favorites</string>
@@ -106,5 +106,14 @@
     <string name="choose_receiver">Please choose a receiver</string>
     <string name="enter_subject">Please enter a message subject</string>
     <string name="enter_message">Please enter a message</string>
+    <string name="personal_info">Personal info</string>
+    <string name="contact_info">Contact info</string>
+    <string name="crash_toast_string">Something went wrong. Sending crash report.</string>
+    <string name="user_details_icon">UserDetailsIcon</string>
+    <string name="Schedule">Schedule</string>
+    <string name="show_more">Show more</string>
+    <string name="Details">Details</string>
+    <string name="latest_news">Latest news</string>
+    
 
 </resources>
