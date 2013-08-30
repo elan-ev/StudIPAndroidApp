@@ -81,7 +81,8 @@ public class RestIPSyncService extends IntentService {
 		mReceiver = extras.getParcelable(RESTIP_RESULT_RECEIVER);
 
 		try {
-			OAuthConnector.getInstance().consumer.sign(mRequest);
+			OAuthConnector.getInstance();
+			OAuthConnector.getConsumer().sign(mRequest);
 			mResponse = mClient.execute(mRequest);
 		} catch (OAuthMessageSignerException e) {
 			e.printStackTrace();
