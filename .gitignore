@@ -106,6 +106,8 @@ build/
 out/
 gradle.properties
 
+# Project specific ignores
 *.db
 StudIPAndroidApp/res/values/com_crashlytics_api_key.xml
 StudIPAndroidApp/res/values/com_crashlytics_export_strings.xml
+TempServerDeclares.java

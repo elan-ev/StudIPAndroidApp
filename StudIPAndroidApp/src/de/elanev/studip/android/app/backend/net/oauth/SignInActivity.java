@@ -40,7 +40,6 @@ import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.frontend.news.NewsViewActivity;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.TempServerDeclares;
 import de.elanev.studip.android.app.util.VolleyHttp;
 
 public class SignInActivity extends BaseSlidingFragmentActivity {
@@ -294,8 +293,7 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 			 * de.elanev.studip.android.app.util package see:
 			 * de.elanev.studip.android.app.util.TempServerDeclaresExample
 			 */
-			Server[] items = new Server[] { TempServerDeclares.test };
-			return items;
+			return TempServerDeclares.servers;
 		}
 
 		private class ServerAdapter extends ArrayAdapter<Server> {

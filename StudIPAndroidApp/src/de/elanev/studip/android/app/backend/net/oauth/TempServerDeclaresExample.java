@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
-package de.elanev.studip.android.app.util;
+package de.elanev.studip.android.app.backend.net.oauth;
 
 import de.elanev.studip.android.app.backend.net.Server;
 
@@ -17,7 +17,12 @@ import de.elanev.studip.android.app.backend.net.Server;
  * 
  */
 public class TempServerDeclaresExample {
-	public static Server alteTestumgebung = new Server("Examplename",
-			"exampleToken", "exampleSecret",
-			"http://exampleserver.domain/plugins.php/restipplugin");
+	public static final Server[] servers = 
+		{
+		new Server("Examplename",	// display name of the server
+					"exampleToken", // OAuth consumer token
+					"exampleSecret",// OAuth consumer secret
+					// the full URL to the rest.IP plugin
+					"http://exampleserver.domain/plugins.php/restipplugin")
+		};
 }
