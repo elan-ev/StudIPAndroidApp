@@ -15,14 +15,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView.ScaleType;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -62,12 +62,20 @@ public class UserDetailsActivity extends BaseSlidingFragmentActivity {
 		Bundle args = getIntent().getExtras();
 		if (args != null) {
 			FragmentManager fm = getSupportFragmentManager();
-			FragmentTransaction ft = fm.beginTransaction();
-			Fragment frag = UserDetailsFragment.instantiate(this,
-					UserDetailsFragment.class.getName());
-			frag.setArguments(args);
-			ft.replace(R.id.content_frame, frag,
-					UserDetailsFragment.class.getName()).commit();
+
+			// find exisiting fragment
+			Fragment frag = fm.findFragmentByTag("userDetailsFragment");
+			if (frag == null) {
+				// otherwise create new
+				frag = UserDetailsFragment.instantiate(this,
+						UserDetailsFragment.class.getName());
+				// Set new arguments and replace fragment
+				frag.setArguments(args);
+			}
+			
+			fm.beginTransaction()
+					.replace(R.id.content_frame, frag, "userDetailsFragment")
+					.commit();
 		}
 
 	}
@@ -98,13 +106,23 @@ public class UserDetailsActivity extends BaseSlidingFragmentActivity {
 		/*
 		 * (non-Javadoc)
 		 * 
+		 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			mData = getArguments();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see
 		 * android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 		 */
 		@Override
 		public void onActivityCreated(Bundle savedInstanceState) {
 			super.onActivityCreated(savedInstanceState);
-			mData = getArguments();
 			setHasOptionsMenu(true);
 
 			// initialize CursorLoader
@@ -114,7 +132,7 @@ public class UserDetailsActivity extends BaseSlidingFragmentActivity {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			return inflater.inflate(R.layout.activity_user_details, null);
+			return inflater.inflate(R.layout.fragment_user_details, null);
 
 		}
 
@@ -204,32 +222,48 @@ public class UserDetailsActivity extends BaseSlidingFragmentActivity {
 
 				// create fullname string and set the activity title
 				final String fullName = mTitlePre + " " + mFirstname + " "
-						+ mFirstname + " " + mTitlePost;
+						+ mLastname + " " + mTitlePost;
 				getActivity().setTitle(fullName);
 
-				// find textviews
+				if (!userImageUrl.contains("nobody")) {
+					// find views and set infos
+					final NetworkImageView userImage = (NetworkImageView) root
+							.findViewById(R.id.user_image);
+					userImage.setImageUrl(userImageUrl,
+							VolleyHttp.getImageLoader());
+					userImage.setVisibility(View.VISIBLE);
+
+					((ImageView) root.findViewById(R.id.user_image_placeholder))
+							.setVisibility(View.GONE);
+				}
+
 				final TextView fullnameTextView = (TextView) root
 						.findViewById(R.id.fullname);
-				final TextView emailTextView = (TextView) root
-						.findViewById(R.id.email);
-				final TextView privadrTextView = (TextView) root
-						.findViewById(R.id.privadr);
-				final TextView homepageTextView = (TextView) root
-						.findViewById(R.id.homepage);
-				final TextView phoneTextView = (TextView) root
-						.findViewById(R.id.phone);
-				final NetworkImageView userImage = (NetworkImageView) root
-						.findViewById(R.id.user_image);
-
-				// set infos
-				userImage
-						.setImageUrl(userImageUrl, VolleyHttp.getImageLoader());
-				userImage.setScaleType(ScaleType.CENTER_CROP);
 				fullnameTextView.setText(fullName);
+				final TextView emailTextView = (TextView) root
+						.findViewById(R.id.emailTV);
 				emailTextView.setText(userEmail);
-				privadrTextView.setText(userPrivAdr);
-				homepageTextView.setText(userHomepage);
-				phoneTextView.setText(userPhoneNumber);
+
+				// set contact info and make visible
+				if (!TextUtils.isEmpty(userPrivAdr)) {
+					final TextView privadrTextView = (TextView) root
+							.findViewById(R.id.privadrTV);
+					privadrTextView.setText(userPrivAdr);
+					root.findViewById(R.id.privadr).setVisibility(View.VISIBLE);
+				}
+				if (!TextUtils.isEmpty(userHomepage)) {
+					final TextView homepageTextView = (TextView) root
+							.findViewById(R.id.homepageTV);
+					homepageTextView.setText(userHomepage);
+					root.findViewById(R.id.homepage)
+							.setVisibility(View.VISIBLE);
+				}
+				if (!TextUtils.isEmpty(userPhoneNumber)) {
+					final TextView phoneTextView = (TextView) root
+							.findViewById(R.id.phoneTV);
+					phoneTextView.setText(userPhoneNumber);
+					root.findViewById(R.id.phone).setVisibility(View.VISIBLE);
+				}
 			}
 		}
 

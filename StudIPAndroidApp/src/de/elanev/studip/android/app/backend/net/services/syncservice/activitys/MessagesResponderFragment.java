@@ -15,9 +15,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -28,7 +25,7 @@ import de.elanev.studip.android.app.backend.datamodel.Message;
 import de.elanev.studip.android.app.backend.datamodel.MessageFolders;
 import de.elanev.studip.android.app.backend.datamodel.Messages;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
-import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 import de.elanev.studip.android.app.backend.net.services.syncservice.AbstractParserTask;
 import de.elanev.studip.android.app.backend.net.services.syncservice.RestIPSyncService;
@@ -256,24 +253,10 @@ public class MessagesResponderFragment extends
 			}
 
 			if (userList != null) {
-				FragmentManager fm = getFragmentManager();
-
-				UsersResponderFragment responderFragment = (UsersResponderFragment) fm
-						.findFragmentByTag("userResponder");
-				if (responderFragment == null) {
-					responderFragment = (UsersResponderFragment) UsersResponderFragment
-							.instantiate(mContext,
-									UsersResponderFragment.class.getName());
-
-					Bundle args = new Bundle();
-					args.putStringArrayList(UsersContract.Columns.USER_ID,
-							userList);
-					responderFragment.setArguments(args);
-					FragmentTransaction ft = fm.beginTransaction();
-					ft.add(responderFragment, "userResponder").commit();
+				for (String userId : userList) {
+					SyncHelper.getInstance(getActivity()).requestUser(userId);
 				}
 			}
-
 		}
 
 	}

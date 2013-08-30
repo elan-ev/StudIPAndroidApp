@@ -17,8 +17,15 @@
 <resources>
 
     <dimen name="slidingmenu_offset">60dp</dimen>
-    <dimen name="list_padding">10dp</dimen>
     <dimen name="shadow_width">15dp</dimen>
+    <dimen name="list_item_hor_margin">8dp</dimen>
+    <dimen name="list_item_vert_margin">8dp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_small">14sp</dimen>
+    <dimen name="layout_padding_normal">8dp</dimen>
+    <dimen name="layout_padding_small">4dp</dimen>
+    <dimen name="layout_margin_normal">8dp</dimen>
+    <dimen name="layout_margin_small">4dp</dimen>
 
     <integer name="num_cols">1</integer>
 

@@ -62,7 +62,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/list_padding"
+            android:layout_margin="@dimen/list_item_hor_margin"
             android:gravity="center"
             android:text="@+string/no_appointments"
             android:textAppearance="@android:style/TextAppearance.Large" />

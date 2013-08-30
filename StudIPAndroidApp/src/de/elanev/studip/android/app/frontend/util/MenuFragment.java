@@ -23,8 +23,8 @@ import android.widget.TextView;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPAppActivity;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
 import de.elanev.studip.android.app.frontend.contacts.ContactsActivity;
 import de.elanev.studip.android.app.frontend.courses.CoursesActivity;
 import de.elanev.studip.android.app.frontend.messages.MessagesActivity;
@@ -83,11 +83,11 @@ public class MenuFragment extends ListFragment {
 		if (Prefs.getInstance(mContext).isAppAuthorized()) {
 			adapter.add(new MenuItem(R.drawable.ic_menu_news,
 					getString(R.string.News), NEWS_MENU_ITEM));
-			adapter.add(new MenuItem(R.drawable.ic_menu_seminar,
+			adapter.add(new MenuItem(R.drawable.ic_menu_courses,
 					getString(R.string.Courses), COURSES_MENU_ITEM));
 			adapter.add(new MenuItem(R.drawable.ic_menu_messages,
 					getString(R.string.Messages), MESSAGES_MENU_ITEM));
-			adapter.add(new MenuItem(R.drawable.ic_menu_users,
+			adapter.add(new MenuItem(R.drawable.ic_menu_community,
 					getString(R.string.Contacts), CONTACTS_MENU_ITEM));
 		}
 		adapter.add(new MenuItem(R.drawable.ic_menu_settings,
@@ -141,6 +141,7 @@ public class MenuFragment extends ListFragment {
 				logout();
 				break;
 			}
+
 			if (cls != null) {
 				((SlidingFragmentActivity) mContext).getSlidingMenu()
 						.setSelectedView(v);
@@ -163,11 +164,13 @@ public class MenuFragment extends ListFragment {
 	private void logout() {
 		((SlidingFragmentActivity) mContext).getSlidingMenu().showContent();
 		Prefs.getInstance(mContext).clearPrefs();
-		Intent intent = new Intent(getActivity(), StudIPAppActivity.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-		startActivity(intent);
 		mContext.getContentResolver().delete(AbstractContract.BASE_CONTENT_URI,
 				null, null);
+		Intent intent = new Intent(getActivity(), SignInActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		getActivity().finish();
+		startActivity(intent);
+		
 	}
 
 	private class MenuItem {

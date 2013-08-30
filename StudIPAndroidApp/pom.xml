@@ -13,8 +13,30 @@
 			<url>http://www.gnu.org/licenses/gpl.txt</url>
 		</license>
 	</licenses>
+	<!-- START CRASHLYTICS -->
+	<repositories>
+		<repository>
+			<id>crashlytics-repo</id>
+			<url>http://download.crashlytics.com/maven</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>crashlytics-plugin-repo</id>
+			<url>http://download.crashlytics.com/maven</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.crashlytics.android</groupId>
+			<artifactId>crashlytics</artifactId>
+			<version>[1.0.2,)</version>
+		</dependency>
+		<!-- END CRASHLYTICS -->
+
+
 		<dependency>
 			<groupId>com.google.android</groupId>
 			<artifactId>android</artifactId>
@@ -73,6 +95,28 @@
 					</sdk>
 				</configuration>
 			</plugin>
+			<!-- START CRASHLYTICS -->
+			<plugin>
+				<groupId>com.crashlytics</groupId>
+				<artifactId>crashlytics-maven</artifactId>
+				<version>1.0.3</version>
+				<executions>
+					<execution>
+						<id>GenerateResources</id>
+						<phase>install</phase>
+						<goals>
+							<goal>GenerateResources</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>CleanupResources</id>
+						<goals>
+							<goal>CleanupResources</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- END CRASHLYTICS -->
 		</plugins>
 	</build>
 	<organization>

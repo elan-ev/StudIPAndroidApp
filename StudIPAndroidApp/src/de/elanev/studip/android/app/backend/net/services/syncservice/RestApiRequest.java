@@ -82,7 +82,7 @@ public class RestApiRequest {
 			String reqString = String.format(endpoint + ".json", (Object[]) id);
 			Log.i(TAG, reqString);
 			HttpGet request = new HttpGet(URI.create(reqString));
-			mConnector.consumer.sign(request);
+			OAuthConnector.getConsumer().sign(request);
 			HttpResponse response = mClient.execute(request);
 			int resultCode = response.getStatusLine().getStatusCode();
 			Log.d(TAG, String.valueOf(resultCode));
@@ -126,7 +126,7 @@ public class RestApiRequest {
 				request.setEntity(new UrlEncodedFormEntity(nameValuePairs,
 						"UTF-8"));
 
-				mConnector.consumer.sign(request);
+				OAuthConnector.getConsumer().sign(request);
 				HttpResponse response = mClient.execute(request);
 
 				BufferedReader rd = new BufferedReader(new InputStreamReader(
@@ -161,7 +161,7 @@ public class RestApiRequest {
 
 		try {
 			HttpPut request = new HttpPut(URI.create(reqString));
-			mConnector.consumer.sign(request);
+			OAuthConnector.getConsumer().sign(request);
 			HttpResponse response = mClient.execute(request);
 			HttpEntity entity = response.getEntity();
 			if (entity != null) {
@@ -199,7 +199,7 @@ public class RestApiRequest {
 
 		try {
 			HttpDelete request = new HttpDelete(URI.create(reqString));
-			mConnector.consumer.sign(request);
+			OAuthConnector.getConsumer().sign(request);
 			HttpResponse response = mClient.execute(request);
 			HttpEntity entity = response.getEntity();
 			if (entity != null) {

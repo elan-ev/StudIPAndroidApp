@@ -44,10 +44,10 @@ public class ContactsActivity extends BaseSlidingFragmentActivity {
 		// Creating PagerAdapter and adding the Fragments
 		mPagerAdapter = new BasePagerTabsAdapter(this,
 				getSupportFragmentManager(), mPager, mActionbar);
-		mPagerAdapter.addTab(mActionbar.newTab(), R.string.Favorites,
-				ContactsFavoritesFragment.class, null);
-		mPagerAdapter.addTab(mActionbar.newTab(), R.string.Groups,
-				ContactsGroupsFragment.class, null);
+		mPagerAdapter.addTab(mActionbar.newTab(), R.drawable.ic_action_favorite,
+				R.string.Favorites, ContactsFavoritesFragment.class, null);
+		mPagerAdapter.addTab(mActionbar.newTab(), R.drawable.ic_action_community,
+				R.string.Groups, ContactsGroupsFragment.class, null);
 	}
 
 }

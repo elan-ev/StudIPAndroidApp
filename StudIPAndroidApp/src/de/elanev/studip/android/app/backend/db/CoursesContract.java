@@ -57,18 +57,6 @@ public class CoursesContract extends AbstractContract {
 	/*
 	 * joins
 	 */
-	// coruses, users and semsters joined
-	public static final String COURSES_JOIN_USERS_SEMESTERS = String.format(
-			"%s INNER JOIN %s on %s = %s " + "INNER JOIN %s on %s = %s "
-					+ "INNER JOIN %s on %s = %s ", TABLE_COURSES,
-			TABLE_COURSE_USER,
-			Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID,
-			Qualified.Courses.COURSES_COURSE_ID, UsersContract.TABLE,
-			Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ID,
-			UsersContract.Qualified.USERS_USER_ID, SemestersContract.TABLE,
-			Qualified.Courses.COURSES_COURSE_SEMESERT_ID,
-			SemestersContract.Qualified.SEMESTERS_SEMESTER_ID);
-
 	// courses and users joined
 	public static final String COURSES_JOIN_USERS = String.format(
 			"%s INNER JOIN %s on %s = %s " + "INNER JOIN %s on %s = %s ",
@@ -85,8 +73,26 @@ public class CoursesContract extends AbstractContract {
 			Qualified.Courses.COURSES_COURSE_SEMESERT_ID,
 			SemestersContract.Qualified.SEMESTERS_SEMESTER_ID);
 
+	// coruses, users and semsters joined
+	public static final String COURSES_JOIN_USERS_SEMESTERS = String.format(
+			"%s INNER JOIN %s on %s = %s " + "INNER JOIN %s on %s = %s "
+					+ "INNER JOIN %s on %s = %s ", TABLE_COURSES,
+			TABLE_COURSE_USER,
+			Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID,
+			Qualified.Courses.COURSES_COURSE_ID, UsersContract.TABLE,
+			Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ID,
+			UsersContract.Qualified.USERS_USER_ID, SemestersContract.TABLE,
+			Qualified.Courses.COURSES_COURSE_SEMESERT_ID,
+			SemestersContract.Qualified.SEMESTERS_SEMESTER_ID);
+
+	// coruses, users and events joined
+	public static final String COURSES_JOIN_USERS_EVENTS = COURSES_JOIN_USERS
+			+ String.format("INNER JOIN %s on %s = %s ", EventsContract.TABLE,
+					EventsContract.Qualified.EVENTS_EVENT_COURSE_ID,
+					Qualified.Courses.COURSES_COURSE_ID);
+
 	/*
-	 * content provider
+	 * content sProvider
 	 */
 	// pathes
 	public static final String PATH_COURSES = "courses";

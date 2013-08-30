@@ -299,7 +299,8 @@ public abstract class UserListFragment extends SherlockListFragment implements
 					 * #onErrorResponse(com.android.volley. VolleyError)
 					 */
 					public void onErrorResponse(VolleyError error) {
-						Log.e(TAG, error.getMessage());
+						if (error.getMessage() != null)
+							Log.e(TAG, error.getMessage());
 						Toast.makeText(mContext,
 								"Fehler: " + error.getMessage(),
 								Toast.LENGTH_SHORT).show();
@@ -331,7 +332,8 @@ public abstract class UserListFragment extends SherlockListFragment implements
 					}
 				}, new ErrorListener() {
 					public void onErrorResponse(VolleyError error) {
-						Log.e(TAG, error.getMessage());
+						if (error.getMessage() != null)
+							Log.e(TAG, error.getMessage());
 						Toast.makeText(mContext,
 								"Fehler: " + error.getMessage(),
 								Toast.LENGTH_SHORT).show();
@@ -374,7 +376,8 @@ public abstract class UserListFragment extends SherlockListFragment implements
 			 * #onErrorResponse(com.android.volley. VolleyError)
 			 */
 			public void onErrorResponse(VolleyError error) {
-				Log.e(TAG, error.getMessage());
+				if (error.getMessage() != null)
+					Log.e(TAG, error.getMessage());
 				Toast.makeText(mContext, "Fehler: " + error.getMessage(),
 						Toast.LENGTH_SHORT).show();
 			}
@@ -420,7 +423,8 @@ public abstract class UserListFragment extends SherlockListFragment implements
 					 * #onErrorResponse(com.android.volley. VolleyError)
 					 */
 					public void onErrorResponse(VolleyError error) {
-						Log.e(TAG, error.getMessage());
+						if (error.getMessage() != null)
+							Log.e(TAG, error.getMessage());
 						Toast.makeText(mContext,
 								"Fehler: " + error.getMessage(),
 								Toast.LENGTH_SHORT).show();

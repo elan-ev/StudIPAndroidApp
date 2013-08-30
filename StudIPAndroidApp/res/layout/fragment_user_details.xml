@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/background_light"
+    android:padding="8dp" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <de.elanev.studip.android.app.widget.TypefacedTextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+            android:id="@+id/personal_info_lable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:text="@string/personal_info"
+            android:textAllCaps="true"
+            android:textColor="@android:color/primary_text_light"
+            android:textIsSelectable="true"
+            android:textSize="@dimen/text_size_small"
+            font:typeface="Roboto-Regular.ttf" />
+
+        <include
+            android:layout_marginBottom="8dp"
+            layout="@layout/header_line" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <com.android.volley.toolbox.NetworkImageView
+                android:id="@+id/user_image"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="@dimen/layout_margin_normal"
+                android:scaleType="centerCrop"
+                android:visibility="invisible" />
+
+            <ImageView
+                android:id="@+id/user_image_placeholder"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="@dimen/layout_margin_normal"
+                android:scaleType="centerCrop"
+                android:src="@drawable/nobody_normal"
+                tools:ignore="ContentDescription" />
+
+            <de.elanev.studip.android.app.widget.TypefacedTextView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+                android:id="@+id/fullname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/user_image"
+                android:paddingTop="8dp"
+                android:textColor="@color/primary_text_light"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/text_size_medium"
+                font:typeface="Roboto-Bold.ttf" />
+
+            <ImageView
+                android:id="@+id/email_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_below="@id/fullname"
+                android:layout_toRightOf="@id/user_image"
+                android:contentDescription="@string/user_details_icon"
+                android:src="@drawable/ic_mail" />
+
+            <de.elanev.studip.android.app.widget.TypefacedTextView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+                android:id="@+id/emailTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fullname"
+                android:layout_toRightOf="@id/email_icon"
+                android:autoLink="email"
+                android:gravity="center_vertical"
+                android:paddingBottom="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="8dp"
+                android:textColor="@color/primary_text_light"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/text_size_medium"
+                font:typeface="Roboto-Regular.ttf" />
+        </RelativeLayout>
+
+        <de.elanev.studip.android.app.widget.TypefacedTextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+            android:id="@+id/contact_info_lable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:text="@string/contact_info"
+            android:textAllCaps="true"
+            android:textColor="@color/primary_text_light"
+            android:textIsSelectable="true"
+            android:textSize="@dimen/text_size_small"
+            font:typeface="Roboto-Regular.ttf" />
+
+        <include
+            android:layout_marginBottom="8dp"
+            layout="@layout/header_line" />
+
+        <LinearLayout
+            android:id="@+id/homepage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="8dp"
+            android:visibility="gone" >
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/user_details_icon"
+                android:src="@drawable/ic_home" />
+
+            <de.elanev.studip.android.app.widget.TypefacedTextView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+                android:id="@+id/homepageTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoLink="web"
+                android:gravity="center_vertical"
+                android:paddingLeft="8dp"
+                android:paddingTop="8dp"
+                android:textColor="@color/primary_text_light"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/text_size_medium"
+                font:typeface="Roboto-Regular.ttf" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="8dp"
+            android:visibility="gone" >
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/user_details_icon"
+                android:src="@drawable/ic_phone" />
+
+            <de.elanev.studip.android.app.widget.TypefacedTextView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+                android:id="@+id/phoneTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingLeft="8dp"
+                android:paddingTop="8dp"
+                android:textColor="@color/primary_text_light"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/text_size_medium"
+                font:typeface="Roboto-Regular.ttf" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/privadr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="8dp"
+            android:visibility="gone" >
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/user_details_icon"
+                android:src="@drawable/ic_address" />
+
+            <de.elanev.studip.android.app.widget.TypefacedTextView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+                android:id="@+id/privadrTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoLink="map"
+                android:gravity="center_vertical"
+                android:paddingLeft="8dp"
+                android:paddingTop="8dp"
+                android:textColor="@color/primary_text_light"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/text_size_medium"
+                font:typeface="Roboto-Regular.ttf" />
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

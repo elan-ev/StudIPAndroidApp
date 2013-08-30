@@ -11,40 +11,10 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-    <RelativeLayout
-        android:id="@+id/titelLeiste"
-        android:layout_width="fill_parent"
-        android:layout_height="48dp"
-        android:background="@color/dark"
-         >
-
-        <TextView
-            android:id="@+id/webview_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:gravity="center_vertical|center_horizontal"
-            android:text="@string/Authorize"
-            android:textAppearance="@android:style/TextAppearance.Medium.Inverse" />
-
-        <Button
-            android:id="@+id/cancel_button"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:background="@color/light"
-            android:padding="10dp"
-            android:layout_margin="6dp"
-            android:text="@android:string/cancel"
-            android:textAppearance="@android:style/TextAppearance.Small.Inverse" />
-    </RelativeLayout>
-
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/titelLeiste"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

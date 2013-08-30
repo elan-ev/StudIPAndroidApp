@@ -13,7 +13,7 @@ import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView.ScaleType;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
@@ -54,15 +54,20 @@ public class ListAdapterUsers extends CursorAdapter {
 		final String userImageUrl = cursor.getString(cursor
 				.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
 
-		final NetworkImageView userImage = (NetworkImageView) view
-				.findViewById(R.id.user_image);
 		final TextView fullnameTextView = (TextView) view
 				.findViewById(R.id.fullname);
-
-		userImage.setImageUrl(userImageUrl, VolleyHttp.getImageLoader());
-		userImage.setScaleType(ScaleType.CENTER_CROP);
 		fullnameTextView.setText(usertTitlePre + " " + userForename + " "
 				+ userLastname + " " + userTitlePost);
+
+		if (!userImageUrl.contains("nobody")) {
+			final NetworkImageView userImage = (NetworkImageView) view
+					.findViewById(R.id.user_image);
+			userImage.setImageUrl(userImageUrl, VolleyHttp.getImageLoader());
+			userImage.setVisibility(View.VISIBLE);
+			((ImageView) view.findViewById(R.id.user_image_placeholder))
+					.setVisibility(View.GONE);
+		}
+
 	}
 
 	/*

@@ -8,8 +8,7 @@
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
-    android:background="@android:color/background_light" >
+    android:layout_height="48dp" >
 
     <de.elanev.studip.android.app.widget.TypefacedTextView
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -17,14 +16,15 @@
         android:id="@android:id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|center"
-        android:paddingBottom="14dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingTop="14dp"
-        android:textColor="@android:color/primary_text_light"
-        android:textIsSelectable="false"
-        android:textSize="16sp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/list_item_vert_margin"
+        android:layout_marginLeft="@dimen/list_item_hor_margin"
+        android:layout_marginRight="@dimen/list_item_hor_margin"
+        android:layout_marginTop="@dimen/list_item_vert_margin"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="@color/primary_text_light"
+        android:textSize="@dimen/text_size_medium"
         font:typeface="Roboto-Regular.ttf" />
 
 </FrameLayout>

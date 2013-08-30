@@ -9,6 +9,7 @@ package de.elanev.studip.android.app.util;
 
 import java.text.DecimalFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 import android.content.Context;
 import android.text.format.DateFormat;
@@ -109,5 +110,11 @@ public class TextTools {
 	 */
 	public static String buildLocalizedTimeString(Long time, Context ctx) {
 		return DateFormat.getTimeFormat(ctx).format(time);
+	}
+
+	public static String capitalizeFirstLetter(String s) {
+		String str = s.substring(0, 1).toUpperCase(Locale.getDefault())
+				+ s.substring(1).toLowerCase(Locale.getDefault());
+		return str;
 	}
 }
