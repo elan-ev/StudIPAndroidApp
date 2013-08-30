@@ -8,6 +8,7 @@
 package de.elanev.studip.android.app.frontend.messages;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -63,16 +64,17 @@ public class MessagesActivity extends BaseSlidingFragmentActivity {
 
 	}
 
-	public void startLoading(FragmentManager fm) {
+	public void startLoading() {
+		FragmentManager fm = getSupportFragmentManager();
 		// reload data only if new activity
-		MessagesResponderFragment responderFragment = (MessagesResponderFragment) fm
+		Fragment responderFragment = (MessagesResponderFragment) fm
 				.findFragmentByTag("messagesResponder");
 		if (responderFragment == null) {
 			responderFragment = new MessagesResponderFragment();
 			fm.beginTransaction().add(responderFragment, "messagesResponder")
 					.commit();
 		} else {
-			responderFragment.loadData();
+			((MessagesResponderFragment) responderFragment).loadData();
 		}
 	}
 

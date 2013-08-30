@@ -100,8 +100,9 @@ public class MessagesListFragment extends SherlockListFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View v =  inflater.inflate(R.layout.list, null);
-		((TextView) v.findViewById(R.id.empty_message)).setText(R.string.no_messages);
+		View v = inflater.inflate(R.layout.list, null);
+		((TextView) v.findViewById(R.id.empty_message))
+				.setText(R.string.no_messages);
 		return v;
 	}
 
@@ -144,7 +145,7 @@ public class MessagesListFragment extends SherlockListFragment implements
 	public void onResume() {
 		MessagesActivity activity = (MessagesActivity) getActivity();
 		if (activity != null)
-			((MessagesActivity) activity).startLoading(getFragmentManager());
+			((MessagesActivity) activity).startLoading();
 
 		super.onResume();
 	}

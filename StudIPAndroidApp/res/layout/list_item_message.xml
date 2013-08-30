@@ -7,6 +7,7 @@
   http://www.gnu.org/licenses/gpl.html
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="@android:color/background_light" >
@@ -25,7 +26,8 @@
             android:layout_alignParentLeft="true"
             android:layout_marginBottom="4dp"
             android:layout_marginTop="4dp"
-            android:src="@drawable/nobody_medium" />
+            android:src="@drawable/nobody_normal"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/message_sender"
@@ -63,7 +65,6 @@
             android:id="@+id/message_subject"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/senderinfo"
             android:layout_marginBottom="4dp"
             android:layout_marginLeft="4dp"
             android:layout_marginTop="4dp"

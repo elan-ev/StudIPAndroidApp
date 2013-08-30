@@ -144,12 +144,18 @@ public class MessageComposeFragment extends SherlockFragment implements
 			case MESSAGE_FORWARD:
 				mSubject = String.format("%s: %s",
 						getString(R.string.message_forward_string), mSubject);
-				getActivity().setTitle(R.string.forward_message);
+				getActivity()
+						.setTitle(
+								TextTools
+										.capitalizeFirstLetter(getString(R.string.forward_message)));
 				break;
 			case MESSAGE_REPLY:
 				mSubject = String.format("%s: %s",
 						getString(R.string.message_reply_string), mSubject);
-				getActivity().setTitle(R.string.reply_message);
+				getActivity()
+						.setTitle(
+								TextTools
+										.capitalizeFirstLetter(getString(R.string.reply_message)));
 				break;
 			}
 
