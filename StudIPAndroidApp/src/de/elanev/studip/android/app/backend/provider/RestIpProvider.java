@@ -38,7 +38,6 @@ import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 
 /**
  * @author joern
@@ -55,8 +54,7 @@ public class RestIpProvider extends ContentProvider {
 
 	private static final int NEWS = 100;
 	private static final int NEWS_ID = 101;
-	private static final int NEWS_GLOBAL = 102;
-	private static final int NEWS_COURSES = 103;
+	private static final int NEWS_RANGE_ID = 102;
 
 	private static final int COURSES = 200;
 	private static final int COURSES_ID = 201;
@@ -105,8 +103,7 @@ public class RestIpProvider extends ContentProvider {
 
 		// matches for news
 		matcher.addURI(authority, "news", NEWS);
-		matcher.addURI(authority, "news/global", NEWS_GLOBAL);
-		matcher.addURI(authority, "news/courses", NEWS_COURSES);
+		matcher.addURI(authority, "news/*", NEWS_RANGE_ID);
 		matcher.addURI(authority, "news/#", NEWS_ID);
 
 		// matches for courses
@@ -182,9 +179,7 @@ public class RestIpProvider extends ContentProvider {
 		switch (match) {
 		case NEWS:
 			return NewsContract.CONTENT_TYPE;
-		case NEWS_GLOBAL:
-			return NewsContract.CONTENT_TYPE;
-		case NEWS_COURSES:
+		case NEWS_RANGE_ID:
 			return NewsContract.CONTENT_TYPE;
 		case NEWS_ID:
 			return NewsContract.CONTENT_ITEM_TYPE;
@@ -498,36 +493,39 @@ public class RestIpProvider extends ContentProvider {
 			} else {
 				orderBy = sortOrder;
 			}
-			c = db.query(NewsContract.NEWS_JOIN_USER, projection, selection,
-					selectionArgs, null, null, orderBy);
+			c = db.query(NewsContract.NEWS_JOIN_USER_COURSES, projection,
+					selection, selectionArgs, null, null, orderBy);
 			c.setNotificationUri(getContext().getContentResolver(),
 					NewsContract.CONTENT_URI);
 
 			break;
-		case NEWS_GLOBAL:
+		case NEWS_RANGE_ID: {
+			// long currTime = System.currentTimeMillis();
+			// if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+			// SyncHelper.getInstance(getContext()).performNewsSync();
+			// mLastSync = currTime;
+			// }
+
+			String rangeId = uri.getLastPathSegment();
+
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = NewsContract.DEFAULT_SORT_ORDER;
 			} else {
 				orderBy = sortOrder;
 			}
 			c = db.query(NewsContract.NEWS_JOIN_USER, projection,
-					NewsContract.Qualified.NEWS_NEWS_COURSE_ID + " = ?",
-					new String[] { ApiEndpoints.NEWS_GLOBAL_RANGE_IDENITFIER },
+					NewsContract.Columns.NEWS_COURSE_ID
+							+ " = "
+							+ "'"
+							+ rangeId
+							+ "'"
+							+ (!TextUtils.isEmpty(selection) ? " AND ("
+									+ selection + ")" : ""), selectionArgs,
 					null, null, orderBy);
 			c.setNotificationUri(getContext().getContentResolver(),
 					NewsContract.CONTENT_URI);
 			break;
-		case NEWS_COURSES:
-			if (TextUtils.isEmpty(sortOrder)) {
-				orderBy = NewsContract.DEFAULT_SORT_ORDER;
-			} else {
-				orderBy = sortOrder;
-			}
-			c = db.query(NewsContract.NEWS_JOIN_USER_COURSES, projection, null,
-					null, null, null, orderBy);
-			c.setNotificationUri(getContext().getContentResolver(),
-					NewsContract.CONTENT_URI);
-			break;
+		}
 		case NEWS_ID:
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = NewsContract.DEFAULT_SORT_ORDER;
@@ -544,7 +542,12 @@ public class RestIpProvider extends ContentProvider {
 							+ (!TextUtils.isEmpty(selection) ? " AND ("
 									+ selection + ")" : ""), selectionArgs,
 					null, null, orderBy);
-		case COURSES:
+		case COURSES: {
+			// long currTime = System.currentTimeMillis();
+			// if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+			// SyncHelper.getInstance(getContext()).performCoursesSync();
+			// mLastSync = currTime;
+			// }
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = CoursesContract.DEFAULT_SORT_ORDER;
 			} else {
@@ -555,7 +558,7 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					CoursesContract.CONTENT_URI);
 			break;
-
+		}
 		case COURSES_ID:
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = CoursesContract.DEFAULT_SORT_ORDER;
@@ -573,13 +576,20 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					CoursesContract.CONTENT_URI);
 			break;
-		case COURSES_ID_EVENTS:
+		case COURSES_ID_EVENTS: {
+			String cid = uri.getLastPathSegment();
+			long currTime = System.currentTimeMillis();
+			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+				SyncHelper.getInstance(getContext())
+						.performEventsSyncForCourseId(cid);
+				mLastSync = currTime;
+			}
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = EventsContract.DEFAULT_SORT_ORDER;
 			} else {
 				orderBy = sortOrder;
 			}
-			String cid = uri.getLastPathSegment();
+
 			String whereStr = "("
 					+ EventsContract.Columns.EVENT_COURSE_ID
 					+ " = "
@@ -594,6 +604,7 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					EventsContract.CONTENT_URI);
 			break;
+		}
 		case USERS:
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = UsersContract.DEFAULT_SORT_ORDER;
@@ -710,7 +721,7 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					MessagesContract.CONTENT_URI_MESSAGES);
 			break;
-		case CONTACTS:
+		case CONTACTS: {
 			long currTime = System.currentTimeMillis();
 			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
 				SyncHelper.getInstance(getContext()).performContactsSync();
@@ -729,6 +740,7 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					ContactsContract.CONTENT_URI_CONTACTS);
 			break;
+		}
 		case CONTACTS_ID:
 			String contactId = uri.getLastPathSegment();
 			if (TextUtils.isEmpty(sortOrder)) {
@@ -765,11 +777,11 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					ContactsContract.CONTENT_URI_CONTACT_GROUPS);
 			break;
-		case CONTACTS_GROUP_MEMBERS:
-			long ctime = System.currentTimeMillis();
-			if ((ctime - mLastSync) > SYNC_THRESHOLD) {
+		case CONTACTS_GROUP_MEMBERS: {
+			long currTime = System.currentTimeMillis();
+			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
 				SyncHelper.getInstance(getContext()).performContactsSync();
-				mLastSync = ctime;
+				mLastSync = currTime;
 			}
 
 			if (TextUtils.isEmpty(sortOrder)) {
@@ -784,6 +796,7 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS);
 			break;
+		}
 		default:
 			throw new IllegalArgumentException("Unsupported uri: " + uri);
 		}
