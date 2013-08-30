@@ -52,13 +52,9 @@ public class TabbedSlidingFragmentActivity extends BaseSlidingFragmentActivity {
 		mActionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
 		if (savedInstanceState != null) {
-			mActionbar.setSelectedNavigationItem(savedInstanceState.getInt(
-					"tab", 0));
-		}
-
-		if (savedInstanceState != null) {
-			mActionbar.setSelectedNavigationItem(savedInstanceState
-					.getInt(ACTIVE_TAB));
+			int selectedTab = savedInstanceState.getInt(ACTIVE_TAB);
+			if (mActionbar.getNavigationItemCount() > 0)
+				mActionbar.setSelectedNavigationItem(selectedTab);
 		}
 	}
 
@@ -96,12 +92,13 @@ public class TabbedSlidingFragmentActivity extends BaseSlidingFragmentActivity {
 			mViewPager.setOnPageChangeListener(this);
 		}
 
-		public void addTab(ActionBar.Tab tab, int titleRes, Class<?> clss,
-				Bundle args) {
+		public void addTab(ActionBar.Tab tab, int iconRes, int titleRes,
+				Class<?> clss, Bundle args) {
 			TabInfo info = new TabInfo(clss, args);
 			tab.setTag(info);
 			tab.setText(titleRes);
 			tab.setTabListener(this);
+			tab.setIcon(iconRes);
 			mTabs.add(info);
 			mActionBar.addTab(tab);
 			notifyDataSetChanged();
