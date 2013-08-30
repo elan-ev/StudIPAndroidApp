@@ -12,11 +12,7 @@ package de.elanev.studip.android.app.backend.datamodel;
 
 import java.util.ArrayList;
 
-import android.database.Cursor;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import de.elanev.studip.android.app.backend.db.CoursesContract;
 
 /**
  * @author joern
@@ -27,7 +23,6 @@ public class Course {
 	public String course_id;
 	public Long start_time;
 	public Long duration_time;
-	public Double number;
 	public String title;
 	public String subtitle;
 	public String type;
@@ -41,86 +36,6 @@ public class Course {
 	public String colors;
 
 	public Course() {
-	}
-
-	/**
-	 * @param course_id
-	 * @param start_time
-	 * @param duration_time
-	 * @param number
-	 * @param title
-	 * @param subtitle
-	 * @param type
-	 * @param modules
-	 * @param description
-	 * @param location
-	 * @param semester_id
-	 * @param teachers
-	 * @param tutors
-	 * @param students
-	 * @param colors
-	 */
-	public Course(String course_id, Long start_time, Long duration_time,
-			Double number, String title, String subtitle, String type,
-			Modules modules, String description, String location,
-			String semester_id, ArrayList<String> teachers,
-			ArrayList<String> tutors, ArrayList<String> students, String colors) {
-		this.course_id = course_id;
-		this.start_time = start_time;
-		this.duration_time = duration_time;
-		this.number = number;
-		this.title = title;
-		this.subtitle = subtitle;
-		this.type = type;
-		this.modules = modules;
-		this.description = description;
-		this.location = location;
-		this.semester_id = semester_id;
-		this.teachers = teachers;
-		this.tutors = tutors;
-		this.students = students;
-		this.colors = colors;
-	}
-
-	public Course(Cursor cursor) {
-		ArrayList<String> students = null;
-		ArrayList<String> tutors = null;
-		ArrayList<String> teachers = null;
-		Modules modules = null;
-
-		this.course_id = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.Courses.COURSE_ID));
-		this.start_time = cursor
-				.getLong(cursor
-						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_START_TIME));
-		this.duration_time = cursor
-				.getLong(cursor
-						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DURATION_TIME));
-		this.number = cursor.getDouble(cursor
-				.getColumnIndex(CoursesContract.Columns.Courses.COURSE_NUMBER));
-		this.title = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
-		this.subtitle = cursor
-				.getString(cursor
-						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_SUBTITLE));
-		this.type = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TYPE));
-		this.modules = modules;
-		this.description = cursor
-				.getString(cursor
-						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
-		this.location = cursor
-				.getString(cursor
-						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_LOCATION));
-		this.semester_id = cursor
-				.getString(cursor
-						.getColumnIndex(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID));
-		this.teachers = teachers;
-		this.tutors = tutors;
-		this.students = students;
-		this.colors = cursor.getString(cursor
-				.getColumnIndex(CoursesContract.Columns.Courses.COURSE_COLORS));
-
 	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)

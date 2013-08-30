@@ -44,17 +44,22 @@ public class CourseViewActivity extends TabbedSlidingFragmentActivity {
 		setContentView(mPager);
 		mPagerAdapter = new BasePagerTabsAdapter(this,
 				getSupportFragmentManager(), mPager, mActionbar);
-		mPagerAdapter.addTab(mActionbar.newTab(), R.string.Overview,
-				CourseEventsFragment.class, intentExtras);
-		mPagerAdapter.addTab(mActionbar.newTab(), R.string.attendees,
+		mPagerAdapter.addTab(mActionbar.newTab(), R.drawable.ic_action_seminar,
+				R.string.Overview, CourseOverviewFragment.class, intentExtras);
+		mPagerAdapter.addTab(mActionbar.newTab(),
+				R.drawable.ic_action_schedule, R.string.Schedule,
+				CourseScheduleFragment.class, intentExtras);
+		mPagerAdapter.addTab(mActionbar.newTab(),
+				R.drawable.ic_action_attendees, R.string.attendees,
 				CourseAttendeesFragment.class, intentExtras);
-		mPagerAdapter.addTab(mActionbar.newTab(), R.string.Documents,
-				CourseDocumentsFragment.class, intentExtras);
+		mPagerAdapter
+				.addTab(mActionbar.newTab(), R.drawable.ic_action_files,
+						R.string.Documents, CourseDocumentsFragment.class,
+						intentExtras);
 
 		// Setting Activity title
 		setTitle(getIntent().getStringExtra(
 				CoursesContract.Columns.Courses.COURSE_TITLE));
 
 	}
-
 }

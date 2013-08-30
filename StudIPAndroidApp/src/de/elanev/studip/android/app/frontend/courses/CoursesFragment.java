@@ -18,8 +18,6 @@ import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -37,8 +35,6 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
-import de.elanev.studip.android.app.backend.net.services.syncservice.activitys.CoursesResponderFragment;
-import de.elanev.studip.android.app.frontend.news.CourseNewsFragment;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 
 /**
@@ -47,26 +43,20 @@ import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
  */
 public class CoursesFragment extends SherlockListFragment implements
 		LoaderCallbacks<Cursor> {
-	public static final String TAG = CourseNewsFragment.class.getSimpleName();
+	public static final String TAG = CoursesFragment.class.getSimpleName();
 	private Context mContext = null;
 	private CourseAdapter mCourseAdapter;
 	private SimpleSectionedListAdapter mAdapter;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = getSherlockActivity();
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = fm.beginTransaction();
-
-		CoursesResponderFragment responderFragment = (CoursesResponderFragment) fm
-				.findFragmentByTag("coursesResponder");
-		if (responderFragment == null) {
-			responderFragment = new CoursesResponderFragment();
-			responderFragment.setFragment(this);
-			ft.add(responderFragment, "coursesResponder");
-		}
-		ft.commit();
 
 		mCourseAdapter = new CourseAdapter(mContext);
 		mAdapter = new SimpleSectionedListAdapter(mContext,
@@ -74,14 +64,27 @@ public class CoursesFragment extends SherlockListFragment implements
 		setListAdapter(mAdapter);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater
+	 * , android.view.ViewGroup, android.os.Bundle)
+	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.list, null);
-		((TextView) v.findViewById(R.id.empty_message)).setText(R.string.no_courses);
+		((TextView) v.findViewById(R.id.empty_message))
+				.setText(R.string.no_courses);
 		return v;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -161,8 +164,7 @@ public class CoursesFragment extends SherlockListFragment implements
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new CursorLoader(getActivity(), CoursesContract.CONTENT_URI,
 				CourseQuery.PROJECTION, null, null,
-				CoursesContract.Qualified.Courses.COURSES_COURSE_SEMESERT_ID
-						+ " ASC");
+				SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN + " DESC");
 	}
 
 	/*
@@ -209,7 +211,7 @@ public class CoursesFragment extends SherlockListFragment implements
 	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
 	 * .support.v4.content.Loader)
 	 */
-	public void onLoaderReset(Loader<Cursor> arg0) {
+	public void onLoaderReset(Loader<Cursor> loader) {
 
 	}
 
@@ -219,7 +221,8 @@ public class CoursesFragment extends SherlockListFragment implements
 				CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
 				CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
 				SemestersContract.Qualified.SEMESTERS_SEMESTER_ID,
-				SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE };
+				SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE,
+				SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN };
 
 	}
 
@@ -241,13 +244,11 @@ public class CoursesFragment extends SherlockListFragment implements
 			final String courseTitle = cursor.getString(1);
 
 			final TextView courseTitleTextVew = (TextView) view
-					.findViewById(R.id.title);
+					.findViewById(R.id.text1);
+			final ImageView icon = (ImageView) view.findViewById(R.id.icon1);
 
 			courseTitleTextVew.setText(courseTitle);
-
-			final ImageView icon = (ImageView) view
-					.findViewById(R.id.course_icon);
-			icon.setImageResource(R.drawable.ic_menu_seminar);
+			icon.setImageResource(R.drawable.ic_menu_courses);
 		}
 
 		/*
@@ -260,7 +261,7 @@ public class CoursesFragment extends SherlockListFragment implements
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
 			return getActivity().getLayoutInflater().inflate(
-					R.layout.list_item_course, parent, false);
+					R.layout.list_item_single_text_icon, parent, false);
 		}
 
 	}

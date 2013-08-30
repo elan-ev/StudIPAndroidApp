@@ -71,6 +71,7 @@ public class DocumentsHandler implements ResultHandler {
 				.withValue(DocumentsContract.Columns.DOCUMENT_MIME_TYPE,
 						d.mime_type)
 				.withValue(DocumentsContract.Columns.DOCUMENT_NAME, d.name);
+//				.withValue(DocumentsContract.Columns.DOCUMENT_FOLDER, mFolderId);
 		return builder.build();
 	}
 }
