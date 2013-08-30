@@ -1,42 +1,32 @@
 Stud.IP Android App
 ===================
 
-This is a fork of the Stud.IP Android App by University Oldenburg. [uol-studip/StudIPAndroidApp][1]
-We are trying to refactor it with modern libs, new features and backward compatibility down to 2.3.3.
+A mobile Stud.IP client application for the Android plattform which utilizes the studip-rest.ip Rest-API Plugin [studip/studip-rest.ip][2]
+for communication with a Stud.IP backend.
 
-This app is using the studip-rest.ip Rest-API Plugin. [studip/studip-rest.ip][2]
+NOTE: This app is in alpha stadium and not intended to be used in an productive enviroment.
 
-Feel free to fork and contribute to this project.
+If you want to contribute to this project, feel free to do so. For more information on how to do this read the Contributing section below.
 
 Setup
 -----
 * Make sure you've installed Eclipse with Maven and EGit.
 * Install the Maven Android plugin as described here [http://code.google.com/p/maven-android-plugin/wiki/GettingStarted][3]
-* In Eclipse just use File->Import->Check out existing Maven repository from scm
+* In Eclipse just use `File->Import->Check out existing Maven repository from scm`
 * Maven will take care of the rest
-* For the time being you need to import the ActionBarSherlock and SlidingMenu manually without Maven.
-For more information on how to do this, see [here][8] and [here][9]
-
-    NOTE: To test it with your own installation of the studip-rest.ip plugin, 
-    you need to create your own TempServerDeclares in the de.elanev.studip.android.app.util package
-	and add them to the list in de.elanev.studip.android.app.backend.net.ChooseServerFragment.java.
-    See the de.elanev.studip.android.app.util.TempServerDeclaresExample for more information.
-
-Developed By
-------------
-* [ELAN e.V][10]
-
-Contributors
-------------
+* All external library projects are now imported as git submodules.
+	* You have to run ```git submodule init``` and ```git submodule update```, otherwise it will not compile.
+    
+NOTE: To test it with your own installation of the studip-rest.ip plugin, 
+you need to create your own ```TempServerDeclares``` in the ```de.elanev.studip.android.app.backend.net.oauth```
+package. See the ```TempServerDeclaresExample.java``` for more details.
 
 Contributing
 ------------
-* Fork it
-* Create branch
-* Make your improvements and commit your changes
-* Push the branch to your fork
-* Open a Pull Request
-* We will take care of the rest
+* Improve the code
+	* Fork it, make your changes, commit them and open a Pull Request. We will take care of the rest.
+* Create issues for bugs, feature requests and other ideas
+* Contribute to the wiki
 
 Libs
 ---------
@@ -44,6 +34,11 @@ Libs
 * [Jackson JSON Processor][5]
 * [ActionBarSherlock][6]
 * [SlidingMenu][7]
+* [Volley HTTP][8]
+
+Developed By
+------------
+* [ELAN e.V][10]
 
 License
 -------
@@ -61,6 +56,5 @@ License
 [5]: http://wiki.fasterxml.com/JacksonHome
 [6]: http://actionbarsherlock.com/
 [7]: https://github.com/jfeinstein10/SlidingMenu
-[8]: http://actionbarsherlock.com/usage.html
-[9]: https://github.com/jfeinstein10/SlidingMenu#setup-with-actionbarsherlock
+[8]: https://android.googlesource.com/platform/frameworks/volley/
 [10]: http://www.elan-niedersachsen.de/startseite/
