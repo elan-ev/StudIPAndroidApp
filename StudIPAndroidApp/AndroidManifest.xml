@@ -8,8 +8,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.elanev.studip.android.app"
-    android:versionCode="6"
-    android:versionName="0.6.0.6" >
+    android:versionCode="10"
+    android:versionName="0.6.0.10" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -23,9 +23,10 @@
         android:name="de.elanev.studip.android.app.StudIPApplication"
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
+        android:installLocation="preferExternal"
         android:label="@string/app_name"
-        android:theme="@style/Theme.studipactionbar" >
-        android:uiOptions="splitActionBarWhenNarrow">
+        android:theme="@style/Theme.studipactionbar"
+        android:uiOptions="splitActionBarWhenNarrow" >
         <service android:name="de.elanev.studip.android.app.backend.net.services.syncservice.RestIPSyncService" />
 
         <activity
@@ -49,15 +50,15 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name=".frontend.courses.CoursesActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name=".frontend.news.NewsViewActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".frontend.news.NewsItemView"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".frontend.courses.CoursesActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
