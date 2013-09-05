@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="feedback_form_message">Wenn Sie Fragen, Wünsche, Bemerkungen oder ein Fehler entdeckt haben, können Sie uns gerne Feedback senden.\nWir kümmern uns dann darum.\n\n===============\nIhr Feedback:\n</string>
+    <string name="feedback_form_action">Send email</string>
+
+</resources>

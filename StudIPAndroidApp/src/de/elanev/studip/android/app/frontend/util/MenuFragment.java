@@ -9,9 +9,11 @@ package de.elanev.studip.android.app.frontend.util;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +49,8 @@ public class MenuFragment extends ListFragment {
 	private static final int SETTINGS_MENU_ITEM = 4;
 	private static final int HELP_MENU_ITEM = 5;
 	private static final int INFO_MENU_ITEM = 6;
-	private static final int LOGOUT_MENU_ITEM = 7;
+	private static final int FEEDBACK = 7;
+	private static final int LOGOUT_MENU_ITEM = 8;
 
 	private Context mContext;
 
@@ -90,12 +93,12 @@ public class MenuFragment extends ListFragment {
 			adapter.add(new MenuItem(R.drawable.ic_menu_community,
 					getString(R.string.Contacts), CONTACTS_MENU_ITEM));
 		}
-		adapter.add(new MenuItem(R.drawable.ic_menu_settings,
-				getString(R.string.Settings), SETTINGS_MENU_ITEM));
+		// adapter.add(new MenuItem(R.drawable.ic_menu_settings,
+		// getString(R.string.Settings), SETTINGS_MENU_ITEM));
 		adapter.add(new MenuItem(R.drawable.ic_menu_info,
-				getString(R.string.Help), HELP_MENU_ITEM));
-		adapter.add(new MenuItem(R.drawable.ic_menu_help,
-				getString(R.string.Information), INFO_MENU_ITEM));
+				getString(R.string.Feedback), FEEDBACK));
+		// adapter.add(new MenuItem(R.drawable.ic_menu_help,
+		// getString(R.string.Information), INFO_MENU_ITEM));
 		if (Prefs.getInstance(mContext).isAppAuthorized()) {
 			adapter.add(new MenuItem(R.drawable.ic_menu_logout,
 					getString(R.string.Logout), LOGOUT_MENU_ITEM));
@@ -107,7 +110,6 @@ public class MenuFragment extends ListFragment {
 			((SlidingFragmentActivity) mContext).getSlidingMenu()
 					.setSelectedView(v);
 		}
-
 	}
 
 	@Override
@@ -129,13 +131,42 @@ public class MenuFragment extends ListFragment {
 				cls = ContactsActivity.class;
 				break;
 			case SETTINGS_MENU_ITEM:
-				Log.i(TAG, "Settings selected");
+				// TODO
+				// Settings for prefetch behavior, Stud.IP installation,
+				// appearance
 				break;
 			case HELP_MENU_ITEM:
-				Log.i(TAG, "Help selected");
+				// TODO
+				// Information about how to use the app
 				break;
 			case INFO_MENU_ITEM:
-				Log.i(TAG, "Info selected");
+				// TODO
+				// Informations about the app, developer, licenses
+				break;
+			case FEEDBACK:
+				Intent intent = new Intent(Intent.ACTION_SENDTO,
+						Uri.fromParts("mailto",
+								getString(R.string.feedback_form_email), null));
+				intent.putExtra(Intent.EXTRA_SUBJECT,
+						getString(R.string.feedback_form_subject));
+				PackageManager pm = getActivity().getPackageManager();
+				String pName = getActivity().getPackageName();
+				try {
+					intent.putExtra(
+							Intent.EXTRA_TEXT,
+							getString(R.string.feedback_form_message)
+									+ "===============\n\nAndroid API Version: "
+									+ android.os.Build.VERSION.SDK_INT + "\n"
+									+ "Stud.IP mobile Version: "
+									+ pm.getPackageInfo(pName, 0).versionName);
+				} catch (NameNotFoundException e) {
+					e.printStackTrace();
+				}
+
+				startActivity(Intent.createChooser(intent,
+						getString(R.string.feedback_form_action)));
+				// Close the sliding menu
+				((SlidingFragmentActivity) mContext).getSlidingMenu().toggle();
 				break;
 			case LOGOUT_MENU_ITEM:
 				logout();
@@ -170,7 +201,7 @@ public class MenuFragment extends ListFragment {
 		intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 		getActivity().finish();
 		startActivity(intent);
-		
+
 	}
 
 	private class MenuItem {
