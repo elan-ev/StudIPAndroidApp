@@ -163,7 +163,10 @@ public class CoursesFragment extends SherlockListFragment implements
 	 */
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new CursorLoader(getActivity(), CoursesContract.CONTENT_URI,
-				CourseQuery.PROJECTION, null, null,
+				CourseQuery.PROJECTION,
+				CoursesContract.Columns.Courses.COURSE_ID + " != " + "'"
+						+ getString(R.string.restip_news_global_identifier)
+						+ "'", null,
 				SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN + " DESC");
 	}
 

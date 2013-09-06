@@ -40,6 +40,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 		// Courses
 		db.execSQL(CoursesContract.CREATE_TABLE_COURSES_STRING);
+		// FIXME meh..
+		db.execSQL("INSERT INTO courses (course_id, title) VALUES ('studip', 'Global')");
 		db.execSQL(CoursesContract.CREATE_TABLE_COURSE_USERS_STRING);
 
 		// Users

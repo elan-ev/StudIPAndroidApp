@@ -60,6 +60,8 @@ public class RestIpProvider extends ContentProvider {
 	private static final int COURSES_ID = 201;
 	private static final int COURSES_ID_EVENTS = 202;
 	private static final int COURSES_USERS = 203;
+	private static final int COURSE_USER_ID = 204;
+	private static final int COURSES_IDS = 205;
 
 	private static final int USERS = 300;
 	private static final int USERS_ID = 301;
@@ -109,7 +111,9 @@ public class RestIpProvider extends ContentProvider {
 		// matches for courses
 		matcher.addURI(authority, "courses", COURSES);
 		matcher.addURI(authority, "courses/users", COURSES_USERS);
+		matcher.addURI(authority, "courses/ids", COURSES_IDS);
 		matcher.addURI(authority, "courses/events/*", COURSES_ID_EVENTS);
+		matcher.addURI(authority, "courses/userids/*", COURSE_USER_ID);
 		matcher.addURI(authority, "courses/#", COURSES_ID);
 
 		// matches for users
@@ -185,8 +189,12 @@ public class RestIpProvider extends ContentProvider {
 			return NewsContract.CONTENT_ITEM_TYPE;
 		case COURSES:
 			return CoursesContract.CONTENT_TYPE;
+		case COURSES_IDS:
+			return CoursesContract.CONTENT_TYPE;
 		case COURSES_ID:
 			return CoursesContract.CONTENT_ITEM_TYPE;
+		case COURSE_USER_ID:
+			return CoursesContract.CONTENT_TYPE;
 		case USERS:
 			return UsersContract.CONTENT_TYPE;
 		case USERS_COURSE_ID:
@@ -345,6 +353,11 @@ public class RestIpProvider extends ContentProvider {
 							: ""), selectionArgs);
 			return retVal;
 		}
+		case CONTACTS_GROUP_MEMBERS: {
+			retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUP_MEMBERS,
+					selection, selectionArgs);
+			return retVal;
+		}
 		case CONTACTS_GROUPS_ID: {
 			String groupId = uri.getLastPathSegment();
 			retVal = db.delete(
@@ -500,12 +513,6 @@ public class RestIpProvider extends ContentProvider {
 
 			break;
 		case NEWS_RANGE_ID: {
-			// long currTime = System.currentTimeMillis();
-			// if ((currTime - mLastSync) > SYNC_THRESHOLD) {
-			// SyncHelper.getInstance(getContext()).performNewsSync();
-			// mLastSync = currTime;
-			// }
-
 			String rangeId = uri.getLastPathSegment();
 
 			if (TextUtils.isEmpty(sortOrder)) {
@@ -543,11 +550,6 @@ public class RestIpProvider extends ContentProvider {
 									+ selection + ")" : ""), selectionArgs,
 					null, null, orderBy);
 		case COURSES: {
-			// long currTime = System.currentTimeMillis();
-			// if ((currTime - mLastSync) > SYNC_THRESHOLD) {
-			// SyncHelper.getInstance(getContext()).performCoursesSync();
-			// mLastSync = currTime;
-			// }
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = CoursesContract.DEFAULT_SORT_ORDER;
 			} else {
@@ -576,6 +578,41 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					CoursesContract.CONTENT_URI);
 			break;
+		case COURSES_IDS:
+			if (TextUtils.isEmpty(sortOrder)) {
+				orderBy = CoursesContract.DEFAULT_SORT_ORDER;
+			} else {
+				orderBy = sortOrder;
+			}
+			c = db.query(CoursesContract.TABLE_COURSES, projection, selection,
+					selectionArgs, null, null, orderBy);
+			c.setNotificationUri(getContext().getContentResolver(),
+					CoursesContract.CONTENT_URI);
+			break;
+		case COURSE_USER_ID: {
+			if (TextUtils.isEmpty(sortOrder)) {
+				orderBy = CoursesContract.DEFAULT_SORT_ORDER;
+			} else {
+				orderBy = sortOrder;
+			}
+			String cid = uri.getLastPathSegment();
+			c = db.query(
+					CoursesContract.TABLE_COURSE_USER,
+					projection,
+					CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID
+							+ " = "
+							+ "'"
+							+ cid
+							+ "'"
+							+ (!TextUtils.isEmpty(selection) ? " AND ("
+									+ selection + ")" : ""), selectionArgs,
+					null, null,
+					CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID
+							+ " ASC");
+			c.setNotificationUri(getContext().getContentResolver(),
+					CoursesContract.CONTENT_URI);
+			break;
+		}
 		case COURSES_ID_EVENTS: {
 			String cid = uri.getLastPathSegment();
 			long currTime = System.currentTimeMillis();
@@ -670,7 +707,7 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					DocumentsContract.CONTENT_URI);
 			break;
-		case MESSAGES_ID:
+		case MESSAGES_ID: {
 			long messageId = ContentUris.parseId(uri);
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = MessagesContract.DEFAULT_SORT_ORDER_MESSAGES;
@@ -687,6 +724,29 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					MessagesContract.CONTENT_URI_MESSAGES);
 			break;
+		}
+		case MESSAGES_STRING_ID: {
+			String messageId = uri.getLastPathSegment();
+			if (TextUtils.isEmpty(sortOrder)) {
+				orderBy = MessagesContract.DEFAULT_SORT_ORDER_MESSAGES;
+			} else {
+				orderBy = sortOrder;
+			}
+			c = db.query(
+					MessagesContract.MESSAGES_JOIN_USERS,
+					projection,
+					MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_ID
+							+ " = "
+							+ "'"
+							+ messageId
+							+ "'"
+							+ (!TextUtils.isEmpty(selection) ? " AND ("
+									+ selection + ")" : ""), selectionArgs,
+					null, null, orderBy);
+			c.setNotificationUri(getContext().getContentResolver(),
+					MessagesContract.CONTENT_URI_MESSAGES);
+			break;
+		}
 		case MESSAGES_FOLDERS:
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = MessagesContract.DEFAULT_SORT_ORDER_FOLDERS;
