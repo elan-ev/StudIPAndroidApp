@@ -13,6 +13,8 @@ package de.elanev.studip.android.app.backend.net.services.syncservice;
 import java.io.IOException;
 import java.net.URI;
 
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
@@ -28,7 +30,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
-import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
+import de.elanev.studip.android.app.backend.net.Server;
+import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * @author joern
@@ -46,6 +49,7 @@ public class RestIPSyncService extends IntentService {
 	private DefaultHttpClient mClient;
 	private HttpGet mRequest;
 	private org.apache.http.HttpResponse mResponse;
+	private OAuthConsumer mConsumer;
 
 	public RestIPSyncService() {
 		super(TAG);
@@ -60,6 +64,14 @@ public class RestIPSyncService extends IntentService {
 	public void onCreate() {
 		super.onCreate();
 		mClient = new DefaultHttpClient();
+		Prefs prefs = Prefs.getInstance(getApplicationContext());
+		if (prefs.isAppAuthorized()) {
+			Server s = prefs.getServer();
+			mConsumer = new CommonsHttpOAuthConsumer(s.CONSUMER_KEY,
+					s.CONSUMER_SECRET);
+			mConsumer.setTokenWithSecret(prefs.getAccessToken(),
+					prefs.getAccessTokenSecret());
+		}
 	}
 
 	/*
@@ -79,10 +91,8 @@ public class RestIPSyncService extends IntentService {
 		}
 		mRequest = new HttpGet(mAction + ".json");
 		mReceiver = extras.getParcelable(RESTIP_RESULT_RECEIVER);
-
 		try {
-			OAuthConnector.getInstance();
-			OAuthConnector.getConsumer().sign(mRequest);
+			mConsumer.sign(mRequest);
 			mResponse = mClient.execute(mRequest);
 		} catch (OAuthMessageSignerException e) {
 			e.printStackTrace();
@@ -121,7 +131,7 @@ public class RestIPSyncService extends IntentService {
 			} else {
 				try {
 					Log.d(TAG, EntityUtils.toString(mResponse.getEntity())
-							+ "\n" + mAction.toASCIIString());
+							+ "\n" + mRequest.getURI().toASCIIString());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
