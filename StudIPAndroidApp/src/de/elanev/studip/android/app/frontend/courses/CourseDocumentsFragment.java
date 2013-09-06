@@ -45,9 +45,10 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
-import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
-import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
+import de.elanev.studip.android.app.backend.net.Server;
+import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.services.syncservice.activitys.DocumentsResponderFragment;
+import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * @author joern
@@ -100,6 +101,10 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 		super.onActivityCreated(savedInstanceState);
 
 		getLoaderManager().initLoader(0, null, this);
+
+		// Get reference to the download manager
+		mDownloadManager = (DownloadManager) getActivity().getSystemService(
+				Context.DOWNLOAD_SERVICE);
 	}
 
 	@Override
@@ -141,7 +146,10 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 			if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
 				Query query = new Query();
 				query.setFilterById(mDownloadReference);
-				Cursor c = mDownloadManager.query(query);
+				// Get reference to the download manager
+				DownloadManager downloadManager = (DownloadManager) getActivity()
+						.getSystemService(Context.DOWNLOAD_SERVICE);
+				Cursor c = downloadManager.query(query);
 				// Check if the download was successful
 				if (c.moveToFirst()) {
 					int columnIndex = c
@@ -154,6 +162,10 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 						// Show the download activity
 						startActivity(new Intent(
 								DownloadManager.ACTION_VIEW_DOWNLOADS));
+					} else {
+						Toast.makeText(mContext,
+								getString(R.string.something_went_wrong),
+								Toast.LENGTH_SHORT).show();
 					}
 				}
 			}
@@ -205,9 +217,6 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 
 		// If a valid row was selected, create a download
 		if (position != ListView.INVALID_POSITION) {
-			// Get reference to the download manager
-			mDownloadManager = (DownloadManager) getActivity()
-					.getSystemService(Context.DOWNLOAD_SERVICE);
 
 			// get the file information from the cursor at the selected position
 			Cursor c = (Cursor) getListAdapter().getItem(position);
@@ -224,11 +233,22 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 
 			try {
 				// Create the download URI
-				String downloadUrl = String.format(
-						ApiEndpoints.DOCUMENTS_DOWNLOAD_ENDPOINT, fileId);
+				String apiUrl = Prefs.getInstance(mContext).getServer().API_URL;
+				String downloadUrl = String
+						.format(getString(R.string.restip_documents_documentid_download),
+								apiUrl, fileId);
+
+				Prefs prefs = Prefs.getInstance(mContext);
+				VolleyOAuthConsumer consumer = null;
+				if (prefs.isAppAuthorized()) {
+					Server server = prefs.getServer();
+					consumer = new VolleyOAuthConsumer(server.CONSUMER_KEY,
+							server.CONSUMER_SECRET);
+					consumer.setTokenWithSecret(prefs.getAccessToken(),
+							prefs.getAccessTokenSecret());
+				}
 				// Sign the download URI with the OAuth credentials
-				String signedDownloadUrl = OAuthConnector.getConsumer().sign(
-						downloadUrl);
+				String signedDownloadUrl = consumer.sign(downloadUrl);
 
 				// Create the download request
 				Request request = new Request(Uri.parse(signedDownloadUrl));
