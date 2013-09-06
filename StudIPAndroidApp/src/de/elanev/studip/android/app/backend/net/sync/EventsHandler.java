@@ -54,8 +54,8 @@ public class EventsHandler implements ResultHandler {
 				.withValue(EventsContract.Columns.EVENT_DESCRIPTION,
 						e.description)
 				.withValue(EventsContract.Columns.EVENT_ROOM, e.room)
-				.withValue(EventsContract.Columns.EVENT_START, e.start * 1000L)
-				.withValue(EventsContract.Columns.EVENT_END, e.end * 1000L)
+				.withValue(EventsContract.Columns.EVENT_START, e.start)
+				.withValue(EventsContract.Columns.EVENT_END, e.end)
 				.withValue(EventsContract.Columns.EVENT_CATEGORIES,
 						e.categories)
 				.withValue(EventsContract.Columns.EVENT_COURSE_ID, e.course_id);
