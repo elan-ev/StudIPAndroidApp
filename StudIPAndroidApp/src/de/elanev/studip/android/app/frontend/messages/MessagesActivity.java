@@ -39,23 +39,30 @@ public class MessagesActivity extends BaseSlidingFragmentActivity {
 
 		setContentView(R.layout.content_frame);
 
+		if (savedInstanceState != null) {
+			return;
+		}
+
 		// setting up Fragments
 		FragmentManager fm = getSupportFragmentManager();
 		MessagesListFragment messagesListFragment = null;
 		MessageFoldersMenuFragment messageFoldersFragment = null;
-		if (savedInstanceState == null) {
+
+		messagesListFragment = (MessagesListFragment) fm
+				.findFragmentByTag(MessagesListFragment.class.getName());
+		messageFoldersFragment = (MessageFoldersMenuFragment) fm
+				.findFragmentByTag(MessageFoldersMenuFragment.class.getName());
+
+		if (messagesListFragment == null) {
 			messagesListFragment = (MessagesListFragment) MessagesListFragment
 					.instantiate(this, MessagesListFragment.class.getName());
+		}
+		if (messageFoldersFragment == null) {
 			messageFoldersFragment = (MessageFoldersMenuFragment) MessageFoldersMenuFragment
 					.instantiate(this,
 							MessageFoldersMenuFragment.class.getName());
-		} else {
-			messagesListFragment = (MessagesListFragment) fm
-					.findFragmentByTag(MessagesListFragment.class.getName());
-			messageFoldersFragment = (MessageFoldersMenuFragment) fm
-					.findFragmentByTag(MessageFoldersMenuFragment.class
-							.getName());
 		}
+
 		fm.beginTransaction()
 				.add(R.id.content_frame, messagesListFragment,
 						MessagesListFragment.class.getName())
