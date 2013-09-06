@@ -66,6 +66,12 @@ public class ListAdapterUsers extends CursorAdapter {
 			userImage.setVisibility(View.VISIBLE);
 			((ImageView) view.findViewById(R.id.user_image_placeholder))
 					.setVisibility(View.GONE);
+		} else {
+			final NetworkImageView userImage = (NetworkImageView) view
+					.findViewById(R.id.user_image);
+			userImage.setVisibility(View.GONE);
+			((ImageView) view.findViewById(R.id.user_image_placeholder))
+					.setVisibility(View.VISIBLE);
 		}
 
 	}

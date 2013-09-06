@@ -58,7 +58,6 @@ import de.elanev.studip.android.app.backend.datamodel.Contacts;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupHandler;
 import de.elanev.studip.android.app.backend.net.sync.ContactsHandler;
@@ -76,10 +75,9 @@ public abstract class UserListFragment extends SherlockListFragment implements
 
 	private static final String TAG = UserListFragment.class.getCanonicalName();
 	protected static Context mContext;
-	protected String mFavoriteGroupId;
-	protected static int mFavoriteGroupIntId;
 	private static VolleyOAuthConsumer mConsumer;
 	private static ContentResolver resolver;
+	private static String mApiUrl;
 
 	/*
 	 * (non-Javadoc)
@@ -101,27 +99,8 @@ public abstract class UserListFragment extends SherlockListFragment implements
 				.getAccessToken(), Prefs.getInstance(mContext)
 				.getAccessTokenSecret());
 
-		Cursor c = mContext
-				.getContentResolver()
-				.query(ContactsContract.CONTENT_URI_CONTACT_GROUPS,
-						new String[] {
-								ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_GROUP_ID,
-								ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_ID },
-						ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_GROUP_NAME
-								+ "= ?",
-						new String[] { mContext
-								.getString(R.string.studip_app_contacts_favorites) },
-						ContactsContract.DEFAULT_SORT_ORDER_CONTACT_GROUPS);
-		if (c.getCount() > 0) {
-			c.moveToFirst();
-			mFavoriteGroupId = c
-					.getString(c
-							.getColumnIndex(ContactsContract.Columns.ContactGroups.GROUP_ID));
-			mFavoriteGroupIntId = c
-					.getInt(c
-							.getColumnIndex(ContactsContract.Columns.ContactGroups._ID));
-		}
-		c.close();
+		mApiUrl = Prefs.getInstance(mContext).getServer().API_URL;
+
 	}
 
 	@Override
@@ -233,12 +212,55 @@ public abstract class UserListFragment extends SherlockListFragment implements
 			switch (itemId) {
 			// add to or remove user from favorites
 			case R.id.add_to_favorites: {
-				addUserToGroup(userId, mFavoriteGroupId);
+				String favGroupId = null;
+				Cursor favCursor1 = mContext
+						.getContentResolver()
+						.query(ContactsContract.CONTENT_URI_CONTACT_GROUPS,
+								new String[] { ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_GROUP_ID },
+								ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_GROUP_NAME
+										+ "= ?",
+								new String[] { mContext
+										.getString(R.string.studip_app_contacts_favorites) },
+								ContactsContract.DEFAULT_SORT_ORDER_CONTACT_GROUPS);
+				if (favCursor1.getCount() > 0) {
+					favCursor1.moveToFirst();
+					favGroupId = favCursor1
+							.getString(favCursor1
+									.getColumnIndex(ContactsContract.Columns.ContactGroups.GROUP_ID));
+				}
+				favCursor1.close();
+
+				addUserToGroup(userId, favGroupId);
 				return true;
 			}
 			case R.id.remove_from_favorites: {
-				deleteUserFromGroup(userId, mFavoriteGroupId,
-						mFavoriteGroupIntId, userIntId);
+				String favGroupId = null;
+				int favGroupIntId = 0;
+				Cursor favCursor2 = mContext
+						.getContentResolver()
+						.query(ContactsContract.CONTENT_URI_CONTACT_GROUPS,
+								new String[] {
+										ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_GROUP_ID,
+										ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_ID },
+								ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_GROUP_NAME
+										+ "= ?",
+								new String[] { mContext
+										.getString(R.string.studip_app_contacts_favorites) },
+								ContactsContract.DEFAULT_SORT_ORDER_CONTACT_GROUPS);
+				if (favCursor2.getCount() > 0) {
+					favCursor2.moveToFirst();
+					favGroupId = favCursor2
+							.getString(favCursor2
+									.getColumnIndex(ContactsContract.Columns.ContactGroups.GROUP_ID));
+					favGroupIntId = favCursor2
+							.getInt(favCursor2
+									.getColumnIndex(ContactsContract.Columns.ContactGroups._ID));
+				}
+				favCursor2.close();
+
+				deleteUserFromGroup(userId, favGroupId, favGroupIntId,
+						userIntId);
+				return true;
 			}
 
 			// add to or remove from contacts
@@ -275,9 +297,11 @@ public abstract class UserListFragment extends SherlockListFragment implements
 	}
 
 	private static void addUserToContacts(final String userId) {
+		String contactsUrl = String.format(
+				mContext.getString(R.string.restip_contacts_contactid),
+				mApiUrl, userId);
 		JacksonRequest<Contacts> contactAddRequest = new JacksonRequest<Contacts>(
-				String.format(ApiEndpoints.CONTACTS_USER_ID_ENDPOINT, userId),
-				Contacts.class, null, new Listener<Contacts>() {
+				contactsUrl, Contacts.class, null, new Listener<Contacts>() {
 					public void onResponse(Contacts response) {
 						try {
 							resolver.applyBatch(
@@ -319,14 +343,23 @@ public abstract class UserListFragment extends SherlockListFragment implements
 	}
 
 	private static void deleteUserFromContacts(final String userId) {
-		StringRequest request = new StringRequest(Method.DELETE, String.format(
-				ApiEndpoints.CONTACTS_USER_ID_ENDPOINT, userId),
+		String contactsUrl = String.format(
+				mContext.getString(R.string.restip_contacts_contactid),
+				mApiUrl, userId);
+		StringRequest request = new StringRequest(Method.DELETE, contactsUrl,
 				new Listener<String>() {
 					public void onResponse(String response) {
 						mContext.getContentResolver()
 								.delete(ContactsContract.CONTENT_URI_CONTACTS
 										.buildUpon().appendPath(userId).build(),
 										null, null);
+
+						mContext.getContentResolver()
+								.delete(ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS,
+										ContactsContract.Columns.ContactGroupMembers.USER_ID
+												+ "= ?",
+										new String[] { "'" + userId + "'" });
+
 						Toast.makeText(mContext, "Erfolgreich gelöscht",
 								Toast.LENGTH_SHORT).show();
 					}
@@ -354,34 +387,40 @@ public abstract class UserListFragment extends SherlockListFragment implements
 
 	private static void deleteUserFromGroup(final String userId,
 			final String groupId, final int groupIntId, final int userIntId) {
-		StringRequest request = new StringRequest(Method.DELETE, String.format(
-				ApiEndpoints.CONTACT_GROUPS_GROUP_ID_USER_ID_ENDPOINT, groupId,
-				userId), new Listener<String>() {
-			public void onResponse(String response) {
-				mContext.getContentResolver().delete(
-						ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS
-								.buildUpon()
-								.appendPath(String.format("%d", groupIntId))
-								.build(),
-						ContactsContract.Columns.Contacts.USER_ID + "= ?",
-						new String[] { String.format("%d", userIntId) });
-				Toast.makeText(mContext, "Erfolgreich gelöscht",
-						Toast.LENGTH_SHORT).show();
-			}
-		}, new ErrorListener() {
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see com.android.volley.Response.ErrorListener
-			 * #onErrorResponse(com.android.volley. VolleyError)
-			 */
-			public void onErrorResponse(VolleyError error) {
-				if (error.getMessage() != null)
-					Log.e(TAG, error.getMessage());
-				Toast.makeText(mContext, "Fehler: " + error.getMessage(),
-						Toast.LENGTH_SHORT).show();
-			}
-		});
+		String contactsUrl = String.format(mContext
+				.getString(R.string.restip_contacts_groups_groupid_userid),
+				mApiUrl, groupId, userId);
+		StringRequest request = new StringRequest(Method.DELETE, contactsUrl,
+				new Listener<String>() {
+					public void onResponse(String response) {
+						mContext.getContentResolver()
+								.delete(ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS
+										.buildUpon()
+										.appendPath(
+												String.format("%d", groupIntId))
+										.build(),
+										ContactsContract.Columns.Contacts.USER_ID
+												+ "= ?",
+										new String[] { String.format("%d",
+												userIntId) });
+						Toast.makeText(mContext, "Erfolgreich gelöscht",
+								Toast.LENGTH_SHORT).show();
+					}
+				}, new ErrorListener() {
+					/*
+					 * (non-Javadoc)
+					 * 
+					 * @see com.android.volley.Response.ErrorListener
+					 * #onErrorResponse(com.android.volley. VolleyError)
+					 */
+					public void onErrorResponse(VolleyError error) {
+						if (error.getMessage() != null)
+							Log.e(TAG, error.getMessage());
+						Toast.makeText(mContext,
+								"Fehler: " + error.getMessage(),
+								Toast.LENGTH_SHORT).show();
+					}
+				});
 
 		try {
 			mConsumer.sign(request);
@@ -396,10 +435,11 @@ public abstract class UserListFragment extends SherlockListFragment implements
 	}
 
 	private static void addUserToGroup(final String userId, final String groupId) {
+		String contactsUrl = String.format(mContext
+				.getString(R.string.restip_contacts_groups_groupid_userid),
+				mApiUrl, groupId, userId);
 		JacksonRequest<ContactGroups> userAddRequest = new JacksonRequest<ContactGroups>(
-				String.format(
-						ApiEndpoints.CONTACT_GROUPS_GROUP_ID_USER_ID_ENDPOINT,
-						groupId, userId), ContactGroups.class, null,
+				contactsUrl, ContactGroups.class, null,
 				new Listener<ContactGroups>() {
 					public void onResponse(ContactGroups response) {
 						try {
