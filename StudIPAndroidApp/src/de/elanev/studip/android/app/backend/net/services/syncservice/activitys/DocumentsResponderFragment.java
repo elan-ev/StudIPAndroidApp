@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Document;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
@@ -28,10 +29,10 @@ import de.elanev.studip.android.app.backend.datamodel.Documents;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
-import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 import de.elanev.studip.android.app.backend.net.services.syncservice.AbstractParserTask;
 import de.elanev.studip.android.app.backend.net.services.syncservice.RestIPSyncService;
 import de.elanev.studip.android.app.frontend.courses.CourseDocumentsFragment;
+import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
 
 /**
@@ -61,9 +62,12 @@ public class DocumentsResponderFragment extends
 
 					Intent intent = new Intent(mContext,
 							RestIPSyncService.class);
-					intent.setData(Uri.parse(String
-							.format(ApiEndpoints.COURSE_DOCUMENTS_FOLDERS_ENDPOINT,
-									cid)));
+					String apiUrl = Prefs.getInstance(mContext).getServer().API_URL;
+					String documentFoldersUrl = String
+							.format(mContext
+									.getString(R.string.restip_documents_rangeid_folder),
+									apiUrl, cid);
+					intent.setData(Uri.parse(documentFoldersUrl));
 
 					intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
 							getResultReceiver());
@@ -75,9 +79,12 @@ public class DocumentsResponderFragment extends
 
 						Intent intent = new Intent(mContext,
 								RestIPSyncService.class);
-						intent.setData(Uri.parse(String
-								.format(ApiEndpoints.COURSE_DOCUMENTS_FOLDERS_FILES_ENDPOINT,
-										new Object[] { cid, f.folder_id })));
+						String apiUrl = Prefs.getInstance(mContext).getServer().API_URL;
+						String documentsUrl = String
+								.format(mContext
+										.getString(R.string.restip_documents_rangeid_folder_folderid),
+										apiUrl, cid, f.folder_id);
+						intent.setData(Uri.parse(documentsUrl));
 
 						intent.putExtra(
 								RestIPSyncService.RESTIP_RESULT_RECEIVER,

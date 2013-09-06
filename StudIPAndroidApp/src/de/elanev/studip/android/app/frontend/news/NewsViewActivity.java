@@ -36,7 +36,6 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.TextTools;
@@ -56,7 +55,10 @@ public class NewsViewActivity extends BaseSlidingFragmentActivity {
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity#onCreate(android.os.Bundle)
+	 * 
+	 * @see
+	 * de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity
+	 * #onCreate(android.os.Bundle)
 	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,7 +77,6 @@ public class NewsViewActivity extends BaseSlidingFragmentActivity {
 		fm.beginTransaction()
 				.add(R.id.content_frame, frag, NewsListFragment.class.getName())
 				.commit();
-
 	}
 
 	public static class NewsListFragment extends SherlockListFragment implements
@@ -88,6 +89,7 @@ public class NewsViewActivity extends BaseSlidingFragmentActivity {
 
 		/*
 		 * (non-Javadoc)
+		 * 
 		 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
 		 */
 		@Override
@@ -156,6 +158,7 @@ public class NewsViewActivity extends BaseSlidingFragmentActivity {
 			super.onAttach(activity);
 			activity.getContentResolver().registerContentObserver(
 					NewsContract.CONTENT_URI, true, mObserver);
+
 		}
 
 		/*
@@ -320,7 +323,7 @@ public class NewsViewActivity extends BaseSlidingFragmentActivity {
 				final ImageView icon = (ImageView) view.findViewById(R.id.icon);
 
 				if (TextUtils.equals(courseId,
-						ApiEndpoints.NEWS_GLOBAL_RANGE_IDENITFIER)) {
+						getString(R.string.restip_news_global_identifier))) {
 					icon.setImageResource(R.drawable.ic_action_global);
 				} else {
 					icon.setImageResource(R.drawable.ic_seminar);
