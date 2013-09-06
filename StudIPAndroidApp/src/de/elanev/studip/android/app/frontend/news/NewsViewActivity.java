@@ -65,15 +65,18 @@ public class NewsViewActivity extends BaseSlidingFragmentActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.content_frame);
+
+		if (savedInstanceState != null)
+			return;
+
 		FragmentManager fm = getSupportFragmentManager();
 		NewsListFragment frag = null;
-		if (savedInstanceState == null) {
+		frag = (NewsListFragment) fm.findFragmentByTag(NewsListFragment.class
+				.getName());
+		if (frag == null)
 			frag = (NewsListFragment) NewsListFragment.instantiate(this,
 					NewsListFragment.class.getName());
-		} else {
-			frag = (NewsListFragment) fm
-					.findFragmentByTag(NewsListFragment.class.getName());
-		}
+
 		fm.beginTransaction()
 				.add(R.id.content_frame, frag, NewsListFragment.class.getName())
 				.commit();

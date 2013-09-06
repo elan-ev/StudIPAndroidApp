@@ -8,7 +8,8 @@
 package de.elanev.studip.android.app.frontend.util;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -26,7 +27,7 @@ import de.elanev.studip.android.app.R;
 public class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 
 	private int mTitleRes;
-	protected ListFragment mFrag;
+	protected Fragment mFrag;
 	public static ActionBar mActionbar = null;
 
 	public BaseSlidingFragmentActivity(int titleRes) {
@@ -41,24 +42,6 @@ public class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 		mActionbar.setHomeButtonEnabled(true);
 		setSlidingActionBarEnabled(true);
 
-		setTitle(mTitleRes);
-
-		// Sliding menu setup
-		setBehindContentView(R.layout.menu_frame);
-
-		if (savedInstanceState == null) {
-
-			mFrag = new MenuFragment();
-
-		} else {
-			mFrag = (ListFragment) this.getSupportFragmentManager()
-					.findFragmentById(R.id.menu_frame);
-		}
-		FragmentTransaction t = this.getSupportFragmentManager()
-				.beginTransaction();
-		t.replace(R.id.menu_frame, mFrag);
-		t.commit();
-
 		SlidingMenu sm = getSlidingMenu();
 		sm.setShadowWidthRes(R.dimen.shadow_width);
 		sm.setShadowDrawable(R.drawable.shadow_left);
@@ -67,6 +50,24 @@ public class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		sm.setSelectorEnabled(true);
 		sm.setSelectorDrawable(R.drawable.white_button);
+
+		setTitle(mTitleRes);
+
+		// Sliding menu setup
+		setBehindContentView(R.layout.menu_frame);
+
+		if (savedInstanceState != null)
+			return;
+
+		FragmentManager fm = getSupportFragmentManager();
+		mFrag = (ListFragment) fm.findFragmentById(R.id.menu_frame);
+
+		if (mFrag == null)
+			mFrag = MenuFragment
+					.instantiate(this, MenuFragment.class.getName());
+
+		fm.beginTransaction().replace(R.id.menu_frame, mFrag).commit();
+
 	}
 
 	@Override

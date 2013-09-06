@@ -13,13 +13,15 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 
 /**
+ * Activity which holds the courses list fragment
+ * 
  * @author joern
  * 
  */
 public class CoursesActivity extends BaseSlidingFragmentActivity {
 
 	/**
-	 * @param titleRes
+	 * Public constructor without parameters.
 	 */
 	public CoursesActivity() {
 		super(R.string.Courses);
@@ -36,15 +38,20 @@ public class CoursesActivity extends BaseSlidingFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.content_frame);
+
+		if (savedInstanceState != null)
+			return;
+
 		FragmentManager fm = getSupportFragmentManager();
 		CoursesFragment frag = null;
-		if (savedInstanceState == null) {
+
+		frag = (CoursesFragment) fm.findFragmentByTag(CoursesFragment.class
+				.getName());
+
+		if (frag == null)
 			frag = (CoursesFragment) CoursesFragment.instantiate(this,
 					CoursesFragment.class.getName());
-		} else {
-			frag = (CoursesFragment) fm.findFragmentByTag(CoursesFragment.class
-					.getName());
-		}
+
 		fm.beginTransaction()
 				.add(R.id.content_frame, frag, CoursesFragment.class.getName())
 				.commit();

@@ -21,7 +21,6 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:textAllCaps="true"
             android:textIsSelectable="true"
             android:textSize="@dimen/text_size_medium"
             font:typeface="Roboto-Bold.ttf" />
