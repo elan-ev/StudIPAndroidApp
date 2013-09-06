@@ -15,11 +15,15 @@ import com.crashlytics.android.Crashlytics;
 /**
  * @author joern
  * 
- *         Extends the Application class to enable crash reports through ACRA
+ *         Extends the Application class to enable crash reports through
+ *         Crashlytics
  */
-
 public class StudIPApplication extends Application {
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Application#onCreate()
+	 */
 	@Override
 	public void onCreate() {
 		super.onCreate();
