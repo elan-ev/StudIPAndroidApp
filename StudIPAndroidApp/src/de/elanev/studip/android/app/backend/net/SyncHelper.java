@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -39,7 +40,7 @@ import de.elanev.studip.android.app.backend.datamodel.Users;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
+import de.elanev.studip.android.app.backend.net.oauth.SignInActivity.SignInFragment;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.ContactsHandler;
@@ -53,20 +54,28 @@ import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
+ * A convenience class for interacting with the rest.IP endpoints which are used
+ * the most
+ * 
  * @author joern
  * 
  */
 public class SyncHelper {
 	protected static final String TAG = SyncHelper.class.getSimpleName();
 	private static SyncHelper mInstance = null;
-	// private static OAuthConnector sOAuthConnector = OAuthConnector
-	// .getInstance();
 	private static Context mContext = null;
 	private static VolleyOAuthConsumer mConsumer;
+	private static Server mServer = null;
 
 	private SyncHelper() {
 	}
 
+	/**
+	 * Returns an instance of the SyncHelper class
+	 * 
+	 * @param context
+	 * @return
+	 */
 	public static SyncHelper getInstance(Context context) {
 		if (mInstance == null) {
 			mInstance = new SyncHelper();
@@ -74,23 +83,26 @@ public class SyncHelper {
 
 		mContext = context;
 
-		if (Prefs.getInstance(mContext).isAppAuthorized()) {
-			mConsumer = new VolleyOAuthConsumer(Prefs.getInstance(context)
-					.getServer().CONSUMER_KEY, Prefs.getInstance(context)
-					.getServer().CONSUMER_SECRET);
-			mConsumer.setTokenWithSecret(Prefs.getInstance(context)
-					.getAccessToken(), Prefs.getInstance(context)
-					.getAccessTokenSecret());
+		Prefs prefs = Prefs.getInstance(mContext);
+		if (prefs.isAppAuthorized()) {
+			mServer = prefs.getServer();
+			mConsumer = new VolleyOAuthConsumer(mServer.CONSUMER_KEY,
+					mServer.CONSUMER_SECRET);
+			mConsumer.setTokenWithSecret(prefs.getAccessToken(),
+					prefs.getAccessTokenSecret());
 		}
 
 		return mInstance;
 	}
 
-	public boolean prefetch() {
+	public void prefetch(SignInFragment frag) {
 		Log.i(TAG, "PERFORMING PREFETCH");
-		performCoursesSync();
-		performNewsSync();
-		return true;
+
+		performCoursesSync(frag);
+		String globalNewsIdentifier = mContext
+				.getString(R.string.restip_news_global_identifier);
+		requestNewsForRange(globalNewsIdentifier,
+				getGlobalNewsListener(globalNewsIdentifier, frag));
 	}
 
 	public void performContactsSync() {
@@ -99,10 +111,12 @@ public class SyncHelper {
 
 		// Request Contacts
 		try {
-			// VolleyHttp.getRequestQueue().stop();
+			final String contactsURL = String.format(
+					mContext.getString(R.string.restip_contacts) + ".json",
+					mServer.API_URL);
 			JacksonRequest<Contacts> contactsRequest = new JacksonRequest<Contacts>(
-					mConsumer.sign(ApiEndpoints.CONTACTS_ENDPOINT + ".json"),
-					Contacts.class, null, new Listener<Contacts>() {
+					mConsumer.sign(contactsURL), Contacts.class, null,
+					new Listener<Contacts>() {
 						public void onResponse(Contacts response) {
 							for (String userId : response.contacts) {
 								requestUser(userId);
@@ -126,11 +140,14 @@ public class SyncHelper {
 					}, Method.GET);
 			VolleyHttp.getRequestQueue().add(contactsRequest);
 
+			final String contactGroupsURL = String.format(
+					mContext.getString(R.string.restip_contacts_groups)
+							+ ".json", mServer.API_URL);
+
 			// Request ContactGroups
 			JacksonRequest<ContactGroups> contactGroupsRequest = new JacksonRequest<ContactGroups>(
-					mConsumer.sign(ApiEndpoints.CONTACT_GROUPS_ENDPOINT
-							+ ".json"), ContactGroups.class, null,
-					new Listener<ContactGroups>() {
+					mConsumer.sign(contactGroupsURL), ContactGroups.class,
+					null, new Listener<ContactGroups>() {
 						public void onResponse(ContactGroups response) {
 
 							try {
@@ -175,10 +192,13 @@ public class SyncHelper {
 	}
 
 	private void createFavoritesGroup() {
+		final String contactGroupsURL = String.format(
+				mContext.getString(R.string.restip_contacts_groups) + ".json",
+				mServer.API_URL);
 		// Create Jackson HTTP post request
 		JacksonRequest<ContactGroups> request = new JacksonRequest<ContactGroups>(
-				ApiEndpoints.CONTACT_GROUPS_ENDPOINT, ContactGroups.class,
-				null, new Listener<ContactGroups>() {
+				contactGroupsURL, ContactGroups.class, null,
+				new Listener<ContactGroups>() {
 
 					public void onResponse(ContactGroups response) {
 						try {
@@ -224,22 +244,45 @@ public class SyncHelper {
 		VolleyHttp.getRequestQueue().add(request);
 	}
 
+	public void loadUsersForCourse(String cid) {
+		Cursor c = mContext
+				.getContentResolver()
+				.query(CoursesContract.CONTENT_URI.buildUpon()
+						.appendPath("userids").appendPath(cid).build(),
+						new String[] { CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID },
+						null, null, null);
+		c.moveToFirst();
+		while (!c.isAfterLast()) {
+			requestUser(c
+					.getString(c
+							.getColumnIndex(CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID)));
+
+			c.moveToNext();
+		}
+
+	}
+
 	public void requestUser(String id) {
 		Log.i(TAG, "SYNCING USER: " + id);
+
 		if (!TextUtils.equals("", id)
 				&& !TextUtils.equals("____%system%____", id)
 				&& mContext != null) {
 			final ContentResolver resolver = mContext.getContentResolver();
-			Cursor c = resolver.query(UsersContract.CONTENT_URI,
-					new String[] { UsersContract.Columns.USER_ID },
-					UsersContract.Columns.USER_ID + " = ? ", new String[] { "'"
-							+ id + "'" }, UsersContract.DEFAULT_SORT_ORDER);
-			c.moveToFirst();
-			if (c.getCount() < 1) {
-				c.close();
+
+			Cursor c = resolver.query(UsersContract.CONTENT_URI.buildUpon()
+					.appendPath(id).build(),
+					new String[] { UsersContract.Columns.USER_ID }, null, null,
+					UsersContract.DEFAULT_SORT_ORDER);
+			int count = c.getCount();
+			c.close();
+
+			if (count < 1) {
+				final String usersUrl = String.format(
+						mContext.getString(R.string.restip_users) + ".json",
+						mServer.API_URL, id);
 				try {
-					String request = mConsumer.sign(String.format(
-							ApiEndpoints.USER_ENDPOINT, id));
+					String request = mConsumer.sign(usersUrl);
 
 					VolleyHttp.getRequestQueue().add(
 							new JacksonRequest<User>(request, User.class, null,
@@ -279,6 +322,8 @@ public class SyncHelper {
 				} catch (OAuthCommunicationException e) {
 					e.printStackTrace();
 				}
+			} else {
+				Log.i(TAG, "USER ALREADY SYNCED");
 			}
 		}
 	}
@@ -286,37 +331,43 @@ public class SyncHelper {
 	/**
 	 * 
 	 */
-	public void performCoursesSync() {
+	public void performCoursesSync(final SignInFragment frag) {
 		// First load all semesters
 		requestSemesters();
 
 		Log.i(TAG, "SYNCING COURSES");
+		final String coursesUrl = String.format(
+				mContext.getString(R.string.restip_courses) + ".json",
+				mServer.API_URL);
+
 		JacksonRequest<Courses> coursesRequest;
 		try {
-			coursesRequest = new JacksonRequest<Courses>(
-					mConsumer.sign(ApiEndpoints.COURSES_ENDPOINT + ".json"),
+			final String signedCoursesUrl = mConsumer.sign(coursesUrl);
+			coursesRequest = new JacksonRequest<Courses>(signedCoursesUrl,
 					Courses.class, null, new Listener<Courses>() {
 						public void onResponse(Courses response) {
 							for (Course c : response.courses) {
-								// Load teacher and tutor information for course
+								// Preload only the teachers to display them
 								for (String userId : c.teachers) {
 									requestUser(userId);
 								}
-
-								for (String userId : c.tutors) {
-									requestUser(userId);
-								}
+								String courseId = c.course_id;
+								requestNewsForRange(courseId,
+										getNewsListener(courseId));
 							}
 
 							try {
 								mContext.getContentResolver().applyBatch(
 										AbstractContract.CONTENT_AUTHORITY,
 										new CoursesHandler(response).parse());
+								Log.i(TAG, "COURSE SYNC COMPLETE");
+								// performNewsSync(frag);
 							} catch (RemoteException e) {
 								e.printStackTrace();
 							} catch (OperationApplicationException e) {
 								e.printStackTrace();
 							}
+
 						}
 
 					}, new ErrorListener() {
@@ -324,6 +375,9 @@ public class SyncHelper {
 							Log.wtf(TAG, error.getMessage());
 						}
 					}, Method.GET);
+			coursesRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
+					DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+					DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 			VolleyHttp.getRequestQueue().add(coursesRequest);
 		} catch (OAuthMessageSignerException e) {
 			e.printStackTrace();
@@ -338,11 +392,14 @@ public class SyncHelper {
 	private void requestSemesters() {
 
 		Log.i(TAG, "SYNCING SEMESTERS");
+		final String semestersUrl = String.format(
+				mContext.getString(R.string.restip_semesters) + ".json",
+				mServer.API_URL);
 		JacksonRequest<Semesters> semestersRequest;
 		try {
 			semestersRequest = new JacksonRequest<Semesters>(
-					mConsumer.sign(ApiEndpoints.SEMESTERS_ENDPOINT + ".json"),
-					Semesters.class, null, new Listener<Semesters>() {
+					mConsumer.sign(semestersUrl), Semesters.class, null,
+					new Listener<Semesters>() {
 						public void onResponse(Semesters response) {
 
 							try {
@@ -372,49 +429,77 @@ public class SyncHelper {
 
 	}
 
-	/**
-	 * 
-	 */
-	public void performNewsSync() {
+	private Listener<News> getNewsListener(final String id) {
+		return new Listener<News>() {
+			public void onResponse(News response) {
+				for (NewsItem n : response.news) {
+					requestUser(n.user_id);
+				}
 
-		requestNewsForRange(ApiEndpoints.NEWS_GLOBAL_RANGE_IDENITFIER);
-		Cursor c = mContext.getContentResolver().query(
-				CoursesContract.CONTENT_URI,
-				new String[] { CoursesContract.Columns.Courses.COURSE_ID },
-				null, null, null);
-		c.moveToFirst();
-		while (!c.isAfterLast()) {
-			requestNewsForRange(c.getString(c
-					.getColumnIndex(CoursesContract.Columns.Courses.COURSE_ID)));
-			c.moveToNext();
-		}
+				try {
+					mContext.getContentResolver().applyBatch(
+							AbstractContract.CONTENT_AUTHORITY,
+							new NewsHandler(response, id).parse());
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				} catch (OperationApplicationException e) {
+					e.printStackTrace();
+				}
+			}
+		};
 	}
 
-	private void requestNewsForRange(final String range) {
+	/*
+	 * Returns the listener specifically for the global range to
+	 * 
+	 * @param id the range id of the requested
+	 */
+	private Listener<News> getGlobalNewsListener(final String id,
+			final SignInFragment frag) {
+		return new Listener<News>() {
+			public void onResponse(News response) {
+				if (!response.news.isEmpty()) {
+					for (NewsItem n : response.news) {
+						requestUser(n.user_id);
+					}
+
+					try {
+						mContext.getContentResolver().applyBatch(
+								AbstractContract.CONTENT_AUTHORITY,
+								new NewsHandler(response, id).parse());
+						Log.i(TAG, "NEWS SYNC FOR COMPLETE");
+						performContactsSync();
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					} catch (OperationApplicationException e) {
+						e.printStackTrace();
+					} finally {
+						frag.startNewsActivity();
+					}
+				}
+			}
+		};
+	}
+
+	/*
+	 * Requests news for a specified range and executes the passed listener with
+	 * the response
+	 * 
+	 * @param range the range to request
+	 * 
+	 * @param listener the Volley listener to execute after request
+	 */
+	private void requestNewsForRange(final String range, Listener<News> listener) {
 		Log.i(TAG, "SYNCING NEWS FOR RANGE: " + range);
+
+		final String newsUrl = String.format(
+				mContext.getString(R.string.restip_news_rangeid) + ".json",
+				mServer.API_URL, range);
+
 		JacksonRequest<News> newsRequest;
 		try {
-			newsRequest = new JacksonRequest<News>(mConsumer.sign(String
-					.format(ApiEndpoints.NEWS_ENDPOINT + ".json", range)),
-					News.class, null, new Listener<News>() {
-						public void onResponse(News response) {
-							for (NewsItem n : response.news) {
-								requestUser(n.user_id);
-							}
-
-							try {
-								mContext.getContentResolver().applyBatch(
-										AbstractContract.CONTENT_AUTHORITY,
-										new NewsHandler(response, range)
-												.parse());
-							} catch (RemoteException e) {
-								e.printStackTrace();
-							} catch (OperationApplicationException e) {
-								e.printStackTrace();
-							}
-						}
-
-					}, new ErrorListener() {
+			newsRequest = new JacksonRequest<News>(mConsumer.sign(newsUrl),
+					News.class, null, listener, new ErrorListener() {
 						public void onErrorResponse(VolleyError error) {
 							Log.wtf(TAG, error.getMessage());
 						}
@@ -427,20 +512,25 @@ public class SyncHelper {
 		} catch (OAuthCommunicationException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	/**
-	 * @param cid
+	 * Requests the events for the passed course id
+	 * 
+	 * @param courseId
+	 *            the course id for which the events should be requested
 	 */
-	public void performEventsSyncForCourseId(String cid) {
+	public void performEventsSyncForCourseId(String courseId) {
+		Log.i(TAG, "PERFORMING EVENTS SYNC: " + courseId);
+		final String eventsUrl = String.format(
+				mContext.getString(R.string.restip_courses_courseid_events)
+						+ ".json", mServer.API_URL, courseId);
 		JacksonRequest<Events> eventsRequest;
 		try {
 			eventsRequest = new JacksonRequest<Events>(
-					mConsumer
-							.sign(String.format(
-									ApiEndpoints.COURSE_EVENTS_ENDPOINT
-											+ ".json", cid)),
-					Events.class, null, new Listener<Events>() {
+					mConsumer.sign(eventsUrl), Events.class, null,
+					new Listener<Events>() {
 						public void onResponse(Events response) {
 							try {
 								mContext.getContentResolver().applyBatch(
