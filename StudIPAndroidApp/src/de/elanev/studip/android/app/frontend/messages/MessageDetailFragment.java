@@ -7,11 +7,13 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.messages;
 
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
 import android.app.Activity;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
@@ -20,6 +22,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,14 +33,20 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.android.volley.Request.Method;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.VolleyError;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
-import de.elanev.studip.android.app.backend.net.services.syncservice.RestApiRequest;
-import de.elanev.studip.android.app.backend.net.services.syncservice.RestApiRequest.ApiResponse;
+import de.elanev.studip.android.app.backend.net.Server;
+import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
+import de.elanev.studip.android.app.backend.net.util.StringRequest;
+import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * @author joern
@@ -55,6 +64,12 @@ public class MessageDetailFragment extends SherlockFragment implements
 	private String mMessageId, mSubject, mMessage, mSenderId, mSenderTitlePre,
 			mSenderForename, mSenderLastname, mSenderTitlePost;
 	private long mDate;
+	private String mApiUrl;
+	private VolleyOAuthConsumer mConsumer;
+
+	private TextView mMessageSubjectTextView;
+	private TextView mMessageDateTextView;
+	private TextView mMessageBodyTextView;
 
 	/*
 	 * (non-Javadoc)
@@ -66,6 +81,14 @@ public class MessageDetailFragment extends SherlockFragment implements
 		super.onCreate(savedInstanceState);
 		mArgs = getArguments();
 		mContext = getActivity();
+		Prefs prefs = Prefs.getInstance(mContext);
+		Server s = prefs.getServer();
+		mApiUrl = s.API_URL;
+
+		mConsumer = new VolleyOAuthConsumer(s.CONSUMER_KEY, s.CONSUMER_SECRET);
+
+		mConsumer.setTokenWithSecret(prefs.getAccessToken(),
+				prefs.getAccessTokenSecret());
 
 	}
 
@@ -79,7 +102,13 @@ public class MessageDetailFragment extends SherlockFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_message_detail, null);
+		View v = inflater.inflate(R.layout.fragment_message_detail, null);
+		mMessageSubjectTextView = (TextView) v
+				.findViewById(R.id.message_subject);
+		mMessageDateTextView = (TextView) v
+				.findViewById(R.id.message_sender_and_date);
+		mMessageBodyTextView = (TextView) v.findViewById(R.id.message_body);
+		return v;
 
 	}
 
@@ -91,11 +120,11 @@ public class MessageDetailFragment extends SherlockFragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		setHasOptionsMenu(true);
 
 		// initialize CursorLoader
 		getLoaderManager().initLoader(0, mArgs, this);
-		setHasOptionsMenu(true);
-		getActivity().setTitle(R.string.Message);
+
 	}
 
 	protected final ContentObserver mObserver = new ContentObserver(
@@ -145,17 +174,35 @@ public class MessageDetailFragment extends SherlockFragment implements
 	 * android.os.Bundle)
 	 */
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		long messageId = 1;
-		if (data != null) {
-			messageId = data.getLong(MessagesContract.Columns.Messages._ID);
-		}
 
-		CursorLoader loader = new CursorLoader(mContext,
-				MessagesContract.CONTENT_URI_MESSAGES.buildUpon()
-						.appendPath(String.valueOf(messageId)).build(),
-				MessageQuery.projection, null, null,
+		return new CursorLoader(
+				mContext,
+				MessagesContract.CONTENT_URI_MESSAGES
+						.buildUpon()
+						.appendPath(
+								data.getString(MessagesContract.Columns.Messages.MESSAGE_ID))
+						.build(), MessageQuery.projection, null, null,
 				MessagesContract.DEFAULT_SORT_ORDER_MESSAGES);
-		return loader;
+	}
+
+	/*
+	 * messages adapter
+	 */
+	private interface MessageQuery {
+		String[] projection = {
+				MessagesContract.Qualified.Messages.MESSAGES_ID,
+				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_ID,
+				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_MKDATE,
+				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_SUBJECT,
+				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_PRIORITY,
+				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE,
+				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_UNREAD,
+
+				UsersContract.Qualified.USERS_USER_TITLE_PRE,
+				UsersContract.Qualified.USERS_USER_FORENAME,
+				UsersContract.Qualified.USERS_USER_LASTNAME,
+				UsersContract.Qualified.USERS_USER_TITLE_POST,
+				UsersContract.Qualified.USERS_USER_ID };
 	}
 
 	/*
@@ -170,60 +217,88 @@ public class MessageDetailFragment extends SherlockFragment implements
 			return;
 		}
 
-		if (cursor.getCount() > 0) {
-			cursor.moveToFirst();
-			int unread = cursor
-					.getInt(cursor
-							.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_UNREAD));
+		cursor.moveToFirst();
+		int unread = cursor
+				.getInt(cursor
+						.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_UNREAD));
 
-			mMessageId = cursor
-					.getString(cursor
-							.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_ID));
-			mSubject = cursor
-					.getString(cursor
-							.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_SUBJECT));
-			mDate = cursor
-					.getLong(cursor
-							.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_MKDATE));
-			mMessage = cursor.getString(cursor
-					.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE));
-			mSenderTitlePre = cursor.getString(cursor
-					.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
-			mSenderForename = cursor.getString(cursor
-					.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-			mSenderLastname = cursor.getString(cursor
-					.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
-			mSenderTitlePost = cursor.getString(cursor
-					.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
-			mSenderId = cursor.getString(cursor
-					.getColumnIndex(UsersContract.Columns.USER_ID));
+		mMessageId = cursor.getString(cursor
+				.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_ID));
+		mSubject = cursor
+				.getString(cursor
+						.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_SUBJECT));
+		mDate = cursor
+				.getLong(cursor
+						.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_MKDATE));
+		mMessage = cursor.getString(cursor
+				.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE));
+		mSenderTitlePre = cursor.getString(cursor
+				.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
+		mSenderForename = cursor.getString(cursor
+				.getColumnIndex(UsersContract.Columns.USER_FORENAME));
+		mSenderLastname = cursor.getString(cursor
+				.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
+		mSenderTitlePost = cursor.getString(cursor
+				.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
+		mSenderId = cursor.getString(cursor
+				.getColumnIndex(UsersContract.Columns.USER_ID));
 
-			View root = getView();
-			if (root != null) {
-				TextView messageSubjectTextView = (TextView) root
-						.findViewById(R.id.message_subject);
-				TextView messageDateTextView = (TextView) root
-						.findViewById(R.id.message_sender_and_date);
-				TextView messageBodyTextView = (TextView) root
-						.findViewById(R.id.message_body);
-				messageBodyTextView
-						.setMovementMethod(new ScrollingMovementMethod());
+		mMessageBodyTextView.setMovementMethod(new ScrollingMovementMethod());
 
-				messageSubjectTextView.setText(mSubject);
-				messageBodyTextView.setText(Html.fromHtml(mMessage));
-				messageDateTextView.setText(TextTools
-						.getLocalizedAuthorAndDateString(String.format(
-								"%s %s %s %s", mSenderTitlePre,
-								mSenderForename, mSenderLastname,
-								mSenderTitlePost), mDate, mContext));
+		mMessageSubjectTextView.setText(mSubject);
+		mMessageBodyTextView.setText(Html.fromHtml(mMessage));
+		mMessageDateTextView.setText(TextTools.getLocalizedAuthorAndDateString(
+				String.format("%s %s %s %s", mSenderTitlePre, mSenderForename,
+						mSenderLastname, mSenderTitlePost), mDate, mContext));
+
+		if (unread == 1) {
+
+			String messagesUrl = String.format(
+					getString(R.string.restip_messages_read_messageid),
+					mApiUrl, mMessageId);
+
+			StringRequest request = new StringRequest(Method.PUT, messagesUrl,
+					new Listener<String>() {
+						public void onResponse(String response) {
+							// TODO Save to db
+							// mContext.getContentResolver()
+							// .update(uri, values, where,
+							// selectionArgs)(MessagesContract.CONTENT_URI_MESSAGES
+							// .buildUpon()
+							// .appendPath(mMessageId).build(),
+							// null, null);
+							// Toast.makeText(mContext,
+							// getString(R.string.message_deleted),
+							// Toast.LENGTH_SHORT).show();
+						}
+					}, new ErrorListener() {
+						/*
+						 * (non-Javadoc)
+						 * 
+						 * @see com.android.volley.Response.ErrorListener
+						 * #onErrorResponse(com.android.volley. VolleyError)
+						 */
+						public void onErrorResponse(VolleyError error) {
+							if (error.getMessage() != null)
+								Log.e(TAG, error.getMessage());
+							Toast.makeText(
+									mContext,
+									getString(R.string.something_went_wrong)
+											+ error.getMessage(),
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+
+			try {
+				mConsumer.sign(request);
+			} catch (OAuthMessageSignerException e) {
+				e.printStackTrace();
+			} catch (OAuthExpectationFailedException e) {
+				e.printStackTrace();
+			} catch (OAuthCommunicationException e) {
+				e.printStackTrace();
 			}
-
-			if (unread == 1) {
-				ApiMarkAsReadTask markAsRead = new ApiMarkAsReadTask();
-				markAsRead.execute(ApiEndpoints.MESSAGE_MARK_AS_READ_ENDPOINT,
-						mMessageId);
-			}
-
+			VolleyHttp.getRequestQueue().add(request);
 		}
 
 	}
@@ -260,16 +335,53 @@ public class MessageDetailFragment extends SherlockFragment implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		// case R.id.mark_message_as_read:
-		// ApiMarkAsReadTask markAsReadTask = new ApiMarkAsReadTask();
-		// markAsReadTask.execute(ApiEndpoints.MESSAGE_MARK_AS_READ_ENDPOINT,
-		// mMessageId);
-		// return true;
 
 		case R.id.delete_message:
-			ApiDeleteTask deleteTask = new ApiDeleteTask();
-			deleteTask
-					.execute(ApiEndpoints.MESSAGE_DELETE_ENDPOINT, mMessageId);
+			String contactsUrl = String.format(
+					getString(R.string.restip_messages_messageid), mApiUrl,
+					mMessageId);
+			StringRequest request = new StringRequest(Method.DELETE,
+					contactsUrl, new Listener<String>() {
+						public void onResponse(String response) {
+							getActivity().finish();
+							getLoaderManager().getLoader(0).abandon();
+							mContext.getContentResolver().delete(
+									MessagesContract.CONTENT_URI_MESSAGES
+											.buildUpon().appendPath(mMessageId)
+											.build(), null, null);
+							Toast.makeText(mContext,
+									getString(R.string.message_deleted),
+									Toast.LENGTH_SHORT).show();
+						}
+					}, new ErrorListener() {
+						/*
+						 * (non-Javadoc)
+						 * 
+						 * @see com.android.volley.Response.ErrorListener
+						 * #onErrorResponse(com.android.volley. VolleyError)
+						 */
+						public void onErrorResponse(VolleyError error) {
+							if (error.getMessage() != null)
+								Log.e(TAG, error.getMessage());
+							Toast.makeText(
+									mContext,
+									getString(R.string.something_went_wrong)
+											+ error.getMessage(),
+									Toast.LENGTH_SHORT).show();
+						}
+					});
+
+			try {
+				mConsumer.sign(request);
+			} catch (OAuthMessageSignerException e) {
+				e.printStackTrace();
+			} catch (OAuthExpectationFailedException e) {
+				e.printStackTrace();
+			} catch (OAuthCommunicationException e) {
+				e.printStackTrace();
+			}
+			VolleyHttp.getRequestQueue().add(request);
+
 			return true;
 
 		case R.id.forward_message:
@@ -311,103 +423,6 @@ public class MessageDetailFragment extends SherlockFragment implements
 		fm.beginTransaction()
 				.replace(R.id.content_frame, frag, "messageComposeFragment")
 				.addToBackStack(null).commit();
-	}
-
-	/*
-	 * messages adapter
-	 */
-	private interface MessageQuery {
-		String[] projection = {
-				MessagesContract.Qualified.Messages.MESSAGES_ID,
-				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_ID,
-				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_MKDATE,
-				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_SUBJECT,
-				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_PRIORITY,
-				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE,
-				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_UNREAD,
-
-				UsersContract.Qualified.USERS_USER_TITLE_PRE,
-				UsersContract.Qualified.USERS_USER_FORENAME,
-				UsersContract.Qualified.USERS_USER_LASTNAME,
-				UsersContract.Qualified.USERS_USER_TITLE_POST,
-				UsersContract.Qualified.USERS_USER_ID };
-	}
-
-	private class ApiMarkAsReadTask extends
-			AsyncTask<String, Integer, RestApiRequest.ApiResponse> {
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
-		@Override
-		protected ApiResponse doInBackground(String... params) {
-			RestApiRequest request = new RestApiRequest();
-			String endpoint = params[0];
-			String param = params[1];
-			return request.put(endpoint, param);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute(ApiResponse result) {
-			switch (result.getCode()) {
-			// case RestApiRequest.ApiResponse.SUCCESS_WITH_NO_RESPONSE:
-			// Toast.makeText(mContext, getString(R.string.mark_as_read),
-			// Toast.LENGTH_SHORT).show();
-			// break;
-			case RestApiRequest.ApiResponse.INTERNAL_ERROR:
-				Toast.makeText(mContext,
-						getString(R.string.something_went_wrong),
-						Toast.LENGTH_SHORT).show();
-				break;
-			}
-		}
-
-	}
-
-	private class ApiDeleteTask extends
-			AsyncTask<String, Integer, RestApiRequest.ApiResponse> {
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
-		@Override
-		protected ApiResponse doInBackground(String... params) {
-			RestApiRequest request = new RestApiRequest();
-			return request.delete(params[0], params[1]);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute(ApiResponse result) {
-			switch (result.getCode()) {
-			case RestApiRequest.ApiResponse.SUCCESS_WITH_NO_RESPONSE:
-				Toast.makeText(mContext, getString(R.string.message_deleted),
-						Toast.LENGTH_SHORT).show();
-				getActivity().finish();
-				mContext.getContentResolver().delete(
-						MessagesContract.CONTENT_URI_MESSAGES.buildUpon()
-								.appendPath(mMessageId).build(), null, null);
-				break;
-			default:
-				Toast.makeText(mContext,
-						getString(R.string.something_went_wrong),
-						Toast.LENGTH_SHORT).show();
-				break;
-			}
-		}
 	}
 
 }

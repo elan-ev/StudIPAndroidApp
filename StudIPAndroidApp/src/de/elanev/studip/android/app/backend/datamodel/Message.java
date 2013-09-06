@@ -8,6 +8,7 @@
 package de.elanev.studip.android.app.backend.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 /**
  * Represents a message as java object
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * 
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonRootName(value = "message")
 public class Message {
 	/**
 	 * the studip internal id of the message

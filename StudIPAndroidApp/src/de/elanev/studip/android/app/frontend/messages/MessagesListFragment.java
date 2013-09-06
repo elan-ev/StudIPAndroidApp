@@ -34,6 +34,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.android.volley.toolbox.NetworkImageView;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import de.elanev.studip.android.app.R;
@@ -42,6 +43,7 @@ import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.services.syncservice.activitys.MessagesResponderFragment;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * @author joern
@@ -177,9 +179,16 @@ public class MessagesListFragment extends SherlockListFragment implements
 	 */
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		Intent intent = new Intent(mContext, MessageDetailActivity.class);
-		intent.putExtra(MessagesContract.Columns.Messages._ID, id);
-		startActivity(intent);
+		if (position != ListView.INVALID_POSITION) {
+			Cursor c = (Cursor) l.getItemAtPosition(position);
+			String messageId = c
+					.getString(c
+							.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_ID));
+			Intent intent = new Intent(mContext, MessageDetailActivity.class);
+			intent.putExtra(MessagesContract.Columns.Messages.MESSAGE_ID,
+					messageId);
+			startActivity(intent);
+		}
 	}
 
 	/*
@@ -320,6 +329,7 @@ public class MessagesListFragment extends SherlockListFragment implements
 	private interface MessageQuery {
 		String[] projection = {
 				MessagesContract.Qualified.Messages.MESSAGES_ID,
+				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_ID,
 				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_MKDATE,
 				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_SUBJECT,
 				MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_UNREAD,
@@ -328,7 +338,8 @@ public class MessagesListFragment extends SherlockListFragment implements
 				UsersContract.Qualified.USERS_USER_TITLE_PRE,
 				UsersContract.Qualified.USERS_USER_FORENAME,
 				UsersContract.Qualified.USERS_USER_LASTNAME,
-				UsersContract.Qualified.USERS_USER_TITLE_POST };
+				UsersContract.Qualified.USERS_USER_TITLE_POST,
+				UsersContract.Qualified.USERS_USER_AVATAR_NORMAL };
 	}
 
 	private class MessagesAdapter extends CursorAdapter {
@@ -355,6 +366,8 @@ public class MessagesListFragment extends SherlockListFragment implements
 					.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
 			final String userTitlePost = cursor.getString(cursor
 					.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
+			final String userImageUrl = cursor.getString(cursor
+					.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
 
 			final String messageSubject = cursor
 					.getString(cursor
@@ -378,6 +391,22 @@ public class MessagesListFragment extends SherlockListFragment implements
 				messageUnreadIconImageView.setVisibility(View.VISIBLE);
 			else
 				messageUnreadIconImageView.setVisibility(View.GONE);
+
+			if (!userImageUrl.contains("nobody")) {
+				final NetworkImageView userImage = (NetworkImageView) view
+						.findViewById(R.id.user_image);
+				userImage
+						.setImageUrl(userImageUrl, VolleyHttp.getImageLoader());
+				userImage.setVisibility(View.VISIBLE);
+				((ImageView) view.findViewById(R.id.user_image_placeholder))
+						.setVisibility(View.GONE);
+			} else {
+				final NetworkImageView userImage = (NetworkImageView) view
+						.findViewById(R.id.user_image);
+				userImage.setVisibility(View.GONE);
+				((ImageView) view.findViewById(R.id.user_image_placeholder))
+						.setVisibility(View.VISIBLE);
+			}
 
 		}
 

@@ -10,10 +10,12 @@ package de.elanev.studip.android.app.frontend.messages;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -38,13 +40,21 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.android.volley.Request.Method;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.VolleyError;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.datamodel.Message;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
-import de.elanev.studip.android.app.backend.net.services.syncservice.RestApiRequest;
+import de.elanev.studip.android.app.backend.net.Server;
+import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
+import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
+import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * @author joern
@@ -249,13 +259,70 @@ public class MessageComposeFragment extends SherlockFragment implements
 						Toast.LENGTH_LONG).show();
 				mMessageEditTextView.requestFocus();
 			} else {
-				Bundle param = new Bundle();
-				param.putString("user_id", user.userId);
-				param.putString("subject", mSubjectEditTextView.getText()
+
+				String apiUrl = Prefs.getInstance(mContext).getServer().API_URL;
+				String messagesUrl = String.format(
+						getString(R.string.restip_messages), apiUrl);
+
+				// Create Jackson HTTP post request
+				JacksonRequest<Message> request = new JacksonRequest<Message>(
+						messagesUrl, Message.class, null,
+						new Listener<Message>() {
+
+							public void onResponse(Message response) {
+								getActivity().finish();
+								Toast.makeText(mContext,
+										getString(R.string.message_sent),
+										Toast.LENGTH_SHORT).show();
+							}
+						}, new ErrorListener() {
+							/*
+							 * (non-Javadoc)
+							 * 
+							 * @see com.android.volley.Response. ErrorListener
+							 * #onErrorResponse(com .android.volley.
+							 * VolleyError)
+							 */
+							public void onErrorResponse(VolleyError error) {
+								if (error.getMessage() != null) {
+									Toast.makeText(mContext,
+											"Fehler: " + error.getMessage(),
+											Toast.LENGTH_SHORT).show();
+									Log.wtf(TAG, error.getMessage());
+								}
+							}
+						}, Method.POST);
+
+				// Set parameters
+				request.addParam("user_id", user.userId);
+				request.addParam("subject", mSubjectEditTextView.getText()
 						.toString());
-				param.putString("message", mMessageEditTextView.getText()
+				request.addParam("message", mMessageEditTextView.getText()
 						.toString());
-				new SendMessageTask().execute(param);
+
+				// Sign request
+				Prefs prefs = Prefs.getInstance(mContext);
+				VolleyOAuthConsumer consumer = null;
+				if (prefs.isAppAuthorized()) {
+					Server server = prefs.getServer();
+					consumer = new VolleyOAuthConsumer(server.CONSUMER_KEY,
+							server.CONSUMER_SECRET);
+					consumer.setTokenWithSecret(prefs.getAccessToken(),
+							prefs.getAccessTokenSecret());
+				}
+				try {
+					consumer.sign(request);
+				} catch (OAuthMessageSignerException e) {
+					e.printStackTrace();
+				} catch (OAuthExpectationFailedException e) {
+					e.printStackTrace();
+				} catch (OAuthCommunicationException e) {
+					e.printStackTrace();
+				}
+
+				// Add request to HTTP request queue
+				VolleyHttp.getRequestQueue().add(request);
+
 			}
 			return true;
 
@@ -493,54 +560,5 @@ public class MessageComposeFragment extends SherlockFragment implements
 
 			return userItemFilter;
 		}
-	}
-
-	private class SendMessageTask extends
-			AsyncTask<Bundle, Integer, RestApiRequest.ApiResponse> {
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
-		@Override
-		protected RestApiRequest.ApiResponse doInBackground(Bundle... params) {
-			RestApiRequest request = new RestApiRequest();
-			return request.post(ApiEndpoints.MESSAGES_ENDPOINT, params[0]);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute(RestApiRequest.ApiResponse result) {
-
-			switch (result.getCode()) {
-			case RestApiRequest.ApiResponse.SUCCESS_WITH_RESPONSE:
-				Toast.makeText(mContext, getString(R.string.message_sent),
-						Toast.LENGTH_SHORT).show();
-				getActivity().finish();
-				break;
-			case RestApiRequest.ApiResponse.INTERNAL_ERROR:
-				Toast.makeText(mContext, getString(R.string.internal_error),
-						Toast.LENGTH_SHORT).show();
-				break;
-			case RestApiRequest.ApiResponse.WRONG_PARAMETER:
-				Toast.makeText(mContext, getString(R.string.wrong_parameter),
-						Toast.LENGTH_SHORT).show();
-				break;
-			case RestApiRequest.ApiResponse.NOT_FOUND:
-				Toast.makeText(mContext,
-						getString(R.string.receiver_not_found),
-						Toast.LENGTH_SHORT).show();
-			default:
-				Toast.makeText(mContext, getString(R.string.unknown_error),
-						Toast.LENGTH_SHORT).show();
-				break;
-			}
-		}
-
 	}
 }

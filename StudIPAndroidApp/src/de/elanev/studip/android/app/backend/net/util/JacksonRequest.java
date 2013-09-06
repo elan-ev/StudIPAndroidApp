@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.elanev.studip.android.app.backend.datamodel.Message;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.net.oauth.VolleySignPostRequestWrapper;
 
@@ -82,7 +83,7 @@ public class JacksonRequest<T> extends VolleySignPostRequestWrapper<T> {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			// unwrap root elements in specific jsons
-			if (clazz.equals(User.class))
+			if (clazz.equals(User.class) || clazz.equals(Message.class))
 				mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
 
 			// return the parsed response

@@ -21,14 +21,15 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Message;
 import de.elanev.studip.android.app.backend.datamodel.MessageFolders;
 import de.elanev.studip.android.app.backend.datamodel.Messages;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.backend.net.api.ApiEndpoints;
 import de.elanev.studip.android.app.backend.net.services.syncservice.AbstractParserTask;
 import de.elanev.studip.android.app.backend.net.services.syncservice.RestIPSyncService;
+import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * @author joern
@@ -53,11 +54,16 @@ public class MessagesResponderFragment extends
 				mSyncStarted = true;
 			}
 
-			createAndStartIntent(Uri.parse(String.format(
-					ApiEndpoints.MESSAGES_FOLDERS_ENDPOINT, "in")));
+			String apiUrl = Prefs.getInstance(mContext).getServer().API_URL;
+			createAndStartIntent(Uri
+					.parse(String.format(
+							mContext.getString(R.string.restip_messages_inbox),
+							apiUrl)));
 
-			createAndStartIntent(Uri.parse(String.format(
-					ApiEndpoints.MESSAGES_FOLDERS_ENDPOINT, "out")));
+			createAndStartIntent(Uri
+					.parse(String.format(
+							mContext.getString(R.string.restip_messages_outbox),
+							apiUrl)));
 		}
 	}
 
@@ -73,10 +79,11 @@ public class MessagesResponderFragment extends
 	private void loadFolderMessages(String box, MessageFolders folders) {
 		if (getActivity() != null) {
 			for (String f : folders.folders) {
+				String apiUrl = Prefs.getInstance(mContext).getServer().API_URL;
 				createAndStartIntent(Uri
 						.parse(String.format(String.format(
-								ApiEndpoints.MESSAGES_FOLDER_MESSAGES_ENDPOINT,
-								box, f))));
+								mContext.getString(R.string.restip_messages_box_folderid),
+								apiUrl, box, f))));
 			}
 		}
 	}
