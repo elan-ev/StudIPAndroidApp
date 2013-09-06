@@ -51,6 +51,11 @@ public class CoursesHandler implements ResultHandler {
 						CoursesContract.USER_ROLE_TUTOR));
 			}
 
+			for (String userId : c.students) {
+				operations.add(parseCourseUser(userId, c.course_id,
+						CoursesContract.USER_ROLE_STUDENT));
+			}
+
 		}
 
 		return operations;

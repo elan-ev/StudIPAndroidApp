@@ -22,6 +22,7 @@ import android.support.v4.content.Loader;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.widget.ListAdapterUsers;
 import de.elanev.studip.android.app.widget.UserListFragment;
@@ -38,6 +39,7 @@ public class CourseAttendeesFragment extends UserListFragment implements
 	private SimpleSectionedListAdapter mAdapter;
 	private Context mContext;
 	private Bundle mArgs;
+	String mCourseId;
 
 	/*
 	 * (non-Javadoc)
@@ -50,6 +52,7 @@ public class CourseAttendeesFragment extends UserListFragment implements
 		mArgs = getArguments();
 		mContext = getActivity();
 
+		mCourseId = mArgs.getString(CoursesContract.Columns.Courses.COURSE_ID);
 		// Creating the adapters for the listview
 		mUsersAdapter = new ListAdapterUsers(mContext);
 		mAdapter = new SimpleSectionedListAdapter(mContext,
@@ -64,6 +67,8 @@ public class CourseAttendeesFragment extends UserListFragment implements
 
 		// initialize CursorLoader
 		getLoaderManager().initLoader(0, mArgs, this);
+
+		SyncHelper.getInstance(mContext).loadUsersForCourse(mCourseId);
 	}
 
 	protected final ContentObserver mObserver = new ContentObserver(
@@ -114,12 +119,10 @@ public class CourseAttendeesFragment extends UserListFragment implements
 	 * android.os.Bundle)
 	 */
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		String courseId = data
-				.getString(CoursesContract.Columns.Courses.COURSE_ID);
 		CursorLoader loader = new CursorLoader(
 				mContext,
 				UsersContract.CONTENT_URI.buildUpon().appendPath("course")
-						.appendPath(courseId).build(),
+						.appendPath(mCourseId).build(),
 				UsersQuery.projection,
 				null, // UsersContract.Qualified.USERS_USER_ID + " NOT NULL",
 				null,
