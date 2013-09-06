@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Semesters -->
+    <string name="restip_semesters" translatable="false">%1$s/semesters</string>
+    <string name="restip_semesters_semesterid" translatable="false">%1$s/semesters/%2$s</string>
+
+    <!-- News -->
+    <string name="restip_news" translatable="false">%1$s/news</string>
+    <string name="restip_news_newsid" translatable="false">%1$s/news/%2$s</string>
+    <string name="restip_news_global_identifier" translatable="false">studip</string>
+    <string name="restip_news_rangeid" translatable="false">%1$s/news/range/%2$s</string>
+
+    <!-- Courses -->
+    <string name="restip_courses" translatable="false">%1$s/courses"</string>
+    <string name="restip_courses_courseid" translatable="false">%1$s/courses/%2$s"</string>
+    <string name="restip_courses_courseid_members" translatable="false">%1$s/courses/%2$s/members"</string>
+    <string name="restip_courses_courseid_members_status" translatable="false">%1$s/courses/%2$s/members/%3$s"</string>
+    <string name="restip_courses_courseid_events" translatable="false">%1$s/courses/%2$s/events"</string>
+
+    <!-- Documents -->
+    <string name="restip_documents_documentid" translatable="false">%1$s/documents/%2$s</string>
+    <string name="restip_documents_documentid_download" translatable="false">%1$s/documents/%2$s/download</string>
+    <string name="restip_documents_rangeid_folder" translatable="false">%1$s/documents/%2$s/folder</string>
+    <string name="restip_documents_rangeid_folder_folderid" translatable="false">%1$s/documents/%2$s/folder/%3$s</string>
+
+    <!-- Messages -->
+    <string name="restip_messages" translatable="false">%1$s/messages</string>
+    <string name="restip_messages_messageid" translatable="false">%1$s/messages/%2$s</string>
+    <string name="restip_messages_box_folderid" translatable="false">%1$s/messages/%2$s/%3$s</string>
+    <string name="restip_messages_inbox" translatable="false">%1$s/messages/in</string>
+    <string name="restip_messages_inbox_folderid" translatable="false">%1$s/messages/in/%2$s</string>
+    <string name="restip_messages_outbox" translatable="false">%1$s/messages/out</string>
+    <string name="restip_messages_outbox_folderid" translatable="false">%1$s/messages/out/%2$s</string>
+    <string name="restip_messages_readall" translatable="false">%1$s/messages/read</string>
+    <string name="restip_messages_read_messageid" translatable="false">%1$s/messages/%2$s/read</string>
+
+    <!-- Contacts -->
+    <string name="restip_contacts" translatable="false">%1$s/contacts</string>
+    <string name="restip_contacts_contactid" translatable="false">%1$s/contacts/%2$s</string>
+    <string name="restip_contacts_groups" translatable="false">%1$s/contacts/groups</string>
+    <string name="restip_contacts_groups_groupid" translatable="false">%1$s/contacts/groups/%2$s</string>
+    <string name="restip_contacts_groups_groupid_userid" translatable="false">%1$s/contacts/groups/%2$s/%3$s</string>
+
+    <!-- Users -->
+    <string name="restip_users" translatable="false">%1$s/user/%2$s</string>
+
+</resources>
