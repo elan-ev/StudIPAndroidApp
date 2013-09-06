@@ -298,7 +298,7 @@ public class MessageDetailFragment extends SherlockFragment implements
 			} catch (OAuthCommunicationException e) {
 				e.printStackTrace();
 			}
-			VolleyHttp.getRequestQueue().add(request);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(request);
 		}
 
 	}
@@ -380,7 +380,7 @@ public class MessageDetailFragment extends SherlockFragment implements
 			} catch (OAuthCommunicationException e) {
 				e.printStackTrace();
 			}
-			VolleyHttp.getRequestQueue().add(request);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(request);
 
 			return true;
 

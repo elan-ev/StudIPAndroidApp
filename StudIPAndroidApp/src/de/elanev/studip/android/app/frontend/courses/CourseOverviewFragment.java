@@ -309,7 +309,7 @@ public class CourseOverviewFragment extends SherlockFragment implements
 					final NetworkImageView teacherImage = (NetworkImageView) getView()
 							.findViewById(R.id.user_image);
 					teacherImage.setImageUrl(teacherAvatarUrl,
-							VolleyHttp.getImageLoader());
+							VolleyHttp.getVolleyHttp(mContext).getImageLoader());
 					teacherImage.setVisibility(View.VISIBLE);
 					((ImageView) getView().findViewById(
 							R.id.user_image_placeholder))

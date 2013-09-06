@@ -62,7 +62,7 @@ public class ListAdapterUsers extends CursorAdapter {
 		if (!userImageUrl.contains("nobody")) {
 			final NetworkImageView userImage = (NetworkImageView) view
 					.findViewById(R.id.user_image);
-			userImage.setImageUrl(userImageUrl, VolleyHttp.getImageLoader());
+			userImage.setImageUrl(userImageUrl, VolleyHttp.getVolleyHttp(mContext).getImageLoader());
 			userImage.setVisibility(View.VISIBLE);
 			((ImageView) view.findViewById(R.id.user_image_placeholder))
 					.setVisibility(View.GONE);

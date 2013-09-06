@@ -339,7 +339,7 @@ public abstract class UserListFragment extends SherlockListFragment implements
 		} catch (OAuthCommunicationException e) {
 			e.printStackTrace();
 		}
-		VolleyHttp.getRequestQueue().add(contactAddRequest);
+		VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(contactAddRequest);
 	}
 
 	private static void deleteUserFromContacts(final String userId) {
@@ -382,7 +382,7 @@ public abstract class UserListFragment extends SherlockListFragment implements
 		} catch (OAuthCommunicationException e) {
 			e.printStackTrace();
 		}
-		VolleyHttp.getRequestQueue().add(request);
+		VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(request);
 	}
 
 	private static void deleteUserFromGroup(final String userId,
@@ -431,7 +431,7 @@ public abstract class UserListFragment extends SherlockListFragment implements
 		} catch (OAuthCommunicationException e) {
 			e.printStackTrace();
 		}
-		VolleyHttp.getRequestQueue().add(request);
+		VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(request);
 	}
 
 	private static void addUserToGroup(final String userId, final String groupId) {
@@ -479,7 +479,7 @@ public abstract class UserListFragment extends SherlockListFragment implements
 		} catch (OAuthCommunicationException e) {
 			e.printStackTrace();
 		}
-		VolleyHttp.getRequestQueue().add(userAddRequest);
+		VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(userAddRequest);
 
 	}
 

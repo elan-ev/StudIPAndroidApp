@@ -396,7 +396,7 @@ public class MessagesListFragment extends SherlockListFragment implements
 				final NetworkImageView userImage = (NetworkImageView) view
 						.findViewById(R.id.user_image);
 				userImage
-						.setImageUrl(userImageUrl, VolleyHttp.getImageLoader());
+						.setImageUrl(userImageUrl, VolleyHttp.getVolleyHttp(mContext).getImageLoader());
 				userImage.setVisibility(View.VISIBLE);
 				((ImageView) view.findViewById(R.id.user_image_placeholder))
 						.setVisibility(View.GONE);

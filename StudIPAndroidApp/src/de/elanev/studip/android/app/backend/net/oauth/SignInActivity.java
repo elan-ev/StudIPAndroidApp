@@ -41,7 +41,6 @@ import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
 import de.elanev.studip.android.app.frontend.news.NewsViewActivity;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * Activity for handling the full sign in and authorization process. It triggers
@@ -73,7 +72,12 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 		super.onCreate(savedInstanceState);
 
 		this.setContentView(R.layout.content_frame);
-		init(this);
+
+		/*
+		 * Clear shared prefs for debugging
+		 */
+		// Prefs.getInstance(getApplicationContext()).clearPrefs();
+
 		FragmentManager fm = getSupportFragmentManager();
 		SignInFragment frag = null;
 		if (savedInstanceState == null) {
@@ -86,17 +90,6 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 		fm.beginTransaction()
 				.add(R.id.content_frame, frag, SignInFragment.class.getName())
 				.commit();
-	}
-
-	/*
-	 * Initialize the needed classes
-	 */
-	private void init(Context context) {
-		/*
-		 * Clear shared prefs for debugging
-		 */
-		// Prefs.getInstance(getApplicationContext()).clearPrefs();
-		VolleyHttp.init(context);
 	}
 
 	/**

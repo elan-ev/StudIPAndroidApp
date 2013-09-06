@@ -17,27 +17,53 @@ import com.android.volley.toolbox.Volley;
  * @author joern
  * 
  */
-public class VolleyHttp {
-	private static final int MAX_IMAGE_CACHE_ENTIRES = 100;
+public class VolleyHttp implements Cloneable {
+	// private static final int MAX_IMAGE_CACHE_ENTIRES = 100;
 
 	private static RequestQueue mRequestQueue;
 	private static ImageLoader mImageLoader;
+	private final static int maxMemory = (int) (Runtime.getRuntime()
+			.maxMemory() / 1024);
+	private final static int cacheSize = maxMemory / 8;
+	private static VolleyHttp mInstance;
 
-	final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-	final int cacheSize = maxMemory / 8;
+	/**
+	 * Returns on instance of VolleHttp
+	 * 
+	 * @param context
+	 *            the execution context
+	 * @return the VolleyHttp instance
+	 */
+	public static VolleyHttp getVolleyHttp(Context context) {
+		if (mInstance == null) {
+			// Thread safety
+			synchronized (VolleyHttp.class) {
+				mInstance = new VolleyHttp();
+				init(context);
+			}
 
-	private VolleyHttp() {
+		}
 
-		// no instances
+		return mInstance;
 	}
 
-	public static void init(Context context) {
+	/*
+	 * Initializes the this Singleton
+	 * 
+	 * @param context the context
+	 */
+	private static void init(Context context) {
 		mRequestQueue = Volley.newRequestQueue(context);
 		mImageLoader = new ImageLoader(mRequestQueue, new BitmapLruCache(
-				MAX_IMAGE_CACHE_ENTIRES));
+				cacheSize));
 	}
 
-	public static RequestQueue getRequestQueue() {
+	/**
+	 * Returns the RequestQueue if properly initialized
+	 * 
+	 * @return Volley RequestQueue
+	 */
+	public RequestQueue getRequestQueue() {
 		if (mRequestQueue != null) {
 			return mRequestQueue;
 		} else {
@@ -46,18 +72,32 @@ public class VolleyHttp {
 	}
 
 	/**
-	 * Returns instance of ImageLoader initialized with {@see FakeImageCache}
-	 * which effectively means that no memory caching is used. This is useful
-	 * for images that you know that will be show only once.
+	 * Returns instance of ImageLoader
 	 * 
-	 * @return
+	 * @return Volley ImageLoader
 	 */
-	public static ImageLoader getImageLoader() {
+	public ImageLoader getImageLoader() {
 		if (mImageLoader != null) {
 			return mImageLoader;
 		} else {
 			throw new IllegalStateException("ImageLoader not initialized");
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return new CloneNotSupportedException("Singleton must not be cloned");
+	}
+
+	/*
+	 * No access
+	 */
+	private VolleyHttp() {
 	}
 
 }

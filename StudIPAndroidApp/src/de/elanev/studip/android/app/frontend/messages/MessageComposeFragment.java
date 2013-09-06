@@ -321,7 +321,7 @@ public class MessageComposeFragment extends SherlockFragment implements
 				}
 
 				// Add request to HTTP request queue
-				VolleyHttp.getRequestQueue().add(request);
+				VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(request);
 
 			}
 			return true;

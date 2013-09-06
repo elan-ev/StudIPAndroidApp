@@ -72,7 +72,7 @@ public class UserDetailsActivity extends BaseSlidingFragmentActivity {
 				// Set new arguments and replace fragment
 				frag.setArguments(args);
 			}
-			
+
 			fm.beginTransaction()
 					.replace(R.id.content_frame, frag, "userDetailsFragment")
 					.commit();
@@ -229,8 +229,8 @@ public class UserDetailsActivity extends BaseSlidingFragmentActivity {
 					// find views and set infos
 					final NetworkImageView userImage = (NetworkImageView) root
 							.findViewById(R.id.user_image);
-					userImage.setImageUrl(userImageUrl,
-							VolleyHttp.getImageLoader());
+					userImage.setImageUrl(userImageUrl, VolleyHttp
+							.getVolleyHttp(getActivity()).getImageLoader());
 					userImage.setVisibility(View.VISIBLE);
 
 					((ImageView) root.findViewById(R.id.user_image_placeholder))
