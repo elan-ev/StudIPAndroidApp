@@ -37,15 +37,23 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.net.Server;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
+import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
 import de.elanev.studip.android.app.frontend.news.NewsViewActivity;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.VolleyHttp;
 
+/**
+ * Activity for handling the full sign in and authorization process. It triggers
+ * the prefetching after authorization.
+ * 
+ * @author joern
+ * 
+ */
 public class SignInActivity extends BaseSlidingFragmentActivity {
 
 	/**
-	 * @param titleRes
+	 * Public constructor without parameters
 	 */
 	public SignInActivity() {
 		super(R.string.Authorize);
@@ -53,6 +61,13 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 
 	private static final String TAG = SignInActivity.class.getSimpleName();
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity
+	 * #onCreate(android.os.Bundle)
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -73,8 +88,8 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 				.commit();
 	}
 
-	/**
-	 * Initialize the app
+	/*
+	 * Initialize the needed classes
 	 */
 	private void init(Context context) {
 		/*
@@ -85,6 +100,8 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 	}
 
 	/**
+	 * The fragment that is holding the actual sign in and authorization logic.
+	 * 
 	 * @author joern
 	 * 
 	 */
@@ -147,13 +164,14 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 
 			if (Prefs.getInstance(mContext).getServer() != null
 					&& Prefs.getInstance(mContext).isAppAuthorized()) {
-				connect();
+				performPrefetchSync();
+
 			} else {
 				showLoginForm();
 				Button signInButton = (Button) getView().findViewById(
 						R.id.sign_in_button);
 				signInButton.setOnClickListener(new OnClickListener() {
-					// @Override
+
 					public void onClick(View v) {
 						hideLoginForm();
 						connect();
@@ -172,9 +190,11 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 		public void onResume() {
 			super.onResume();
 
-			if (Prefs.getInstance(mContext).getServer() != null
-					|| Prefs.getInstance(mContext).isAppAuthorized()) {
+			if (Prefs.getInstance(mContext).getServer() == null
+					|| !Prefs.getInstance(mContext).isAppAuthorized()) {
 				showLoginForm();
+			} else {
+				hideLoginForm();
 			}
 
 		}
@@ -221,6 +241,9 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 
 		}
 
+		/*
+		 * Hides the progess indicator and sets the login form as visible
+		 */
 		private void showLoginForm() {
 			if (!mSignInFormVisible) {
 				mSignInForm.setVisibility(View.VISIBLE);
@@ -229,6 +252,9 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 			}
 		}
 
+		/*
+		 * Hides the login form and sets the progress indicator as visible
+		 */
 		private void hideLoginForm() {
 			if (mSignInFormVisible) {
 				mSignInForm.setVisibility(View.GONE);
@@ -237,56 +263,84 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 			}
 		}
 
+		/*
+		 * Simply triggers the prefetching at the SyncHelper
+		 */
 		private void performPrefetchSync() {
-			if (SyncHelper.getInstance(mContext).prefetch()) {
-				Intent intent = new Intent(mContext, NewsViewActivity.class);
-
-				if (isOverAPI11()) {
-					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-				} else {
-					getActivity().finish();
-				}
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				startActivity(intent);
-			}
+			SyncHelper.getInstance(mContext).prefetch(this);
 		}
 
-		private void connect() {
+		/**
+		 * Starts the next activity after prefetching
+		 */
+		public void startNewsActivity() {
+			Intent intent = new Intent(mContext, NewsViewActivity.class);
+
+			if (isOverAPI11()) {
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			} else {
+				getActivity().finish();
+			}
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+			startActivity(intent);
+		}
+
+		/*
+		 * Checks if the server is set correctly, if the device is online and
+		 * triggers the request of an new access token pair or sets it in the
+		 * OAuthConnector if it's already saved.
+		 */
+		private boolean connect() {
 			if (Prefs.getInstance(mContext).getServer() != null) {
-				OAuthConnector.init(Prefs.getInstance(mContext).getServer());
 
-				if (!Prefs.getInstance(mContext).isAppAuthorized()) {
-					new RequestTokenTask().execute();
+				if (OAuthConnector.getServer() == null)
+					OAuthConnector
+							.init(Prefs.getInstance(mContext).getServer());
 
-				} else {
+				if (NetworkUtils.getConnectivityStatus(mContext) != NetworkUtils.NOT_CONNECTED) {
 
-					String accessToken = Prefs.getInstance(mContext)
-							.getAccessToken();
-					String accessSecret = Prefs.getInstance(mContext)
-							.getAccessTokenSecret();
+					if (!Prefs.getInstance(mContext).isAppAuthorized()) {
+						new RequestTokenTask().execute();
 
-					if (accessToken != null && accessSecret != null) {
-
-						OAuthConnector
-								.setAccessToken(accessToken, accessSecret);
-
-						performPrefetchSync();
 					} else {
-						showLoginForm();
+
+						String accessToken = Prefs.getInstance(mContext)
+								.getAccessToken();
+						String accessSecret = Prefs.getInstance(mContext)
+								.getAccessTokenSecret();
+
+						if (accessToken != null && accessSecret != null) {
+							OAuthConnector.setAccessToken(accessToken,
+									accessSecret);
+
+							return true;
+						}
 					}
+				} else {
+					Toast.makeText(mContext, "Not connected", Toast.LENGTH_LONG)
+							.show();
+					showLoginForm();
 				}
 			} else {
 				showLoginForm();
 			}
+			return false;
 
 		}
 
+		/*
+		 * Simply checks if the device Android API Version is over 11 to enable
+		 * advanced features.
+		 */
 		private boolean isOverAPI11() {
 			return (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB);
 		}
 
+		/*
+		 * Returns the list auf saved servers
+		 */
 		private Server[] getItems() {
 			/*
 			 * WARNING: you need your own TempServerDeclares Class in the
@@ -296,14 +350,24 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 			return TempServerDeclares.servers;
 		}
 
+		/*
+		 * Array adapter class which holds and displays the saved servers
+		 */
 		private class ServerAdapter extends ArrayAdapter<Server> {
 			private Context context;
 			private int textViewResourceId;
 			private Server[] data = null;
 
 			/**
+			 * Public constructor which takes the context, viewRessource and
+			 * server data and initializes it.
+			 * 
 			 * @param context
+			 *            the execution context
 			 * @param textViewResourceId
+			 *            the view resource id for displaying the servers
+			 * @param data
+			 *            an array with servers
 			 */
 			public ServerAdapter(Context context, int textViewResourceId,
 					Server[] data) {
@@ -347,9 +411,17 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 			}
 		}
 
-		public class RequestTokenTask extends
+		/*
+		 * AsyncTask for requesting the request token from the API
+		 */
+		private class RequestTokenTask extends
 				AsyncTask<String, Integer, String> {
 
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+			 */
 			@Override
 			protected void onPostExecute(String result) {
 				super.onPostExecute(result);
@@ -365,9 +437,15 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 					Toast.makeText(mContext,
 							getString(R.string.something_went_wrong),
 							Toast.LENGTH_LONG).show();
+					showLoginForm();
 				}
 			}
 
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+			 */
 			@Override
 			protected String doInBackground(String... params) {
 				try {
@@ -387,8 +465,17 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 			}
 		}
 
-		public class AccessTokenTask extends AsyncTask<String, Integer, String> {
+		/*
+		 * AsyncTask for requesting the access token from the API
+		 */
+		private class AccessTokenTask extends
+				AsyncTask<String, Integer, String> {
 
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+			 */
 			@Override
 			protected String doInBackground(String... arg0) {
 				OAuthConsumer consumer = OAuthConnector.getConsumer();
@@ -417,6 +504,11 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 				return "FAIL";
 			}
 
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+			 */
 			@Override
 			protected void onPostExecute(String result) {
 				if (result.equals("SUCCESS")) {
