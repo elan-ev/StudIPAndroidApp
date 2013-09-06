@@ -29,7 +29,6 @@ public class Prefs {
 	private static final String SERVER_URL = "serverUrl";
 	private static final String SERVER_KEY = "serverKey";
 	private static final String SERVER_SECRET = "serverSecret";
-	private static final String APP_AUTHORIZED = "appAuthorized";
 
 	public static Prefs getInstance(Context context) {
 		if (mInstance == null)
@@ -114,14 +113,7 @@ public class Prefs {
 	 * Getting and setting authorization preferences
 	 */
 	public Boolean isAppAuthorized() {
-
-		return getPrefs().getBoolean(APP_AUTHORIZED, false);
-	}
-
-	public void setAuthorized(Boolean value) {
-		SharedPreferences.Editor prefsEditor = getPrefs().edit();
-		prefsEditor.putBoolean(APP_AUTHORIZED, value);
-		prefsEditor.apply();
+		return (getAccessToken() != null && getAccessTokenSecret() != null);
 	}
 
 }

@@ -24,7 +24,6 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.util.Prefs;
 
 public class WebViewActivity extends SherlockActivity {
 
@@ -77,7 +76,6 @@ public class WebViewActivity extends SherlockActivity {
 		public void onPageStarted(WebView view, String url, Bitmap favicon) {
 			if (url.contains("user")) {
 				Log.i(TAG, "AUTHURL" + url);
-				Prefs.getInstance(getApplicationContext()).setAuthorized(true);
 
 				Intent intent = new Intent();
 				OAuthConsumer consumer = OAuthConnector.getConsumer();
