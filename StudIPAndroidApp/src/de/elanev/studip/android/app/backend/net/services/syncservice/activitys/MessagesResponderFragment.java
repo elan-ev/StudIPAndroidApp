@@ -81,9 +81,9 @@ public class MessagesResponderFragment extends
 			for (String f : folders.folders) {
 				String apiUrl = Prefs.getInstance(mContext).getServer().API_URL;
 				createAndStartIntent(Uri
-						.parse(String.format(String.format(
+						.parse(String.format(
 								mContext.getString(R.string.restip_messages_box_folderid),
-								apiUrl, box, f))));
+								apiUrl, box, f)));
 			}
 		}
 	}

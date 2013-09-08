@@ -52,10 +52,9 @@ public class DocumentsResponderFragment extends
 	 */
 	@Override
 	public void loadData() {
-		String cid = null;
 		if (getActivity() != null) {
 			if (mContext != null) {
-				cid = getArguments().getString(
+			    String cid = getArguments().getString(
 						CoursesContract.Columns.Courses.COURSE_ID);
 
 				if (mFolders == null) {
@@ -63,10 +62,10 @@ public class DocumentsResponderFragment extends
 					Intent intent = new Intent(mContext,
 							RestIPSyncService.class);
 					String apiUrl = Prefs.getInstance(mContext).getServer().API_URL;
-					String documentFoldersUrl = String
-							.format(mContext
-									.getString(R.string.restip_documents_rangeid_folder),
-									apiUrl, cid);
+					String documentFoldersUrl = String.format(
+					                            mContext.getString(R.string.restip_documents_rangeid_folder),
+					                            apiUrl, 
+					                            cid);
 					intent.setData(Uri.parse(documentFoldersUrl));
 
 					intent.putExtra(RestIPSyncService.RESTIP_RESULT_RECEIVER,
