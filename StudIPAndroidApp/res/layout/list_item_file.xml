@@ -14,7 +14,7 @@
         android:id="@+id/file_icon"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:background="@color/dark"
+        android:background="@color/studip_mobile_dark"
         android:contentDescription="@string/file_icon"
         android:padding="16dp"
         android:src="@drawable/ic_file_text" />

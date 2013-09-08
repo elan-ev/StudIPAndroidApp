@@ -44,12 +44,12 @@ public class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 
 		SlidingMenu sm = getSlidingMenu();
 		sm.setShadowWidthRes(R.dimen.shadow_width);
-		sm.setShadowDrawable(R.drawable.shadow_left);
+		sm.setShadowDrawable(R.drawable.shadow_left); 
 		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		sm.setFadeDegree(0.35f);
 		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		sm.setSelectorEnabled(true);
-		sm.setSelectorDrawable(R.drawable.white_button);
+		sm.setSelectorDrawable(R.drawable.list_item_selector);
 
 		setTitle(mTitleRes);
 

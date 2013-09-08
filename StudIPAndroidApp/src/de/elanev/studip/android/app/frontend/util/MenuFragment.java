@@ -81,7 +81,6 @@ public class MenuFragment extends ListFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getView().setBackgroundColor(getResources().getColor(R.color.dark));
 		MenuAdapter adapter = new MenuAdapter(getActivity());
 		if (Prefs.getInstance(mContext).isAppAuthorized()) {
 			adapter.add(new MenuItem(R.drawable.ic_menu_news,
