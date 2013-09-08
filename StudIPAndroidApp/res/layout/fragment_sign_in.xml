@@ -7,6 +7,7 @@
   http://www.gnu.org/licenses/gpl.html
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/studip_mobile_dark"
@@ -17,10 +18,10 @@
         android:layout_width="wrap_content"
         android:layout_height="175dp"
         android:layout_gravity="center_horizontal"
-        android:contentDescription="@+string/studip_logo"
         android:paddingLeft="48dp"
         android:paddingRight="48dp"
-        android:src="@drawable/logo_studip" />
+        android:src="@drawable/logo_studip"
+        tools:ignore="ContentDescription" />
 
     <LinearLayout
         android:id="@+id/sign_in_form"
@@ -66,7 +67,8 @@
         android:indeterminate="true"
         android:visibility="visible" />
 
-    <RelativeLayout
+    <!--
+       <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dip" >
 
@@ -79,5 +81,6 @@
             android:background="@color/transparent"
             android:text="@+string/Help" />
     </RelativeLayout>
+    -->
 
 </LinearLayout>

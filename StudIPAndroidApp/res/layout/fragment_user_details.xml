@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/background_light"
     android:padding="8dp" >
 
     <LinearLayout
@@ -25,13 +24,13 @@
             android:textSize="@dimen/text_size_small"
             font:typeface="Roboto-Regular.ttf" />
 
-        <include
-            android:layout_marginBottom="8dp"
-            layout="@layout/header_line" />
+        <include layout="@layout/header_line" />
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/layout_margin_normal"
+            android:layout_marginTop="@dimen/layout_margin_normal" >
 
             <com.android.volley.toolbox.NetworkImageView
                 android:id="@+id/user_image"
@@ -59,7 +58,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/user_image"
-                android:paddingTop="8dp"
                 android:textColor="@color/primary_text_light"
                 android:textIsSelectable="true"
                 android:textSize="@dimen/text_size_medium"
@@ -107,16 +105,14 @@
             android:textSize="@dimen/text_size_small"
             font:typeface="Roboto-Regular.ttf" />
 
-        <include
-            android:layout_marginBottom="8dp"
-            layout="@layout/header_line" />
+        <include layout="@layout/header_line" />
 
         <LinearLayout
             android:id="@+id/homepage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/layout_margin_normal"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
             android:visibility="gone" >
 
             <ImageView
@@ -145,8 +141,8 @@
             android:id="@+id/phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/layout_margin_normal"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
             android:visibility="gone" >
 
             <ImageView
@@ -174,8 +170,8 @@
             android:id="@+id/privadr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/layout_margin_normal"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
             android:visibility="gone" >
 
             <ImageView

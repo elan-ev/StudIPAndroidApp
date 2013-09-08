@@ -2,8 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@android:color/background_light" >
+    android:layout_height="wrap_content" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,6 +40,7 @@
                 android:layout_height="80dp"
                 android:layout_alignParentLeft="true"
                 android:layout_marginRight="@dimen/layout_margin_normal"
+                android:layout_marginTop="@dimen/layout_margin_normal"
                 android:scaleType="centerCrop"
                 android:visibility="invisible" />
 
@@ -50,6 +50,7 @@
                 android:layout_height="80dp"
                 android:layout_alignParentLeft="true"
                 android:layout_marginRight="@dimen/layout_margin_normal"
+                android:layout_marginTop="@dimen/layout_margin_normal"
                 android:scaleType="centerCrop"
                 android:src="@drawable/nobody_normal"
                 tools:ignore="ContentDescription" />
@@ -61,6 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/layout_margin_normal"
+                android:layout_marginTop="@dimen/layout_margin_normal"
                 android:layout_toRightOf="@id/user_image"
                 android:textColor="@color/secondary_text_light"
                 android:textIsSelectable="true"
