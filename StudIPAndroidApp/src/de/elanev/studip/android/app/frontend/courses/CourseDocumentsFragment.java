@@ -7,9 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.courses;
 
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Query;
@@ -22,7 +19,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -48,7 +44,11 @@ import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.net.Server;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.services.syncservice.activitys.DocumentsResponderFragment;
+import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
 
 /**
  * @author joern
@@ -222,9 +222,9 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 			Cursor c = (Cursor) getListAdapter().getItem(position);
 			String fileId = c.getString(c
 					.getColumnIndex(DocumentsContract.Columns.DOCUMENT_ID));
-			String fileName = c
-					.getString(c
-							.getColumnIndex(DocumentsContract.Columns.DOCUMENT_FILENAME));
+			// String fileName = c
+			// .getString(c
+			// .getColumnIndex(DocumentsContract.Columns.DOCUMENT_FILENAME));
 			String name = c.getString(c
 					.getColumnIndex(DocumentsContract.Columns.DOCUMENT_NAME));
 			String fileDesc = c
@@ -261,11 +261,14 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 				request.setTitle(name);
 				// Set a description of this download
 				request.setDescription(fileDesc);
-				// Set the local destination for the downloaded
-				request.setDestinationInExternalPublicDir(
-						Environment.DIRECTORY_DOWNLOADS, fileName);
+				// TODO: Check which destinations are available and set it
+				// Set the local destination for the download
+				// request.setDestinationInExternalPublicDir(
+				// Environment.DIRECTORY_DOWNLOADS, fileName);
 				// Allowing the scanning by MediaScanner
-				request.allowScanningByMediaScanner();
+				if (ApiUtils.isOverApi11())
+					request.allowScanningByMediaScanner();
+
 				// Enqueue the download request and save download reference
 				mDownloadReference = mDownloadManager.enqueue(request);
 
