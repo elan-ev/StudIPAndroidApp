@@ -138,7 +138,8 @@ public class SyncHelper {
 							Log.wtf(TAG, error.getMessage());
 						}
 					}, Method.GET);
-			VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(contactsRequest);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+					.add(contactsRequest);
 
 			final String contactGroupsURL = String.format(
 					mContext.getString(R.string.restip_contacts_groups)
@@ -171,7 +172,8 @@ public class SyncHelper {
 							Log.wtf(TAG, error.getMessage());
 						}
 					}, Method.GET);
-			VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(contactGroupsRequest);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+					.add(contactGroupsRequest);
 		} catch (OAuthMessageSignerException e) {
 			e.printStackTrace();
 		} catch (OAuthExpectationFailedException e) {
@@ -284,9 +286,11 @@ public class SyncHelper {
 				try {
 					String request = mConsumer.sign(usersUrl);
 
-					VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(
-							new JacksonRequest<User>(request, User.class, null,
-									new Listener<User>() {
+					VolleyHttp
+							.getVolleyHttp(mContext)
+							.getRequestQueue()
+							.add(new JacksonRequest<User>(request, User.class,
+									null, new Listener<User>() {
 
 										public void onResponse(User response) {
 											try {
@@ -378,7 +382,8 @@ public class SyncHelper {
 			coursesRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
 					DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
 					DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-			VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(coursesRequest);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+					.add(coursesRequest);
 		} catch (OAuthMessageSignerException e) {
 			e.printStackTrace();
 		} catch (OAuthExpectationFailedException e) {
@@ -418,7 +423,8 @@ public class SyncHelper {
 							Log.wtf(TAG, error.getMessage());
 						}
 					}, Method.GET);
-			VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(semestersRequest);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+					.add(semestersRequest);
 		} catch (OAuthMessageSignerException e) {
 			e.printStackTrace();
 		} catch (OAuthExpectationFailedException e) {
@@ -474,7 +480,8 @@ public class SyncHelper {
 					} catch (OperationApplicationException e) {
 						e.printStackTrace();
 					} finally {
-						frag.startNewsActivity();
+						if (frag.isAdded())
+							frag.startNewsActivity();
 					}
 				}
 			}
@@ -504,7 +511,8 @@ public class SyncHelper {
 							Log.wtf(TAG, error.getMessage());
 						}
 					}, Method.GET);
-			VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(newsRequest);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+					.add(newsRequest);
 		} catch (OAuthMessageSignerException e) {
 			e.printStackTrace();
 		} catch (OAuthExpectationFailedException e) {
@@ -548,7 +556,8 @@ public class SyncHelper {
 							Log.wtf(TAG, error.getMessage());
 						}
 					}, Method.GET);
-			VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(eventsRequest);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+					.add(eventsRequest);
 		} catch (OAuthMessageSignerException e) {
 			e.printStackTrace();
 		} catch (OAuthExpectationFailedException e) {

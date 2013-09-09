@@ -7,17 +7,10 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.net.oauth;
 
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.OAuthProvider;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.exception.OAuthNotAuthorizedException;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -40,7 +33,14 @@ import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
 import de.elanev.studip.android.app.frontend.news.NewsViewActivity;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
+import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.OAuthProvider;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * Activity for handling the full sign in and authorization process. It triggers
@@ -117,7 +117,7 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 			mContext = getActivity();
 
 			int res = R.layout.list_item_single_text;
-			if (!isOverAPI11()) {
+			if (!ApiUtils.isOverApi11()) {
 				res = android.R.layout.simple_list_item_checked;
 			}
 			mAdapter = new ServerAdapter(mContext, res, getItems());
@@ -177,24 +177,6 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see android.support.v4.app.Fragment#onResume()
-		 */
-		@Override
-		public void onResume() {
-			super.onResume();
-
-			if (Prefs.getInstance(mContext).getServer() == null
-					|| !Prefs.getInstance(mContext).isAppAuthorized()) {
-				showLoginForm();
-			} else {
-				hideLoginForm();
-			}
-
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
 		 * @see android.support.v4.app.Fragment#onActivityResult(int, int,
 		 * android.content.Intent)
 		 */
@@ -226,7 +208,7 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 		public void onListItemClick(ListView l, View v, int position, long id) {
 			super.onListItemClick(l, v, position, id);
 
-			if (!isOverAPI11()) {
+			if (!ApiUtils.isOverApi11()) {
 				getListView().setItemChecked(position, true);
 			}
 
@@ -267,9 +249,11 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 		 * Starts the next activity after prefetching
 		 */
 		public void startNewsActivity() {
+			if (getActivity() == null)
+				return;
 			Intent intent = new Intent(mContext, NewsViewActivity.class);
 
-			if (isOverAPI11()) {
+			if (ApiUtils.isOverApi11()) {
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			} else {
 				getActivity().finish();
@@ -321,14 +305,6 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 			}
 			return false;
 
-		}
-
-		/*
-		 * Simply checks if the device Android API Version is over 11 to enable
-		 * advanced features.
-		 */
-		private boolean isOverAPI11() {
-			return (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB);
 		}
 
 		/*
@@ -413,30 +389,6 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 			/*
 			 * (non-Javadoc)
 			 * 
-			 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-			 */
-			@Override
-			protected void onPostExecute(String result) {
-				super.onPostExecute(result);
-
-				if (result != null) {
-					Log.d("Verbinung", "request Token geholt");
-					Log.d("sAuthUrl", result);
-					int requestCode = 0;
-					Intent intent = new Intent(mContext, WebViewActivity.class);
-					intent.putExtra("sAuthUrl", result);
-					startActivityForResult(intent, requestCode);
-				} else {
-					Toast.makeText(mContext,
-							getString(R.string.something_went_wrong),
-							Toast.LENGTH_LONG).show();
-					showLoginForm();
-				}
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * 
 			 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
 			 */
 			@Override
@@ -456,6 +408,33 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 
 				return null;
 			}
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+			 */
+			@Override
+			protected void onPostExecute(String result) {
+				if (getActivity() == null)
+					return;
+
+				// If the RequestToken request was successful, show the
+				// permission prompt
+				if (result != null) {
+					Log.d("Verbinung", "request Token geholt");
+					Log.d("sAuthUrl", result);
+					int requestCode = 0;
+					Intent intent = new Intent(mContext, WebViewActivity.class);
+					intent.putExtra("sAuthUrl", result);
+					startActivityForResult(intent, requestCode);
+				} else {
+					Toast.makeText(mContext,
+							getString(R.string.something_went_wrong),
+							Toast.LENGTH_LONG).show();
+					showLoginForm();
+				}
+			}
 		}
 
 		/*
@@ -463,6 +442,16 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 		 */
 		private class AccessTokenTask extends
 				AsyncTask<String, Integer, String> {
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see android.os.AsyncTask#onPreExecute()
+			 */
+			@Override
+			protected void onPreExecute() {
+				hideLoginForm();
+			}
 
 			/*
 			 * (non-Javadoc)
@@ -504,8 +493,12 @@ public class SignInActivity extends BaseSlidingFragmentActivity {
 			 */
 			@Override
 			protected void onPostExecute(String result) {
-				if (result.equals("SUCCESS")) {
+				if (getActivity() == null)
+					return;
 
+				// If the access token was requested successfully, start the
+				// prefetching
+				if (result.equals("SUCCESS")) {
 					performPrefetchSync();
 				} else {
 					Toast.makeText(mContext,
