@@ -5,11 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
+
 package de.elanev.studip.android.app.backend.net.oauth;
 
-import oauth.signpost.OAuthConsumer;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -24,12 +22,23 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
 
 import de.elanev.studip.android.app.R;
+import oauth.signpost.OAuthConsumer;
 
+/**
+ * Activity holding a WebView which prompts the user the OAuth permission
+ * 
+ * @author joern
+ */
 public class WebViewActivity extends SherlockActivity {
 
 	public static final String TAG = WebViewActivity.class.getSimpleName();
+	private WebView mWebview;
 
-	@SuppressLint("NewApi")
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,17 +50,42 @@ public class WebViewActivity extends SherlockActivity {
 		setTitle(android.R.string.cancel);
 		setContentView(R.layout.webview_view);
 
-		WebView webView = (WebView) this.findViewById(R.id.webView);
-		webView.setWebViewClient(new LoginWebViewClient(this));
-		WebSettings webViewSettings = webView.getSettings();
-		webViewSettings.setSavePassword(false);
-		Intent intent = getIntent();
-		Bundle extras = intent.getExtras();
-		String authUrl = extras.getString("sAuthUrl");
-		webView.loadUrl(authUrl);
+		mWebview = (WebView) this.findViewById(R.id.webView);
+
+		// If instance state was saved, restore it
+		if (savedInstanceState != null) {
+			mWebview.restoreState(savedInstanceState);
+		} else {
+			mWebview.setWebViewClient(new LoginWebViewClient());
+			WebSettings webViewSettings = mWebview.getSettings();
+			webViewSettings.setSavePassword(false);
+			Intent intent = getIntent();
+			Bundle extras = intent.getExtras();
+			String authUrl = extras.getString("sAuthUrl");
+			mWebview.loadUrl(authUrl);
+		}
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockActivity#onSaveInstanceState(android
+	 * .os.Bundle)
+	 */
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		mWebview.saveState(outState);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockActivity#onOptionsItemSelected(android
+	 * .view.MenuItem)
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -63,15 +97,21 @@ public class WebViewActivity extends SherlockActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	class LoginWebViewClient extends WebViewClient {
+	/*
+	 * WebviewClient which overrides the onPageStarted method to intercept the
+	 * OAuth result
+	 */
+	private class LoginWebViewClient extends WebViewClient {
 
 		public final String TAG = LoginWebViewClient.class.getCanonicalName();
-		Activity activity;
 
-		public LoginWebViewClient(Activity activity) {
-			this.activity = activity;
-		}
-
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * android.webkit.WebViewClient#onPageStarted(android.webkit.WebView,
+		 * java.lang.String, android.graphics.Bitmap)
+		 */
 		@Override
 		public void onPageStarted(WebView view, String url, Bitmap favicon) {
 			if (url.contains("user")) {
