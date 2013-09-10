@@ -9,6 +9,7 @@ package de.elanev.studip.android.app.frontend.courses;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 
@@ -55,5 +56,16 @@ public class CoursesActivity extends BaseSlidingFragmentActivity {
 		fm.beginTransaction()
 				.add(R.id.content_frame, frag, CoursesFragment.class.getName())
 				.commit();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.FragmentActivity#onBackPressed()
+	 */
+	@Override
+	public void onBackPressed() {
+		if (getSlidingMenu().isMenuShowing())
+			getSlidingMenu().toggle();
 	}
 }

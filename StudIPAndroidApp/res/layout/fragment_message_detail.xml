@@ -1,34 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="wrap_content" >
 
-    <TextView
-        android:id="@+id/message_subject"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textIsSelectable="true"
-        android:textStyle="bold" />
+        android:padding="@dimen/layout_padding_normal" >
 
-    <TextView
-        android:id="@+id/message_sender_and_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/message_subject"
-        android:layout_margin="8dp"
-        android:textAppearance="@android:style/TextAppearance.Small"
-        android:textIsSelectable="true" />
+        <com.android.volley.toolbox.NetworkImageView
+            android:id="@+id/user_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="@dimen/layout_margin_normal"
+            android:scaleType="centerCrop"
+            android:visibility="invisible" />
 
-    <TextView
-        android:id="@+id/message_body"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/message_sender_and_date"
-        android:layout_margin="8dp"
-        android:textAppearance="@android:style/TextAppearance.Large"
-        android:textIsSelectable="true" />
+        <ImageView
+            android:id="@+id/user_image_placeholder"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="@dimen/layout_margin_normal"
+            android:scaleType="centerCrop"
+            android:src="@drawable/nobody_normal"
+            tools:ignore="ContentDescription" />
 
-</RelativeLayout>
+        <de.elanev.studip.android.app.widget.TypefacedTextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+            android:id="@+id/message_subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/user_image"
+            android:textColor="@color/primary_text_light"
+            android:textIsSelectable="true"
+            android:textSize="@dimen/text_size_medium"
+            font:typeface="Roboto-Bold.ttf" />
+
+        <de.elanev.studip.android.app.widget.TypefacedTextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+            android:id="@+id/message_sender_and_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/message_subject"
+            android:layout_marginTop="4dp"
+            android:layout_toRightOf="@id/user_image"
+            android:textColor="@color/secondary_text_light"
+            android:textIsSelectable="true"
+            android:textSize="@dimen/text_size_small"
+            font:typeface="Roboto-Regular.ttf" />
+
+        <de.elanev.studip.android.app.widget.TypefacedTextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+            android:id="@+id/message_body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/user_image"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:lineSpacingMultiplier="1.25"
+            android:textColor="@color/primary_text_light"
+            android:textColorLink="@color/studip_mobile_dark"
+            android:textIsSelectable="true"
+            android:textSize="18sp"
+            font:typeface="Roboto-Regular.ttf" />
+    </RelativeLayout>
+
+</ScrollView>

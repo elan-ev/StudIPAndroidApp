@@ -16,16 +16,19 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
+import com.android.volley.toolbox.NetworkImageView;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * @author joern
@@ -92,6 +95,7 @@ public class NewsItemView extends BaseSlidingFragmentActivity {
 		private String mBody;
 		private String mAuthor;
 		private long mTimestamp;
+		private String mUserImageUrl;
 
 		/*
 		 * (non-Javadoc)
@@ -108,6 +112,8 @@ public class NewsItemView extends BaseSlidingFragmentActivity {
 			mBody = mArgs.getString(NewsContract.Columns.NEWS_BODY);
 			mAuthor = mArgs.getString(UsersContract.Columns.USER_FORENAME);
 			mTimestamp = mArgs.getLong(NewsContract.Columns.NEWS_DATE);
+			mUserImageUrl = mArgs
+					.getString(UsersContract.Columns.USER_AVATAR_NORMAL);
 
 		}
 
@@ -142,6 +148,19 @@ public class NewsItemView extends BaseSlidingFragmentActivity {
 			mAuthorTextView.setText(TextTools.getLocalizedAuthorAndDateString(
 					mAuthor, mTimestamp, mContext));
 			mBodyTextView.setText(Html.fromHtml(mBody));
+			if (!mUserImageUrl.contains("nobody")) {
+				// find views and set infos
+				final NetworkImageView userImage = (NetworkImageView) getView()
+						.findViewById(R.id.user_image);
+				userImage.setImageUrl(mUserImageUrl,
+						VolleyHttp.getVolleyHttp(getActivity())
+								.getImageLoader());
+				userImage.setVisibility(View.VISIBLE);
+
+				((ImageView) getView()
+						.findViewById(R.id.user_image_placeholder))
+						.setVisibility(View.GONE);
+			}
 		}
 	}
 

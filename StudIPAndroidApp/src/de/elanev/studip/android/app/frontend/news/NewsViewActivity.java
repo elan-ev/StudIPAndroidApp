@@ -56,6 +56,17 @@ public class NewsViewActivity extends BaseSlidingFragmentActivity {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see android.support.v4.app.FragmentActivity#onBackPressed()
+	 */
+	@Override
+	public void onBackPressed() {
+		if (getSlidingMenu().isMenuShowing())
+			getSlidingMenu().toggle();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity
 	 * #onCreate(android.os.Bundle)
@@ -202,6 +213,8 @@ public class NewsViewActivity extends BaseSlidingFragmentActivity {
 									.getColumnIndex(UsersContract.Columns.USER_LASTNAME)),
 							c.getString(c
 									.getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
+			String userImageUrl = c.getString(c
+					.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
 			long date = c.getLong(c
 					.getColumnIndex(NewsContract.Columns.NEWS_DATE));
 
@@ -210,6 +223,8 @@ public class NewsViewActivity extends BaseSlidingFragmentActivity {
 			args.putString(NewsContract.Columns.NEWS_BODY, body);
 			args.putLong(NewsContract.Columns.NEWS_DATE, date);
 			args.putString(UsersContract.Columns.USER_FORENAME, name);
+			args.putString(UsersContract.Columns.USER_AVATAR_NORMAL,
+					userImageUrl);
 
 			Intent intent = new Intent();
 			intent.setClass(getActivity(), NewsItemView.class);
@@ -289,6 +304,7 @@ public class NewsViewActivity extends BaseSlidingFragmentActivity {
 					UsersContract.Qualified.USERS_USER_TITLE_POST,
 					UsersContract.Qualified.USERS_USER_FORENAME,
 					UsersContract.Qualified.USERS_USER_LASTNAME,
+					UsersContract.Qualified.USERS_USER_AVATAR_NORMAL,
 					CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE };
 
 		}

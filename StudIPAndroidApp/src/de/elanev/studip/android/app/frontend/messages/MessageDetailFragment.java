@@ -10,6 +10,7 @@ package de.elanev.studip.android.app.frontend.messages;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+
 import android.app.Activity;
 import android.content.Context;
 import android.database.ContentObserver;
@@ -26,6 +27,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +38,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.VolleyError;
 
 import de.elanev.studip.android.app.R;
@@ -62,7 +65,7 @@ public class MessageDetailFragment extends SherlockFragment implements
 	private Context mContext;
 	private Bundle mArgs;
 	private String mMessageId, mSubject, mMessage, mSenderId, mSenderTitlePre,
-			mSenderForename, mSenderLastname, mSenderTitlePost;
+			mSenderForename, mSenderLastname, mSenderTitlePost, mUserImageUrl;
 	private long mDate;
 	private String mApiUrl;
 	private VolleyOAuthConsumer mConsumer;
@@ -202,7 +205,8 @@ public class MessageDetailFragment extends SherlockFragment implements
 				UsersContract.Qualified.USERS_USER_FORENAME,
 				UsersContract.Qualified.USERS_USER_LASTNAME,
 				UsersContract.Qualified.USERS_USER_TITLE_POST,
-				UsersContract.Qualified.USERS_USER_ID };
+				UsersContract.Qualified.USERS_USER_ID,
+				UsersContract.Qualified.USERS_USER_AVATAR_NORMAL };
 	}
 
 	/*
@@ -242,6 +246,8 @@ public class MessageDetailFragment extends SherlockFragment implements
 				.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
 		mSenderId = cursor.getString(cursor
 				.getColumnIndex(UsersContract.Columns.USER_ID));
+		mUserImageUrl = cursor.getString(cursor
+				.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
 
 		mMessageBodyTextView.setMovementMethod(new ScrollingMovementMethod());
 
@@ -250,6 +256,18 @@ public class MessageDetailFragment extends SherlockFragment implements
 		mMessageDateTextView.setText(TextTools.getLocalizedAuthorAndDateString(
 				String.format("%s %s %s %s", mSenderTitlePre, mSenderForename,
 						mSenderLastname, mSenderTitlePost), mDate, mContext));
+
+		if (!mUserImageUrl.contains("nobody")) {
+			// find views and set infos
+			final NetworkImageView userImage = (NetworkImageView) getView()
+					.findViewById(R.id.user_image);
+			userImage.setImageUrl(mUserImageUrl,
+					VolleyHttp.getVolleyHttp(getActivity()).getImageLoader());
+			userImage.setVisibility(View.VISIBLE);
+
+			((ImageView) getView().findViewById(R.id.user_image_placeholder))
+					.setVisibility(View.GONE);
+		}
 
 		if (unread == 1) {
 

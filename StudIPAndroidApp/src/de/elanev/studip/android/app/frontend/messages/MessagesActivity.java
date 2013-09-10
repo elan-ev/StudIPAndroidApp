@@ -71,6 +71,17 @@ public class MessagesActivity extends BaseSlidingFragmentActivity {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.FragmentActivity#onBackPressed()
+	 */
+	@Override
+	public void onBackPressed() {
+		if (getSlidingMenu().isMenuShowing())
+			getSlidingMenu().toggle();
+	}
+
 	public void startLoading() {
 		FragmentManager fm = getSupportFragmentManager();
 		// reload data only if new activity

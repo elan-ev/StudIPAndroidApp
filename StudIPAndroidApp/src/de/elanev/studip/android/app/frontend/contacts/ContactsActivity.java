@@ -49,5 +49,16 @@ public class ContactsActivity extends BaseSlidingFragmentActivity {
 		mPagerAdapter.addTab(mActionbar.newTab(), R.drawable.ic_action_community,
 				R.string.Groups, ContactsGroupsFragment.class, null);
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.FragmentActivity#onBackPressed()
+	 */
+	@Override
+	public void onBackPressed() {
+		if (getSlidingMenu().isMenuShowing())
+			getSlidingMenu().toggle();
+	}
 
 }
