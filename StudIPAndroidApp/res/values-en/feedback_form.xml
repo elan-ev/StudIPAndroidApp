@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="feedback_form_message">Should you habe any questions, comments, feature requests or found an error, please contact us via email.\nWe take care of your request.\n\n===============\nIhr Feedback:\n</string>
+    <string name="feedback_form_message_template">Should you habe any questions, comments, feature requests or found an error, 
+        please contact us via email.\nWe take care of your request.\n\n===============\n
+        Ihr Feedback:\n===============\n\nAndroid API Version: %1$d\nStud.IP mobile Version: %2$s</string>
     <string name="feedback_form_action">Email senden</string>
 
 </resources>
