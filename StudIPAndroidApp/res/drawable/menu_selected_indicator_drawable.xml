@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item>
+        <color android:color="@color/studip_mobile_darker" />
+    </item>
+    <item
+        android:left="0dp"
+        android:right="230dp">
+        <bitmap android:src="@drawable/menu_selected_indicator" />
+    </item>
+
+</layer-list>

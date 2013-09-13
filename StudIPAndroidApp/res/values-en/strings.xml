@@ -115,5 +115,7 @@
     <string name="Details">Details</string>
     <string name="latest_news">Latest news</string>
     <string name="Feedback">Feedback</string>
+    <string name="open_drawer">Open Navigation</string>
+    <string name="close_drawer">Close Navigation</string>
 
 </resources>
