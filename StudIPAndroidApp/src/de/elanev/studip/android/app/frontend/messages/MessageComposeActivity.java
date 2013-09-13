@@ -10,21 +10,25 @@ package de.elanev.studip.android.app.frontend.messages;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
+
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 
-public class MessageComposeActivity extends BaseSlidingFragmentActivity {
+public class MessageComposeActivity extends SherlockFragmentActivity {
 
-	/**
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
-	public MessageComposeActivity() {
-		super(R.string.Messages);
-	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.content_frame);
+		setTitle(R.string.compose_message);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		Bundle args = getIntent().getExtras();
 
@@ -34,6 +38,27 @@ public class MessageComposeActivity extends BaseSlidingFragmentActivity {
 		frag.setArguments(args);
 		ft.replace(R.id.content_frame, frag, "messageComposeFragment").commit();
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
+	 * (com.actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		// Respond to the action bar's Up/Home button
+		case android.R.id.home:
+			// Since this activity can be called from different other
+			// activities, we call the back button to move back in stack history
+			onBackPressed();
+			return true;
+		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 }

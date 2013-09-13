@@ -8,32 +8,22 @@
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 
-import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
-import de.elanev.studip.android.app.frontend.util.TabbedSlidingFragmentActivity;
+import de.elanev.studip.android.app.frontend.util.TabbedFragmentActivity;
 
-public class CourseViewActivity extends TabbedSlidingFragmentActivity {
-	public String mCourse = null;
+public class CourseViewActivity extends TabbedFragmentActivity {
 	ViewPager mPager;
 	BasePagerTabsAdapter mPagerAdapter;
-
-	/**
-	 * @param titleRes
-	 */
-	public CourseViewActivity() {
-		super(R.string.Courses);
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		// Setting ABS to tabs mode
-		mActionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
 		// Get intent data
 		Bundle intentExtras = getIntent().getExtras();
@@ -61,5 +51,24 @@ public class CourseViewActivity extends TabbedSlidingFragmentActivity {
 		setTitle(getIntent().getStringExtra(
 				CoursesContract.Columns.Courses.COURSE_TITLE));
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
+	 * (com.actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		// Respond to the action bar's Up/Home button
+		case android.R.id.home:
+			NavUtils.navigateUpFromSameTask(this);
+			return true;
+		}
+
+		return super.onOptionsItemSelected(item);
 	}
 }

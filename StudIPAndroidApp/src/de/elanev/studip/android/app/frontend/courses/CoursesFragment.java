@@ -39,234 +39,243 @@ import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 
 /**
  * @author joern
- * 
  */
 public class CoursesFragment extends SherlockListFragment implements
-		LoaderCallbacks<Cursor> {
-	public static final String TAG = CoursesFragment.class.getSimpleName();
-	private Context mContext = null;
-	private CourseAdapter mCourseAdapter;
-	private SimpleSectionedListAdapter mAdapter;
+        LoaderCallbacks<Cursor> {
+    public static final String TAG = CoursesFragment.class.getSimpleName();
+    protected final ContentObserver mObserver = new ContentObserver(
+            new Handler()) {
+        @Override
+        public void onChange(boolean selfChange) {
+            if (getActivity() == null) {
+                return;
+            }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		mContext = getSherlockActivity();
+            Loader<Cursor> loader = getLoaderManager().getLoader(0);
+            if (loader != null) {
+                loader.forceLoad();
+            }
+        }
+    };
+    private Context mContext = null;
+    private CourseAdapter mCourseAdapter;
+    private SimpleSectionedListAdapter mAdapter;
 
-		mCourseAdapter = new CourseAdapter(mContext);
-		mAdapter = new SimpleSectionedListAdapter(mContext,
-				R.layout.list_item_header, mCourseAdapter);
-		setListAdapter(mAdapter);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mContext = getSherlockActivity();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater
-	 * , android.view.ViewGroup, android.os.Bundle)
-	 */
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.list, null);
-		((TextView) v.findViewById(R.id.empty_message))
-				.setText(R.string.no_courses);
-		return v;
-	}
+        mCourseAdapter = new CourseAdapter(mContext);
+        mAdapter = new SimpleSectionedListAdapter(mContext,
+                R.layout.list_item_header, mCourseAdapter);
+        setListAdapter(mAdapter);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-	 */
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		getActivity().setTitle(getString(R.string.Courses));
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater
+     * , android.view.ViewGroup, android.os.Bundle)
+     */
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.list, null);
+        ((TextView) v.findViewById(R.id.empty_message))
+                .setText(R.string.no_courses);
+        return v;
+    }
 
-		getLoaderManager().initLoader(0, null, this);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+     */
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getActivity().setTitle(R.string.Courses);
 
-	protected final ContentObserver mObserver = new ContentObserver(
-			new Handler()) {
-		@Override
-		public void onChange(boolean selfChange) {
-			if (getActivity() == null) {
-				return;
-			}
+        getLoaderManager().initLoader(0, null, this);
+    }
 
-			Loader<Cursor> loader = getLoaderManager().getLoader(0);
-			if (loader != null) {
-				loader.forceLoad();
-			}
-		}
-	};
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
+     * (android.app.Activity)
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        activity.getContentResolver().registerContentObserver(
+                CoursesContract.CONTENT_URI, true, mObserver);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-	 * (android.app.Activity)
-	 */
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		activity.getContentResolver().registerContentObserver(
-				CoursesContract.CONTENT_URI, true, mObserver);
-	}
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        getActivity().getContentResolver().unregisterContentObserver(mObserver);
+    }
 
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		getActivity().getContentResolver().unregisterContentObserver(mObserver);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.ListFragment#onListItemClick(android.widget.ListView
+     * , android.view.View, int, long)
+     */
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        Object selectedObject = l.getItemAtPosition(position);
+        if (selectedObject instanceof CursorWrapper) {
+            Intent intent = new Intent();
+            intent.setClass(getActivity(), CourseViewActivity.class);
+            intent.putExtra(
+                    CoursesContract.Columns.Courses.COURSE_ID,
+                    ((CursorWrapper) selectedObject).getString(((CursorWrapper) selectedObject)
+                            .getColumnIndex(CoursesContract.Columns.Courses.COURSE_ID)));
+            intent.putExtra(
+                    CoursesContract.Columns.Courses._ID,
+                    ((CursorWrapper) selectedObject).getString(((CursorWrapper) selectedObject)
+                            .getColumnIndex(CoursesContract.Columns.Courses._ID)));
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.ListFragment#onListItemClick(android.widget.ListView
-	 * , android.view.View, int, long)
-	 */
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		Object selectedObject = l.getItemAtPosition(position);
-		if (selectedObject instanceof CursorWrapper) {
-			Intent intent = new Intent();
-			intent.setClass(getActivity(), CourseViewActivity.class);
-			intent.putExtra(
-					CoursesContract.Columns.Courses.COURSE_ID,
-					((CursorWrapper) selectedObject).getString(((CursorWrapper) selectedObject)
-							.getColumnIndex(CoursesContract.Columns.Courses.COURSE_ID)));
-			intent.putExtra(
-					CoursesContract.Columns.Courses._ID,
-					((CursorWrapper) selectedObject).getString(((CursorWrapper) selectedObject)
-							.getColumnIndex(CoursesContract.Columns.Courses._ID)));
+            mContext.startActivity(intent);
+        }
+    }
 
-			mContext.startActivity(intent);
-		}
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see android.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
+     * android.os.Bundle)
+     */
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(), CoursesContract.CONTENT_URI,
+                CourseQuery.PROJECTION,
+                CoursesContract.Columns.Courses.COURSE_ID + " != " + "'"
+                        + getString(R.string.restip_news_global_identifier)
+                        + "'", null,
+                SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN + " DESC");
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-	 * android.os.Bundle)
-	 */
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(getActivity(), CoursesContract.CONTENT_URI,
-				CourseQuery.PROJECTION,
-				CoursesContract.Columns.Courses.COURSE_ID + " != " + "'"
-						+ getString(R.string.restip_news_global_identifier)
-						+ "'", null,
-				SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN + " DESC");
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
+     * .support.v4.content.Loader, java.lang.Object)
+     */
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (getActivity() == null) {
+            return;
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-	 * .support.v4.content.Loader, java.lang.Object)
-	 */
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+        List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
+        cursor.moveToFirst();
+        String prevSemesterId = null;
+        String currSemesterId = null;
+        while (!cursor.isAfterLast()) {
+            currSemesterId = cursor
+                    .getString(cursor
+                            .getColumnIndex(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID));
+            if (!TextUtils.equals(prevSemesterId, currSemesterId)) {
+                sections.add(new SimpleSectionedListAdapter.Section(
+                        cursor.getPosition(),
+                        cursor.getString(cursor
+                                .getColumnIndex(SemestersContract.Columns.SEMESTER_TITLE))));
+            }
+            prevSemesterId = currSemesterId;
+            cursor.moveToNext();
+        }
 
-		List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
-		cursor.moveToFirst();
-		String prevSemesterId = null;
-		String currSemesterId = null;
-		while (!cursor.isAfterLast()) {
-			currSemesterId = cursor
-					.getString(cursor
-							.getColumnIndex(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID));
-			if (!TextUtils.equals(prevSemesterId, currSemesterId)) {
-				sections.add(new SimpleSectionedListAdapter.Section(
-						cursor.getPosition(),
-						cursor.getString(cursor
-								.getColumnIndex(SemestersContract.Columns.SEMESTER_TITLE))));
-			}
-			prevSemesterId = currSemesterId;
-			cursor.moveToNext();
-		}
+        mCourseAdapter.changeCursor(cursor);
 
-		mCourseAdapter.changeCursor(cursor);
+        SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
+                .size()];
+        mAdapter.setSections(sections.toArray(dummy));
+    }
 
-		SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
-				.size()];
-		mAdapter.setSections(sections.toArray(dummy));
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
+     * .support.v4.content.Loader)
+     */
+    public void onLoaderReset(Loader<Cursor> loader) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-	 * .support.v4.content.Loader)
-	 */
-	public void onLoaderReset(Loader<Cursor> loader) {
+    }
 
-	}
+    /*
+     * Interface which encapsulates the content provider query projection array
+     */
+    private interface CourseQuery {
 
-	public interface CourseQuery {
+        String[] PROJECTION = {CoursesContract.Qualified.Courses.COURSES_ID,
+                CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
+                CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
+                SemestersContract.Qualified.SEMESTERS_SEMESTER_ID,
+                SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE,
+                SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN};
 
-		String[] PROJECTION = { CoursesContract.Qualified.Courses.COURSES_ID,
-				CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
-				CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
-				SemestersContract.Qualified.SEMESTERS_SEMESTER_ID,
-				SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE,
-				SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN };
+    }
 
-	}
+    /*
+     * CursorAdapter subclass to display the courses list item properly
+     */
+    private class CourseAdapter extends CursorAdapter {
 
-	class CourseAdapter extends CursorAdapter {
+        /**
+         * Constructs the CourseAdapter with the passed context
+         *
+         * @param context execution context
+         */
+        public CourseAdapter(Context context) {
+            super(context, null, false);
+        }
 
-		public CourseAdapter(Context context) {
-			super(context, null, false);
-		}
+        /*
+         * (non-Javadoc)
+         *
+         * @see
+         * android.support.v4.widget.CursorAdapter#bindView(android.view.View,
+         * android.content.Context, android.database.Cursor)
+         */
+        @Override
+        public void bindView(View view, Context context, final Cursor cursor) {
+            final String courseTitle = cursor.getString(1);
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.support.v4.widget.CursorAdapter#bindView(android.view.View,
-		 * android.content.Context, android.database.Cursor)
-		 */
-		@Override
-		public void bindView(View view, Context context, final Cursor cursor) {
-			final String courseTitle = cursor.getString(1);
+            final TextView courseTitleTextVew = (TextView) view
+                    .findViewById(R.id.text1);
+            final ImageView icon = (ImageView) view.findViewById(R.id.icon1);
 
-			final TextView courseTitleTextVew = (TextView) view
-					.findViewById(R.id.text1);
-			final ImageView icon = (ImageView) view.findViewById(R.id.icon1);
+            courseTitleTextVew.setText(courseTitle);
+            icon.setImageResource(R.drawable.ic_menu_courses);
+        }
 
-			courseTitleTextVew.setText(courseTitle);
-			icon.setImageResource(R.drawable.ic_menu_courses);
-		}
+        /*
+         * (non-Javadoc)
+         *
+         * @see
+         * android.support.v4.widget.CursorAdapter#newView(android.content.Context
+         * , android.database.Cursor, android.view.ViewGroup)
+         */
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            return getActivity().getLayoutInflater().inflate(
+                    R.layout.list_item_single_text_icon, parent, false);
+        }
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.support.v4.widget.CursorAdapter#newView(android.content.Context
-		 * , android.database.Cursor, android.view.ViewGroup)
-		 */
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return getActivity().getLayoutInflater().inflate(
-					R.layout.list_item_single_text_icon, parent, false);
-		}
-
-	}
+    }
 
 }

@@ -7,9 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.messages;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.database.ContentObserver;
@@ -29,11 +26,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
-
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author joern
@@ -83,9 +81,9 @@ public class MessageFoldersMenuFragment extends ListFragment implements
 		getLoaderManager().initLoader(0, null, this);
 		if (savedInstanceState != null) {
 			getListView().setSelection(savedInstanceState.getInt(ACTIVE_ITEM));
-			View v = getListView().getSelectedView();
-			((SlidingFragmentActivity) mContext).getSlidingMenu()
-					.setSelectedView(v);
+			// View v = getListView().getSelectedView();
+			// ((SlidingFragmentActivity) mContext).getSlidingMenu()
+			// .setSelectedView(v);
 		}
 
 	}

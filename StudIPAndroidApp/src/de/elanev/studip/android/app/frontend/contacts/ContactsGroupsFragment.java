@@ -54,6 +54,7 @@ public class ContactsGroupsFragment extends UserListFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		getActivity().setTitle(R.string.Contacts);
 
 		// initialize CursorLoader
 		getLoaderManager().initLoader(0, null, this);

@@ -73,8 +73,8 @@ public class SyncHelper {
 	/**
 	 * Returns an instance of the SyncHelper class
 	 * 
-	 * @param context
-	 * @return
+	 * @param context the execution context
+	 * @return an instance of the SyncHelper
 	 */
 	public static SyncHelper getInstance(Context context) {
 		if (mInstance == null) {
@@ -95,6 +95,11 @@ public class SyncHelper {
 		return mInstance;
 	}
 
+    /**
+     * Starts a prefetch of courses and news.
+     *
+     * @param frag the fragment which called the prefetch
+     */
 	public void prefetch(SignInFragment frag) {
 		Log.i(TAG, "PERFORMING PREFETCH");
 
@@ -376,7 +381,7 @@ public class SyncHelper {
 
 					}, new ErrorListener() {
 						public void onErrorResponse(VolleyError error) {
-							Log.wtf(TAG, error.getMessage());
+							Log.wtf(TAG+" performCourses", error.getMessage());
 						}
 					}, Method.GET);
 			coursesRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
@@ -420,7 +425,7 @@ public class SyncHelper {
 
 					}, new ErrorListener() {
 						public void onErrorResponse(VolleyError error) {
-							Log.wtf(TAG, error.getMessage());
+							Log.wtf(TAG+" performSemesters", error.getMessage());
 						}
 					}, Method.GET);
 			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
@@ -508,7 +513,7 @@ public class SyncHelper {
 			newsRequest = new JacksonRequest<News>(mConsumer.sign(newsUrl),
 					News.class, null, listener, new ErrorListener() {
 						public void onErrorResponse(VolleyError error) {
-							Log.wtf(TAG, error.getMessage());
+							Log.wtf(TAG+" performNews", error.getMessage());
 						}
 					}, Method.GET);
 			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
