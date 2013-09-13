@@ -11,18 +11,20 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
+
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 
-public class MessageDetailActivity extends BaseSlidingFragmentActivity {
+public class MessageDetailActivity extends SherlockFragmentActivity {
 
-	/**
-	 * @param titleRes
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
-	public MessageDetailActivity() {
-		super(R.string.Message);
-	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,6 +40,25 @@ public class MessageDetailActivity extends BaseSlidingFragmentActivity {
 			ft.replace(R.id.content_frame, frag, "messageDetailFragment")
 					.commit();
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
+	 * (com.actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		// Respond to the action bar's Up/Home button
+		case android.R.id.home:
+			NavUtils.navigateUpFromSameTask(this);
+			return true;
+		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 }

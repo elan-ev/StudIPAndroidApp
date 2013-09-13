@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.NavUtils;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,12 +22,13 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.android.volley.toolbox.NetworkImageView;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.util.VolleyHttp;
 
@@ -34,14 +36,7 @@ import de.elanev.studip.android.app.util.VolleyHttp;
  * @author joern
  * 
  */
-public class NewsItemView extends BaseSlidingFragmentActivity {
-
-	/**
-	 * @param titleRes
-	 */
-	public NewsItemView() {
-		super(R.string.News);
-	}
+public class NewsItemViewActivity extends SherlockFragmentActivity {
 
 	String mTitle;
 	String mBody;
@@ -62,6 +57,8 @@ public class NewsItemView extends BaseSlidingFragmentActivity {
 
 		setContentView(R.layout.content_frame);
 
+		getSupportActionBar().setHomeButtonEnabled(true);
+
 		Bundle args = getIntent().getExtras();
 		if (args != null) {
 			FragmentManager fm = getSupportFragmentManager();
@@ -69,18 +66,37 @@ public class NewsItemView extends BaseSlidingFragmentActivity {
 			// find exisiting fragment
 			Fragment frag = fm.findFragmentByTag(NewsItemFragment.class
 					.getName());
-			if (frag == null)
+			if (frag == null) {
 				// otherwise create new
 				frag = NewsItemFragment.instantiate(this,
 						NewsItemFragment.class.getName());
-
-			// Set new arguments and replace fragment
-			frag.setArguments(args);
+				// Set new arguments and replace fragment
+				frag.setArguments(args);
+			}
 			fm.beginTransaction()
 					.replace(R.id.content_frame, frag,
 							NewsItemFragment.class.getName()).commit();
 		}
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
+	 * (com.actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		// Respond to the action bar's Up/Home button
+		case android.R.id.home:
+			NavUtils.navigateUpFromSameTask(this);
+			return true;
+		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 	public static class NewsItemFragment extends SherlockFragment {
@@ -107,7 +123,6 @@ public class NewsItemView extends BaseSlidingFragmentActivity {
 			super.onCreate(savedInstanceState);
 			mContext = getActivity();
 			mArgs = getArguments();
-
 			mTitle = mArgs.getString(NewsContract.Columns.NEWS_TOPIC);
 			mBody = mArgs.getString(NewsContract.Columns.NEWS_BODY);
 			mAuthor = mArgs.getString(UsersContract.Columns.USER_FORENAME);
@@ -143,6 +158,7 @@ public class NewsItemView extends BaseSlidingFragmentActivity {
 		@Override
 		public void onActivityCreated(Bundle savedInstanceState) {
 			super.onActivityCreated(savedInstanceState);
+			getActivity().setTitle(mTitle);
 
 			mTitleTextView.setText(mTitle);
 			mAuthorTextView.setText(TextTools.getLocalizedAuthorAndDateString(

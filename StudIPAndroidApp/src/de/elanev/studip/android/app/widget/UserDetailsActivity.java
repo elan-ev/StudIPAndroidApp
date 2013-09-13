@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -34,20 +35,13 @@ import com.android.volley.toolbox.NetworkImageView;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.frontend.messages.MessageComposeActivity;
-import de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity;
 import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * @author joern
  * 
  */
-public class UserDetailsActivity extends BaseSlidingFragmentActivity {
-
-	/**
-	 */
-	public UserDetailsActivity() {
-		super(R.string.user);
-	}
+public class UserDetailsActivity extends SherlockFragmentActivity {
 
 	/*
 	 * (non-Javadoc)
@@ -58,6 +52,8 @@ public class UserDetailsActivity extends BaseSlidingFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.content_frame);
+
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		Bundle args = getIntent().getExtras();
 		if (args != null) {
@@ -78,6 +74,27 @@ public class UserDetailsActivity extends BaseSlidingFragmentActivity {
 					.commit();
 		}
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
+	 * (com.actionbarsherlock.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		// Respond to the action bar's Up/Home button
+		case android.R.id.home:
+			// Since this activity can be called from different other
+			// activities, we call the back button to move back in stack history
+			onBackPressed();
+			return true;
+		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 	private interface UserQuery {
@@ -124,7 +141,6 @@ public class UserDetailsActivity extends BaseSlidingFragmentActivity {
 		public void onActivityCreated(Bundle savedInstanceState) {
 			super.onActivityCreated(savedInstanceState);
 			setHasOptionsMenu(true);
-
 			// initialize CursorLoader
 			getLoaderManager().initLoader(0, mData, this);
 		}
@@ -326,6 +342,7 @@ public class UserDetailsActivity extends BaseSlidingFragmentActivity {
 				return super.onOptionsItemSelected(item);
 			}
 		}
+
 	}
 
 }
