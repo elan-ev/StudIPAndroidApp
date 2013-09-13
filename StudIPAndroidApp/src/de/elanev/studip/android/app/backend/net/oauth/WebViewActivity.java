@@ -53,8 +53,6 @@ public class WebViewActivity extends SherlockActivity {
 			mWebview.restoreState(savedInstanceState);
 		} else {
 			mWebview.setWebViewClient(new LoginWebViewClient());
-			WebSettings webViewSettings = mWebview.getSettings();
-			webViewSettings.setSavePassword(false);
 			Intent intent = getIntent();
 			Bundle extras = intent.getExtras();
 			String authUrl = extras.getString("sAuthUrl");
