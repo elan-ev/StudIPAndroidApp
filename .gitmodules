@@ -1,3 +1,6 @@
 [submodule "libprojects/ActionBarSherlock"]
 	path = libprojects/ActionBarSherlock
 	url = https://github.com/mndfcked/ActionBarSherlock.git
+[submodule "libprojects/volley"]
+	path = libprojects/volley
+	url = https://github.com/mndfcked/volley.git
