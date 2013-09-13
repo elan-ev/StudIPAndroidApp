@@ -1,3 +1,6 @@
 [submodule "libprojects/volley"]
 	path = libprojects/volley
 	url = https://android.googlesource.com/platform/frameworks/volley
+[submodule "libprojects/ActionBarSherlock"]
+	path = libprojects/ActionBarSherlock
+	url = https://github.com/mndfcked/ActionBarSherlock.git
