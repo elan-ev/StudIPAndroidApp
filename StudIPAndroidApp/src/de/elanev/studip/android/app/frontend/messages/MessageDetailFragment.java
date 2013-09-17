@@ -197,9 +197,6 @@ public class MessageDetailFragment extends SherlockFragment implements
         }
 
         cursor.moveToFirst();
-        int unread = cursor
-                .getInt(cursor
-                        .getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_UNREAD));
 
         mMessageId = cursor.getString(cursor
                 .getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_ID));
@@ -245,56 +242,7 @@ public class MessageDetailFragment extends SherlockFragment implements
                     .setVisibility(View.GONE);
         }
 
-        if (unread == 1) {
-
-            String messagesUrl = String.format(
-                    getString(R.string.restip_messages_read_messageid),
-                    mApiUrl, mMessageId);
-
-            StringRequest request = new StringRequest(Method.PUT, messagesUrl,
-                    new Listener<String>() {
-                        public void onResponse(String response) {
-                            // TODO Save to db
-                            // mContext.getContentResolver()
-                            // .update(uri, values, where,
-                            // selectionArgs)(MessagesContract.CONTENT_URI_MESSAGES
-                            // .buildUpon()
-                            // .appendPath(mMessageId).build(),
-                            // null, null);
-                            // Toast.makeText(mContext,
-                            // getString(R.string.message_deleted),
-                            // Toast.LENGTH_SHORT).show();
-                        }
-                    }, new ErrorListener() {
-                /*
-                 * (non-Javadoc)
-                 *
-                 * @see com.android.volley.Response.ErrorListener
-                 * #onErrorResponse(com.android.volley. VolleyError)
-                 */
-                public void onErrorResponse(VolleyError error) {
-                    if (error.getMessage() != null)
-                        Log.e(TAG, error.getMessage());
-                    Toast.makeText(
-                            mContext,
-                            getString(R.string.something_went_wrong)
-                                    + error.getMessage(),
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-            );
-
-            try {
-                mConsumer.sign(request);
-            } catch (OAuthMessageSignerException e) {
-                e.printStackTrace();
-            } catch (OAuthExpectationFailedException e) {
-                e.printStackTrace();
-            } catch (OAuthCommunicationException e) {
-                e.printStackTrace();
-            }
-            VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(request);
-        }
+        
 
     }
 

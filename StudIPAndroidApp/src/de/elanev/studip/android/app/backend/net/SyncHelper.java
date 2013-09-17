@@ -7,9 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.net;
 
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.OperationApplicationException;
@@ -32,6 +29,9 @@ import de.elanev.studip.android.app.backend.datamodel.Contacts;
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Courses;
 import de.elanev.studip.android.app.backend.datamodel.Events;
+import de.elanev.studip.android.app.backend.datamodel.Message;
+import de.elanev.studip.android.app.backend.datamodel.MessageFolders;
+import de.elanev.studip.android.app.backend.datamodel.Messages;
 import de.elanev.studip.android.app.backend.datamodel.News;
 import de.elanev.studip.android.app.backend.datamodel.NewsItem;
 import de.elanev.studip.android.app.backend.datamodel.Semesters;
@@ -46,19 +46,22 @@ import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.ContactsHandler;
 import de.elanev.studip.android.app.backend.net.sync.CoursesHandler;
 import de.elanev.studip.android.app.backend.net.sync.EventsHandler;
+import de.elanev.studip.android.app.backend.net.sync.MessagesHandler;
 import de.elanev.studip.android.app.backend.net.sync.NewsHandler;
 import de.elanev.studip.android.app.backend.net.sync.SemestersHandler;
 import de.elanev.studip.android.app.backend.net.sync.UserHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.VolleyHttp;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
 
 /**
  * A convenience class for interacting with the rest.IP endpoints which are used
  * the most
  * 
  * @author joern
- * 
  */
 public class SyncHelper {
 	protected static final String TAG = SyncHelper.class.getSimpleName();
@@ -73,7 +76,8 @@ public class SyncHelper {
 	/**
 	 * Returns an instance of the SyncHelper class
 	 * 
-	 * @param context the execution context
+	 * @param context
+	 *            the execution context
 	 * @return an instance of the SyncHelper
 	 */
 	public static SyncHelper getInstance(Context context) {
@@ -95,11 +99,12 @@ public class SyncHelper {
 		return mInstance;
 	}
 
-    /**
-     * Starts a prefetch of courses and news.
-     *
-     * @param frag the fragment which called the prefetch
-     */
+	/**
+	 * Starts a prefetch of courses and news.
+	 * 
+	 * @param frag
+	 *            the fragment which called the prefetch
+	 */
 	public void prefetch(SignInFragment frag) {
 		Log.i(TAG, "PERFORMING PREFETCH");
 
@@ -338,8 +343,8 @@ public class SyncHelper {
 	}
 
 	/**
-	 * 
-	 */
+     *
+     */
 	public void performCoursesSync(final SignInFragment frag) {
 		// First load all semesters
 		requestSemesters();
@@ -381,7 +386,7 @@ public class SyncHelper {
 
 					}, new ErrorListener() {
 						public void onErrorResponse(VolleyError error) {
-							Log.wtf(TAG+" performCourses", error.getMessage());
+							Log.wtf(TAG + " performCourses", error.getMessage());
 						}
 					}, Method.GET);
 			coursesRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
@@ -425,7 +430,8 @@ public class SyncHelper {
 
 					}, new ErrorListener() {
 						public void onErrorResponse(VolleyError error) {
-							Log.wtf(TAG+" performSemesters", error.getMessage());
+							Log.wtf(TAG + " performSemesters",
+									error.getMessage());
 						}
 					}, Method.GET);
 			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
@@ -513,7 +519,7 @@ public class SyncHelper {
 			newsRequest = new JacksonRequest<News>(mConsumer.sign(newsUrl),
 					News.class, null, listener, new ErrorListener() {
 						public void onErrorResponse(VolleyError error) {
-							Log.wtf(TAG+" performNews", error.getMessage());
+							Log.wtf(TAG + " performNews", error.getMessage());
 						}
 					}, Method.GET);
 			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
@@ -570,6 +576,106 @@ public class SyncHelper {
 		} catch (OAuthCommunicationException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Initiates a sync for the messages
+	 */
+	public void performMessagesSync() {
+		Log.i(TAG, "PERFORMING MESSAGES SYNC");
+		
+		String[] boxes = mContext.getResources().getStringArray(R.array.restip_messages_box_identifiers);
+
+		for (String box : boxes) 
+			requestMessageFoldersForBox(box);
+		
+	}
+
+	/*
+	 * Requests the message folders for the passed box
+	 */
+	private void requestMessageFoldersForBox(final String box) {
+		Log.i(TAG, "PERFORMING MESSAGES SYNC FOR BOX " + box);
+		String signedBoxUrl;
+		try {
+			signedBoxUrl = mConsumer.sign(String.format(
+					mContext.getString(R.string.restip_messages_box),
+					mServer.API_URL, box));
+			JacksonRequest<MessageFolders> messageFoldersRequest = new JacksonRequest<MessageFolders>(
+					signedBoxUrl, MessageFolders.class, null,
+					new Listener<MessageFolders>() {
+						public void onResponse(MessageFolders response) {
+							Log.i(TAG, "SYNCED MESSAGES FOR BOX" + box);
+
+							for (String folder : response.folders)
+								requestMessagesForFolder(folder, box);
+
+						}
+					}, new ErrorListener() {
+						public void onErrorResponse(VolleyError error) {
+							if (error.getMessage() != null)
+								Log.wtf(TAG, error.getMessage());
+						}
+					}, Method.GET);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+					.add(messageFoldersRequest);
+		} catch (OAuthExpectationFailedException e) {
+			e.printStackTrace();
+		} catch (OAuthMessageSignerException e) {
+			e.printStackTrace();
+		} catch (OAuthCommunicationException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Requests the messages for the passed folder and saves them to the content
+	 * provider
+	 */
+	private void requestMessagesForFolder(final String folder, final String box) {
+		Log.i(TAG, "SYNCING MESSAGES FOR FOLDER " + folder);
+		String signedFolderUrl;
+		try {
+			signedFolderUrl = mConsumer.sign(String.format(
+					mContext.getString(R.string.restip_messages_box_folderid),
+					mServer.API_URL, box, folder));
+			JacksonRequest<Messages> messagesRequest = new JacksonRequest<Messages>(
+					signedFolderUrl, Messages.class, null,
+					new Listener<Messages>() {
+						public void onResponse(Messages response) {
+							try {
+
+								for (Message m : response.messages) {
+									requestUser(m.receiver_id);
+									requestUser(m.sender_id);
+								}
+
+								mContext.getContentResolver().applyBatch(
+										AbstractContract.CONTENT_AUTHORITY,
+										new MessagesHandler(response, folder,
+												box).parse());
+							} catch (RemoteException e) {
+								e.printStackTrace();
+							} catch (OperationApplicationException e) {
+								e.printStackTrace();
+							}
+						}
+					}, new ErrorListener() {
+						public void onErrorResponse(VolleyError error) {
+							if (error.getMessage() != null)
+								Log.wtf(TAG, error.getMessage());
+						}
+					}, Method.GET);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+					.add(messagesRequest);
+		} catch (OAuthExpectationFailedException e) {
+			e.printStackTrace();
+		} catch (OAuthCommunicationException e) {
+			e.printStackTrace();
+		} catch (OAuthMessageSignerException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

@@ -76,18 +76,21 @@ public class RestIpProvider extends ContentProvider {
 	private static final int DOCUMENTS = 600;
 	private static final int DOCUMENTS_ID = 601;
 
-	private static final int MESSAGES_IN = 700;
-	private static final int MESSAGES_OUT = 701;
-	private static final int MESSAGES_FOLDERS = 702;
-	private static final int MESSAGES_IN_FOLDERS = 703;
-	private static final int MESSAGES_OUT_FOLDERS = 704;
-	private static final int MESSAGES_FOLDER_MESSAGES = 705;
-	private static final int MESSAGES_IN_FOLDER_MESSAGES = 706;
-	private static final int MESSAGES_OUT_FOLDER_MESSAGES = 707;
-	private static final int MESSAGES_IN_ID = 708;
-	private static final int MESSAGES_OUT_ID = 709;
-	private static final int MESSAGES_ID = 710;
-	private static final int MESSAGES_STRING_ID = 711;
+	private static final int MESSAGES = 700;
+	private static final int MESSAGES_IN = 701;
+	private static final int MESSAGES_OUT = 702;
+	private static final int MESSAGES_FOLDERS = 703;
+	private static final int MESSAGES_IN_FOLDERS = 704;
+	private static final int MESSAGES_OUT_FOLDERS = 705;
+	private static final int MESSAGES_FOLDER_MESSAGES = 706;
+	private static final int MESSAGES_IN_FOLDER_MESSAGES = 707;
+	private static final int MESSAGES_OUT_FOLDER_MESSAGES = 708;
+	private static final int MESSAGES_IN_ID = 709;
+	private static final int MESSAGES_OUT_ID = 710;
+	private static final int MESSAGES_ID = 711;
+	private static final int MESSAGES_STRING_ID = 712;
+	private static final int MESSAGES_READ_ID = 713;
+	private static final int MESSAGES_FOLDER_NAME_MESSAGES = 714;
 
 	private static final int CONTACTS = 800;
 	private static final int CONTACTS_ID = 801;
@@ -134,11 +137,14 @@ public class RestIpProvider extends ContentProvider {
 		matcher.addURI(authority, "documents/#", DOCUMENTS_ID);
 
 		// matches for messages
+		matcher.addURI(authority, "messages", MESSAGES);
 		matcher.addURI(authority, "messages/in", MESSAGES_IN);
 		matcher.addURI(authority, "messages/out", MESSAGES_OUT);
 		matcher.addURI(authority, "messages/folders", MESSAGES_FOLDERS);
 		matcher.addURI(authority, "messages/folders/#",
 				MESSAGES_FOLDER_MESSAGES);
+		matcher.addURI(authority, "messages/folders/name/*",
+				MESSAGES_FOLDER_NAME_MESSAGES);
 		matcher.addURI(authority, "messages/in/folders", MESSAGES_IN_FOLDERS);
 		matcher.addURI(authority, "messages/out/folders", MESSAGES_OUT_FOLDERS);
 		matcher.addURI(authority, "messages/in/folders/#",
@@ -147,6 +153,7 @@ public class RestIpProvider extends ContentProvider {
 				MESSAGES_OUT_FOLDER_MESSAGES);
 		matcher.addURI(authority, "messages/in/#", MESSAGES_IN_ID);
 		matcher.addURI(authority, "messages/out/#", MESSAGES_OUT_ID);
+		matcher.addURI(authority, "messages/read/*", MESSAGES_READ_ID);
 		matcher.addURI(authority, "messages/#", MESSAGES_ID);
 		matcher.addURI(authority, "messages/*", MESSAGES_STRING_ID);
 
@@ -213,6 +220,8 @@ public class RestIpProvider extends ContentProvider {
 			return DocumentsContract.CONTENT_TYPE;
 		case DOCUMENTS_ID:
 			return DocumentsContract.CONTENT_ITEM_TYPE;
+		case MESSAGES:
+			return MessagesContract.CONTENT_TYPE;
 		case MESSAGES_IN:
 			return MessagesContract.CONTENT_TYPE;
 		case MESSAGES_OUT:
@@ -224,6 +233,8 @@ public class RestIpProvider extends ContentProvider {
 		case MESSAGES_OUT_FOLDERS:
 			return MessagesContract.FOLDER_CONTENT_TYPE;
 		case MESSAGES_IN_FOLDER_MESSAGES:
+			return MessagesContract.CONTENT_TYPE;
+		case MESSAGES_FOLDER_NAME_MESSAGES:
 			return MessagesContract.CONTENT_TYPE;
 		case MESSAGES_OUT_FOLDER_MESSAGES:
 			return MessagesContract.CONTENT_TYPE;
@@ -433,13 +444,13 @@ public class RestIpProvider extends ContentProvider {
 			return ContentUris.withAppendedId(SemestersContract.CONTENT_URI,
 					rowId);
 		}
-		case DOCUMENTS: {
-			long rowId = db.insertWithOnConflict(DocumentsContract.TABLE, null,
-					values, SQLiteDatabase.CONFLICT_IGNORE);
-			getContext().getContentResolver().notifyChange(uri, null);
-			return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
-					rowId);
-		}
+//		case DOCUMENTS: {
+////			long rowId = db.insertWithOnConflict(DocumentsContract.TABLE, null,
+////					values, SQLiteDatabase.CONFLICT_IGNORE);
+//			getContext().getContentResolver().notifyChange(uri, null);
+//			return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
+//					rowId);
+//		}
 		case MESSAGES_FOLDERS: {
 			long rowId = insertIgnoringConflict(db,
 					MessagesContract.TABLE_MESSAGE_FOLDERS,
@@ -447,6 +458,14 @@ public class RestIpProvider extends ContentProvider {
 			getContext().getContentResolver().notifyChange(uri, null);
 			return ContentUris.withAppendedId(
 					MessagesContract.CONTENT_URI_MESSAGE_FOLDERS, rowId);
+		}
+		case MESSAGES: {
+			long rowId = insertIgnoringConflict(db,
+					MessagesContract.TABLE_MESSAGES,
+					MessagesContract.Columns.Messages._ID, values, false);
+			getContext().getContentResolver().notifyChange(uri, null);
+			return ContentUris.withAppendedId(
+					MessagesContract.CONTENT_URI_MESSAGES, rowId);
 		}
 
 		case CONTACTS: {
@@ -701,8 +720,8 @@ public class RestIpProvider extends ContentProvider {
 			} else {
 				orderBy = sortOrder;
 			}
-			c = db.query(DocumentsContract.TABLE, projection, selection,
-					selectionArgs, null, null, orderBy);
+//			c = db.query(DocumentsContract.TABLE, projection, selection,
+//					selectionArgs, null, null, orderBy);
 			c.setNotificationUri(getContext().getContentResolver(),
 					DocumentsContract.CONTENT_URI);
 			break;
@@ -759,7 +778,12 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					MessagesContract.CONTENT_URI_MESSAGE_FOLDERS);
 			break;
-		case MESSAGES_FOLDER_MESSAGES:
+		case MESSAGES_FOLDER_MESSAGES: {
+			long currTime = System.currentTimeMillis();
+			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+				SyncHelper.getInstance(getContext()).performMessagesSync();
+				mLastSync = currTime;
+			}
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = MessagesContract.DEFAULT_SORT_ORDER_MESSAGES;
 			} else {
@@ -780,6 +804,34 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					MessagesContract.CONTENT_URI_MESSAGES);
 			break;
+		}
+		case MESSAGES_FOLDER_NAME_MESSAGES: {
+			long currTime = System.currentTimeMillis();
+			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+				SyncHelper.getInstance(getContext()).performMessagesSync();
+				mLastSync = currTime;
+			}
+			if (TextUtils.isEmpty(sortOrder)) {
+				orderBy = MessagesContract.DEFAULT_SORT_ORDER_MESSAGES;
+			} else {
+				orderBy = sortOrder;
+			}
+
+			String folderName = uri.getLastPathSegment();
+
+			c = db.query(
+					MessagesContract.MESSAGES_JOIN_MESSAGE_FOLDERS_JOIN_USERS,
+					projection,
+					MessagesContract.Qualified.MessageFolders.MESSAGES_FOLDERS_MESSAGE_FOLDER_NAME
+							+ " = "
+							+ "'"+folderName+"'"
+							+ (!TextUtils.isEmpty(selection) ? " AND ("
+									+ selection + ")" : ""), selectionArgs,
+					null, null, orderBy);
+			c.setNotificationUri(getContext().getContentResolver(),
+					MessagesContract.CONTENT_URI_MESSAGES);
+			break;
+		}
 		case CONTACTS: {
 			long currTime = System.currentTimeMillis();
 			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
@@ -881,6 +933,15 @@ public class RestIpProvider extends ContentProvider {
 		case CONTACTS:
 			affectedRows = db.update(ContactsContract.TABLE_CONTACTS, values,
 					selection, selectionArgs);
+			getContext().getContentResolver().notifyChange(uri, null);
+			break;
+		case MESSAGES_READ_ID:
+			long messageId = ContentUris.parseId(uri);
+			ContentValues val = new ContentValues();
+			val.put(MessagesContract.Columns.Messages.MESSAGE_UNREAD, "0");
+			affectedRows = db.update(MessagesContract.TABLE_MESSAGES, val,
+					MessagesContract.Columns.Messages._ID + " = ?",
+					new String[] { String.valueOf(messageId) });
 			getContext().getContentResolver().notifyChange(uri, null);
 			break;
 
