@@ -31,8 +31,9 @@ public final class MessagesContract extends AbstractContract {
 	public static final String CREATE_TABLE_MESSAGES_STRING = String
 			.format("CREATE TABLE IF NOT EXISTS %s (%s INTEGER PRIMARY KEY, %s TEXT NOT NULL,"
 					+ " %s TEXT, %s TEXT, %s TEXT, %s TEXT, %s INTEGER, %s TEXT, %s INTEGER, %s INTEGER NOT NULL, "
-					+ "FOREIGN KEY(%s) REFERENCES %s(%s))", TABLE_MESSAGES,
-					Columns.Messages._ID, Columns.Messages.MESSAGE_ID,
+					+ "FOREIGN KEY(%s) REFERENCES %s(%s), UNIQUE(%s, %s))",
+					TABLE_MESSAGES, Columns.Messages._ID,
+					Columns.Messages.MESSAGE_ID,
 					Columns.Messages.MESSAGE_SENDER_ID,
 					Columns.Messages.MESSAGE_RECEIVER_ID,
 					Columns.Messages.MESSAGE_SUBJECT, Columns.Messages.MESSAGE,
@@ -41,7 +42,8 @@ public final class MessagesContract extends AbstractContract {
 					Columns.Messages.MESSAGE_UNREAD,
 					Columns.Messages.MESSAGE_FOLDER_ID,
 					Columns.Messages.MESSAGE_FOLDER_ID, TABLE_MESSAGE_FOLDERS,
-					Columns.MessageFolders._ID);
+					Columns.MessageFolders._ID, Columns.Messages.MESSAGE_ID,
+					Columns.Messages.MESSAGE_FOLDER_ID);
 
 	// inbox message_folders tables
 	public static final String CREATE_TABLE_MESSAGE_FOLDERS_STRING = String

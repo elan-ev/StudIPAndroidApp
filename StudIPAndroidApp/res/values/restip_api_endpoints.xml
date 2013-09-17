@@ -27,13 +27,15 @@
     <!-- Messages -->
     <string name="restip_messages" translatable="false">%1$s/messages</string>
     <string name="restip_messages_messageid" translatable="false">%1$s/messages/%2$s</string>
+    <string name="restip_messages_box" translatable="false">%1$s/messages/%2$s</string>
     <string name="restip_messages_box_folderid" translatable="false">%1$s/messages/%2$s/%3$s</string>
-    <string name="restip_messages_inbox" translatable="false">%1$s/messages/in</string>
-    <string name="restip_messages_inbox_folderid" translatable="false">%1$s/messages/in/%2$s</string>
-    <string name="restip_messages_outbox" translatable="false">%1$s/messages/out</string>
-    <string name="restip_messages_outbox_folderid" translatable="false">%1$s/messages/out/%2$s</string>
     <string name="restip_messages_readall" translatable="false">%1$s/messages/read</string>
     <string name="restip_messages_read_messageid" translatable="false">%1$s/messages/%2$s/read</string>
+
+    <string-array name="restip_messages_box_identifiers">
+        <item>in</item>
+        <item>out</item>
+    </string-array>
 
     <!-- Contacts -->
     <string name="restip_contacts" translatable="false">%1$s/contacts</string>
