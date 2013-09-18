@@ -20,8 +20,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -42,13 +40,17 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.net.Server;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
-import de.elanev.studip.android.app.backend.net.services.syncservice.activitys.DocumentsResponderFragment;
+import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author joern
@@ -60,7 +62,8 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 			.getSimpleName();
 	private Bundle mArgs;
 	// private SimpleCursorAdapter mAdapter;
-	private DocumentsAdapter mAdapter;
+	private SimpleSectionedListAdapter mAdapter;
+	private DocumentsAdapter mDocumentsAdapter;
 	private Context mContext;
 
 	// TEST
@@ -79,21 +82,15 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 		mArgs = getArguments();
 		mContext = getActivity();
 
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = fm.beginTransaction();
-		DocumentsResponderFragment responderFragment = (DocumentsResponderFragment) fm
-				.findFragmentByTag("documentsResponder");
-		if (responderFragment == null) {
-			responderFragment = new DocumentsResponderFragment();
-			responderFragment.setFragment(this);
-			responderFragment.setArguments(mArgs);
-			ft.add(responderFragment, "documentsResponder");
-		}
-		ft.commit();
+		mDocumentsAdapter = new DocumentsAdapter(mContext);
+		mAdapter = new SimpleSectionedListAdapter(mContext,
+				R.layout.list_item_header, mDocumentsAdapter);
 
-		mAdapter = new DocumentsAdapter(mContext);
 		setListAdapter(mAdapter);
 
+		String cid = getArguments().getString(
+				CoursesContract.Columns.Courses.COURSE_ID);
+		SyncHelper.getInstance(mContext).performDocumentsSyncForCourse(cid);
 	}
 
 	@Override
@@ -220,16 +217,18 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 
 			// get the file information from the cursor at the selected position
 			Cursor c = (Cursor) getListAdapter().getItem(position);
-			String fileId = c.getString(c
-					.getColumnIndex(DocumentsContract.Columns.DOCUMENT_ID));
+			String fileId = c
+					.getString(c
+							.getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_ID));
 			// String fileName = c
 			// .getString(c
 			// .getColumnIndex(DocumentsContract.Columns.DOCUMENT_FILENAME));
-			String name = c.getString(c
-					.getColumnIndex(DocumentsContract.Columns.DOCUMENT_NAME));
+			String name = c
+					.getString(c
+							.getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_NAME));
 			String fileDesc = c
 					.getString(c
-							.getColumnIndex(DocumentsContract.Columns.DOCUMENT_DESCRIPTION));
+							.getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_DESCRIPTION));
 
 			try {
 				// Create the download URI
@@ -298,10 +297,14 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 				mContext,
 				DocumentsContract.CONTENT_URI,
 				DocumentsQuery.projection,
-				DocumentsContract.Columns.DOCUMENT_COURSE_ID + "= ? ",
+				DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_COURSE_ID
+						+ "= ? ",
 				new String[] { mArgs
 						.getString(CoursesContract.Columns.Courses.COURSE_ID) },
-				DocumentsContract.Columns.DOCUMENT_CHDATE + " DESC");
+				DocumentsContract.Qualified.DocumentFolders.DOCUMENTS_FOLDERS_FOLDER_NAME
+						+ " ASC, "
+						+ DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_CHDATE
+						+ " DESC");
 	}
 
 	/*
@@ -312,7 +315,33 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 	 * .support.v4.content.Loader, java.lang.Object)
 	 */
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		mAdapter.swapCursor(cursor);
+		if (getActivity() == null) {
+			return;
+		}
+
+		List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
+		cursor.moveToFirst();
+		String prevFolder = null;
+		String currFolder = null;
+		while (!cursor.isAfterLast()) {
+			currFolder = cursor
+					.getString(cursor
+							.getColumnIndex(DocumentsContract.Columns.DocumentFolders.FOLDER_NAME));
+			if (!TextUtils.equals(currFolder, prevFolder)) {
+				sections.add(new SimpleSectionedListAdapter.Section(cursor
+						.getPosition(), currFolder));
+			}
+
+			prevFolder = currFolder;
+
+			cursor.moveToNext();
+		}
+
+		mDocumentsAdapter.changeCursor(cursor);
+
+		SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
+				.size()];
+		mAdapter.setSections(sections.toArray(dummy));
 	}
 
 	/*
@@ -323,20 +352,22 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 	 * .support.v4.content.Loader)
 	 */
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.swapCursor(null);
+		mDocumentsAdapter.swapCursor(null);
 	}
 
 	/*
 	 * Fields to be selected from the database
 	 */
 	private interface DocumentsQuery {
-		public String[] projection = { DocumentsContract.Columns._ID,
-				DocumentsContract.Columns.DOCUMENT_NAME,
-				DocumentsContract.Columns.DOCUMENT_FILESIZE,
-				DocumentsContract.Columns.DOCUMENT_FILENAME,
-				DocumentsContract.Columns.DOCUMENT_DESCRIPTION,
-				DocumentsContract.Columns.DOCUMENT_MIME_TYPE,
-				DocumentsContract.Columns.DOCUMENT_ID };
+		public String[] projection = {
+				DocumentsContract.Qualified.Documents.DOCUMENTS_ID,
+				DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_NAME,
+				DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_FILESIZE,
+				DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_FILENAME,
+				DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_DESCRIPTION,
+				DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_MIME_TYPE,
+				DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_ID,
+				DocumentsContract.Qualified.DocumentFolders.DOCUMENTS_FOLDERS_FOLDER_NAME };
 	}
 
 	/*
@@ -361,16 +392,18 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 		 */
 		@Override
 		public void bindView(View view, Context context, final Cursor c) {
-			String fileName = c.getString(c
-					.getColumnIndex(DocumentsContract.Columns.DOCUMENT_NAME));
+			String fileName = c
+					.getString(c
+							.getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_NAME));
 			String fileMimeType = c
 					.getString(c
-							.getColumnIndex(DocumentsContract.Columns.DOCUMENT_MIME_TYPE));
+							.getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_MIME_TYPE));
 			String fileSize = c
 					.getString(c
-							.getColumnIndex(DocumentsContract.Columns.DOCUMENT_FILESIZE));
-			String fileId = c.getString(c
-					.getColumnIndex(DocumentsContract.Columns.DOCUMENT_ID));
+							.getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_FILESIZE));
+			String fileId = c
+					.getString(c
+							.getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_ID));
 
 			TextView fileNameTextView = (TextView) view
 					.findViewById(R.id.text1);
