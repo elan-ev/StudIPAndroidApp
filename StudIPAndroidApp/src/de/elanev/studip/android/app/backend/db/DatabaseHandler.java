@@ -81,9 +81,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		db.execSQL("drop table if exists " + UsersContract.TABLE);
 
 		// Documents
-		db.execSQL("drop table if exists " + DocumentsContract.TABLE);
+		db.execSQL("drop table if exists " + DocumentsContract.TABLE_DOCUMENTS);
 		db.execSQL("drop table if exists "
-				+ DocumentsContract.DOCUMENT_FOLDER_TABLE);
+				+ DocumentsContract.TABLE_DOCUMENT_FOLDERS);
 
 		// Messages
 		db.execSQL("drop table if exists " + MessagesContract.TABLE_MESSAGES);
