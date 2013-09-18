@@ -28,6 +28,8 @@ import de.elanev.studip.android.app.backend.datamodel.ContactGroups;
 import de.elanev.studip.android.app.backend.datamodel.Contacts;
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Courses;
+import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
+import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.backend.datamodel.Events;
 import de.elanev.studip.android.app.backend.datamodel.Message;
 import de.elanev.studip.android.app.backend.datamodel.MessageFolders;
@@ -45,6 +47,7 @@ import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.ContactsHandler;
 import de.elanev.studip.android.app.backend.net.sync.CoursesHandler;
+import de.elanev.studip.android.app.backend.net.sync.DocumentsHandler;
 import de.elanev.studip.android.app.backend.net.sync.EventsHandler;
 import de.elanev.studip.android.app.backend.net.sync.MessagesHandler;
 import de.elanev.studip.android.app.backend.net.sync.NewsHandler;
@@ -583,12 +586,13 @@ public class SyncHelper {
 	 */
 	public void performMessagesSync() {
 		Log.i(TAG, "PERFORMING MESSAGES SYNC");
-		
-		String[] boxes = mContext.getResources().getStringArray(R.array.restip_messages_box_identifiers);
 
-		for (String box : boxes) 
+		String[] boxes = mContext.getResources().getStringArray(
+				R.array.restip_messages_box_identifiers);
+
+		for (String box : boxes)
 			requestMessageFoldersForBox(box);
-		
+
 	}
 
 	/*
@@ -676,6 +680,118 @@ public class SyncHelper {
 			e.printStackTrace();
 		}
 
+	}
+
+	/**
+	 * Performs a sync of the folders for the passed course
+	 * 
+	 * @param courseId
+	 *            course id to perform the sync for
+	 */
+	public void performDocumentsSyncForCourse(final String courseId) {
+		Log.i(TAG, "PERFORMING DOCUMENTS SYNC FOR COURSE " + courseId);
+
+		String signedFoldersUrl;
+		try {
+			signedFoldersUrl = mConsumer.sign(String.format(mContext
+					.getString(R.string.restip_documents_rangeid_folder),
+					mServer.API_URL, courseId)
+					+ ".json");
+
+			JacksonRequest<DocumentFolders> messagesRequest = new JacksonRequest<DocumentFolders>(
+					signedFoldersUrl, DocumentFolders.class, null,
+					new Listener<DocumentFolders>() {
+						public void onResponse(DocumentFolders response) {
+							if (!response.documents.isEmpty())
+								try {
+									mContext.getContentResolver().applyBatch(
+											AbstractContract.CONTENT_AUTHORITY,
+											new DocumentsHandler(
+													response.documents,
+													courseId).parse());
+								} catch (RemoteException e) {
+									e.printStackTrace();
+								} catch (OperationApplicationException e) {
+									e.printStackTrace();
+								}
+
+							for (DocumentFolder folder : response.folders) {
+								requestDocumentsForFolder(folder, courseId);
+							}
+
+						}
+
+					}, new ErrorListener() {
+						public void onErrorResponse(VolleyError error) {
+							if (error.getMessage() != null)
+								Log.wtf(TAG, error.getMessage());
+						}
+					}, Method.GET);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+					.add(messagesRequest);
+		} catch (OAuthExpectationFailedException e) {
+			e.printStackTrace();
+		} catch (OAuthCommunicationException e) {
+			e.printStackTrace();
+		} catch (OAuthMessageSignerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Requests a folder and recursive the subfolders
+	 */
+	private void requestDocumentsForFolder(final DocumentFolder folder,
+			final String courseId) {
+		Log.i(TAG, "PERFORMING DOCUMENTS SYNC FOR COURSE " + courseId
+				+ " Folder: " + folder.folder_id);
+
+		String signedFoldersUrl;
+		try {
+			signedFoldersUrl = mConsumer
+					.sign(String.format(
+							mContext.getString(R.string.restip_documents_rangeid_folder_folderid),
+							mServer.API_URL, courseId, folder.folder_id)
+							+ ".json");
+			JacksonRequest<DocumentFolders> messagesRequest = new JacksonRequest<DocumentFolders>(
+					signedFoldersUrl, DocumentFolders.class, null,
+					new Listener<DocumentFolders>() {
+						public void onResponse(DocumentFolders response) {
+							if (!response.documents.isEmpty())
+								try {
+									mContext.getContentResolver().applyBatch(
+											AbstractContract.CONTENT_AUTHORITY,
+											new DocumentsHandler(
+													response.documents,
+													courseId, folder).parse());
+								} catch (RemoteException e) {
+									e.printStackTrace();
+								} catch (OperationApplicationException e) {
+									e.printStackTrace();
+								}
+
+							for (DocumentFolder folder : response.folders) {
+								// Recursive request the subfolders
+								requestDocumentsForFolder(folder, courseId);
+							}
+
+						}
+
+					}, new ErrorListener() {
+						public void onErrorResponse(VolleyError error) {
+							if (error.getMessage() != null)
+								Log.wtf(TAG, error.getMessage());
+						}
+					}, Method.GET);
+			VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+					.add(messagesRequest);
+		} catch (OAuthExpectationFailedException e) {
+			e.printStackTrace();
+		} catch (OAuthCommunicationException e) {
+			e.printStackTrace();
+		} catch (OAuthMessageSignerException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -75,6 +75,7 @@ public class RestIpProvider extends ContentProvider {
 
 	private static final int DOCUMENTS = 600;
 	private static final int DOCUMENTS_ID = 601;
+	private static final int DOCUMENTS_FOLDER = 602;
 
 	private static final int MESSAGES = 700;
 	private static final int MESSAGES_IN = 701;
@@ -134,6 +135,7 @@ public class RestIpProvider extends ContentProvider {
 
 		// matches for documents
 		matcher.addURI(authority, "documents", DOCUMENTS);
+		matcher.addURI(authority, "documents/folder", DOCUMENTS_FOLDER);
 		matcher.addURI(authority, "documents/#", DOCUMENTS_ID);
 
 		// matches for messages
@@ -444,13 +446,20 @@ public class RestIpProvider extends ContentProvider {
 			return ContentUris.withAppendedId(SemestersContract.CONTENT_URI,
 					rowId);
 		}
-//		case DOCUMENTS: {
-////			long rowId = db.insertWithOnConflict(DocumentsContract.TABLE, null,
-////					values, SQLiteDatabase.CONFLICT_IGNORE);
-//			getContext().getContentResolver().notifyChange(uri, null);
-//			return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
-//					rowId);
-//		}
+		case DOCUMENTS: {
+			long rowId = db.insertWithOnConflict(DocumentsContract.TABLE_DOCUMENTS, null,
+					values, SQLiteDatabase.CONFLICT_IGNORE);
+			getContext().getContentResolver().notifyChange(uri, null);
+			return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
+					rowId);
+		}
+		case DOCUMENTS_FOLDER: {
+			long rowId = db.insertWithOnConflict(DocumentsContract.TABLE_DOCUMENT_FOLDERS, null,
+					values, SQLiteDatabase.CONFLICT_IGNORE);
+			getContext().getContentResolver().notifyChange(uri, null);
+			return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
+					rowId);
+		}
 		case MESSAGES_FOLDERS: {
 			long rowId = insertIgnoringConflict(db,
 					MessagesContract.TABLE_MESSAGE_FOLDERS,
@@ -720,8 +729,8 @@ public class RestIpProvider extends ContentProvider {
 			} else {
 				orderBy = sortOrder;
 			}
-//			c = db.query(DocumentsContract.TABLE, projection, selection,
-//					selectionArgs, null, null, orderBy);
+			c = db.query(DocumentsContract.DOCUMENTS_JOIN_USERS_JOIN_COURSES_JOIN_FOLDERS, projection, selection,
+					selectionArgs, null, null, orderBy);
 			c.setNotificationUri(getContext().getContentResolver(),
 					DocumentsContract.CONTENT_URI);
 			break;
