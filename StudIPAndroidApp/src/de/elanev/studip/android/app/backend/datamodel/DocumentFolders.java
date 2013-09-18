@@ -18,8 +18,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentFolders {
 	public ArrayList<DocumentFolder> folders;
+	public ArrayList<Document> documents;
 
 	public DocumentFolders() {
 		folders = new ArrayList<DocumentFolder>();
+		documents = new ArrayList<Document>();
+	}
+
+	public DocumentFolders(ArrayList<DocumentFolder> folders) {
+		this.folders = folders;
+		documents = new ArrayList<Document>();
 	}
 }
