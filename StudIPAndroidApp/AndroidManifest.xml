@@ -28,7 +28,6 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.Studipappactionbarstyle"
         android:uiOptions="splitActionBarWhenNarrow">
-        <service android:name="de.elanev.studip.android.app.backend.net.services.syncservice.RestIPSyncService" />
 
         <!-- Authentication activities & first started activity -->
         <activity
