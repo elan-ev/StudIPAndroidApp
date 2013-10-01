@@ -16,14 +16,14 @@ import de.elanev.studip.android.app.backend.db.CoursesContract;
 
 /**
  * @author joern
- * 
+ *
  */
 public class CoursesHandler implements ResultHandler {
 
 	Courses mCourses = null;
 
 	/**
-	 * 
+	 *
 	 */
 	public CoursesHandler(Courses c) {
 		mCourses = c;
@@ -31,7 +31,7 @@ public class CoursesHandler implements ResultHandler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see de.elanev.studip.android.app.backend.net.sync.ResultHandler#parse()
 	 */
 	public ArrayList<ContentProviderOperation> parse() {
@@ -41,20 +41,15 @@ public class CoursesHandler implements ResultHandler {
 			operations.add(parseCourse(c));
 
 			// Load teacher and tutor information for course
-			for (String userId : c.teachers) {
-				operations.add(parseCourseUser(userId, c.course_id,
-						CoursesContract.USER_ROLE_TEACHER));
-			}
+			// TODO: Find fastest way to insert the users for a course
+			operations.addAll(parseCourseUser(c.teachers, c.course_id,
+					CoursesContract.USER_ROLE_TEACHER));
 
-			for (String userId : c.tutors) {
-				operations.add(parseCourseUser(userId, c.course_id,
-						CoursesContract.USER_ROLE_TUTOR));
-			}
+			operations.addAll(parseCourseUser(c.tutors, c.course_id,
+					CoursesContract.USER_ROLE_TUTOR));
 
-			for (String userId : c.students) {
-				operations.add(parseCourseUser(userId, c.course_id,
-						CoursesContract.USER_ROLE_STUDENT));
-			}
+			operations.addAll(parseCourseUser(c.students, c.course_id,
+					CoursesContract.USER_ROLE_STUDENT));
 
 		}
 
@@ -67,20 +62,25 @@ public class CoursesHandler implements ResultHandler {
 	 * @param userRoleTeacher
 	 * @return
 	 */
-	private ContentProviderOperation parseCourseUser(String userId,
-			String courseId, int role) {
-		final ContentProviderOperation.Builder courseUserBuilder = ContentProviderOperation
-				.newInsert(CoursesContract.COURSES_USERS_CONTENT_URI)
-				.withValue(
-						CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID,
-						courseId)
-				.withValue(
-						CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID,
-						userId)
-				.withValue(
-						CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE,
-						role);
-		return courseUserBuilder.build();
+	private ArrayList<ContentProviderOperation> parseCourseUser(
+			ArrayList<String> users, String courseId, int role) {
+		ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+
+		for (String userId : users) {
+			final ContentProviderOperation.Builder courseUserBuilder = ContentProviderOperation
+					.newInsert(CoursesContract.COURSES_USERS_CONTENT_URI)
+					.withValue(
+							CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID,
+							courseId)
+					.withValue(
+							CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID,
+							userId)
+					.withValue(
+							CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE,
+							role);
+			operations.add(courseUserBuilder.build());
+		}
+		return operations;
 	}
 
 	/**
