@@ -1,4 +1,5 @@
 buildscript {
+
     repositories {
         maven { url 'http://download.crashlytics.com/maven' }
     }
@@ -45,6 +46,16 @@ android {
             assets.srcDirs = ['assets']
         }
 
+        release {
+            manifest.srcFile 'AndroidManifestRelease.xml'
+        }
+
         instrumentTest.setRoot('tests')
+    }
+
+    buildTypes {
+        debug {
+            ext.enableCrashlytics = false;
+        }
     }
 }

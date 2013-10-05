@@ -14,21 +14,21 @@ import com.crashlytics.android.Crashlytics;
 
 /**
  * @author joern
- * 
+ *         <p/>
  *         Extends the Application class to enable crash reports through
  *         Crashlytics
  */
 public class StudIPApplication extends Application {
 
-	/*
-	 * (non-Javadoc)
-	 * @see android.app.Application#onCreate()
-	 */
-	@Override
-	public void onCreate() {
-		super.onCreate();
+    /*
+     * (non-Javadoc)
+     * @see android.app.Application#onCreate()
+     */
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
-		// Trigger initialization of Crashlytics
-		Crashlytics.start(this);
-	}
+        // Trigger initialization of Crashlytics
+        Crashlytics.start(this);
+    }
 }
