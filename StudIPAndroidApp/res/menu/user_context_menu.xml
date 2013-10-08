@@ -5,7 +5,8 @@
         android:id="@+id/add_to_favorites"
         android:icon="@drawable/ic_action_send"
         android:showAsAction="ifRoom|withText"
-        android:title="@string/Add_to_favorites">
+        android:title="@string/Add_to_favorites"
+        android:visible="false">
     </item>
     <item
         android:id="@+id/remove_from_favorites"

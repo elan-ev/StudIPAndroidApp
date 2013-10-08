@@ -22,7 +22,9 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 
+import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.ContactGroup;
 import de.elanev.studip.android.app.backend.datamodel.ContactGroups;
 import de.elanev.studip.android.app.backend.datamodel.Contacts;
@@ -165,14 +167,14 @@ public class SyncHelper {
 						public void onResponse(ContactGroups response) {
 
 							try {
-								if (!favoritesGroupExisting(response)) {
-									createFavoritesGroup();
-								} else {
+//								if (!favoritesGroupExisting(response)) {
+//									createFavoritesGroup();
+//								} else {
 									resolver.applyBatch(
 											AbstractContract.CONTENT_AUTHORITY,
 											new ContactGroupsHandler(response)
 													.parse());
-								}
+//								}
 
 							} catch (RemoteException e) {
 								e.printStackTrace();
@@ -478,25 +480,26 @@ public class SyncHelper {
 			final SignInFragment frag) {
 		return new Listener<News>() {
 			public void onResponse(News response) {
-				if (!response.news.isEmpty()) {
-					for (NewsItem n : response.news) {
-						requestUser(n.user_id);
-					}
 
-					try {
+				for (NewsItem n : response.news) {
+					requestUser(n.user_id);
+				}
+
+				try {
+					if (!response.news.isEmpty())
 						mContext.getContentResolver().applyBatch(
 								AbstractContract.CONTENT_AUTHORITY,
 								new NewsHandler(response, id).parse());
-						Log.i(TAG, "NEWS SYNC FOR COMPLETE");
-						performContactsSync();
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					} catch (OperationApplicationException e) {
-						e.printStackTrace();
-					} finally {
-						if (frag.isAdded())
-							frag.startNewsActivity();
-					}
+					
+					Log.i(TAG, "NEWS SYNC FOR COMPLETE");
+					performContactsSync();
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				} catch (OperationApplicationException e) {
+					e.printStackTrace();
+				} finally {
+					if (frag.isAdded())
+						frag.startNewsActivity();
 				}
 			}
 		};
