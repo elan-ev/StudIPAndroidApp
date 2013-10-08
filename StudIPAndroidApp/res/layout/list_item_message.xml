@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2013 ELAN e.V.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v3.0
@@ -10,80 +9,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/background_light" >
+    android:background="@android:color/background_light">
 
-    <RelativeLayout
-        android:id="@+id/senderinfo"
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/user_image"
+        android:layout_width="@dimen/user_image_medium"
+        android:layout_height="@dimen/user_image_medium"
+        android:layout_alignParentLeft="true"
+        android:contentDescription="@string/user_image"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/message_subject"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp" >
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_toRightOf="@id/user_image"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif-condensed"
+        android:maxLines="2"
+        android:textColor="@color/primary_text_light"
+        android:textIsSelectable="false"
+        android:textSize="@dimen/text_size_medium" />
 
-        <com.android.volley.toolbox.NetworkImageView
-            android:id="@+id/user_image"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentLeft="true"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="4dp"
-            android:src="@drawable/nobody_normal"
-            android:visibility="gone"
-            android:contentDescription="@string/user_image"/>
-
-        <ImageView
-            android:id="@+id/user_image_placeholder"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentLeft="true"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="4dp"
-            android:src="@drawable/nobody_normal"
-            android:contentDescription="@string/user_image" />
-
-        <TextView
-            android:id="@+id/message_sender"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="4dp"
-            android:layout_toRightOf="@id/user_image"
-            android:textAppearance="@android:style/TextAppearance.Small"
-            android:textColor="@android:color/black"
-            android:textIsSelectable="false" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/message_sender"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/senderinfo"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp" >
-
-        <ImageView
-            android:id="@+id/message_unread_icon"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="4dp"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/message_unread_icon"
-            android:scaleType="fitCenter"
-            android:src="@drawable/blue_dot"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/message_subject"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginTop="4dp"
-            android:layout_toRightOf="@id/message_unread_icon"
-            android:gravity="center_vertical"
-            android:textAppearance="@android:style/TextAppearance.Small"
-            android:textColor="@android:color/black"
-            android:textIsSelectable="false" />
-    </RelativeLayout>
+        android:layout_below="@id/message_subject"
+        android:layout_marginBottom="4dp"
+        android:layout_toRightOf="@id/user_image"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif-condensed"
+        android:maxLines="1"
+        android:textAllCaps="true"
+        android:textColor="@color/secondary_text_light"
+        android:textIsSelectable="false"
+        android:textSize="@dimen/text_size_small" />
 
 </RelativeLayout>
