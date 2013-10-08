@@ -36,7 +36,9 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.NetworkImageView;
+import com.squareup.picasso.Picasso;
 
+import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -80,9 +82,8 @@ public class MessageDetailFragment extends SherlockFragment implements
     private long mDate;
     private String mApiUrl;
     private VolleyOAuthConsumer mConsumer;
-    private TextView mMessageSubjectTextView;
-    private TextView mMessageDateTextView;
-    private TextView mMessageBodyTextView;
+    private TextView mMessageSubjectTextView, mMessageDateTextView, mMessageBodyTextView;
+    private ImageView mUserImageView;
 
     /*
      * (non-Javadoc)
@@ -121,6 +122,7 @@ public class MessageDetailFragment extends SherlockFragment implements
         mMessageDateTextView = (TextView) v
                 .findViewById(R.id.message_sender_and_date);
         mMessageBodyTextView = (TextView) v.findViewById(R.id.message_body);
+        mUserImageView = (ImageView) v.findViewById(R.id.user_image);
         return v;
 
     }
@@ -230,19 +232,18 @@ public class MessageDetailFragment extends SherlockFragment implements
                 String.format("%s %s %s %s", mSenderTitlePre, mSenderForename,
                         mSenderLastname, mSenderTitlePost), mDate, mContext));
 
-        if (!mUserImageUrl.contains("nobody")) {
-            // find views and set infos
-            final NetworkImageView userImage = (NetworkImageView) getView()
-                    .findViewById(R.id.user_image);
-            userImage.setImageUrl(mUserImageUrl,
-                    VolleyHttp.getVolleyHttp(getActivity()).getImageLoader());
-            userImage.setVisibility(View.VISIBLE);
+        Picasso picasso = Picasso.with(mContext);
 
-            ((ImageView) getView().findViewById(R.id.user_image_placeholder))
-                    .setVisibility(View.GONE);
+        if (BuildConfig.DEBUG) {
+            picasso.setDebugging(true);
         }
 
-        
+        picasso.load(mUserImageUrl)
+                .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+                .centerCrop()
+                .placeholder(R.drawable.nobody_normal)
+                .into(mUserImageView);
+
 
     }
 
