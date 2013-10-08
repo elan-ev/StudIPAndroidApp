@@ -30,7 +30,9 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.android.volley.toolbox.NetworkImageView;
+import com.squareup.picasso.Picasso;
 
+import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
@@ -41,368 +43,360 @@ import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * @author joern
- * 
  */
 public class CourseOverviewFragment extends SherlockFragment implements
-		LoaderCallbacks<Cursor> {
-	public static final String TAG = CourseOverviewFragment.class
-			.getSimpleName();
-	private static final int COURSE_LOADER = 101;
-	private static final int COURSE_EVENTS_LOADER = 102;
-	private static final int COURSE_NEWS_LOADER = 103;
+        LoaderCallbacks<Cursor> {
+    public static final String TAG = CourseOverviewFragment.class
+            .getSimpleName();
+    private static final int COURSE_LOADER = 101;
+    private static final int COURSE_EVENTS_LOADER = 102;
+    private static final int COURSE_NEWS_LOADER = 103;
+    protected final ContentObserver mObserverCourse = new ContentObserver(
+            new Handler()) {
 
-	private TextView mTitleTextView;
-	private TextView mTeacherNameTextView;
-	private TextView mDescriptionTextView;
-	private TextView mNewsTitleTextView;
-	private TextView mNewsAuthorTextView;
-	private TextView mNewsTextTextView;
-	private TextView mNewsShowMoreTextView;
+        @Override
+        public void onChange(boolean selfChange) {
+            if (getActivity() == null) {
+                return;
+            }
 
-	private Context mContext;
-	private Bundle mArgs;
+            Loader<Cursor> loader = getLoaderManager().getLoader(COURSE_LOADER);
+            if (loader != null) {
+                loader.forceLoad();
+            }
+        }
+    };
+    protected final ContentObserver mObserverEvents = new ContentObserver(
+            new Handler()) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		mArgs = getArguments();
-		mContext = getActivity();
-	}
+        @Override
+        public void onChange(boolean selfChange) {
+            if (getActivity() == null) {
+                return;
+            }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
-	 * android.view.ViewGroup, android.os.Bundle)
-	 */
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+            Loader<Cursor> loader = getLoaderManager().getLoader(
+                    COURSE_EVENTS_LOADER);
+            if (loader != null) {
+                loader.forceLoad();
+            }
+        }
+    };
+    protected final ContentObserver mObserverNews = new ContentObserver(
+            new Handler()) {
 
-		View view = inflater.inflate(R.layout.fragment_course_details, null);
+        @Override
+        public void onChange(boolean selfChange) {
+            if (getActivity() == null) {
+                return;
+            }
 
-		mTitleTextView = (TextView) view.findViewById(R.id.course_title);
-		mDescriptionTextView = (TextView) view
-				.findViewById(R.id.course_description);
-		mTeacherNameTextView = (TextView) view
-				.findViewById(R.id.course_teacher_name);
-		mNewsTitleTextView = (TextView) view.findViewById(R.id.news_title);
-		mNewsAuthorTextView = (TextView) view.findViewById(R.id.news_author);
-		mNewsTextTextView = (TextView) view.findViewById(R.id.news_text);
-		mNewsShowMoreTextView = (TextView) view
-				.findViewById(R.id.show_news_body);
-		return view;
-	}
+            Loader<Cursor> loader = getLoaderManager().getLoader(
+                    COURSE_NEWS_LOADER);
+            if (loader != null) {
+                loader.forceLoad();
+            }
+        }
+    };
+    private TextView mTitleTextView, mTeacherNameTextView, mDescriptionTextView, mNewsTitleTextView,
+            mNewsAuthorTextView, mNewsTextTextView, mNewsShowMoreTextView;
+    private ImageView mUserImageView;
+    private Context mContext;
+    private Bundle mArgs;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-	 */
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+    /*
+     * (non-Javadoc)
+     *
+     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mArgs = getArguments();
+        mContext = getActivity();
+    }
 
-		// initialize CursorLoaders with IDs
-		LoaderManager lm = getLoaderManager();
-		lm.initLoader(COURSE_LOADER, mArgs, this);
-		lm.initLoader(COURSE_EVENTS_LOADER, mArgs, this);
-		lm.initLoader(COURSE_NEWS_LOADER, mArgs, this);
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
+     * android.view.ViewGroup, android.os.Bundle)
+     */
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-		// mListView.setAdapter(mAdapter);
+        View view = inflater.inflate(R.layout.fragment_course_details, null);
 
-		mNewsShowMoreTextView.setOnClickListener(new OnClickListener() {
+        mTitleTextView = (TextView) view.findViewById(R.id.course_title);
+        mDescriptionTextView = (TextView) view
+                .findViewById(R.id.course_description);
+        mTeacherNameTextView = (TextView) view
+                .findViewById(R.id.course_teacher_name);
+        mNewsTitleTextView = (TextView) view.findViewById(R.id.news_title);
+        mNewsAuthorTextView = (TextView) view.findViewById(R.id.news_author);
+        mNewsTextTextView = (TextView) view.findViewById(R.id.news_text);
+        mNewsShowMoreTextView = (TextView) view
+                .findViewById(R.id.show_news_body);
+        mUserImageView = (ImageView) view.findViewById(R.id.user_image);
+        return view;
+    }
 
-			public void onClick(View v) {
-				v.setVisibility(View.GONE);
-				mNewsTextTextView.setVisibility(View.VISIBLE);
+    /*
+     * (non-Javadoc)
+     *
+     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+     */
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-			}
-		});
-	}
+        // initialize CursorLoaders with IDs
+        LoaderManager lm = getLoaderManager();
+        lm.initLoader(COURSE_LOADER, mArgs, this);
+        lm.initLoader(COURSE_EVENTS_LOADER, mArgs, this);
+        lm.initLoader(COURSE_NEWS_LOADER, mArgs, this);
 
-	protected final ContentObserver mObserverCourse = new ContentObserver(
-			new Handler()) {
+        // mListView.setAdapter(mAdapter);
 
-		@Override
-		public void onChange(boolean selfChange) {
-			if (getActivity() == null) {
-				return;
-			}
+        mNewsShowMoreTextView.setOnClickListener(new OnClickListener() {
 
-			Loader<Cursor> loader = getLoaderManager().getLoader(COURSE_LOADER);
-			if (loader != null) {
-				loader.forceLoad();
-			}
-		}
-	};
+            public void onClick(View v) {
+                v.setVisibility(View.GONE);
+                mNewsTextTextView.setVisibility(View.VISIBLE);
 
-	protected final ContentObserver mObserverEvents = new ContentObserver(
-			new Handler()) {
+            }
+        });
+    }
 
-		@Override
-		public void onChange(boolean selfChange) {
-			if (getActivity() == null) {
-				return;
-			}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
+     * (android.app.Activity)
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        final ContentResolver contentResolver = activity.getContentResolver();
 
-			Loader<Cursor> loader = getLoaderManager().getLoader(
-					COURSE_EVENTS_LOADER);
-			if (loader != null) {
-				loader.forceLoad();
-			}
-		}
-	};
+        contentResolver.registerContentObserver(CoursesContract.CONTENT_URI,
+                true, mObserverCourse);
 
-	protected final ContentObserver mObserverNews = new ContentObserver(
-			new Handler()) {
+        contentResolver.registerContentObserver(EventsContract.CONTENT_URI,
+                true, mObserverEvents);
 
-		@Override
-		public void onChange(boolean selfChange) {
-			if (getActivity() == null) {
-				return;
-			}
+        contentResolver.registerContentObserver(CoursesContract.CONTENT_URI,
+                true, mObserverNews);
+    }
 
-			Loader<Cursor> loader = getLoaderManager().getLoader(
-					COURSE_NEWS_LOADER);
-			if (loader != null) {
-				loader.forceLoad();
-			}
-		}
-	};
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.actionbarsherlock.app.SherlockFragment#onDetach()
+     */
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        final ContentResolver contentResolver = getActivity()
+                .getContentResolver();
+        contentResolver.unregisterContentObserver(mObserverCourse);
+        contentResolver.unregisterContentObserver(mObserverEvents);
+        contentResolver.unregisterContentObserver(mObserverNews);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-	 * (android.app.Activity)
-	 */
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		final ContentResolver contentResolver = activity.getContentResolver();
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
+     * android.os.Bundle)
+     */
+    public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 
-		contentResolver.registerContentObserver(CoursesContract.CONTENT_URI,
-				true, mObserverCourse);
+        // Create loaders based on id
+        switch (id) {
+            case COURSE_LOADER:
+                return new CursorLoader(
+                        mContext,
+                        CoursesContract.CONTENT_URI
+                                .buildUpon()
+                                .appendPath(
+                                        data.getString(CoursesContract.Columns.Courses._ID))
+                                .build(), CourseItemQuery.projection, null, null,
+                        CoursesContract.DEFAULT_SORT_ORDER);
 
-		contentResolver.registerContentObserver(EventsContract.CONTENT_URI,
-				true, mObserverEvents);
+            case COURSE_EVENTS_LOADER:
+                return new CursorLoader(
+                        mContext,
+                        CoursesContract.CONTENT_URI
+                                .buildUpon()
+                                .appendPath("events")
+                                .appendPath(
+                                        data.getString(CoursesContract.Columns.Courses.COURSE_ID))
+                                .build(), CourseEventQuery.projection,
+                        EventsContract.Columns.EVENT_START
+                                + " >= strftime('%s','now')", null,
+                        EventsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
 
-		contentResolver.registerContentObserver(CoursesContract.CONTENT_URI,
-				true, mObserverNews);
-	}
+            case COURSE_NEWS_LOADER:
+                return new CursorLoader(
+                        mContext,
+                        NewsContract.CONTENT_URI
+                                .buildUpon()
+                                .appendPath(
+                                        data.getString(CoursesContract.Columns.Courses.COURSE_ID))
+                                .build(), CourseNewsQuery.PROJECTION, null, null,
+                        NewsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
+        }
+        return null;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.actionbarsherlock.app.SherlockFragment#onDetach()
-	 */
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		final ContentResolver contentResolver = getActivity()
-				.getContentResolver();
-		contentResolver.unregisterContentObserver(mObserverCourse);
-		contentResolver.unregisterContentObserver(mObserverEvents);
-		contentResolver.unregisterContentObserver(mObserverNews);
-	}
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-	 * android.os.Bundle)
-	 */
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
+     * .support.v4.content.Loader, java.lang.Object)
+     */
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 
-		// Create loaders based on id
-		switch (id) {
-		case COURSE_LOADER:
-			return new CursorLoader(
-					mContext,
-					CoursesContract.CONTENT_URI
-							.buildUpon()
-							.appendPath(
-									data.getString(CoursesContract.Columns.Courses._ID))
-							.build(), CourseItemQuery.projection, null, null,
-					CoursesContract.DEFAULT_SORT_ORDER);
+        if (getActivity() == null) {
+            return;
+        }
+        cursor.moveToFirst();
 
-		case COURSE_EVENTS_LOADER:
-			return new CursorLoader(
-					mContext,
-					CoursesContract.CONTENT_URI
-							.buildUpon()
-							.appendPath("events")
-							.appendPath(
-									data.getString(CoursesContract.Columns.Courses.COURSE_ID))
-							.build(), CourseEventQuery.projection,
-					EventsContract.Columns.EVENT_START
-							+ " >= strftime('%s','now')", null,
-					EventsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
+        int loaderId = loader.getId();
+        switch (loaderId) {
+            case COURSE_LOADER:
 
-		case COURSE_NEWS_LOADER:
-			return new CursorLoader(
-					mContext,
-					NewsContract.CONTENT_URI
-							.buildUpon()
-							.appendPath(
-									data.getString(CoursesContract.Columns.Courses.COURSE_ID))
-							.build(), CourseNewsQuery.PROJECTION, null, null,
-					NewsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
-		}
-		return null;
+                if (!cursor.isAfterLast()) {
+                    String courseTitle = cursor
+                            .getString(cursor
+                                    .getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
+                    String courseDescription = cursor
+                            .getString(cursor
+                                    .getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
+                    String teacherAvatarUrl = cursor
+                            .getString(cursor
+                                    .getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
+                    getSherlockActivity().setTitle(courseTitle);
+                    mTitleTextView.setText(courseTitle);
+                    mTeacherNameTextView
+                            .setText(cursor.getString(cursor
+                                    .getColumnIndex(UsersContract.Columns.USER_TITLE_PRE))
+                                    + " "
+                                    + cursor.getString(cursor
+                                    .getColumnIndex(UsersContract.Columns.USER_FORENAME))
+                                    + " "
+                                    + cursor.getString(cursor
+                                    .getColumnIndex(UsersContract.Columns.USER_LASTNAME))
+                                    + " "
+                                    + cursor.getString(cursor
+                                    .getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
 
-	}
+                    if (!TextUtils.isEmpty(courseDescription)) {
+                        mDescriptionTextView.setText(courseDescription);
+                        mDescriptionTextView
+                                .setMovementMethod(new ScrollingMovementMethod());
+                    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-	 * .support.v4.content.Loader, java.lang.Object)
-	 */
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+                    Picasso picasso = Picasso.with(mContext);
 
-		if (getActivity() == null) {
-			return;
-		}
-		cursor.moveToFirst();
+                    if (BuildConfig.DEBUG) {
+                        picasso.setDebugging(true);
+                    }
 
-		int loaderId = loader.getId();
-		switch (loaderId) {
-		case COURSE_LOADER:
+                    picasso.load(teacherAvatarUrl)
+                            .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+                            .centerCrop()
+                            .placeholder(R.drawable.nobody_normal)
+                            .into(mUserImageView);
 
-			if (!cursor.isAfterLast()) {
-				String courseTitle = cursor
-						.getString(cursor
-								.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
-				String courseDescription = cursor
-						.getString(cursor
-								.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
-				String teacherAvatarUrl = cursor
-						.getString(cursor
-								.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-				getSherlockActivity().setTitle(courseTitle);
-				mTitleTextView.setText(courseTitle);
-				mTeacherNameTextView
-						.setText(cursor.getString(cursor
-								.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE))
-								+ " "
-								+ cursor.getString(cursor
-										.getColumnIndex(UsersContract.Columns.USER_FORENAME))
-								+ " "
-								+ cursor.getString(cursor
-										.getColumnIndex(UsersContract.Columns.USER_LASTNAME))
-								+ " "
-								+ cursor.getString(cursor
-										.getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
+                }
+                break;
+            case COURSE_EVENTS_LOADER:
+                final TextView nextAppointmentTextView = (TextView) getView()
+                        .findViewById(R.id.course_next_appointment);
+                if (cursor.getCount() >= 1) {
 
-				if (!teacherAvatarUrl.contains("nobody")) {
-					final NetworkImageView teacherImage = (NetworkImageView) getView()
-							.findViewById(R.id.user_image);
-					teacherImage.setImageUrl(teacherAvatarUrl,
-							VolleyHttp.getVolleyHttp(mContext).getImageLoader());
-					teacherImage.setVisibility(View.VISIBLE);
-					((ImageView) getView().findViewById(
-							R.id.user_image_placeholder))
-							.setVisibility(View.GONE);
-				}
+                    String room = cursor.getString(cursor
+                            .getColumnIndex(EventsContract.Columns.EVENT_ROOM));
+                    String title = cursor.getString(cursor
+                            .getColumnIndex(EventsContract.Columns.EVENT_TITLE));
+                    nextAppointmentTextView.setText(String.format("%s\n%s", title,
+                            room));
+                }
 
-				if (!TextUtils.isEmpty(courseDescription)) {
-					mDescriptionTextView.setText(courseDescription);
-					mDescriptionTextView
-							.setMovementMethod(new ScrollingMovementMethod());
-				}
+                break;
+            case COURSE_NEWS_LOADER:
+                if (cursor.getCount() >= 1) {
 
-			}
-			break;
-		case COURSE_EVENTS_LOADER:
-			final TextView nextAppointmentTextView = (TextView) getView()
-					.findViewById(R.id.course_next_appointment);
-			if (cursor.getCount() >= 1) {
+                    final String newsTopic = cursor.getString(cursor
+                            .getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
+                    final Long newsDate = cursor.getLong(cursor
+                            .getColumnIndex(NewsContract.Columns.NEWS_DATE));
+                    final String newsBody = cursor.getString(cursor
+                            .getColumnIndex(NewsContract.Columns.NEWS_BODY));
+                    final String userForename = cursor.getString(cursor
+                            .getColumnIndex(UsersContract.Columns.USER_FORENAME));
+                    final String userLastname = cursor.getString(cursor
+                            .getColumnIndex(UsersContract.Columns.USER_LASTNAME));
 
-				String room = cursor.getString(cursor
-						.getColumnIndex(EventsContract.Columns.EVENT_ROOM));
-				String title = cursor.getString(cursor
-						.getColumnIndex(EventsContract.Columns.EVENT_TITLE));
-				nextAppointmentTextView.setText(String.format("%s\n%s", title,
-						room));
-			}
+                    mNewsTitleTextView.setText(newsTopic);
+                    mNewsAuthorTextView.setText(TextTools
+                            .getLocalizedAuthorAndDateString(String.format("%s %s",
+                                    userForename, userLastname), newsDate,
+                                    getActivity()));
+                    mNewsAuthorTextView.setVisibility(View.VISIBLE);
+                    mNewsShowMoreTextView.setVisibility(View.VISIBLE);
+                    mNewsTextTextView.setText(Html.fromHtml(newsBody));
 
-			break;
-		case COURSE_NEWS_LOADER:
-			if (cursor.getCount() >= 1) {
+                }
+                break;
+        }
 
-				final String newsTopic = cursor.getString(cursor
-						.getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
-				final Long newsDate = cursor.getLong(cursor
-						.getColumnIndex(NewsContract.Columns.NEWS_DATE));
-				final String newsBody = cursor.getString(cursor
-						.getColumnIndex(NewsContract.Columns.NEWS_BODY));
-				final String userForename = cursor.getString(cursor
-						.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-				final String userLastname = cursor.getString(cursor
-						.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
+    }
 
-				mNewsTitleTextView.setText(newsTopic);
-				mNewsAuthorTextView.setText(TextTools
-						.getLocalizedAuthorAndDateString(String.format("%s %s",
-								userForename, userLastname), newsDate,
-								getActivity()));
-				mNewsAuthorTextView.setVisibility(View.VISIBLE);
-				mNewsShowMoreTextView.setVisibility(View.VISIBLE);
-				mNewsTextTextView.setText(Html.fromHtml(newsBody));
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
+     * .support.v4.content.Loader)
+     */
+    public void onLoaderReset(Loader<Cursor> loader) {
+    }
 
-			}
-			break;
-		}
+    private interface CourseItemQuery {
+        String[] projection = {
+                CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
+                CoursesContract.Qualified.Courses.COURSES_COURSE_DESCIPTION,
+                UsersContract.Qualified.USERS_USER_TITLE_PRE,
+                UsersContract.Qualified.USERS_USER_FORENAME,
+                UsersContract.Qualified.USERS_USER_LASTNAME,
+                UsersContract.Qualified.USERS_USER_TITLE_POST,
+                UsersContract.Qualified.USERS_USER_AVATAR_NORMAL};
+    }
 
-	}
+    private interface CourseEventQuery {
+        String[] projection = {EventsContract.Columns.EVENT_TITLE,
+                EventsContract.Columns.EVENT_START,
+                EventsContract.Columns.EVENT_END,
+                EventsContract.Columns.EVENT_ROOM};
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-	 * .support.v4.content.Loader)
-	 */
-	public void onLoaderReset(Loader<Cursor> loader) {
-	}
+    public interface CourseNewsQuery {
 
-	private interface CourseItemQuery {
-		String[] projection = {
-				CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
-				CoursesContract.Qualified.Courses.COURSES_COURSE_DESCIPTION,
-				UsersContract.Qualified.USERS_USER_TITLE_PRE,
-				UsersContract.Qualified.USERS_USER_FORENAME,
-				UsersContract.Qualified.USERS_USER_LASTNAME,
-				UsersContract.Qualified.USERS_USER_TITLE_POST,
-				UsersContract.Qualified.USERS_USER_AVATAR_NORMAL };
-	}
+        String[] PROJECTION = {NewsContract.Qualified.NEWS_NEWS_TOPIC,
+                NewsContract.Qualified.NEWS_NEWS_BODY,
+                NewsContract.Qualified.NEWS_NEWS_DATE,
+                UsersContract.Qualified.USERS_USER_FORENAME,
+                UsersContract.Qualified.USERS_USER_LASTNAME};
 
-	private interface CourseEventQuery {
-		String[] projection = { EventsContract.Columns.EVENT_TITLE,
-				EventsContract.Columns.EVENT_START,
-				EventsContract.Columns.EVENT_END,
-				EventsContract.Columns.EVENT_ROOM };
-	}
-
-	public interface CourseNewsQuery {
-
-		String[] PROJECTION = { NewsContract.Qualified.NEWS_NEWS_TOPIC,
-				NewsContract.Qualified.NEWS_NEWS_BODY,
-				NewsContract.Qualified.NEWS_NEWS_DATE,
-				UsersContract.Qualified.USERS_USER_FORENAME,
-				UsersContract.Qualified.USERS_USER_LASTNAME };
-
-	}
+    }
 
 }
