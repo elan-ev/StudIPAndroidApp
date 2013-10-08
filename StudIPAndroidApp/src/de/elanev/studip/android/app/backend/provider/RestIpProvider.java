@@ -50,7 +50,13 @@ public class RestIpProvider extends ContentProvider {
 	private static final long SYNC_THRESHOLD = 10000;
 	private static final UriMatcher sUriMatcher = buildUriMatcher();
 
-	private long mLastSync = -1;
+	private long mLastDocumentsSync = -1;
+	private long mLastCoursesSync = -1;
+	private long mLastNewsSync = -1;
+	private long mLastEventsSync = -1;
+	private long mLastMessagesSync = -1;
+	private long mLastContactsSync = -1;
+	private long mLastContactGroupsSync = -1;
 
 	private static final int NEWS = 100;
 	private static final int NEWS_ID = 101;
@@ -76,6 +82,7 @@ public class RestIpProvider extends ContentProvider {
 	private static final int DOCUMENTS = 600;
 	private static final int DOCUMENTS_ID = 601;
 	private static final int DOCUMENTS_FOLDER = 602;
+	private static final int DOCUMENTS_COURSE_ID = 603;
 
 	private static final int MESSAGES = 700;
 	private static final int MESSAGES_IN = 701;
@@ -137,6 +144,7 @@ public class RestIpProvider extends ContentProvider {
 		matcher.addURI(authority, "documents", DOCUMENTS);
 		matcher.addURI(authority, "documents/folder", DOCUMENTS_FOLDER);
 		matcher.addURI(authority, "documents/#", DOCUMENTS_ID);
+		matcher.addURI(authority, "documents/*", DOCUMENTS_COURSE_ID);
 
 		// matches for messages
 		matcher.addURI(authority, "messages", MESSAGES);
@@ -218,7 +226,7 @@ public class RestIpProvider extends ContentProvider {
 			return SemestersContract.CONTENT_TYPE;
 		case SEMESTERS_ID:
 			return SemestersContract.CONTENT_ITEM_TYPE;
-		case DOCUMENTS:
+		case DOCUMENTS_COURSE_ID:
 			return DocumentsContract.CONTENT_TYPE;
 		case DOCUMENTS_ID:
 			return DocumentsContract.CONTENT_ITEM_TYPE;
@@ -302,7 +310,7 @@ public class RestIpProvider extends ContentProvider {
 		case SEMESTERS: {
 			break;
 		}
-		case DOCUMENTS: {
+		case DOCUMENTS_COURSE_ID: {
 			break;
 		}
 		case MESSAGES_ID: {
@@ -447,15 +455,17 @@ public class RestIpProvider extends ContentProvider {
 					rowId);
 		}
 		case DOCUMENTS: {
-			long rowId = db.insertWithOnConflict(DocumentsContract.TABLE_DOCUMENTS, null,
-					values, SQLiteDatabase.CONFLICT_IGNORE);
+			long rowId = db.insertWithOnConflict(
+					DocumentsContract.TABLE_DOCUMENTS, null, values,
+					SQLiteDatabase.CONFLICT_IGNORE);
 			getContext().getContentResolver().notifyChange(uri, null);
 			return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
 					rowId);
 		}
 		case DOCUMENTS_FOLDER: {
-			long rowId = db.insertWithOnConflict(DocumentsContract.TABLE_DOCUMENT_FOLDERS, null,
-					values, SQLiteDatabase.CONFLICT_IGNORE);
+			long rowId = db.insertWithOnConflict(
+					DocumentsContract.TABLE_DOCUMENT_FOLDERS, null, values,
+					SQLiteDatabase.CONFLICT_IGNORE);
 			getContext().getContentResolver().notifyChange(uri, null);
 			return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
 					rowId);
@@ -643,10 +653,10 @@ public class RestIpProvider extends ContentProvider {
 		case COURSES_ID_EVENTS: {
 			String cid = uri.getLastPathSegment();
 			long currTime = System.currentTimeMillis();
-			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+			if ((currTime - mLastEventsSync) > SYNC_THRESHOLD) {
 				SyncHelper.getInstance(getContext())
 						.performEventsSyncForCourseId(cid);
-				mLastSync = currTime;
+				mLastEventsSync = currTime;
 			}
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = EventsContract.DEFAULT_SORT_ORDER;
@@ -723,17 +733,35 @@ public class RestIpProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(),
 					UsersContract.CONTENT_URI);
 			break;
-		case DOCUMENTS:
+		case DOCUMENTS_COURSE_ID: {
+			String cid = uri.getLastPathSegment();
+			long currTime = System.currentTimeMillis();
+			if ((currTime - mLastDocumentsSync) > SYNC_THRESHOLD) {
+				SyncHelper.getInstance(getContext())
+						.performDocumentsSyncForCourse(cid);
+				mLastDocumentsSync = currTime;
+			}
+
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = DocumentsContract.DEFAULT_SORT_ORDER;
 			} else {
 				orderBy = sortOrder;
 			}
-			c = db.query(DocumentsContract.DOCUMENTS_JOIN_USERS_JOIN_COURSES_JOIN_FOLDERS, projection, selection,
-					selectionArgs, null, null, orderBy);
+			c = db.query(
+					DocumentsContract.DOCUMENTS_JOIN_USERS_JOIN_COURSES_JOIN_FOLDERS,
+					projection,
+					DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_COURSE_ID
+							+ " = "
+							+ '"'
+							+ cid
+							+ '"'
+							+ (!TextUtils.isEmpty(selection) ? " AND ("
+									+ selection + ")" : ""), selectionArgs,
+					null, null, orderBy);
 			c.setNotificationUri(getContext().getContentResolver(),
 					DocumentsContract.CONTENT_URI);
 			break;
+		}
 		case MESSAGES_ID: {
 			long messageId = ContentUris.parseId(uri);
 			if (TextUtils.isEmpty(sortOrder)) {
@@ -789,9 +817,9 @@ public class RestIpProvider extends ContentProvider {
 			break;
 		case MESSAGES_FOLDER_MESSAGES: {
 			long currTime = System.currentTimeMillis();
-			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+			if ((currTime - mLastMessagesSync) > SYNC_THRESHOLD) {
 				SyncHelper.getInstance(getContext()).performMessagesSync();
-				mLastSync = currTime;
+				mLastMessagesSync = currTime;
 			}
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = MessagesContract.DEFAULT_SORT_ORDER_MESSAGES;
@@ -816,9 +844,9 @@ public class RestIpProvider extends ContentProvider {
 		}
 		case MESSAGES_FOLDER_NAME_MESSAGES: {
 			long currTime = System.currentTimeMillis();
-			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+			if ((currTime - mLastMessagesSync) > SYNC_THRESHOLD) {
 				SyncHelper.getInstance(getContext()).performMessagesSync();
-				mLastSync = currTime;
+				mLastMessagesSync = currTime;
 			}
 			if (TextUtils.isEmpty(sortOrder)) {
 				orderBy = MessagesContract.DEFAULT_SORT_ORDER_MESSAGES;
@@ -833,7 +861,9 @@ public class RestIpProvider extends ContentProvider {
 					projection,
 					MessagesContract.Qualified.MessageFolders.MESSAGES_FOLDERS_MESSAGE_FOLDER_NAME
 							+ " = "
-							+ "'"+folderName+"'"
+							+ "'"
+							+ folderName
+							+ "'"
 							+ (!TextUtils.isEmpty(selection) ? " AND ("
 									+ selection + ")" : ""), selectionArgs,
 					null, null, orderBy);
@@ -843,9 +873,9 @@ public class RestIpProvider extends ContentProvider {
 		}
 		case CONTACTS: {
 			long currTime = System.currentTimeMillis();
-			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+			if ((currTime - mLastContactsSync) > SYNC_THRESHOLD) {
 				SyncHelper.getInstance(getContext()).performContactsSync();
-				mLastSync = currTime;
+				mLastContactsSync = currTime;
 			}
 
 			if (TextUtils.isEmpty(sortOrder)) {
@@ -899,9 +929,9 @@ public class RestIpProvider extends ContentProvider {
 			break;
 		case CONTACTS_GROUP_MEMBERS: {
 			long currTime = System.currentTimeMillis();
-			if ((currTime - mLastSync) > SYNC_THRESHOLD) {
+			if ((currTime - mLastContactGroupsSync) > SYNC_THRESHOLD) {
 				SyncHelper.getInstance(getContext()).performContactsSync();
-				mLastSync = currTime;
+				mLastContactGroupsSync = currTime;
 			}
 
 			if (TextUtils.isEmpty(sortOrder)) {
