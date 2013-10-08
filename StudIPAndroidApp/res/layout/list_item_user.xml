@@ -12,19 +12,10 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal" >
 
-    <com.android.volley.toolbox.NetworkImageView
-        android:id="@+id/user_image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_gravity="left|center"
-        android:scaleType="centerCrop"
-        android:visibility="gone"
-        android:contentDescription="@string/user_image"/>
-
     <ImageView
-        android:id="@+id/user_image_placeholder"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:id="@+id/user_image"
+        android:layout_width="@dimen/user_image_medium"
+        android:layout_height="@dimen/user_image_medium"
         android:layout_gravity="left|center"
         android:scaleType="centerCrop"
         android:src="@drawable/nobody_normal"
