@@ -20,7 +20,7 @@
         android:background="@color/studip_mobile_dark"
         android:padding="16dp"
         android:scaleType="fitCenter"
-        tools:ignore="ContentDescription" />
+        android:contentDescription="@string/icon" />
 
     <de.elanev.studip.android.app.widget.TypefacedTextView
         xmlns:android="http://schemas.android.com/apk/res/android"

@@ -17,7 +17,7 @@
         android:layout_height="48dp"
         android:layout_gravity="left|center"
         android:layout_marginLeft="8dp"
-        android:contentDescription="@string/menu_item"
+        android:contentDescription="@string/menu_item_icon"
         android:padding="8dp" />
 
     <de.elanev.studip.android.app.widget.TypefacedTextView
@@ -30,7 +30,6 @@
         android:layout_marginLeft="56dp"
         android:paddingBottom="14dp"
         android:paddingTop="14dp"
-        android:text="@string/menu_item"
         android:textColor="@drawable/menu_item_text_color_selector"
         android:textSize="16sp"
         font:typeface="Roboto-Regular.ttf" />

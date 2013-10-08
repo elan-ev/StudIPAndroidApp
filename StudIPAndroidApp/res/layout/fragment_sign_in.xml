@@ -21,7 +21,7 @@
         android:paddingLeft="48dp"
         android:paddingRight="48dp"
         android:src="@drawable/logo_studip"
-        tools:ignore="ContentDescription" />
+        android:contentDescription="@string/studip_logo" />
 
     <LinearLayout
         android:id="@+id/sign_in_form"
