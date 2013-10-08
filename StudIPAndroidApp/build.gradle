@@ -128,12 +128,15 @@ android {
     buildTypes {
 
         debug {
+            buildConfig "public static final boolean USE_CRASHLYTICS = false;"
             ext.enableCrashlytics = false;
             versionNameSuffix '-DEBUG'
             debuggable = true;
         }
 
         release {
+            buildConfig "public static final boolean USE_CRASHLYTICS = true;"
+            ext.enableCrashlytics = true;
             versionNameSuffix '-RELEASE'
             debuggable = false;
             signingConfig signingConfigs.release

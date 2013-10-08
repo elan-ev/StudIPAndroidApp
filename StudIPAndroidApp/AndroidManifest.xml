@@ -111,13 +111,6 @@
             android:exported="false"
             android:label="@string/app_name"
             android:syncable="true" />
-
-        <!-- CRASHLYTICS START -->
-        <!-- If you want to use your own crash reporting tools, delete this line or comment it out. -->
-        <meta-data
-            android:name="com.crashlytics.ApiKey"
-            android:value="@string/crashlytics_api_key" />
-        <!-- CRASHLYTICS END -->
     </application>
 
 </manifest>
