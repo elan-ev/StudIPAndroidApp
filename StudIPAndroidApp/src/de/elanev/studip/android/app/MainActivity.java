@@ -20,7 +20,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +33,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
+import de.elanev.studip.android.app.frontend.AboutFragment;
 import de.elanev.studip.android.app.frontend.contacts.ContactsGroupsFragment;
 import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
 import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
@@ -63,8 +63,6 @@ public class MainActivity extends SherlockFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-//        Log.i(TAG, "onCreate");
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListView = (ListView) findViewById(R.id.left_drawer);
@@ -118,12 +116,12 @@ public class MainActivity extends SherlockFragmentActivity {
     }
 
     /*
-                         * (non-Javadoc)
-                         *
-                         * @see
-                         * com.actionbarsherlock.app.SherlockFragmentActivity#onSaveInstanceState(android
-                         * .os.Bundle)
-                         */
+     * (non-Javadoc)
+     *
+     * @see
+     * com.actionbarsherlock.app.SherlockFragmentActivity#onSaveInstanceState(android
+     * .os.Bundle)
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putInt(ACTIVE_NAVIGATION_ITEM, mPosition);
@@ -214,9 +212,13 @@ public class MainActivity extends SherlockFragmentActivity {
                     // case HELP_MENU_ITEM:
                     // TODO: Information about how to use the app
                     // break;
-                    // case INFO_MENU_ITEM:
-                    // TODO: Informations about the app, developer, licenses
-                    // break;
+                    case R.id.navigation_information:
+                        fragTag = AboutFragment.class.getName();
+                        frag = findFragment(fragTag);
+                        if (frag == null) {
+                            frag = new AboutFragment();
+                        }
+                        break;
                     case R.id.navigation_feedback:
                         Intent intent = new Intent(Intent.ACTION_SENDTO,
                                 Uri.fromParts("mailto",
@@ -224,18 +226,14 @@ public class MainActivity extends SherlockFragmentActivity {
                                         null));
                         intent.putExtra(Intent.EXTRA_SUBJECT,
                                 getString(R.string.feedback_form_subject));
-                        PackageManager pm = getPackageManager();
-                        String pName = getPackageName();
-                        try {
-                            intent.putExtra(
-                                    Intent.EXTRA_TEXT,
-                                    String.format(
-                                            getString(R.string.feedback_form_message_template),
-                                            Build.VERSION.SDK_INT,
-                                            pm != null ? pm.getPackageInfo(pName, 0).versionName : null));
-                        } catch (NameNotFoundException e) {
-                            e.printStackTrace();
-                        }
+                        intent.putExtra(
+                                Intent.EXTRA_TEXT,
+                                String.format(
+                                        getString(R.string.feedback_form_message_template),
+                                        Build.VERSION.SDK_INT,
+                                        BuildConfig.VERSION_NAME,
+                                        BuildConfig.VERSION_CODE,
+                                        BuildConfig.BUILD_TIME));
 
                         startActivity(Intent.createChooser(intent,
                                 getString(R.string.feedback_form_action)));
@@ -318,8 +316,13 @@ public class MainActivity extends SherlockFragmentActivity {
             adapter.add(
                     new MenuItem(
                             R.id.navigation_feedback,
-                            R.drawable.ic_menu_info,
+                            R.drawable.ic_menu_feedback,
                             getString(R.string.Feedback)));
+            adapter.add(
+                    new MenuItem(
+                            R.id.navigation_information,
+                            R.drawable.ic_menu_info,
+                            getString(R.string.about_studip_mobile)));
             adapter.add(
                     new MenuItem(
                             R.id.navigation_logout,
