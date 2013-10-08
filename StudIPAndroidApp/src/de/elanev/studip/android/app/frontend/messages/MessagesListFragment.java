@@ -72,6 +72,12 @@ public class MessagesListFragment extends SherlockListFragment implements
 
 	private VolleyOAuthConsumer mConsumer;
 
+	private View mEmptyMessage;
+
+	private ListView mList;
+
+	private View mProgressView;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -112,6 +118,9 @@ public class MessagesListFragment extends SherlockListFragment implements
 		View v = inflater.inflate(R.layout.list, null);
 		((TextView) v.findViewById(R.id.empty_message))
 				.setText(R.string.no_messages);
+		mEmptyMessage = v.findViewById(R.id.empty_list);
+		mList = (ListView) v.findViewById(android.R.id.list);
+		mProgressView = v.findViewById(android.R.id.empty);
 		return v;
 	}
 
@@ -345,6 +354,16 @@ public class MessagesListFragment extends SherlockListFragment implements
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
+		}
+
+		if (cursor.getCount() <= 0) {
+			mEmptyMessage.setVisibility(View.VISIBLE);
+			mProgressView.setVisibility(View.GONE);
+			return;
+		} else {
+			mList.setVisibility(View.VISIBLE);
+			mEmptyMessage.setVisibility(View.GONE);
+			mProgressView.setVisibility(View.GONE);
 		}
 
 		List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();

@@ -4,12 +4,47 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" >
+    </ListView>
+
     <LinearLayout
         android:id="@id/android:empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical" >
+
+        <ProgressBar
+            android:id="@+id/progressbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+
+        <de.elanev.studip.android.app.widget.TypefacedTextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+            android:id="@+id/loading_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/loading"
+            android:textColor="@android:color/secondary_text_light"
+            android:textSize="14sp"
+            font:typeface="Roboto-Regular.ttf" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/empty_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone" >
 
         <de.elanev.studip.android.app.widget.TypefacedTextView
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -38,10 +73,5 @@
             android:textSize="14sp"
             font:typeface="Roboto-Regular.ttf" />
     </LinearLayout>
-
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
 </LinearLayout>

@@ -45,9 +45,26 @@ public class NewsListFragment extends SherlockListFragment implements
         LoaderCallbacks<Cursor> {
 
     public static final String TAG = NewsListFragment.class.getSimpleName();
+    protected final ContentObserver mObserver = new ContentObserver(
+            new Handler()) {
+        @Override
+        public void onChange(boolean selfChange) {
+            if (getActivity() == null) {
+                return;
+            }
+
+            Loader<Cursor> loader = getLoaderManager().getLoader(0);
+            if (loader != null) {
+                loader.forceLoad();
+            }
+        }
+    };
     private Context mContext = null;
     private NewsAdapter mNewsAdapter;
     private SimpleSectionedListAdapter mAdapter;
+    private View mEmptyMessage;
+    private ListView mList;
+    private View mProgressView;
 
     /*
      * (non-Javadoc)
@@ -77,14 +94,16 @@ public class NewsListFragment extends SherlockListFragment implements
         View v = inflater.inflate(R.layout.list, null);
         ((TextView) v.findViewById(R.id.empty_message))
                 .setText(R.string.no_news);
+        mEmptyMessage = v.findViewById(R.id.empty_list);
+        mList = (ListView) v.findViewById(android.R.id.list);
+        mProgressView = v.findViewById(android.R.id.empty);
         return v;
     }
 
     /*
      * (non-Javadoc)
      *
-     * @see
-     * android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
      */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -94,21 +113,6 @@ public class NewsListFragment extends SherlockListFragment implements
         // initialize CursorLoader
         getLoaderManager().initLoader(0, null, this);
     }
-
-    protected final ContentObserver mObserver = new ContentObserver(
-            new Handler()) {
-        @Override
-        public void onChange(boolean selfChange) {
-            if (getActivity() == null) {
-                return;
-            }
-
-            Loader<Cursor> loader = getLoaderManager().getLoader(0);
-            if (loader != null) {
-                loader.forceLoad();
-            }
-        }
-    };
 
     /*
      * (non-Javadoc)
@@ -133,15 +137,13 @@ public class NewsListFragment extends SherlockListFragment implements
     @Override
     public void onDetach() {
         super.onDetach();
-        getActivity().getContentResolver().unregisterContentObserver(
-                mObserver);
+        getActivity().getContentResolver().unregisterContentObserver(mObserver);
     }
 
     /*
      * (non-Javadoc)
      *
-     * @see
-     * android.support.v4.app.ListFragment#onListItemClick(android.widget
+     * @see android.support.v4.app.ListFragment#onListItemClick(android.widget
      * .ListView , android.view.View, int, long)
      */
     @Override
@@ -165,16 +167,14 @@ public class NewsListFragment extends SherlockListFragment implements
                                 .getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
         String userImageUrl = c.getString(c
                 .getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-        long date = c.getLong(c
-                .getColumnIndex(NewsContract.Columns.NEWS_DATE));
+        long date = c.getLong(c.getColumnIndex(NewsContract.Columns.NEWS_DATE));
 
         Bundle args = new Bundle();
         args.putString(NewsContract.Columns.NEWS_TOPIC, topic);
         args.putString(NewsContract.Columns.NEWS_BODY, body);
         args.putLong(NewsContract.Columns.NEWS_DATE, date);
         args.putString(UsersContract.Columns.USER_FORENAME, name);
-        args.putString(UsersContract.Columns.USER_AVATAR_NORMAL,
-                userImageUrl);
+        args.putString(UsersContract.Columns.USER_AVATAR_NORMAL, userImageUrl);
 
         Intent intent = new Intent();
         intent.setClass(getActivity(), NewsItemViewActivity.class);
@@ -206,6 +206,13 @@ public class NewsListFragment extends SherlockListFragment implements
         if (getActivity() == null) {
             return;
         }
+        if (cursor.getCount() <= 0) {
+            mEmptyMessage.setVisibility(View.VISIBLE);
+            mProgressView.setVisibility(View.GONE);
+        } else {
+            mEmptyMessage.setVisibility(View.GONE);
+            mList.setVisibility(View.VISIBLE);
+        }
 
         List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
         cursor.moveToFirst();
@@ -235,8 +242,7 @@ public class NewsListFragment extends SherlockListFragment implements
     /*
      * (non-Javadoc)
      *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset
+     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset
      * (android .support.v4.content.Loader)
      */
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -268,8 +274,7 @@ public class NewsListFragment extends SherlockListFragment implements
         /*
          * (non-Javadoc)
          *
-         * @see
-         * android.support.v4.widget.CursorAdapter#bindView(android.view
+         * @see android.support.v4.widget.CursorAdapter#bindView(android.view
          * .View, android.content.Context, android.database.Cursor)
          */
         @Override
@@ -299,17 +304,15 @@ public class NewsListFragment extends SherlockListFragment implements
             }
 
             newsTopicView.setText(newsTopic);
-            newsAuthorView.setText(TextTools
-                    .getLocalizedAuthorAndDateString(String.format("%s %s",
-                            userForename, userLastname), newsDate,
-                            getActivity()));
+            newsAuthorView.setText(TextTools.getLocalizedAuthorAndDateString(
+                    String.format("%s %s", userForename, userLastname),
+                    newsDate, getActivity()));
         }
 
         /*
          * (non-Javadoc)
          *
-         * @see
-         * android.support.v4.widget.CursorAdapter#newView(android.content
+         * @see android.support.v4.widget.CursorAdapter#newView(android.content
          * .Context , android.database.Cursor, android.view.ViewGroup)
          */
         @Override
@@ -321,5 +324,3 @@ public class NewsListFragment extends SherlockListFragment implements
     }
 
 }
-
-

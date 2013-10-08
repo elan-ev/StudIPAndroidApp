@@ -19,6 +19,10 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -67,7 +71,7 @@ public class CourseAttendeesFragment extends UserListFragment implements
 
 		// initialize CursorLoader
 		getLoaderManager().initLoader(0, mArgs, this);
-
+		mEmptyMessageText.setText(R.string.no_attendees);
 		SyncHelper.getInstance(mContext).loadUsersForCourse(mCourseId);
 	}
 
@@ -141,6 +145,13 @@ public class CourseAttendeesFragment extends UserListFragment implements
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
+		}
+		if (cursor.getCount() <= 0) {
+			mEmptyMessage.setVisibility(View.VISIBLE);
+			mProgressView.setVisibility(View.GONE);
+		} else {
+			mEmptyMessage.setVisibility(View.GONE);
+			mList.setVisibility(View.VISIBLE);
 		}
 
 		List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
