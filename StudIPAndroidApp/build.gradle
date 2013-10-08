@@ -10,7 +10,9 @@ import java.text.SimpleDateFormat
 def versionMajor = 0 //beta
 def versionMinor = 6
 def versionPatch = 13
-def versionBuild = 1
+def versionBuild = 2
+
+final Console console = System.console();
 
 buildscript {
 
@@ -39,6 +41,7 @@ dependencies {
     compile 'oauth.signpost:signpost-core:1.2.1.2'
     compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     compile 'com.crashlytics.android:crashlytics:1.+'
+    compile 'com.squareup.picasso:picasso:2.1.1'
     compile project(':libprojects:volley')
 
 }
@@ -55,6 +58,35 @@ android {
 
     compileSdkVersion 18
     buildToolsVersion "18.0.1"
+
+    // Building from console
+    signingConfigs {
+        release {
+
+            if (System.getenv("KEYSTORE") != null)
+                storeFile file(System.getenv("KEYSTORE"))
+            else if (console != null)
+                storeFile file(console.readLine("Enter keystore path: "))
+
+            if (System.getenv("KEYSTORE_PASSWORD") != null)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+            else if (console != null)
+                storePassword console.readLine("Enter keystore password: ")
+
+            if (System.getenv("KEY_ALIAS"))
+                keyAlias System.getenv("KEY_ALIAS")
+            else if (console != null)
+                keyAlias console.readLine("Enter alias key: ")
+
+            if (System.getenv("KEY_PASSWORD") != null)
+                keyPassword System.getenv("KEY_PASSWORD")
+            else if (console != null)
+                keyPassword console.readLine("Enter key password: ")
+
+        }
+    }
+
+
 
     defaultConfig {
 
@@ -98,10 +130,13 @@ android {
         debug {
             ext.enableCrashlytics = false;
             versionNameSuffix '-DEBUG'
+            debuggable = true;
         }
 
         release {
             versionNameSuffix '-RELEASE'
+            debuggable = false;
+            signingConfig signingConfigs.release
         }
 
         applicationVariants.all { variant ->
