@@ -15,6 +15,7 @@ Setup
 * Install the Maven Android plugin as described [here][3]
 * In Eclipse just use `File->Import->Check out existing Maven repository from scm`
 * Maven will take care of the rest
+
 ### Gradle (Android Studio)
 * Under Quick Start click ```Import Project..``` and choose the cloned project root
 * Choose ```Use gradle wrapper (recommended)```
