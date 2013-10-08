@@ -9,20 +9,10 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/layout_padding_normal" >
 
-        <com.android.volley.toolbox.NetworkImageView
-            android:id="@+id/user_image"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_alignParentLeft="true"
-            android:layout_marginRight="@dimen/layout_margin_normal"
-            android:scaleType="centerCrop"
-            android:visibility="invisible"
-            android:contentDescription="@string/user_image"/>
-
         <ImageView
-            android:id="@+id/user_image_placeholder"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:id="@+id/user_image"
+            android:layout_width="@dimen/user_image_medium"
+            android:layout_height="@dimen/user_image_medium"
             android:layout_alignParentLeft="true"
             android:layout_marginRight="@dimen/layout_margin_normal"
             android:scaleType="centerCrop"

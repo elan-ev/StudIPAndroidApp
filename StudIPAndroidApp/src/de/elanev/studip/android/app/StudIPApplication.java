@@ -28,7 +28,8 @@ public class StudIPApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // Trigger initialization of Crashlytics
-        Crashlytics.start(this);
+        if (BuildConfig.USE_CRASHLYTICS)
+            // Trigger initialization of Crashlytics
+            Crashlytics.start(this);
     }
 }
