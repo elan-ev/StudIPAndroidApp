@@ -1,10 +1,26 @@
+/*******************************************************************************
+ * Copyright (c) 2013 ELAN e.V.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ ******************************************************************************/
+import java.text.SimpleDateFormat
+
+def versionMajor = 0 //beta
+def versionMinor = 6
+def versionPatch = 13
+def versionBuild = 1
+
 buildscript {
+
     repositories {
         maven { url 'http://download.crashlytics.com/maven' }
     }
     dependencies {
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
     }
+
 }
 apply plugin: 'android'
 apply plugin: 'crashlytics'
@@ -14,6 +30,7 @@ repositories {
 }
 
 dependencies {
+
     compile 'com.android.support:support-v4:18.+'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.2.2'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.2.2'
@@ -23,18 +40,41 @@ dependencies {
     compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     compile 'com.crashlytics.android:crashlytics:1.+'
     compile project(':libprojects:volley')
+
+}
+
+def buildTime() {
+
+    def df = new SimpleDateFormat("yyyy-MM-dd HH:mm")
+    df.setTimeZone(TimeZone.getTimeZone("CET"))
+    return df.format(new Date())
+
 }
 
 android {
+
     compileSdkVersion 18
     buildToolsVersion "18.0.1"
 
     defaultConfig {
+
         minSdkVersion 10
         targetSdkVersion 18
+
+        versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+
+        buildConfig """\
+          public static final String BUILD_TIME = "${buildTime()}";
+          public static final String VERSION_NAME = \\"${versionName}\\";
+          public static final String VERSION_CODE = \\"${versionCode}\\";
+        """
+
     }
 
+
     sourceSets {
+
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src']
@@ -45,6 +85,29 @@ android {
             assets.srcDirs = ['assets']
         }
 
+        release {
+            manifest.srcFile 'AndroidManifestRelease.xml'
+        }
+
         instrumentTest.setRoot('tests')
+
+    }
+
+    buildTypes {
+
+        debug {
+            ext.enableCrashlytics = false;
+            versionNameSuffix '-DEBUG'
+        }
+
+        release {
+            versionNameSuffix '-RELEASE'
+        }
+
+        applicationVariants.all { variant ->
+            def file = variant.outputFile
+            variant.outputFile = new File(file.parent, file.name.replace(".apk", "-" + defaultConfig.versionName + ".apk"))
+        }
+
     }
 }
