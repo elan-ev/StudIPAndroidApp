@@ -69,6 +69,9 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 	// TEST
 	private long mDownloadReference;
 	private DownloadManager mDownloadManager;
+	private View mProgressView;
+	private ListView mList;
+	private View mEmptyMessage;
 
 	/*
 	 * (non-Javadoc)
@@ -90,7 +93,7 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 
 		String cid = getArguments().getString(
 				CoursesContract.Columns.Courses.COURSE_ID);
-		SyncHelper.getInstance(mContext).performDocumentsSyncForCourse(cid);
+
 	}
 
 	@Override
@@ -110,6 +113,9 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 		View v = inflater.inflate(R.layout.list, container, false);
 		((TextView) v.findViewById(R.id.empty_message))
 				.setText(R.string.no_documents);
+		mEmptyMessage = v.findViewById(R.id.empty_list);
+		mList = (ListView) v.findViewById(android.R.id.list);
+		mProgressView = v.findViewById(android.R.id.empty);
 		return v;
 	}
 
@@ -295,12 +301,14 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		return new CursorLoader(
 				mContext,
-				DocumentsContract.CONTENT_URI,
+				DocumentsContract.CONTENT_URI
+						.buildUpon()
+						.appendPath(
+								mArgs.getString(CoursesContract.Columns.Courses.COURSE_ID))
+						.build(),
 				DocumentsQuery.projection,
-				DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_COURSE_ID
-						+ "= ? ",
-				new String[] { mArgs
-						.getString(CoursesContract.Columns.Courses.COURSE_ID) },
+				null,
+				null,
 				DocumentsContract.Qualified.DocumentFolders.DOCUMENTS_FOLDERS_FOLDER_NAME
 						+ " ASC, "
 						+ DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_CHDATE
@@ -317,6 +325,16 @@ public class CourseDocumentsFragment extends SherlockListFragment implements
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
+		}
+
+		if (cursor.getCount() <= 0) {
+			mEmptyMessage.setVisibility(View.VISIBLE);
+			mProgressView.setVisibility(View.GONE);
+			return;
+		} else {
+			mList.setVisibility(View.VISIBLE);
+			mEmptyMessage.setVisibility(View.GONE);
+			mProgressView.setVisibility(View.GONE);
 		}
 
 		List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
