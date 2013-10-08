@@ -1,11 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (c) 2013 ELAN e.V.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the GNU Public License v3.0
+  which accompanies this distribution, and is available at
+  http://www.gnu.org/licenses/gpl.html
+-->
 <resources>
 
     <string name="feedback_form_email" translatable="false">kursmanager@uos.de</string>
     <string name="feedback_form_subject" translatable="false">Stud.IP mobile Android Feedback</string>
     <string name="feedback_form_message_template">Wenn Sie Fragen, Wünsche, Bemerkungen oder ein Fehler entdeckt haben, 
         können Sie uns gerne Feedback senden.\nWir kümmern uns dann darum.\n\n===============\n
-        Ihr Feedback:\n===============\n\nAndroid API Version: %1$d\nStud.IP mobile Version: %2$s</string>
+        Ihr Feedback:\n===============\n\nAndroid API Version: %1$d\nStud.IP mobile Version: %2$s \nBuild: %3$s (%4$s)</string>
     <string name="feedback_form_action">Email senden</string>
 
 </resources>

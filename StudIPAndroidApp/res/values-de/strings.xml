@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2013 ELAN e.V.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v3.0
@@ -7,13 +6,17 @@
   http://www.gnu.org/licenses/gpl.html
 -->
 <resources>
+    <!-- Content descriptions -->
+    <string name="user_image">Benutzerbild</string>
+    <string name="file_icon">Datei Icon</string>
+    <string name="message_unread_icon">Nachricht nicht gelesen icon</string>
+    <string name="phone_number_icon">Telefon Nummer Icon</string>
+    <string name="user_address_icon">Benutzer Adresse Icon</string>
+    <string name="menu_item_icon">Menüpunkt Icon</string>
 
     <string name="app_name">Stud.IP mobile</string>
     <string name="loading">laden</string>
     <string name="help">Hilfe</string>
-    <string name="slidein_menu_button">SlideIn Menu Button</string>
-    <string name="title_activity_course_view">CourseViewActivity</string>
-    <string name="studip_logo">Studip Logo</string>
     <string name="Activities">Aktivitäten</string>
     <string name="News">Neuigkeiten</string>
     <string name="Courses">Kurse</string>
@@ -34,9 +37,6 @@
     <string name="appointments">Termine</string>
     <string name="attendees">Mitglieder</string>
     <string name="no_data">Keine Daten</string>
-    <string name="menu_item">Menüpunkt</string>
-    <string name="file_icon">Datei Icon</string>
-    <string name="user_image">Benutzeravatar</string>
     <string name="Overview">Übersicht</string>
     <string name="Global">Global</string>
     <string name="just_now">gerade eben</string>
@@ -56,7 +56,6 @@
     <string name="Inbox">Eingang</string>
     <string name="Outbox">Ausgang</string>
     <string name="Compose">Erstellen</string>
-    <string name="message_unread_icon">Nachricht nicht gelesen icon</string>
     <string name="Menu">Menü</string>
     <string name="mark_as_read">als gelesen markieren</string>
     <string name="read">gelesen</string>
@@ -94,6 +93,7 @@
     <string name="no_messages">Du hast keine Nachrichten!</string>
     <string name="no_courses">Du bist in keinem Kurs eingetragen.</string>
     <string name="no_details">Keine Beschreibung vorhanden.</string>
+    <string name="no_users">Keine Benutzer vorhanden.</string>
     <string name="studip_app_contacts_favorites">StudipApp Favoriten</string>
     <string name="Add_to_favorites">Zu Favoriten hinzufügen</string>
     <string name="Remove_from_favorites">Aus Favoriten entfernen</string>
@@ -117,5 +117,10 @@
     <string name="Feedback">Feedback</string>
     <string name="open_drawer">Navigation öffnen</string>
     <string name="close_drawer">Navigation schließen</string>
+
+    <!-- About app Activity -->
+    <string name="privacy_policy">Datenschutzerklärung</string>
+    <string name="licenses">Lizenzen</string>
+    <string name="about_studip_mobile">Über Stud.IP mobile</string>
 
 </resources>

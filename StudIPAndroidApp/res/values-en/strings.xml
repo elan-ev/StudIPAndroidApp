@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2013 ELAN e.V.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v3.0
@@ -7,13 +6,17 @@
   http://www.gnu.org/licenses/gpl.html
 -->
 <resources>
+    <!-- Content descriptions -->
+    <string name="user_image">User Image</string>
+    <string name="file_icon">File Icon</string>
+    <string name="message_unread_icon">message not read icon</string>
+    <string name="phone_number_icon">Phone number icon</string>
+    <string name="user_address_icon">User address icon</string>
+    <string name="menu_item_icon">Menu item icon</string>
 
     <string name="app_name">Stud.IP mobile</string>
     <string name="loading">loading</string>
     <string name="help">Hilfe</string>
-    <string name="slidein_menu_button">SlideIn Menu Button</string>
-    <string name="title_activity_course_view">CourseViewActivity</string>
-    <string name="studip_logo">Studip Logo</string>
     <string name="Activities">Activities</string>
     <string name="News">News</string>
     <string name="Courses">Courses</string>
@@ -34,9 +37,6 @@
     <string name="appointments">Appointments</string>
     <string name="attendees">Attendees</string>
     <string name="no_data">No Data</string>
-    <string name="menu_item">Menu Item</string>
-    <string name="file_icon">file icon</string>
-    <string name="user_image">user image</string>
     <string name="Overview">Overview</string>
     <string name="Global">Global</string>
     <string name="just_now">just now</string>
@@ -56,7 +56,6 @@
     <string name="Inbox">Inbox</string>
     <string name="Outbox">Outbox</string>
     <string name="Compose">Compose</string>
-    <string name="message_unread_icon">message unread icon</string>
     <string name="Menu">Menu</string>
     <string name="mark_as_read">mark as read</string>
     <string name="read">read</string>
@@ -94,6 +93,7 @@
     <string name="no_messages">You don\'t have any messages!</string>
     <string name="no_courses">You are not attending any courses.</string>
     <string name="no_details">No details available.</string>
+    <string name="no_users">No users available.</string>
     <string name="studip_app_contacts_favorites">StudipApp Favorites</string>
     <string name="Add_to_favorites">Add to favorites</string>
     <string name="Remove_from_favorites">Remove from favorites</string>
@@ -109,7 +109,6 @@
     <string name="personal_info">Personal info</string>
     <string name="contact_info">Contact info</string>
     <string name="crash_toast_string">Something went wrong. Sending crash report.</string>
-    <string name="user_details_icon">UserDetailsIcon</string>
     <string name="Schedule">Schedule</string>
     <string name="show_more">Show more</string>
     <string name="Details">Details</string>
@@ -118,4 +117,8 @@
     <string name="open_drawer">Open Navigation</string>
     <string name="close_drawer">Close Navigation</string>
 
+    <!-- About app Activity -->
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="licenses">Licenses</string>
+    <string name="about_studip_mobile">About Stud.IP mobile</string>
 </resources>
