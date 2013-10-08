@@ -27,7 +27,8 @@
             android:layout_marginBottom="4dp"
             android:layout_marginTop="4dp"
             android:src="@drawable/nobody_normal"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:contentDescription="@string/user_image"/>
 
         <ImageView
             android:id="@+id/user_image_placeholder"
@@ -37,7 +38,7 @@
             android:layout_marginBottom="4dp"
             android:layout_marginTop="4dp"
             android:src="@drawable/nobody_normal"
-            tools:ignore="ContentDescription" />
+            android:contentDescription="@string/user_image" />
 
         <TextView
             android:id="@+id/message_sender"

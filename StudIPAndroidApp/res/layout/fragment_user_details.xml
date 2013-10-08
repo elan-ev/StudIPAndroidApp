@@ -39,7 +39,8 @@
                 android:layout_alignParentLeft="true"
                 android:layout_marginRight="@dimen/layout_margin_normal"
                 android:scaleType="centerCrop"
-                android:visibility="invisible" />
+                android:visibility="invisible"
+                android:contentDescription="@string/user_image" />
 
             <ImageView
                 android:id="@+id/user_image_placeholder"
@@ -49,7 +50,7 @@
                 android:layout_marginRight="@dimen/layout_margin_normal"
                 android:scaleType="centerCrop"
                 android:src="@drawable/nobody_normal"
-                tools:ignore="ContentDescription" />
+                android:contentDescription="@string/user_image" />
 
             <de.elanev.studip.android.app.widget.TypefacedTextView
                 xmlns:android="http://schemas.android.com/apk/res/android"
@@ -69,7 +70,7 @@
                 android:layout_height="40dp"
                 android:layout_below="@id/fullname"
                 android:layout_toRightOf="@id/user_image"
-                android:contentDescription="@string/user_details_icon"
+                android:contentDescription="@string/email_icon"
                 android:src="@drawable/ic_mail" />
 
             <de.elanev.studip.android.app.widget.TypefacedTextView
@@ -118,7 +119,7 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:contentDescription="@string/user_details_icon"
+                android:contentDescription="@string/homepage_icon"
                 android:src="@drawable/ic_home" />
 
             <de.elanev.studip.android.app.widget.TypefacedTextView
@@ -148,7 +149,7 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:contentDescription="@string/user_details_icon"
+                android:contentDescription="@string/phone_number_icon"
                 android:src="@drawable/ic_phone" />
 
             <de.elanev.studip.android.app.widget.TypefacedTextView
@@ -177,7 +178,7 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:contentDescription="@string/user_details_icon"
+                android:contentDescription="@string/user_address_icon"
                 android:src="@drawable/ic_address" />
 
             <de.elanev.studip.android.app.widget.TypefacedTextView
