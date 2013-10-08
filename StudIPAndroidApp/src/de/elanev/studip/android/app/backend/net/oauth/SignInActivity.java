@@ -28,8 +28,6 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
-import com.crashlytics.android.Crashlytics;
-
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.net.Server;
@@ -64,6 +62,7 @@ public class SignInActivity extends SherlockFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         this.setContentView(R.layout.content_frame);
 
@@ -263,8 +262,6 @@ public class SignInActivity extends SherlockFragmentActivity {
             }
 
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             startActivity(intent);
         }
@@ -277,9 +274,7 @@ public class SignInActivity extends SherlockFragmentActivity {
         private boolean connect() {
             if (Prefs.getInstance(mContext).getServer() != null) {
 
-                if (OAuthConnector.getServer() == null)
-                    OAuthConnector
-                            .init(Prefs.getInstance(mContext).getServer());
+                OAuthConnector.init(Prefs.getInstance(mContext).getServer());
 
                 if (NetworkUtils.getConnectivityStatus(mContext) != NetworkUtils.NOT_CONNECTED) {
 
