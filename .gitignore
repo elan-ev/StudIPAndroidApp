@@ -111,3 +111,5 @@ gradle.properties
 StudIPAndroidApp/res/values/com_crashlytics_api_key.xml
 StudIPAndroidApp/res/values/com_crashlytics_export_strings.xml
 TempServerDeclares.java
+
+StudIPAndroidApp/AndroidManifestRelease.xml
