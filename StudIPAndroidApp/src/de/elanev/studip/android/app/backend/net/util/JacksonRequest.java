@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
+import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.backend.datamodel.Message;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.net.oauth.VolleySignPostRequestWrapper;
@@ -37,7 +38,6 @@ public class JacksonRequest<T> extends VolleySignPostRequestWrapper<T> {
     private final Class<T> clazz;
     private final Map<String, String> headers;
     private final Listener<T> listener;
-    private boolean isDebugable = false;
 
     /**
      * Make a GET request and return a parsed object from JSON.
@@ -55,26 +55,6 @@ public class JacksonRequest<T> extends VolleySignPostRequestWrapper<T> {
         this.clazz = clazz;
         this.headers = headers;
         this.listener = listener;
-
-    }
-
-    /**
-     * Make a GET request and return a parsed object from JSON.
-     *
-     * @param url     URL of the request to make
-     * @param clazz   Relevant class object, for Gson's reflection
-     * @param headers Map of request headers
-     * @param method  HTTP Method to be used. See
-     *                {@link com.android.volley.Request.Method<T>}
-     */
-    public JacksonRequest(String url, Class<T> clazz,
-                          Map<String, String> headers, Listener<T> listener,
-                          ErrorListener errorListener, int method, boolean isDebugable) {
-        super(method, url, errorListener);
-        this.clazz = clazz;
-        this.headers = headers;
-        this.listener = listener;
-        this.isDebugable = isDebugable;
 
     }
 
@@ -106,7 +86,7 @@ public class JacksonRequest<T> extends VolleySignPostRequestWrapper<T> {
                 mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
 
             // return the parsed response
-            if (isDebugable)
+            if (BuildConfig.DEBUG)
                 str = new String(response.data,
                         HttpHeaderParser.parseCharset(response.headers));
 
@@ -130,7 +110,7 @@ public class JacksonRequest<T> extends VolleySignPostRequestWrapper<T> {
     }
 
     private void logResponse(String str) {
-        if (isDebugable)
+        if (BuildConfig.DEBUG)
             Log.wtf(TAG, str);
     }
 
