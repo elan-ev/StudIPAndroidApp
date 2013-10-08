@@ -23,6 +23,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -45,6 +46,12 @@ public class CourseScheduleFragment extends SherlockListFragment implements
 	private Bundle mArgs;
 	private SimpleCursorAdapter mAdapter;
 	private Context mContext;
+
+	private View mEmptyMessage;
+
+	private ListView mList;
+
+	private View mProgressView;
 
 	/*
 	 * (non-Javadoc)
@@ -82,6 +89,9 @@ public class CourseScheduleFragment extends SherlockListFragment implements
 		View v = inflater.inflate(R.layout.list, container, false);
 		((TextView) v.findViewById(R.id.empty_message))
 				.setText(R.string.no_appointments);
+		mEmptyMessage = v.findViewById(R.id.empty_list);
+		mList = (ListView) v.findViewById(android.R.id.list);
+		mProgressView = v.findViewById(android.R.id.empty);
 		return v;
 	}
 
@@ -157,6 +167,15 @@ public class CourseScheduleFragment extends SherlockListFragment implements
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
+		}
+		if (cursor.getCount() <= 0) {
+			mEmptyMessage.setVisibility(View.VISIBLE);
+			mProgressView.setVisibility(View.GONE);
+			return;
+		} else {
+			mList.setVisibility(View.VISIBLE);
+			mEmptyMessage.setVisibility(View.GONE);
+			mProgressView.setVisibility(View.GONE);
 		}
 
 		mAdapter.swapCursor(cursor);

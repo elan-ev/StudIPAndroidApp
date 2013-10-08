@@ -78,6 +78,10 @@ public abstract class UserListFragment extends SherlockListFragment implements
 	private static VolleyOAuthConsumer mConsumer;
 	private static ContentResolver resolver;
 	private static String mApiUrl;
+	protected View mEmptyMessage;
+	protected ListView mList;
+	protected View mProgressView;
+	protected TextView mEmptyMessageText;
 
 	/*
 	 * (non-Javadoc)
@@ -107,8 +111,11 @@ public abstract class UserListFragment extends SherlockListFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.list, null);
-		((TextView) v.findViewById(R.id.empty_message))
-				.setText(R.string.no_groups);
+		mEmptyMessageText = (TextView) v.findViewById(R.id.empty_message);
+		mEmptyMessageText.setText(R.string.no_users);
+		mEmptyMessage = v.findViewById(R.id.empty_list);
+		mList = (ListView) v.findViewById(android.R.id.list);
+		mProgressView = v.findViewById(android.R.id.empty);
 		return v;
 	}
 
@@ -339,7 +346,8 @@ public abstract class UserListFragment extends SherlockListFragment implements
 		} catch (OAuthCommunicationException e) {
 			e.printStackTrace();
 		}
-		VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(contactAddRequest);
+		VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+				.add(contactAddRequest);
 	}
 
 	private static void deleteUserFromContacts(final String userId) {
@@ -479,7 +487,8 @@ public abstract class UserListFragment extends SherlockListFragment implements
 		} catch (OAuthCommunicationException e) {
 			e.printStackTrace();
 		}
-		VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(userAddRequest);
+		VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+				.add(userAddRequest);
 
 	}
 
