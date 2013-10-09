@@ -10,6 +10,10 @@ If you want to contribute to this project, feel free to do so. For more informat
 
 Setup
 -----
+* Clone the project. All external library projects are imported as git submodules.
+Run ```git submodule init``` and ```git submodule update```,
+otherwise it will not compile.
+
 ### Gradle (Android Studio)
 * Under Quick Start click ```Import Project..``` and choose the cloned project root
 * Choose ```Use gradle wrapper (recommended)```
@@ -22,11 +26,7 @@ Setup
 * In Eclipse just use `File->Import->Check out existing Maven repository from scm`
 * Maven will take care of the rest
 
-All external library projects are imported as git submodules.
-
-* You have to run ```git submodule init``` and ```git submodule update```, otherwise it will not compile.
-    
-NOTE: To test it with your own installation of the studip-rest.ip plugin, 
+NOTE: To test it with your own installation of the studip-rest.ip plugin,
 you need to create your own ```TempServerDeclares``` in the ```de.elanev.studip.android.app.backend.net.oauth```
 package. See the ```TempServerDeclaresExample.java``` for more details.
 
