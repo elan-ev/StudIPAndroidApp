@@ -58,6 +58,7 @@ public class NewsItemViewActivity extends SherlockFragmentActivity {
         setContentView(R.layout.content_frame);
 
         getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Bundle args = getIntent().getExtras();
         if (args != null) {
