@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
 
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
@@ -52,7 +53,7 @@ public class MainActivity extends SherlockFragmentActivity {
     private static int mPosition = 0;
     public DrawerLayout mDrawerLayout;
     public ListView mDrawerListView;
-    public ActionBarDrawerToggle mDrawerToggle;
+    public SherlockActionBarDrawerToggle mDrawerToggle;
 
     /*
      * (non-Javadoc)
@@ -67,7 +68,7 @@ public class MainActivity extends SherlockFragmentActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListView = (ListView) findViewById(R.id.left_drawer);
 
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+        mDrawerToggle = new SherlockActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_navigation_drawer, R.string.open_drawer,
                 R.string.close_drawer) {
 
