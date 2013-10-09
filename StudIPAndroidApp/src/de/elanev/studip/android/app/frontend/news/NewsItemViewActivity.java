@@ -24,7 +24,6 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
-import com.android.volley.toolbox.NetworkImageView;
 import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.BuildConfig;
@@ -32,7 +31,6 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.util.TextTools;
-import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * @author joern
