@@ -29,6 +29,7 @@ public class MessageDetailActivity extends SherlockFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.content_frame);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
 		Bundle args = getIntent().getExtras();
 		if (args != null) {
