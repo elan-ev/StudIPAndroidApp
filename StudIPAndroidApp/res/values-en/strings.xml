@@ -121,4 +121,9 @@
     <string name="privacy_policy">Privacy policy</string>
     <string name="licenses">Licenses</string>
     <string name="about_studip_mobile">About Stud.IP mobile</string>
+    <string name="about_text">Stud.IP mobile for Android allows you to easily access your
+        universities Stud.IP without opening the browser. The app offers you an optimized
+        experience for your android device.
+    </string>
+    <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">visit our website</a></string>
 </resources>

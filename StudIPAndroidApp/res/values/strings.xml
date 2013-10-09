@@ -126,5 +126,7 @@
     <string name="privacy_policy">Datenschutzerklärung</string>
     <string name="licenses">Lizenzen</string>
     <string name="version_and_copyright" translatable="false">Version: %1$s (%2$s) \n &#169; 2013 ELAN e.V. Oldenburg</string>
-    <string name="about_studip_mobile">Über Stud.IP mobile</string>
+        <string name="about_studip_mobile">Über Stud.IP mobile</string>
+        <string name="about_text">Stud.IP mobile erlaubt es Ihnen schnell und einfach auf das Stud.IP Ihrer Hochschule zuzugreifen ohne die Seite in einem Browser aufrufen zu müssen.</string>
+    <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">Besuchen Sie unsere Homepage</a></string>
 </resources>
