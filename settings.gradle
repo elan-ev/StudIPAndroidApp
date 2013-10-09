@@ -1,2 +1,4 @@
 include ':StudIPAndroidApp'
 include ':libprojects:volley'
+include ':libprojects:SherlockNavigationDrawer:SherlockNavigationDrawer'
+
