@@ -25,6 +25,9 @@ public class CourseViewActivity extends TabbedFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 		// Get intent data
 		Bundle intentExtras = getIntent().getExtras();
 
