@@ -32,10 +32,7 @@
     <string name="menu">menu</string>
     <string name="Development">Development</string>
     <string name="Authorize">Authorize</string>
-    <string name="upcoming_events">Upcoming Events</string>
     <string name="choose_server">Choose server</string>
-    <string name="appointments">Appointments</string>
-    <string name="attendees">Attendees</string>
     <string name="no_data">No Data</string>
     <string name="Overview">Overview</string>
     <string name="Global">Global</string>
@@ -47,12 +44,6 @@
     <string name="yesterday">yesterday</string>
     <string name="days_ago">%d days ago</string>
     <string name="by">by</string>
-    <string name="time_room">Time / Room</string>
-    <string name="Teacher">Teacher</string>
-    <string name="next_appointments">Next appointments</string>
-    <string name="Tutor">Tutor</string>
-    <string name="Student">Student</string>
-    <string name="no_appointments">No Appointments</string>
     <string name="Inbox">Inbox</string>
     <string name="Outbox">Outbox</string>
     <string name="Compose">Compose</string>
@@ -87,12 +78,7 @@
     <string name="no_groups">You haven\'t created any groups!</string>
     <string name="no_contacts">You have no contacts!</string>
     <string name="no_favorites">You haven\'t selected any favorites!</string>
-    <string name="no_news">No announcements available.</string>
-    <string name="no_attendees">No one is attending.</string>
-    <string name="no_documents">Nothing uploaded yet.</string>
     <string name="no_messages">You don\'t have any messages!</string>
-    <string name="no_courses">You are not attending any courses.</string>
-    <string name="no_details">No details available.</string>
     <string name="no_users">No users available.</string>
     <string name="studip_app_contacts_favorites">StudipApp Favorites</string>
     <string name="Add_to_favorites">Add to favorites</string>
@@ -109,13 +95,30 @@
     <string name="personal_info">Personal info</string>
     <string name="contact_info">Contact info</string>
     <string name="crash_toast_string">Something went wrong. Sending crash report.</string>
-    <string name="Schedule">Schedule</string>
-    <string name="show_more">Show more</string>
-    <string name="Details">Details</string>
-    <string name="latest_news">Latest news</string>
     <string name="Feedback">Feedback</string>
     <string name="open_drawer">Open Navigation</string>
     <string name="close_drawer">Close Navigation</string>
+
+    <!-- CourseView Activity -->
+    <string name="upcoming_events">Upcoming events</string>
+    <string name="appointments">Appointments</string>
+    <string name="attendees">Attendees</string>
+    <string name="time_room">Time / Room</string>
+    <string name="Teacher">Teacher</string>
+    <string name="next_appointments">Next appointments</string>
+    <string name="Tutor">Tutor</string>
+    <string name="Student">Student</string>
+    <string name="no_appointments">No appointments</string>
+    <string name="no_courses">You are not attending any courses.</string>
+    <string name="no_attendees">No one is attending.</string>
+    <string name="no_documents">Nothing uploaded yet.</string>
+    <string name="no_news">No announcements available.</string>
+    <string name="no_details">No details available.</string>
+    <string name="Schedule">Schedule</string>
+    <string name="show_more">Show more</string>
+    <string name="show_less">Show less</string>
+    <string name="Details">Details</string>
+    <string name="latest_news">Latest news</string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Privacy policy</string>
@@ -126,4 +129,5 @@
         experience for your android device.
     </string>
     <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">visit our website</a></string>
+    <string name="legal_notice">Legal notice</string>
 </resources>
