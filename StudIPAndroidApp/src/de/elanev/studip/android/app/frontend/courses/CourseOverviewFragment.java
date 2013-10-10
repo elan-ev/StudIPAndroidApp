@@ -163,7 +163,7 @@ public class CourseOverviewFragment extends SherlockFragment implements
         mNewsShowMoreTextView.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
-                v.setVisibility(View.GONE);
+                ((TextView) v).setText(R.string.show_less);
                 mNewsTextTextView.setVisibility(View.VISIBLE);
 
             }

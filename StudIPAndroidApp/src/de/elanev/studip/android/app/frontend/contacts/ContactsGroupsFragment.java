@@ -7,9 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.contacts;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -18,7 +15,9 @@ import android.os.Handler;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
@@ -28,148 +27,116 @@ import de.elanev.studip.android.app.widget.UserListFragment;
 
 /**
  * @author joern
- * 
  */
 public class ContactsGroupsFragment extends UserListFragment {
-	private ListAdapterUsers mUserAdapter;
-	private SimpleSectionedListAdapter mAdapter;
+    protected final ContentObserver mObserver = new ContentObserver(
+            new Handler()) {
+        @Override
+        public void onChange(boolean selfChange) {
+            if (getActivity() == null) {
+                return;
+            }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		mUserAdapter = new ListAdapterUsers(mContext);
-		mAdapter = new SimpleSectionedListAdapter(mContext,
-				R.layout.list_item_header, mUserAdapter);
-		setListAdapter(mAdapter);
-	}
+            Loader<Cursor> loader = getLoaderManager().getLoader(0);
+            if (loader != null) {
+                loader.forceLoad();
+            }
+        }
+    };
+    private ListAdapterUsers mUserAdapter;
+    private SimpleSectionedListAdapter mAdapter;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-	 */
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		getActivity().setTitle(R.string.Contacts);
-		mEmptyMessageText.setText(R.string.no_contacts);
-		// initialize CursorLoader
-		getLoaderManager().initLoader(0, null, this);
-	}
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getActivity().setTitle(R.string.Contacts);
+        setEmptyMessage(R.string.no_contacts);
 
-	protected final ContentObserver mObserver = new ContentObserver(
-			new Handler()) {
-		@Override
-		public void onChange(boolean selfChange) {
-			if (getActivity() == null) {
-				return;
-			}
+        mUserAdapter = new ListAdapterUsers(mContext);
+        mAdapter = new SimpleSectionedListAdapter(mContext,
+                R.layout.list_item_header, mUserAdapter);
+        setListAdapter(mAdapter);
 
-			Loader<Cursor> loader = getLoaderManager().getLoader(0);
-			if (loader != null) {
-				loader.forceLoad();
-			}
-		}
-	};
+        // initialize CursorLoader
+        getLoaderManager().initLoader(0, null, this);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-	 * (android.app.Activity)
-	 */
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		activity.getContentResolver().registerContentObserver(
-				ContactsContract.CONTENT_URI_CONTACT_GROUPS, true, mObserver);
-	}
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        activity.getContentResolver().registerContentObserver(
+                ContactsContract.CONTENT_URI_CONTACT_GROUPS, true, mObserver);
+    }
 
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		getActivity().getContentResolver().unregisterContentObserver(mObserver);
-	}
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        getActivity().getContentResolver().unregisterContentObserver(mObserver);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-	 * android.os.Bundle)
-	 */
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(mContext,
-				ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS,
-				UsersQuery.projection, null, null, null);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
+     * android.os.Bundle)
+     */
+    public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+        setLoadingViewVisible(true);
+        return new CursorLoader(mContext,
+                ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS,
+                UsersQuery.projection, null, null, null);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-	 * .support.v4.content.Loader, java.lang.Object)
-	 */
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
+     * .support.v4.content.Loader, java.lang.Object)
+     */
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (getActivity() == null) {
+            return;
+        }
 
-		if (cursor.getCount() <= 0) {
-			mEmptyMessage.setVisibility(View.VISIBLE);
-			mProgressView.setVisibility(View.GONE);
-			return;
-		} else {
-			mList.setVisibility(View.VISIBLE);
-			mEmptyMessage.setVisibility(View.GONE);
-			mProgressView.setVisibility(View.GONE);
-		}
+        List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
+        cursor.moveToFirst();
+        String prevGroup = null;
+        String currGroup = null;
 
-		cursor.moveToFirst();
-		if (!cursor.isAfterLast()) {
+        while (!cursor.isAfterLast()) {
+            currGroup = cursor
+                    .getString(cursor
+                            .getColumnIndex(ContactsContract.Columns.ContactGroups.GROUP_NAME));
+            if (!TextUtils.equals(currGroup, prevGroup)) {
+                sections.add(new SimpleSectionedListAdapter.Section(cursor
+                        .getPosition(), currGroup));
+            }
 
-			List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
-			cursor.moveToFirst();
-			String prevGroup = null;
-			String currGroup = null;
-			while (!cursor.isAfterLast()) {
-				currGroup = cursor
-						.getString(cursor
-								.getColumnIndex(ContactsContract.Columns.ContactGroups.GROUP_NAME));
-				if (!TextUtils.equals(currGroup, prevGroup)) {
-					sections.add(new SimpleSectionedListAdapter.Section(cursor
-							.getPosition(), currGroup));
-				}
+            prevGroup = currGroup;
 
-				prevGroup = currGroup;
+            cursor.moveToNext();
+        }
 
-				cursor.moveToNext();
-			}
+        mUserAdapter.changeCursor(cursor);
 
-			mUserAdapter.changeCursor(cursor);
+        SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
+                .size()];
+        mAdapter.setSections(sections.toArray(dummy));
 
-			SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
-					.size()];
-			mAdapter.setSections(sections.toArray(dummy));
-		}
-	}
+        setLoadingViewVisible(false);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-	 * .support.v4.content.Loader)
-	 */
-	public void onLoaderReset(Loader<Cursor> loader) {
-		mUserAdapter.swapCursor(null);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
+     * .support.v4.content.Loader)
+     */
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mUserAdapter.swapCursor(null);
+    }
 
 }

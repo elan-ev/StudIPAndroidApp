@@ -35,239 +35,236 @@ import java.util.List;
 
 /**
  * @author joern
- * 
  */
 // TODO create abstract menuFragment class
 public class MessageFoldersMenuFragment extends ListFragment implements
-		LoaderCallbacks<Cursor> {
-	private static final String ACTIVE_ITEM = "activeItem";
+        LoaderCallbacks<Cursor> {
+    private static final String ACTIVE_ITEM = "activeItem";
+    protected final ContentObserver mObserver = new ContentObserver(
+            new Handler()) {
+        @Override
+        public void onChange(boolean selfChange) {
+            if (getActivity() == null) {
+                return;
+            }
 
-	private Context mContext;
-	private MenuAdapter mMenuAdapter;
-	private SimpleSectionedListAdapter mAdapter;
+            Loader<Cursor> loader = getLoaderManager().getLoader(0);
+            if (loader != null) {
+                loader.forceLoad();
+            }
+        }
+    };
+    private Context mContext;
+    private MenuAdapter mMenuAdapter;
+    private SimpleSectionedListAdapter mAdapter;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		mContext = getActivity();
-		setRetainInstance(true);
+    /*
+     * (non-Javadoc)
+     *
+     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mContext = getActivity();
+        setRetainInstance(true);
 
-		mMenuAdapter = new MenuAdapter(mContext);
-		mAdapter = new SimpleSectionedListAdapter(mContext,
-				R.layout.list_item_header, mMenuAdapter);
-		setListAdapter(mAdapter);
-	}
+        mMenuAdapter = new MenuAdapter(mContext);
+        mAdapter = new SimpleSectionedListAdapter(mContext,
+                R.layout.list_item_header, mMenuAdapter);
+        setListAdapter(mAdapter);
+    }
 
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		outState.putInt(ACTIVE_ITEM, getSelectedItemPosition());
-		super.onSaveInstanceState(outState);
-	}
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(ACTIVE_ITEM, getSelectedItemPosition());
+        super.onSaveInstanceState(outState);
+    }
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_menu, null);
-	}
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_menu, null);
+    }
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().initLoader(0, null, this);
-		if (savedInstanceState != null) {
-			getListView().setSelection(savedInstanceState.getInt(ACTIVE_ITEM));
-			// View v = getListView().getSelectedView();
-			// ((SlidingFragmentActivity) mContext).getSlidingMenu()
-			// .setSelectedView(v);
-		}
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(0, null, this);
+        if (savedInstanceState != null) {
+            getListView().setSelection(savedInstanceState.getInt(ACTIVE_ITEM));
+            // View v = getListView().getSelectedView();
+            // ((SlidingFragmentActivity) mContext).getSlidingMenu()
+            // .setSelectedView(v);
+        }
 
-	}
+    }
 
-	protected final ContentObserver mObserver = new ContentObserver(
-			new Handler()) {
-		@Override
-		public void onChange(boolean selfChange) {
-			if (getActivity() == null) {
-				return;
-			}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
+     * (android.app.Activity)
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        activity.getContentResolver().registerContentObserver(
+                MessagesContract.CONTENT_URI_MESSAGE_FOLDERS, true, mObserver);
+    }
 
-			Loader<Cursor> loader = getLoaderManager().getLoader(0);
-			if (loader != null) {
-				loader.forceLoad();
-			}
-		}
-	};
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        getActivity().getContentResolver().unregisterContentObserver(mObserver);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-	 * (android.app.Activity)
-	 */
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		activity.getContentResolver().registerContentObserver(
-				MessagesContract.CONTENT_URI_MESSAGE_FOLDERS, true, mObserver);
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		getActivity().getContentResolver().unregisterContentObserver(mObserver);
-	}
-
-	@Override
-	public void onListItemClick(ListView lv, View v, int position, long id) {
-		long folderId = (Long) v.getTag();
-		if (folderId != 0) {
-			switchMessagesFolder(folderId);
-		}
-	}
-
-	private void switchMessagesFolder(long messagesFolderId) {
-		MessagesListFragment messagesFrag = (MessagesListFragment) getFragmentManager()
-				.findFragmentByTag(MessagesListFragment.class.getName());
-		if (messagesFrag == null)
-			messagesFrag = (MessagesListFragment) MessagesListFragment
-					.instantiate(mContext, MessagesListFragment.class.getName());
-
-		messagesFrag.switchContent(messagesFolderId);
-	}
+//	@Override
+//	public void onListItemClick(ListView lv, View v, int position, long id) {
+//		long folderId = (Long) v.getTag();
+//		if (folderId != 0) {
+//			switchMessagesFolder(folderId);
+//		}
+//	}
+//
+//	private void switchMessagesFolder(long messagesFolderId) {
+//		MessagesListFragment messagesFrag = (MessagesListFragment) getFragmentManager()
+//				.findFragmentByTag(MessagesListFragment.class.getName());
+//		if (messagesFrag == null)
+//			messagesFrag = (MessagesListFragment) MessagesListFragment
+//					.instantiate(mContext, MessagesListFragment.class.getName());
+//
+//		messagesFrag.switchContent(messagesFolderId);
+//	}
 
 	/*
-	 * Loader callbacks
+     * Loader callbacks
 	 */
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-	 * android.os.Bundle)
-	 */
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(mContext,
-				MessagesContract.CONTENT_URI_MESSAGE_FOLDERS,
-				MessagesFoldersQuery.projection, null, null,
-				MessagesContract.DEFAULT_SORT_ORDER_FOLDERS);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
+     * android.os.Bundle)
+     */
+    public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+        return new CursorLoader(mContext,
+                MessagesContract.CONTENT_URI_MESSAGE_FOLDERS,
+                MessagesFoldersQuery.projection, null, null,
+                MessagesContract.DEFAULT_SORT_ORDER_FOLDERS);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-	 * .support.v4.content.Loader, java.lang.Object)
-	 */
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
+     * .support.v4.content.Loader, java.lang.Object)
+     */
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (getActivity() == null) {
+            return;
+        }
 
-		List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
-		cursor.moveToFirst();
-		String prevBox = null;
-		String currBox = null;
-		while (!cursor.isAfterLast()) {
-			currBox = cursor
-					.getString(cursor
-							.getColumnIndex(MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_BOX));
-			if (!TextUtils.equals(prevBox, currBox)) {
-				String currentBoxName = getString(R.string.Inbox);
-				if (TextUtils.equals(currBox, "out"))
-					currentBoxName = getString(R.string.Outbox);
+        List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
+        cursor.moveToFirst();
+        String prevBox = null;
+        String currBox = null;
+        while (!cursor.isAfterLast()) {
+            currBox = cursor
+                    .getString(cursor
+                            .getColumnIndex(MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_BOX));
+            if (!TextUtils.equals(prevBox, currBox)) {
+                String currentBoxName = getString(R.string.Inbox);
+                if (TextUtils.equals(currBox, "out"))
+                    currentBoxName = getString(R.string.Outbox);
 
-				sections.add(new SimpleSectionedListAdapter.Section(cursor
-						.getPosition(), currentBoxName));
-			}
+                sections.add(new SimpleSectionedListAdapter.Section(cursor
+                        .getPosition(), currentBoxName));
+            }
 
-			prevBox = currBox;
+            prevBox = currBox;
 
-			cursor.moveToNext();
-		}
+            cursor.moveToNext();
+        }
 
-		mMenuAdapter.changeCursor(cursor);
+        mMenuAdapter.changeCursor(cursor);
 
-		SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
-				.size()];
-		mAdapter.setSections(sections.toArray(dummy));
+        SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
+                .size()];
+        mAdapter.setSections(sections.toArray(dummy));
 
-	}
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-	 * .support.v4.content.Loader)
-	 */
-	public void onLoaderReset(Loader<Cursor> loader) {
-		mMenuAdapter.swapCursor(null);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
+     * .support.v4.content.Loader)
+     */
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mMenuAdapter.swapCursor(null);
+    }
 
-	private interface MessagesFoldersQuery {
-		String[] projection = new String[] {
-				MessagesContract.Columns.MessageFolders._ID,
-				MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_NAME,
-				MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_BOX };
-	}
+    private interface MessagesFoldersQuery {
+        String[] projection = new String[]{
+                MessagesContract.Columns.MessageFolders._ID,
+                MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_NAME,
+                MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_BOX};
+    }
 
 	/*
 	 * menu list
 	 */
 
-	public class MenuAdapter extends CursorAdapter {
+    public class MenuAdapter extends CursorAdapter {
 
-		/**
-		 * @param context
-		 * @param c
-		 */
-		public MenuAdapter(Context context) {
-			super(context, null, false);
-		}
+        /**
+         * @param context
+         * @param c
+         */
+        public MenuAdapter(Context context) {
+            super(context, null, false);
+        }
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.support.v4.widget.CursorAdapter#bindView(android.view.View,
-		 * android.content.Context, android.database.Cursor)
-		 */
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			final String folderName = cursor
-					.getString(cursor
-							.getColumnIndex(MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_NAME));
-			final long folderId = cursor
-					.getLong(cursor
-							.getColumnIndex(MessagesContract.Columns.MessageFolders._ID));
-			final TextView folderNameTextView = (TextView) view
-					.findViewById(R.id.menuItemText);
-			final ImageView icon = (ImageView) view
-					.findViewById(R.id.menuItemImage);
-			icon.setImageResource(R.drawable.ic_menu_inbox);
-			folderNameTextView.setText(folderName);
-			view.setTag(folderId);
-		}
+        /*
+         * (non-Javadoc)
+         *
+         * @see
+         * android.support.v4.widget.CursorAdapter#bindView(android.view.View,
+         * android.content.Context, android.database.Cursor)
+         */
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+            final String folderName = cursor
+                    .getString(cursor
+                            .getColumnIndex(MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_NAME));
+            final long folderId = cursor
+                    .getLong(cursor
+                            .getColumnIndex(MessagesContract.Columns.MessageFolders._ID));
+            final TextView folderNameTextView = (TextView) view
+                    .findViewById(R.id.menuItemText);
+            final ImageView icon = (ImageView) view
+                    .findViewById(R.id.menuItemImage);
+            icon.setImageResource(R.drawable.ic_menu_inbox);
+            folderNameTextView.setText(folderName);
+            view.setTag(folderId);
+        }
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.support.v4.widget.CursorAdapter#newView(android.content.Context
-		 * , android.database.Cursor, android.view.ViewGroup)
-		 */
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return getActivity().getLayoutInflater().inflate(
-					R.layout.list_item_menu, parent, false);
-		}
-	}
+        /*
+         * (non-Javadoc)
+         *
+         * @see
+         * android.support.v4.widget.CursorAdapter#newView(android.content.Context
+         * , android.database.Cursor, android.view.ViewGroup)
+         */
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            return getActivity().getLayoutInflater().inflate(
+                    R.layout.list_item_menu, parent, false);
+        }
+    }
 }
