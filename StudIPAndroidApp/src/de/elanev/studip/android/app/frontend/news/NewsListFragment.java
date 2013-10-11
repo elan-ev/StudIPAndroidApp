@@ -19,14 +19,11 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.actionbarsherlock.app.SherlockListFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +34,12 @@ import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 
 /**
  * @author joern
  */
-public class NewsListFragment extends SherlockListFragment implements
+public class NewsListFragment extends ProgressSherlockListFragment implements
         LoaderCallbacks<Cursor> {
 
     public static final String TAG = NewsListFragment.class.getSimpleName();
@@ -59,93 +57,37 @@ public class NewsListFragment extends SherlockListFragment implements
             }
         }
     };
-    private Context mContext = null;
     private NewsAdapter mNewsAdapter;
     private SimpleSectionedListAdapter mAdapter;
-    private View mEmptyMessage;
-    private ListView mList;
-    private View mProgressView;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mContext = getSherlockActivity();
-
-        mNewsAdapter = new NewsAdapter(mContext);
-        mAdapter = new SimpleSectionedListAdapter(mContext,
-                R.layout.list_item_header, mNewsAdapter);
-        setListAdapter(mAdapter);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.ListFragment#onCreateView(android.view.
-     * LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-     */
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.list, null);
-        ((TextView) v.findViewById(R.id.empty_message))
-                .setText(R.string.no_news);
-        mEmptyMessage = v.findViewById(R.id.empty_list);
-        mList = (ListView) v.findViewById(android.R.id.list);
-        mProgressView = v.findViewById(android.R.id.empty);
-        return v;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getActivity().setTitle(R.string.News);
 
+        setEmptyMessage(R.string.no_news);
+
+        mNewsAdapter = new NewsAdapter(mContext);
+        mAdapter = new SimpleSectionedListAdapter(mContext,
+                R.layout.list_item_header, mNewsAdapter);
+        setListAdapter(mAdapter);
         // initialize CursorLoader
         getLoaderManager().initLoader(0, null, this);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-     * (android.app.Activity)
-     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         activity.getContentResolver().registerContentObserver(
                 NewsContract.CONTENT_URI, true, mObserver);
-
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.actionbarsherlock.app.SherlockListFragment#onDetach()
-     */
     @Override
     public void onDetach() {
         super.onDetach();
         getActivity().getContentResolver().unregisterContentObserver(mObserver);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.ListFragment#onListItemClick(android.widget
-     * .ListView , android.view.View, int, long)
-     */
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
@@ -190,6 +132,7 @@ public class NewsListFragment extends SherlockListFragment implements
      * onCreateLoader (int, android.os.Bundle)
      */
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+        setLoadingViewVisible(true);
         return new CursorLoader(getActivity(), NewsContract.CONTENT_URI,
                 NewsQuery.PROJECTION, null, null,
                 NewsContract.DEFAULT_SORT_ORDER);
@@ -205,13 +148,6 @@ public class NewsListFragment extends SherlockListFragment implements
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (getActivity() == null) {
             return;
-        }
-        if (cursor.getCount() <= 0) {
-            mEmptyMessage.setVisibility(View.VISIBLE);
-            mProgressView.setVisibility(View.GONE);
-        } else {
-            mEmptyMessage.setVisibility(View.GONE);
-            mList.setVisibility(View.VISIBLE);
         }
 
         List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
@@ -237,6 +173,8 @@ public class NewsListFragment extends SherlockListFragment implements
         SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
                 .size()];
         mAdapter.setSections(sections.toArray(dummy));
+
+        setLoadingViewVisible(false);
     }
 
     /*

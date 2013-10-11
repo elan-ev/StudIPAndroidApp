@@ -7,11 +7,7 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.courses;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
-import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -19,9 +15,9 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
@@ -33,187 +29,163 @@ import de.elanev.studip.android.app.widget.UserListFragment;
 
 /**
  * @author joern
- * 
  */
 public class CourseAttendeesFragment extends UserListFragment implements
-		LoaderCallbacks<Cursor> {
-	public static final String TAG = CourseAttendeesFragment.class
-			.getSimpleName();
-	private ListAdapterUsers mUsersAdapter;
-	private SimpleSectionedListAdapter mAdapter;
-	private Context mContext;
-	private Bundle mArgs;
-	String mCourseId;
+        LoaderCallbacks<Cursor> {
+    public static final String TAG = CourseAttendeesFragment.class
+            .getSimpleName();
+    private final ContentObserver mObserver = new ContentObserver(
+            new Handler()) {
+        @Override
+        public void onChange(boolean selfChange) {
+            if (getActivity() == null) {
+                return;
+            }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		mArgs = getArguments();
-		mContext = getActivity();
+            Loader<Cursor> loader = getLoaderManager().getLoader(0);
+            if (loader != null) {
+                loader.forceLoad();
+            }
+        }
+    };
+    private ListAdapterUsers mUsersAdapter;
+    private SimpleSectionedListAdapter mAdapter;
+    private Bundle mArgs;
+    private String mCourseId;
 
-		mCourseId = mArgs.getString(CoursesContract.Columns.Courses.COURSE_ID);
-		// Creating the adapters for the listview
-		mUsersAdapter = new ListAdapterUsers(mContext);
-		mAdapter = new SimpleSectionedListAdapter(mContext,
-				R.layout.list_item_header, mUsersAdapter);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mArgs = getArguments();
 
-		setListAdapter(mAdapter);
-	}
+        mCourseId = mArgs.getString(CoursesContract.Columns.Courses.COURSE_ID);
+        // Creating the adapters for the listview
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+    }
 
-		// initialize CursorLoader
-		getLoaderManager().initLoader(0, mArgs, this);
-		mEmptyMessageText.setText(R.string.no_attendees);
-		SyncHelper.getInstance(mContext).loadUsersForCourse(mCourseId);
-	}
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-	protected final ContentObserver mObserver = new ContentObserver(
-			new Handler()) {
-		@Override
-		public void onChange(boolean selfChange) {
-			if (getActivity() == null) {
-				return;
-			}
+        setEmptyMessage(R.string.no_attendees);
 
-			Loader<Cursor> loader = getLoaderManager().getLoader(0);
-			if (loader != null) {
-				loader.forceLoad();
-			}
-		}
-	};
+        mUsersAdapter = new ListAdapterUsers(mContext);
+        mAdapter = new SimpleSectionedListAdapter(mContext,
+                R.layout.list_item_header, mUsersAdapter);
+        setListAdapter(mAdapter);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-	 * (android.app.Activity)
-	 */
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		activity.getContentResolver().registerContentObserver(
-				UsersContract.CONTENT_URI, true, mObserver);
-	}
+        // initialize CursorLoader
+        getLoaderManager().initLoader(0, mArgs, this);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.actionbarsherlock.app.SherlockListFragment#onDetach()
-	 */
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		getActivity().getContentResolver().unregisterContentObserver(mObserver);
-	}
+        SyncHelper.getInstance(mContext).loadUsersForCourse(mCourseId);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-	 * android.os.Bundle)
-	 */
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = new CursorLoader(
-				mContext,
-				UsersContract.CONTENT_URI.buildUpon().appendPath("course")
-						.appendPath(mCourseId).build(),
-				UsersQuery.projection,
-				null, // UsersContract.Qualified.USERS_USER_ID + " NOT NULL",
-				null,
-				CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE
-						+ " ASC, " + UsersContract.DEFAULT_SORT_ORDER);
-		return loader;
-	}
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        activity.getContentResolver().registerContentObserver(
+                UsersContract.CONTENT_URI, true, mObserver);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-	 * .support.v4.content.Loader, java.lang.Object)
-	 */
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
-		if (cursor.getCount() <= 0) {
-			mEmptyMessage.setVisibility(View.VISIBLE);
-			mProgressView.setVisibility(View.GONE);
-		} else {
-			mEmptyMessage.setVisibility(View.GONE);
-			mList.setVisibility(View.VISIBLE);
-		}
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        getActivity().getContentResolver().unregisterContentObserver(mObserver);
+    }
 
-		List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
-		cursor.moveToFirst();
-		int prevRole = -1;
-		int currRole = -1;
-		while (!cursor.isAfterLast()) {
-			currRole = cursor
-					.getInt(cursor
-							.getColumnIndex(CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE));
-			if (currRole != prevRole) {
-				String role = null;
-				switch (currRole) {
-				case CoursesContract.USER_ROLE_TEACHER:
-					role = getString(R.string.Teacher);
-					break;
-				case CoursesContract.USER_ROLE_TUTOR:
-					role = getString(R.string.Tutor);
-					break;
-				case CoursesContract.USER_ROLE_STUDENT:
-					role = getString(R.string.Student);
-					break;
-				default:
-					throw new UnknownError("unknown role type");
-				}
-				sections.add(new SimpleSectionedListAdapter.Section(cursor
-						.getPosition(), role));
-			}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
+     * android.os.Bundle)
+     */
+    public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+        setLoadingViewVisible(true);
+        return new CursorLoader(
+                mContext,
+                UsersContract.CONTENT_URI.buildUpon().appendPath("course")
+                        .appendPath(mCourseId).build(),
+                UsersQuery.projection,
+                null, // UsersContract.Qualified.USERS_USER_ID + " NOT NULL",
+                null,
+                CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE
+                        + " ASC, " + UsersContract.DEFAULT_SORT_ORDER);
+    }
 
-			prevRole = currRole;
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
+     * .support.v4.content.Loader, java.lang.Object)
+     */
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (getActivity() == null) {
+            return;
+        }
 
-			cursor.moveToNext();
-		}
+        List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
+        cursor.moveToFirst();
+        int prevRole = -1;
+        int currRole = -1;
+        while (!cursor.isAfterLast()) {
+            currRole = cursor
+                    .getInt(cursor
+                            .getColumnIndex(CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE));
+            if (currRole != prevRole) {
+                String role = null;
+                switch (currRole) {
+                    case CoursesContract.USER_ROLE_TEACHER:
+                        role = getString(R.string.Teacher);
+                        break;
+                    case CoursesContract.USER_ROLE_TUTOR:
+                        role = getString(R.string.Tutor);
+                        break;
+                    case CoursesContract.USER_ROLE_STUDENT:
+                        role = getString(R.string.Student);
+                        break;
+                    default:
+                        throw new UnknownError("unknown role type");
+                }
+                sections.add(new SimpleSectionedListAdapter.Section(cursor
+                        .getPosition(), role));
+            }
 
-		mUsersAdapter.changeCursor(cursor);
+            prevRole = currRole;
 
-		SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
-				.size()];
-		mAdapter.setSections(sections.toArray(dummy));
+            cursor.moveToNext();
+        }
 
-	}
+        mUsersAdapter.changeCursor(cursor);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-	 * .support.v4.content.Loader)
-	 */
-	public void onLoaderReset(Loader<Cursor> loader) {
-		mUsersAdapter.swapCursor(null);
-	}
+        SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
+                .size()];
+        mAdapter.setSections(sections.toArray(dummy));
 
-	private interface UsersQuery {
-		String[] projection = {
-				UsersContract.Qualified.USERS_ID,
-				UsersContract.Qualified.USERS_USER_ID,
-				UsersContract.Qualified.USERS_USER_TITLE_PRE,
-				UsersContract.Qualified.USERS_USER_FORENAME,
-				UsersContract.Qualified.USERS_USER_LASTNAME,
-				UsersContract.Qualified.USERS_USER_TITLE_POST,
-				UsersContract.Qualified.USERS_USER_AVATAR_NORMAL,
-				CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE };
-	}
+        setLoadingViewVisible(false);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
+     * .support.v4.content.Loader)
+     */
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mUsersAdapter.swapCursor(null);
+    }
+
+    private interface UsersQuery {
+        String[] projection = {
+                UsersContract.Qualified.USERS_ID,
+                UsersContract.Qualified.USERS_USER_ID,
+                UsersContract.Qualified.USERS_USER_TITLE_PRE,
+                UsersContract.Qualified.USERS_USER_FORENAME,
+                UsersContract.Qualified.USERS_USER_LASTNAME,
+                UsersContract.Qualified.USERS_USER_TITLE_POST,
+                UsersContract.Qualified.USERS_USER_AVATAR_NORMAL,
+                CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE};
+    }
 }

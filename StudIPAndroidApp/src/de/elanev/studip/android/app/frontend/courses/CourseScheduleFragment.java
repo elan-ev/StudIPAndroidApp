@@ -6,12 +6,11 @@
  * http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
 /**
- * 
+ *
  */
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.app.Activity;
-import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -20,182 +19,108 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.TextView;
-
-import com.actionbarsherlock.app.SherlockListFragment;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
+import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 
 /**
  * @author joern
- * 
  */
-public class CourseScheduleFragment extends SherlockListFragment implements
-		LoaderCallbacks<Cursor> {
-	public static final String TAG = CourseScheduleFragment.class
-			.getSimpleName();
+public class CourseScheduleFragment extends ProgressSherlockListFragment implements
+        LoaderCallbacks<Cursor> {
+    public static final String TAG = CourseScheduleFragment.class
+            .getSimpleName();
+    private static final int COURSOR_EVENTS_LIST_LOADER = 102;
+    protected final ContentObserver mEventsObserver = new ContentObserver(
+            new Handler()) {
+        @Override
+        public void onChange(boolean selfChange) {
+            if (getActivity() == null) {
+                return;
+            }
 
-	private static final int COURSOR_EVENTS_LIST_LOADER = 102;
+            Loader<Cursor> loader = getLoaderManager().getLoader(0);
+            if (loader != null) {
+                loader.forceLoad();
+            }
+        }
+    };
+    private Bundle mArgs;
+    private SimpleCursorAdapter mAdapter;
 
-	private Bundle mArgs;
-	private SimpleCursorAdapter mAdapter;
-	private Context mContext;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mArgs = getArguments();
+        mContext = getActivity();
 
-	private View mEmptyMessage;
+        String[] from = new String[]{EventsContract.Columns.EVENT_TITLE,
+                EventsContract.Columns.EVENT_ROOM};
+        int[] to = new int[]{R.id.event_title, R.id.event_room};
 
-	private ListView mList;
+        mAdapter = new SimpleCursorAdapter(mContext, R.layout.list_item_event,
+                null, from, to, 0);
 
-	private View mProgressView;
+        setListAdapter(mAdapter);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		mArgs = getArguments();
-		mContext = getActivity();
+    }
 
-		String[] from = new String[] { EventsContract.Columns.EVENT_TITLE,
-				EventsContract.Columns.EVENT_ROOM };
-		int[] to = new int[] { R.id.event_title, R.id.event_room };
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-		mAdapter = new SimpleCursorAdapter(mContext, R.layout.list_item_event,
-				null, from, to, 0);
+        setEmptyMessage(R.string.no_appointments);
+        // initialize CursorLoaders with IDs
+        getLoaderManager().initLoader(COURSOR_EVENTS_LIST_LOADER, mArgs, this);
+    }
 
-		setListAdapter(mAdapter);
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        activity.getContentResolver().registerContentObserver(
+                EventsContract.CONTENT_URI, true, mEventsObserver);
+    }
 
-	}
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        getActivity().getContentResolver().unregisterContentObserver(
+                mEventsObserver);
+    }
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+    public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+        setLoadingViewVisible(true);
+        return new CursorLoader(
+                mContext,
+                CoursesContract.CONTENT_URI
+                        .buildUpon()
+                        .appendPath("events")
+                        .appendPath(
+                                data.getString(CoursesContract.Columns.Courses.COURSE_ID))
+                        .build(),
+                CourseEventsListQuery.projection,
+                EventsContract.Columns.EVENT_START + " >= strftime('%s','now')",
+                null, EventsContract.DEFAULT_SORT_ORDER);
+    }
 
-		// initialize CursorLoaders with IDs
-		getLoaderManager().initLoader(COURSOR_EVENTS_LIST_LOADER, mArgs, this);
-	}
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (getActivity() == null) {
+            return;
+        }
+        mAdapter.swapCursor(cursor);
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.list, container, false);
-		((TextView) v.findViewById(R.id.empty_message))
-				.setText(R.string.no_appointments);
-		mEmptyMessage = v.findViewById(R.id.empty_list);
-		mList = (ListView) v.findViewById(android.R.id.list);
-		mProgressView = v.findViewById(android.R.id.empty);
-		return v;
-	}
+    }
 
-	protected final ContentObserver mEventsObserver = new ContentObserver(
-			new Handler()) {
-		@Override
-		public void onChange(boolean selfChange) {
-			if (getActivity() == null) {
-				return;
-			}
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.swapCursor(null);
+    }
 
-			Loader<Cursor> loader = getLoaderManager().getLoader(0);
-			if (loader != null) {
-				loader.forceLoad();
-			}
-		}
-	};
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-	 * (android.app.Activity)
-	 */
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		activity.getContentResolver().registerContentObserver(
-				EventsContract.CONTENT_URI, true, mEventsObserver);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.actionbarsherlock.app.SherlockListFragment#onDetach()
-	 */
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		getActivity().getContentResolver().unregisterContentObserver(
-				mEventsObserver);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-	 * android.os.Bundle)
-	 */
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(
-				mContext,
-				CoursesContract.CONTENT_URI
-						.buildUpon()
-						.appendPath("events")
-						.appendPath(
-								data.getString(CoursesContract.Columns.Courses.COURSE_ID))
-						.build(),
-				CourseEventsListQuery.projection,
-				EventsContract.Columns.EVENT_START + " >= strftime('%s','now')",
-				null, EventsContract.DEFAULT_SORT_ORDER);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-	 * .support.v4.content.Loader, java.lang.Object)
-	 */
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (getActivity() == null) {
-			return;
-		}
-		if (cursor.getCount() <= 0) {
-			mEmptyMessage.setVisibility(View.VISIBLE);
-			mProgressView.setVisibility(View.GONE);
-			return;
-		} else {
-			mList.setVisibility(View.VISIBLE);
-			mEmptyMessage.setVisibility(View.GONE);
-			mProgressView.setVisibility(View.GONE);
-		}
-
-		mAdapter.swapCursor(cursor);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-	 * .support.v4.content.Loader)
-	 */
-	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.swapCursor(null);
-	}
-
-	private interface CourseEventsListQuery {
-		String[] projection = { EventsContract.Columns._ID,
-				EventsContract.Columns.EVENT_TITLE,
-				EventsContract.Columns.EVENT_ROOM };
-	}
+    private interface CourseEventsListQuery {
+        String[] projection = {EventsContract.Columns._ID,
+                EventsContract.Columns.EVENT_TITLE,
+                EventsContract.Columns.EVENT_ROOM};
+    }
 
 }
