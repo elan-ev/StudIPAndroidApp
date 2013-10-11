@@ -48,8 +48,8 @@ public class CoursesHandler implements ResultHandler {
 			operations.addAll(parseCourseUser(c.tutors, c.course_id,
 					CoursesContract.USER_ROLE_TUTOR));
 
-			operations.addAll(parseCourseUser(c.students, c.course_id,
-					CoursesContract.USER_ROLE_STUDENT));
+//			operations.addAll(parseCourseUser(c.students, c.course_id,
+//					CoursesContract.USER_ROLE_STUDENT));
 
 		}
 
