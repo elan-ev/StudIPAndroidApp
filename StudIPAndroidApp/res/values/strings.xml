@@ -37,10 +37,9 @@
     <string name="menu">Menü</string>
     <string name="Development">Entwicklung</string>
     <string name="Authorize">Autorisieren</string>
-    <string name="upcoming_events">Anstehende Veranstaltungen</string>
+
     <string name="choose_server">Server wählen</string>
-    <string name="appointments">Termine</string>
-    <string name="attendees">Mitglieder</string>
+
     <string name="no_data">Keine Daten</string>
     <string name="Overview">Übersicht</string>
     <string name="Global">Global</string>
@@ -52,12 +51,7 @@
     <string name="yesterday">gestern</string>
     <string name="days_ago">vor %d Tagen</string>
     <string name="by">von</string>
-    <string name="time_room">Zeit / Veranstaltunsort</string>
-    <string name="Teacher">DozentIn</string>
-    <string name="next_appointments">Nächste Termin</string>
-    <string name="Tutor">TutorIn</string>
-    <string name="Student">StudentIn</string>
-    <string name="no_appointments">Keine Termine</string>
+
     <string name="Inbox">Eingang</string>
     <string name="Outbox">Ausgang</string>
     <string name="Compose">Erstellen</string>
@@ -92,12 +86,11 @@
     <string name="no_groups">Du hast noch keine Gruppen erstellt!</string>
     <string name="no_contacts">Es sind keine Kontakte vorhanden!</string>
     <string name="no_favorites">Du hast noch keine Favoriten markiert!</string>
-    <string name="no_news">Keine Ankündigungen vorhanden.</string>
-    <string name="no_attendees">Es sind keine Teilnehmer vorhanden.</string>
-    <string name="no_documents">Es wurden noch keine Dokumente hochgeladen.</string>
+
+
     <string name="no_messages">Du hast keine Nachrichten!</string>
-    <string name="no_courses">Du bist in keinem Kurs eingetragen.</string>
-    <string name="no_details">Keine Beschreibung vorhanden.</string>
+
+
     <string name="no_users">Keine Benutzer vorhanden.</string>
     <string name="studip_app_contacts_favorites">StudipApp Favoriten</string>
     <string name="Add_to_favorites">Zu Favoriten hinzufügen</string>
@@ -114,13 +107,31 @@
     <string name="personal_info">Persönliche Informationen</string>
     <string name="contact_info">Kontakt Informationen</string>
     <string name="crash_toast_string">Es ist ein Problem aufgetreten. Ein Absturzbericht wird gesendet.</string>
-    <string name="Schedule">Ablaufplan</string>
-    <string name="show_more">Mehr anzeigen</string>
-    <string name="Details">Beschreibung</string>
-    <string name="latest_news">Neueste Nachricht</string>
+
     <string name="Feedback">Feedback</string>
     <string name="open_drawer">Navigation öffnen</string>
     <string name="close_drawer">Navigation schließen</string>
+
+    <!-- CourseView Activity -->
+    <string name="upcoming_events">Anstehende Veranstaltungen</string>
+    <string name="appointments">Termine</string>
+    <string name="attendees">Mitglieder</string>
+    <string name="time_room">Zeit / Veranstaltunsort</string>
+    <string name="Teacher">DozentIn</string>
+    <string name="next_appointments">Nächste Termin</string>
+    <string name="Tutor">TutorIn</string>
+    <string name="Student">StudentIn</string>
+    <string name="no_appointments">Keine Termine</string>
+    <string name="no_courses">Du bist in keinem Kurs eingetragen.</string>
+    <string name="no_attendees">Es sind keine Teilnehmer vorhanden.</string>
+    <string name="no_documents">Es wurden noch keine Dokumente hochgeladen.</string>
+    <string name="no_news">Keine Ankündigungen vorhanden.</string>
+    <string name="no_details">Keine Beschreibung vorhanden.</string>
+    <string name="Schedule">Ablaufplan</string>
+    <string name="show_more">Mehr anzeigen</string>
+    <string name="show_less">Weniger anzeigen</string>
+    <string name="Details">Beschreibung</string>
+    <string name="latest_news">Neueste Nachricht</string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Datenschutzerklärung</string>
@@ -129,4 +140,5 @@
         <string name="about_studip_mobile">Über Stud.IP mobile</string>
         <string name="about_text">Stud.IP mobile erlaubt es Ihnen schnell und einfach auf das Stud.IP Ihrer Hochschule zuzugreifen ohne die Seite in einem Browser aufrufen zu müssen.</string>
     <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">Besuchen Sie unsere Homepage</a></string>
+    <string name="legal_notice">Impressum</string>
 </resources>

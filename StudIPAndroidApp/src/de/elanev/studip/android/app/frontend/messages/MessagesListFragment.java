@@ -20,7 +20,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -28,7 +27,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -37,6 +35,9 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.MainActivity;
@@ -51,17 +52,15 @@ import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.util.VolleyHttp;
+import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author joern
  */
-public class MessagesListFragment extends SherlockListFragment implements
+public class MessagesListFragment extends ProgressSherlockListFragment implements
         LoaderCallbacks<Cursor> {
     public static final String TAG = MessagesListFragment.class.getSimpleName();
     protected final ContentObserver mObserver = new ContentObserver(
@@ -80,24 +79,12 @@ public class MessagesListFragment extends SherlockListFragment implements
     };
     private MessagesAdapter mMessagesAdapter;
     private SimpleSectionedListAdapter mAdapter;
-    private Context mContext;
-    private Bundle mArgs;
     private String mApiUrl;
     private VolleyOAuthConsumer mConsumer;
-    private View mEmptyMessage;
-    private ListView mList;
-    private View mProgressView;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mArgs = getArguments();
-        mContext = getActivity();
 
         Prefs prefs = Prefs.getInstance(mContext);
         Server s = prefs.getServer();
@@ -110,6 +97,7 @@ public class MessagesListFragment extends SherlockListFragment implements
         mMessagesAdapter = new MessagesAdapter(mContext);
         mAdapter = new SimpleSectionedListAdapter(mContext,
                 R.layout.list_item_header, mMessagesAdapter);
+
         setHasOptionsMenu(true);
         setListAdapter(mAdapter);
     }
@@ -118,29 +106,12 @@ public class MessagesListFragment extends SherlockListFragment implements
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getActivity().setTitle(R.string.Messages);
+        setEmptyMessage(R.string.no_messages);
+
         // initialize CursorLoader
-        getLoaderManager().initLoader(0, mArgs, this);
+        getLoaderManager().initLoader(0, null, this);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.list, null);
-        ((TextView) v.findViewById(R.id.empty_message))
-                .setText(R.string.no_messages);
-        mEmptyMessage = v.findViewById(R.id.empty_list);
-        mList = (ListView) v.findViewById(android.R.id.list);
-        mProgressView = v.findViewById(android.R.id.empty);
-        return v;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-     * (android.app.Activity)
-     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -155,11 +126,6 @@ public class MessagesListFragment extends SherlockListFragment implements
         getActivity().getContentResolver().unregisterContentObserver(mObserver);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onResume()
-     */
     @Override
     public void onResume() {
         super.onResume();
@@ -170,13 +136,13 @@ public class MessagesListFragment extends SherlockListFragment implements
     /**
      *
      */
-    public void switchContent(long messagesFolder) {
-        getLoaderManager().destroyLoader(0);
-        Bundle args = new Bundle();
-        args.putLong(MessagesContract.Columns.MessageFolders._ID,
-                messagesFolder);
-        getLoaderManager().initLoader(0, args, this);
-    }
+//    public void switchContent(long messagesFolder) {
+//        getLoaderManager().destroyLoader(0);
+//        Bundle args = new Bundle();
+//        args.putLong(MessagesContract.Columns.MessageFolders._ID,
+//                messagesFolder);
+//        getLoaderManager().initLoader(0, args, this);
+//    }
 
     /*
      * (non-Javadoc)
@@ -325,19 +291,19 @@ public class MessagesListFragment extends SherlockListFragment implements
      * android.os.Bundle)
      */
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+        setLoadingViewVisible(true);
         // TODO: Folder chooser
         // String messageFolder = "Posteingang";
         // if (data != null) {
         // messageFolder = data
         // .getLong(MessagesContract.Columns.MessageFolders._ID);
         // }
-        CursorLoader loader = new CursorLoader(mContext,
+        return new CursorLoader(mContext,
                 MessagesContract.CONTENT_URI_MESSAGE_FOLDERS.buildUpon()
                         .appendPath("name").appendPath("Posteingang").build(),
                 MessageQuery.projection, UsersContract.Qualified.USERS_USER_ID
                 + " NOT NULL", null,
                 MessagesContract.DEFAULT_SORT_ORDER_MESSAGES);
-        return loader;
     }
 
     /*
@@ -350,16 +316,6 @@ public class MessagesListFragment extends SherlockListFragment implements
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (getActivity() == null) {
             return;
-        }
-
-        if (cursor.getCount() <= 0) {
-            mEmptyMessage.setVisibility(View.VISIBLE);
-            mProgressView.setVisibility(View.GONE);
-            return;
-        } else {
-            mList.setVisibility(View.VISIBLE);
-            mEmptyMessage.setVisibility(View.GONE);
-            mProgressView.setVisibility(View.GONE);
         }
 
         List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
@@ -392,6 +348,7 @@ public class MessagesListFragment extends SherlockListFragment implements
                 .size()];
         mAdapter.setSections(sections.toArray(dummy));
 
+        setLoadingViewVisible(false);
     }
 
     /*

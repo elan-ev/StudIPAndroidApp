@@ -1,77 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1" >
-    </ListView>
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:id="@id/android:empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical" >
-
-        <ProgressBar
-            android:id="@+id/progressbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:indeterminate="true" />
-
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
-            android:id="@+id/loading_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/loading"
-            android:textColor="@android:color/secondary_text_light"
-            android:textSize="14sp"
-            font:typeface="Roboto-Regular.ttf" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/empty_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
+        android:id="@+id/list_container"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:orientation="vertical"
-        android:visibility="gone" >
+        android:visibility="visible">
 
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="@dimen/list_item_hor_margin"
-            android:drawableEnd="@drawable/ic_action_sad"
-            android:drawablePadding="4dp"
-            android:gravity="center"
-            android:text="@string/sorry"
-            android:textColor="@android:color/primary_text_light"
-            android:textSize="16sp"
-            font:typeface="Roboto-Regular.ttf" />
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:visibility="visible" />
 
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
-            android:id="@+id/empty_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+
+        <LinearLayout
+            android:id="@id/android:empty"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:gravity="center"
-            android:text="@string/no_data"
-            android:textColor="@android:color/secondary_text_light"
-            android:textSize="14sp"
-            font:typeface="Roboto-Regular.ttf" />
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="@dimen/list_item_hor_margin"
+                android:drawableEnd="@drawable/ic_action_sad"
+                android:drawablePadding="4dp"
+                android:gravity="center"
+                android:text="@string/sorry"
+                android:textColor="@android:color/primary_text_light"
+                android:textSize="16sp"
+                font:typeface="Roboto-Regular.ttf" />
+
+            <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+                android:id="@+id/empty_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/no_data"
+                android:textColor="@android:color/secondary_text_light"
+                android:textSize="14sp"
+                font:typeface="Roboto-Regular.ttf" />
+        </LinearLayout>
+
     </LinearLayout>
+
+
+    <ProgressBar
+        android:id="@+id/progressbar"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:indeterminate="true"
+        android:visibility="visible"
+        android:layout_gravity="center" />
 
 </LinearLayout>
