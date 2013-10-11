@@ -52,29 +52,26 @@ public class NewsItemViewActivity extends SherlockFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle args = getIntent().getExtras();
+
+        // No arguments, nothing to display, finish activity
+        if (args == null) {
+            finish();
+            return;
+        }
 
         setContentView(R.layout.content_frame);
-
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Bundle args = getIntent().getExtras();
-        if (args != null) {
-            FragmentManager fm = getSupportFragmentManager();
+        if (savedInstanceState == null) {
 
-            // find exisiting fragment
-            Fragment frag = fm.findFragmentByTag(NewsItemFragment.class
-                    .getName());
-            if (frag == null) {
-                // otherwise create new
-                frag = NewsItemFragment.instantiate(this,
-                        NewsItemFragment.class.getName());
-                // Set new arguments and replace fragment
-                frag.setArguments(args);
-            }
-            fm.beginTransaction()
-                    .replace(R.id.content_frame, frag,
-                            NewsItemFragment.class.getName()).commit();
+            NewsItemFragment newsItemFrag = NewsItemFragment.newInstance(args);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.content_frame, newsItemFrag,
+                            NewsItemFragment.class.getName())
+                    .commit();
+
         }
 
     }
@@ -105,6 +102,14 @@ public class NewsItemViewActivity extends SherlockFragmentActivity {
         private ImageView mUserImageView;
         private String mTitle, mBody, mAuthor, mUserImageUrl;
         private long mTimestamp;
+
+        public static NewsItemFragment newInstance(Bundle arguments) {
+            NewsItemFragment fragment = new NewsItemFragment();
+
+            fragment.setArguments(arguments);
+
+            return fragment;
+        }
 
         /*
          * (non-Javadoc)
