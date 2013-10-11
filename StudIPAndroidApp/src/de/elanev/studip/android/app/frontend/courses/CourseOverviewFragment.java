@@ -158,15 +158,12 @@ public class CourseOverviewFragment extends SherlockFragment implements
         lm.initLoader(COURSE_EVENTS_LOADER, mArgs, this);
         lm.initLoader(COURSE_NEWS_LOADER, mArgs, this);
 
-        // mListView.setAdapter(mAdapter);
-
         mNewsShowMoreTextView.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
-                ((TextView) v).setText(R.string.show_less);
-                mNewsTextTextView.setVisibility(View.VISIBLE);
-
+                toggleLatestNewsView();
             }
+
         });
     }
 
@@ -359,6 +356,22 @@ public class CourseOverviewFragment extends SherlockFragment implements
                 break;
         }
 
+    }
+
+    public void toggleLatestNewsView() {
+        if (mNewsShowMoreTextView != null && mNewsTextTextView != null) {
+            int viewVisibility = mNewsTextTextView.getVisibility();
+            switch (viewVisibility) {
+                case View.VISIBLE:
+                    mNewsTextTextView.setVisibility(View.GONE);
+                    mNewsShowMoreTextView.setText(R.string.show_more);
+                    break;
+                case View.GONE:
+                    mNewsTextTextView.setVisibility(View.VISIBLE);
+                    mNewsShowMoreTextView.setText(R.string.show_less);
+                    break;
+            }
+        }
     }
 
     /*

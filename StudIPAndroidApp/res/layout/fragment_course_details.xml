@@ -2,16 +2,15 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/layout_padding_normal" >
+        android:padding="@dimen/layout_padding_normal">
 
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
             android:id="@+id/course_title"
             android:layout_width="wrap_content"
@@ -25,14 +24,14 @@
             font:typeface="Roboto-Bold.ttf" />
 
         <include
+            layout="@layout/header_line"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/layout_margin_normal"
-            layout="@layout/header_line" />
+            android:layout_marginBottom="@dimen/layout_margin_normal" />
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/user_image"
@@ -41,12 +40,11 @@
                 android:layout_alignParentLeft="true"
                 android:layout_marginRight="@dimen/layout_margin_normal"
                 android:layout_marginTop="@dimen/layout_margin_normal"
+                android:contentDescription="@string/user_image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/nobody_normal"
-                android:contentDescription="@string/user_image" />
+                android:src="@drawable/nobody_normal" />
 
-            <de.elanev.studip.android.app.widget.TypefacedTextView
-                xmlns:android="http://schemas.android.com/apk/res/android"
+            <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
                 android:id="@+id/course_teacher_name"
                 android:layout_width="wrap_content"
@@ -59,8 +57,7 @@
                 android:textSize="@dimen/text_size_small"
                 font:typeface="Roboto-Regular.ttf" />
 
-            <de.elanev.studip.android.app.widget.TypefacedTextView
-                xmlns:android="http://schemas.android.com/apk/res/android"
+            <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
                 android:id="@+id/course_next_appointment"
                 android:layout_width="wrap_content"
@@ -75,8 +72,7 @@
                 font:typeface="Roboto-Bold.ttf" />
         </RelativeLayout>
 
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -88,13 +84,12 @@
             font:typeface="Roboto-Regular.ttf" />
 
         <include
+            layout="@layout/header_line"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/layout_margin_normal"
-            layout="@layout/header_line" />
+            android:layout_marginBottom="@dimen/layout_margin_normal" />
 
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
             android:id="@+id/news_title"
             android:layout_width="match_parent"
@@ -105,8 +100,7 @@
             android:textSize="@dimen/text_size_medium"
             font:typeface="Roboto-Bold.ttf" />
 
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
             android:id="@+id/news_author"
             android:layout_width="match_parent"
@@ -117,21 +111,21 @@
             android:visibility="gone"
             font:typeface="Roboto-Regular.ttf" />
 
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
             android:id="@+id/show_news_body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
+            android:paddingBottom="@dimen/layout_padding_normal"
+            android:paddingTop="@dimen/layout_padding_normal"
             android:text="@string/show_more"
             android:textAllCaps="true"
             android:textColor="@color/studip_mobile_dark"
             android:visibility="gone"
             font:typeface="Roboto-Regular.ttf" />
 
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
             android:id="@+id/news_text"
             android:layout_width="match_parent"
@@ -144,8 +138,7 @@
             android:visibility="gone"
             font:typeface="Roboto-Regular.ttf" />
 
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -157,13 +150,12 @@
             font:typeface="Roboto-Regular.ttf" />
 
         <include
+            layout="@layout/header_line"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/layout_margin_normal"
-            layout="@layout/header_line" />
+            android:layout_marginBottom="@dimen/layout_margin_normal" />
 
-        <de.elanev.studip.android.app.widget.TypefacedTextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <de.elanev.studip.android.app.widget.TypefacedTextView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
             android:id="@+id/course_description"
             android:layout_width="wrap_content"
