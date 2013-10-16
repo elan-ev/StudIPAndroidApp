@@ -94,7 +94,7 @@ public class AboutFragment extends SherlockFragment {
         }
         ft.addToBackStack(null);
 
-        new WebViewDialog("http://mlearning.elan-ev.de/?page_id=27", R.string.legal_notice).show(ft, "webview_dialog");
+        new WebViewDialog("http://mlearning.elan-ev.de/?page_id=27&print=1", R.string.legal_notice).show(ft, "webview_dialog");
     }
 
     /*
@@ -124,7 +124,8 @@ public class AboutFragment extends SherlockFragment {
         }
         ft.addToBackStack(null);
 
-        new WebViewDialog("http://mlearning.elan-ev.de/?page_id=140", R.string.privacy_policy).show(ft, "webview_dialog");
+        new WebViewDialog("http://mlearning.elan-ev.de/?page_id=140&print=1",
+                R.string.privacy_policy).show(ft, "webview_dialog");
     }
 
     /**
