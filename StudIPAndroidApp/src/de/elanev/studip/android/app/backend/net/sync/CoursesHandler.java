@@ -105,8 +105,8 @@ public class CoursesHandler implements ResultHandler {
 				.withValue(
 						CoursesContract.Columns.Courses.COURSE_DURATION_TIME,
 						c.duration_time)
-				.withValue(CoursesContract.Columns.Courses.COURSE_COLORS,
-						c.colors)
+				.withValue(CoursesContract.Columns.Courses.COURSE_COLOR,
+						c.color)
 				// .withValue(CoursesContract.Columns.Courses.COURSE_NUMBER,
 				// c.number)
 				.withValue(CoursesContract.Columns.Courses.COURSE_TYPE, c.type)
