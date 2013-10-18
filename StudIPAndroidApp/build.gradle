@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat
 
 def versionMajor = 0 //beta
 def versionMinor = 7
-def versionPatch = 0
+def versionPatch = 6
 def versionBuild = 1
 
 final Console console = System.console();
