@@ -79,10 +79,10 @@ public class Prefs {
 
     public void setServer(Server value) {
         SharedPreferences.Editor prefsEditor = getPrefs().edit();
-        prefsEditor.putString(SERVER_NAME, value.NAME);
-        prefsEditor.putString(SERVER_URL, value.BASE_URL);
-        prefsEditor.putString(SERVER_KEY, value.CONSUMER_KEY);
-        prefsEditor.putString(SERVER_SECRET, value.CONSUMER_SECRET);
+        prefsEditor.putString(SERVER_NAME, value.getName());
+        prefsEditor.putString(SERVER_URL, value.getBaseUrl());
+        prefsEditor.putString(SERVER_KEY, value.getConsumerKey());
+        prefsEditor.putString(SERVER_SECRET, value.getConsumerSecret());
         prefsEditor.apply();
     }
 
