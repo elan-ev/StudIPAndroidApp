@@ -28,7 +28,6 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.android.volley.VolleyError;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -83,18 +82,12 @@ public class SignInActivity extends SherlockFragmentActivity {
 		 */
         // Prefs.getInstance(getApplicationContext()).clearPrefs();
 
-        FragmentManager fm = getSupportFragmentManager();
-        SignInFragment frag = null;
         if (savedInstanceState == null) {
-            frag = (SignInFragment) SignInFragment.instantiate(this,
-                    SignInFragment.class.getName());
-        } else {
-            frag = (SignInFragment) fm.findFragmentByTag(SignInFragment.class
-                    .getName());
+            SignInFragment signInFragment = SignInFragment.newInstance();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.content_frame, signInFragment, SignInFragment.class.getName())
+                    .commit();
         }
-        fm.beginTransaction()
-                .add(R.id.content_frame, frag, SignInFragment.class.getName())
-                .commit();
 
         getSupportActionBar().hide();
     }
@@ -120,6 +113,12 @@ public class SignInActivity extends SherlockFragmentActivity {
         private View mSignInForm;
         private TextView mSyncStatusTextView;
 
+        public static SignInFragment newInstance() {
+            SignInFragment fragment = new SignInFragment();
+
+            return fragment;
+        }
+
         /*
          * (non-Javadoc)
          *
@@ -136,8 +135,6 @@ public class SignInActivity extends SherlockFragmentActivity {
                 res = android.R.layout.simple_list_item_checked;
             }
             mAdapter = new ServerAdapter(mContext, res, getItems().getServers());
-            return;
-
 
         }
 
@@ -152,10 +149,10 @@ public class SignInActivity extends SherlockFragmentActivity {
                                  Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_sign_in, null);
 
-            mProgressBar = (ProgressBar) v
-                    .findViewById(R.id.sign_in_progressbar);
+            mProgressBar = (ProgressBar) v.findViewById(R.id.sign_in_progressbar);
             mSignInForm = v.findViewById(R.id.sign_in_form);
             mSyncStatusTextView = (TextView) v.findViewById(R.id.sync_status);
+
             return v;
         }
 
@@ -178,8 +175,7 @@ public class SignInActivity extends SherlockFragmentActivity {
 
             } else {
                 showLoginForm();
-                Button signInButton = (Button) getView().findViewById(
-                        R.id.sign_in_button);
+                Button signInButton = (Button) getView().findViewById(R.id.sign_in_button);
                 signInButton.setOnClickListener(new OnClickListener() {
 
                     public void onClick(View v) {
@@ -263,6 +259,7 @@ public class SignInActivity extends SherlockFragmentActivity {
                 startNewsActivity();
                 return;
             }
+
             SyncHelper.getInstance(mContext).performSemestersSync(this);
             Prefs.getInstance(mContext).setAppStarted();
         }
@@ -429,7 +426,9 @@ public class SignInActivity extends SherlockFragmentActivity {
                     break;
                 case SyncHelper.SyncHelperCallbacks.ERROR_MESSAGES_SYNC:
                 case SyncHelper.SyncHelperCallbacks.ERROR_CONTACTS_SYNC:
-                case SyncHelper.SyncHelperCallbacks.ERROR_USER_SYNC:
+                    SyncHelper.getInstance(mContext).performPendingUserSync(this);
+                    break;
+                default:
                     mCoursesSynced = false;
                     mContactsSynced = false;
                     mMessagesSynced = false;
