@@ -77,7 +77,7 @@ public class CourseAttendeesFragment extends UserListFragment implements
         // initialize CursorLoader
         getLoaderManager().initLoader(0, mArgs, this);
 
-        SyncHelper.getInstance(mContext).loadUsersForCourse(mCourseId);
+        SyncHelper.getInstance(mContext).loadUsersForCourse(mCourseId, null);
     }
 
     @Override
