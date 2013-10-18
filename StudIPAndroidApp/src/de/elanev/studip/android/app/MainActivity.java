@@ -30,6 +30,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
 
 import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
 import de.elanev.studip.android.app.frontend.AboutFragment;
 import de.elanev.studip.android.app.frontend.contacts.ContactsGroupsFragment;
@@ -51,6 +52,7 @@ public class MainActivity extends SherlockFragmentActivity {
     public DrawerLayout mDrawerLayout;
     public ListView mDrawerListView;
     public SherlockActionBarDrawerToggle mDrawerToggle;
+    private MenuAdapter mAdapter;
 
     /*
      * (non-Javadoc)
@@ -61,6 +63,7 @@ public class MainActivity extends SherlockFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mAdapter = getNewMenuAdapter();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListView = (ListView) findViewById(R.id.left_drawer);
@@ -89,7 +92,7 @@ public class MainActivity extends SherlockFragmentActivity {
         mDrawerLayout.setDrawerShadow(R.drawable.shadow_right,
                 GravityCompat.START);
 
-        mDrawerListView.setAdapter(getNewMenuAdapter());
+        mDrawerListView.setAdapter(mAdapter);
         mDrawerListView.setOnItemClickListener(new DrawerItemClickListener());
 
         if (savedInstanceState == null)
@@ -169,7 +172,7 @@ public class MainActivity extends SherlockFragmentActivity {
      * @param Fragment the fragment to change to
      */
     private void changeFragment(int position) {
-        if (position != ListView.INVALID_POSITION) {
+        if (position != ListView.INVALID_POSITION && !mAdapter.isEmpty()) {
             MenuItem item = (MenuItem) mDrawerListView.getItemAtPosition(position);
             Fragment frag = null;
             String fragTag = null;
@@ -248,6 +251,8 @@ public class MainActivity extends SherlockFragmentActivity {
                 mDrawerLayout.closeDrawers();
 
             }
+        } else {
+            mDrawerListView.setAdapter(getNewMenuAdapter());
         }
     }
 
@@ -265,6 +270,9 @@ public class MainActivity extends SherlockFragmentActivity {
      * Deletes the preferences and database to logout of the service
      */
     private void logout() {
+        // Resetting the SyncHelper
+        SyncHelper.getInstance(this).resetSyncHelper();
+
         // Clear the app preferences
         Prefs.getInstance(this).clearPrefs();
 
@@ -274,6 +282,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
         // Resetting the UI
         mPosition = 0;
+
 
         // Start an intent so show the sign in screen
         Intent intent = new Intent(this, SignInActivity.class);

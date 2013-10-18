@@ -33,7 +33,7 @@ public class Course {
 	public ArrayList<String> teachers;
 	public ArrayList<String> tutors;
 	public ArrayList<String> students;
-	public String colors;
+	public String color;
 
 	public Course() {
 	}

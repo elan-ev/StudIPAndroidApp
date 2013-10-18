@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.CursorWrapper;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -20,6 +21,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -164,6 +166,8 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
         String[] PROJECTION = {CoursesContract.Qualified.Courses.COURSES_ID,
                 CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
                 CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
+                CoursesContract.Qualified.Courses.COURSES_COURSE_TYPE,
+                CoursesContract.Qualified.Courses.COURSES_COURSE_COLOR,
                 SemestersContract.Qualified.SEMESTERS_SEMESTER_ID,
                 SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE,
                 SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN};
@@ -194,13 +198,30 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
         @Override
         public void bindView(View view, Context context, final Cursor cursor) {
             final String courseTitle = cursor.getString(1);
-
+            final int type = cursor.getInt(
+                    cursor.getColumnIndex(
+                            CoursesContract.Columns.Courses.COURSE_TYPE));
+            final String courseColor = cursor.getString(
+                    cursor.getColumnIndex(
+                            CoursesContract.Columns.Courses.COURSE_COLOR));
             final TextView courseTitleTextVew = (TextView) view
                     .findViewById(R.id.text1);
             final ImageView icon = (ImageView) view.findViewById(R.id.icon1);
 
+
             courseTitleTextVew.setText(courseTitle);
-            icon.setImageResource(R.drawable.ic_menu_courses);
+            if (type == 99) {
+                icon.setImageResource(R.drawable.ic_studygroup);
+            } else {
+                icon.setImageResource(R.drawable.ic_menu_courses);
+            }
+
+            try {
+                int c = Color.parseColor(courseColor);
+                icon.setBackgroundColor(c);
+            } catch (Exception e) {
+                Log.wtf(TAG, e.getMessage());
+            }
         }
 
         /*

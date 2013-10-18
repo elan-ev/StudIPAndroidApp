@@ -97,9 +97,9 @@ public class MessageDetailFragment extends SherlockFragment implements
         mContext = getActivity();
         Prefs prefs = Prefs.getInstance(mContext);
         Server s = prefs.getServer();
-        mApiUrl = s.API_URL;
+        mApiUrl = s.getApiUrl();
 
-        mConsumer = new VolleyOAuthConsumer(s.CONSUMER_KEY, s.CONSUMER_SECRET);
+        mConsumer = new VolleyOAuthConsumer(s.getConsumerKey(), s.getConsumerSecret());
 
         mConsumer.setTokenWithSecret(prefs.getAccessToken(),
                 prefs.getAccessTokenSecret());

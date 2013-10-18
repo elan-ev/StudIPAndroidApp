@@ -88,8 +88,8 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
 
         Prefs prefs = Prefs.getInstance(mContext);
         Server s = prefs.getServer();
-        mApiUrl = s.API_URL;
-        mConsumer = new VolleyOAuthConsumer(s.CONSUMER_KEY, s.CONSUMER_SECRET);
+        mApiUrl = s.getApiUrl();
+        mConsumer = new VolleyOAuthConsumer(s.getConsumerKey(), s.getConsumerSecret());
         mConsumer.setTokenWithSecret(prefs.getAccessToken(),
                 prefs.getAccessTokenSecret());
 
@@ -127,10 +127,10 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         // Request the latest messages from server
-        SyncHelper.getInstance(mContext).performMessagesSync();
+        SyncHelper.getInstance(mContext).performMessagesSync(null);
     }
 
     /**
@@ -206,11 +206,11 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
             public void onErrorResponse(VolleyError error) {
                 if (error.getMessage() != null)
                     Log.e(TAG, error.getMessage());
-                Toast.makeText(
-                        mContext,
-                        getString(R.string.something_went_wrong)
-                                + error.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+
+                if (isAdded())
+                    Toast.makeText(mContext, getString(R.string.something_went_wrong)
+                            + error.getMessage(), Toast.LENGTH_SHORT)
+                            .show();
             }
         }
         );

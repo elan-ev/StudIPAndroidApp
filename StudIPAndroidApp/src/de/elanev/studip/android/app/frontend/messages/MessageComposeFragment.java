@@ -262,7 +262,7 @@ public class MessageComposeFragment extends SherlockFragment implements
                     mMessageEditTextView.requestFocus();
                 } else {
 
-                    String apiUrl = Prefs.getInstance(mContext).getServer().API_URL;
+                    String apiUrl = Prefs.getInstance(mContext).getServer().getApiUrl();
                     String messagesUrl = String.format(
                             getString(R.string.restip_messages), apiUrl);
 
@@ -308,8 +308,8 @@ public class MessageComposeFragment extends SherlockFragment implements
                     VolleyOAuthConsumer consumer = null;
                     if (prefs.isAppAuthorized()) {
                         Server server = prefs.getServer();
-                        consumer = new VolleyOAuthConsumer(server.CONSUMER_KEY,
-                                server.CONSUMER_SECRET);
+                        consumer = new VolleyOAuthConsumer(server.getConsumerKey(),
+                                server.getConsumerSecret());
                         consumer.setTokenWithSecret(prefs.getAccessToken(),
                                 prefs.getAccessTokenSecret());
                     }

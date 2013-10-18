@@ -7,16 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.widget;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -36,15 +26,12 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request.Method;
@@ -52,12 +39,19 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.ContactGroups;
 import de.elanev.studip.android.app.backend.datamodel.Contacts;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupHandler;
 import de.elanev.studip.android.app.backend.net.sync.ContactsHandler;
@@ -65,6 +59,9 @@ import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.VolleyHttp;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
 
 /**
  * @author joern
@@ -82,35 +79,40 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                 context.getString(R.string.restip_contacts_contactid),
                 mApiUrl, userId);
         JacksonRequest<Contacts> contactAddRequest = new JacksonRequest<Contacts>(
-                contactsUrl, Contacts.class, null, new Listener<Contacts>() {
-            public void onResponse(Contacts response) {
-                try {
-                    mResolver.applyBatch(
-                            AbstractContract.CONTENT_AUTHORITY,
-                            new ContactsHandler(response).parse());
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                } catch (OperationApplicationException e) {
-                    e.printStackTrace();
-                }
-                Toast.makeText(context, "Erfolgreich hinzugefügt",
-                        Toast.LENGTH_SHORT).show();
-            }
-        }, new ErrorListener() {
-            /*
-             * (non-Javadoc)
-             *
-             * @see com.android.volley.Response.ErrorListener
-             * #onErrorResponse(com.android.volley. VolleyError)
-             */
-            public void onErrorResponse(VolleyError error) {
-                if (error.getMessage() != null)
-                    Log.e(TAG, error.getMessage());
-                Toast.makeText(context,
-                        "Fehler: " + error.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }, Method.PUT
+                contactsUrl,
+                Contacts.class,
+                null,
+                new Listener<Contacts>() {
+                    public void onResponse(Contacts response) {
+                        try {
+                            mResolver.applyBatch(
+                                    AbstractContract.CONTENT_AUTHORITY,
+                                    new ContactsHandler(response).parse());
+                            SyncHelper.getInstance(context).forcePerformContactsSync(null);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        } catch (OperationApplicationException e) {
+                            e.printStackTrace();
+                        }
+                        Toast.makeText(context, R.string.successfully_added, Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                },
+                new ErrorListener() {
+                    /*
+                     * (non-Javadoc)
+                     *
+                     * @see com.android.volley.Response.ErrorListener
+                     * #onErrorResponse(com.android.volley. VolleyError)
+                     */
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.getMessage() != null)
+                            Log.e(TAG, error.getMessage());
+                        Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                },
+                Method.PUT
         );
         try {
             mConsumer.sign(contactAddRequest);
@@ -129,32 +131,36 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         String contactsUrl = String.format(
                 context.getString(R.string.restip_contacts_contactid),
                 mApiUrl, userId);
-        StringRequest request = new StringRequest(Method.DELETE, contactsUrl,
+        StringRequest request = new StringRequest(Method.DELETE,
+                contactsUrl,
                 new Listener<String>() {
                     public void onResponse(String response) {
-                        context.getContentResolver()
-                                .delete(ContactsContract.CONTENT_URI_CONTACTS
-                                        .buildUpon().appendPath(userId).build(),
-                                        null, null);
-
                         context.getContentResolver()
                                 .delete(ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS,
                                         ContactsContract.Columns.ContactGroupMembers.USER_ID
                                                 + "= ?",
                                         new String[]{"'" + userId + "'"});
 
-                        Toast.makeText(context, "Erfolgreich gelöscht",
-                                Toast.LENGTH_SHORT).show();
+                        context.getContentResolver()
+                                .delete(ContactsContract.CONTENT_URI_CONTACTS
+                                        .buildUpon().appendPath(userId).build(),
+                                        null, null);
+                        SyncHelper.getInstance(context).forcePerformContactsSync(null);
+
+
+                        Toast.makeText(context, R.string.successfully_deleted, Toast.LENGTH_SHORT)
+                                .show();
                     }
-                }, new ErrorListener() {
-            public void onErrorResponse(VolleyError error) {
-                if (error.getMessage() != null)
-                    Log.e(TAG, error.getMessage());
-                Toast.makeText(context,
-                        "Fehler: " + error.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
+                },
+                new ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.getMessage() != null)
+                            Log.e(TAG, error.getMessage());
+
+                        Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                }
         );
 
         try {
@@ -174,7 +180,8 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         String contactsUrl = String.format(context
                 .getString(R.string.restip_contacts_groups_groupid_userid),
                 mApiUrl, groupId, userId);
-        StringRequest request = new StringRequest(Method.DELETE, contactsUrl,
+        StringRequest request = new StringRequest(Method.DELETE,
+                contactsUrl,
                 new Listener<String>() {
                     public void onResponse(String response) {
                         context.getContentResolver()
@@ -187,24 +194,21 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                                                 + "= ?",
                                         new String[]{String.format("%d",
                                                 userIntId)});
-                        Toast.makeText(context, "Erfolgreich gelöscht",
-                                Toast.LENGTH_SHORT).show();
+                        SyncHelper.getInstance(context).forcePerformContactsSync(null);
+
+                        Toast.makeText(context, R.string.successfully_deleted, Toast.LENGTH_SHORT)
+                                .show();
                     }
-                }, new ErrorListener() {
-            /*
-             * (non-Javadoc)
-             *
-             * @see com.android.volley.Response.ErrorListener
-             * #onErrorResponse(com.android.volley. VolleyError)
-             */
-            public void onErrorResponse(VolleyError error) {
-                if (error.getMessage() != null)
-                    Log.e(TAG, error.getMessage());
-                Toast.makeText(context,
-                        "Fehler: " + error.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
+                },
+                new ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.getMessage() != null)
+                            Log.e(TAG, error.getMessage());
+
+                        Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                }
         );
 
         try {
@@ -224,7 +228,9 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                 .getString(R.string.restip_contacts_groups_groupid_userid),
                 mApiUrl, groupId, userId);
         JacksonRequest<ContactGroups> userAddRequest = new JacksonRequest<ContactGroups>(
-                contactsUrl, ContactGroups.class, null,
+                contactsUrl,
+                ContactGroups.class,
+                null,
                 new Listener<ContactGroups>() {
                     public void onResponse(ContactGroups response) {
                         try {
@@ -232,29 +238,26 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                                     AbstractContract.CONTENT_AUTHORITY,
                                     new ContactGroupHandler(response.group)
                                             .parse());
+                            SyncHelper.getInstance(context).forcePerformContactsSync(null);
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         } catch (OperationApplicationException e) {
                             e.printStackTrace();
                         }
-                        Toast.makeText(context, "Erfolgreich hinzugefügt",
-                                Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(context, R.string.successfully_added, Toast.LENGTH_SHORT)
+                                .show();
                     }
-                }, new ErrorListener() {
-            /*
-             * (non-Javadoc)
-             *
-             * @see com.android.volley.Response.ErrorListener
-             * #onErrorResponse(com.android.volley. VolleyError)
-             */
-            public void onErrorResponse(VolleyError error) {
-                if (error.getMessage() != null)
-                    Log.e(TAG, error.getMessage());
-                Toast.makeText(context,
-                        "Fehler: " + error.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }, Method.PUT
+                },
+                new ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.getMessage() != null)
+                            Log.e(TAG, error.getMessage());
+                        Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                },
+                Method.PUT
         );
         try {
             mConsumer.sign(userAddRequest);
@@ -282,14 +285,14 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
 
         // FIXME Only temp, later use Consumer Singleton
         mConsumer = new VolleyOAuthConsumer(Prefs.getInstance(mContext)
-                .getServer().CONSUMER_KEY, Prefs.getInstance(mContext)
-                .getServer().CONSUMER_SECRET);
+                .getServer().getConsumerKey(), Prefs.getInstance(mContext)
+                .getServer().getConsumerSecret());
 
         mConsumer.setTokenWithSecret(Prefs.getInstance(mContext)
                 .getAccessToken(), Prefs.getInstance(mContext)
                 .getAccessTokenSecret());
 
-        mApiUrl = Prefs.getInstance(mContext).getServer().API_URL;
+        mApiUrl = Prefs.getInstance(mContext).getServer().getApiUrl();
 
     }
 

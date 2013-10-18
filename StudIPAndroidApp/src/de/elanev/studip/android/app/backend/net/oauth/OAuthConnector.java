@@ -45,10 +45,10 @@ public class OAuthConnector {
 
 	public static void init(Server s) {
 		setServer(s);
-		setConsumer(new CommonsHttpOAuthConsumer(s.CONSUMER_KEY,
-				s.CONSUMER_SECRET));
-		setProvider(new CommonsHttpOAuthProvider(s.REQUEST_URL, s.ACCESS_URL,
-				s.AUTHORIZATION_URL));
+		setConsumer(new CommonsHttpOAuthConsumer(s.getConsumerKey(),
+				s.getConsumerSecret()));
+		setProvider(new CommonsHttpOAuthProvider(s.getRequestUrl(), s.getAccessUrl(),
+				s.getAuthorizationUrl()));
 	}
 
 	public static void setAccessToken(String accessToken, String accessSecret) {

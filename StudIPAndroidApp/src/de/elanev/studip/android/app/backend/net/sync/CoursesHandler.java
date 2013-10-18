@@ -48,8 +48,8 @@ public class CoursesHandler implements ResultHandler {
 			operations.addAll(parseCourseUser(c.tutors, c.course_id,
 					CoursesContract.USER_ROLE_TUTOR));
 
-			operations.addAll(parseCourseUser(c.students, c.course_id,
-					CoursesContract.USER_ROLE_STUDENT));
+//			operations.addAll(parseCourseUser(c.students, c.course_id,
+//					CoursesContract.USER_ROLE_STUDENT));
 
 		}
 
@@ -105,8 +105,8 @@ public class CoursesHandler implements ResultHandler {
 				.withValue(
 						CoursesContract.Columns.Courses.COURSE_DURATION_TIME,
 						c.duration_time)
-				.withValue(CoursesContract.Columns.Courses.COURSE_COLORS,
-						c.colors)
+				.withValue(CoursesContract.Columns.Courses.COURSE_COLOR,
+						c.color)
 				// .withValue(CoursesContract.Columns.Courses.COURSE_NUMBER,
 				// c.number)
 				.withValue(CoursesContract.Columns.Courses.COURSE_TYPE, c.type)

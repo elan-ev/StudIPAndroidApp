@@ -14,7 +14,7 @@
     <string name="user_address_icon">User address icon</string>
     <string name="menu_item_icon">Menu item icon</string>
 
-    <string name="app_name">Stud.IP mobile</string>
+    <string name="app_name">Stud.IP mobil</string>
     <string name="loading">loading</string>
     <string name="help">Hilfe</string>
     <string name="Activities">Activities</string>
@@ -102,15 +102,15 @@
     <!-- CourseView Activity -->
     <string name="upcoming_events">Upcoming events</string>
     <string name="appointments">Appointments</string>
-    <string name="attendees">Attendees</string>
+    <string name="attendees">Participants</string>
     <string name="time_room">Time / Room</string>
     <string name="Teacher">Teacher</string>
     <string name="next_appointments">Next appointments</string>
     <string name="Tutor">Tutor</string>
     <string name="Student">Student</string>
     <string name="no_appointments">No appointments</string>
-    <string name="no_courses">You are not attending any courses.</string>
-    <string name="no_attendees">No one is attending.</string>
+    <string name="no_courses">You are not participants any courses.</string>
+    <string name="no_attendees">No one is participants.</string>
     <string name="no_documents">Nothing uploaded yet.</string>
     <string name="no_news">No announcements available.</string>
     <string name="no_details">No details available.</string>
@@ -123,11 +123,24 @@
     <!-- About app Activity -->
     <string name="privacy_policy">Privacy policy</string>
     <string name="licenses">Licenses</string>
-    <string name="about_studip_mobile">About Stud.IP mobile</string>
-    <string name="about_text">Stud.IP mobile for Android allows you to easily access your
+    <string name="about_studip_mobile">About Stud.IP mobil</string>
+    <string name="about_text">Stud.IP mobil for Android allows you to easily access your
         universities Stud.IP without opening the browser. The app offers you an optimized
         experience for your android device.
     </string>
     <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">visit our website</a></string>
     <string name="legal_notice">Legal notice</string>
+
+    <!-- SignIn Activity -->
+    <string name="syncing_semesters">Synchronizing semesters</string>
+    <string name="syncing_courses">Synchronizing courses</string>
+    <string name="syncing_news">Synchronizing news</string>
+    <string name="syncing_contacts">Synchronizing contacts</string>
+    <string name="syncing_messages">Synchronizing messages</string>
+    <string name="syncing_users">Synchronizing userdata</string>
+    <string name="no_servers">No servers available</string>
+
+    <!-- UserList Fragment -->
+    <string name="successfully_deleted">Successfully deleted</string>
+    <string name="successfully_added">Successfully added</string>
 </resources>

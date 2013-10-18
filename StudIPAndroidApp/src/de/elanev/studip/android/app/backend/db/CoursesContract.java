@@ -44,7 +44,7 @@ public class CoursesContract extends AbstractContract {
 					Columns.Courses.COURSE_TYPE,
 					Columns.Courses.COURSE_SEMESERT_ID,
 					Columns.Courses.COURSE_MODULES,
-					Columns.Courses.COURSE_COLORS);
+					Columns.Courses.COURSE_COLOR);
 
 	// course users table
 	public static final String CREATE_TABLE_COURSE_USERS_STRING = String
@@ -145,7 +145,7 @@ public class CoursesContract extends AbstractContract {
 			public static final String COURSE_TYPE = "type";
 			public static final String COURSE_SEMESERT_ID = "semester_id";
 			public static final String COURSE_MODULES = "modules";
-			public static final String COURSE_COLORS = "color";
+			public static final String COURSE_COLOR = "color";
 		}
 
 		/*
@@ -191,8 +191,8 @@ public class CoursesContract extends AbstractContract {
 					+ "." + Columns.Courses.COURSE_SEMESERT_ID;
 			public static final String COURSES_COURSE_MODULES = TABLE_COURSES
 					+ "." + Columns.Courses.COURSE_MODULES;
-			public static final String COURSES_COURSE_COLORS = TABLE_COURSES
-					+ "." + Columns.Courses.COURSE_COLORS;
+			public static final String COURSES_COURSE_COLOR = TABLE_COURSES
+					+ "." + Columns.Courses.COURSE_COLOR;
 		}
 
 		/*

@@ -113,3 +113,5 @@ StudIPAndroidApp/res/values/com_crashlytics_export_strings.xml
 TempServerDeclares.java
 
 StudIPAndroidApp/AndroidManifestRelease.xml
+
+StudIPAndroidApp/assets/servers.json
