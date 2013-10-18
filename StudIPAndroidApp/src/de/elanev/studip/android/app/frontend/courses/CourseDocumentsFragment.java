@@ -148,12 +148,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        setLoadingViewVisible(true);
-    }
-
-    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         // registering the content observer
@@ -204,7 +198,7 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
 
             try {
                 // Create the download URI
-                String apiUrl = Prefs.getInstance(mContext).getServer().API_URL;
+                String apiUrl = Prefs.getInstance(mContext).getServer().getApiUrl();
                 String downloadUrl = String
                         .format(getString(R.string.restip_documents_documentid_download),
                                 apiUrl, fileId);
@@ -213,8 +207,8 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                 VolleyOAuthConsumer consumer = null;
                 if (prefs.isAppAuthorized()) {
                     Server server = prefs.getServer();
-                    consumer = new VolleyOAuthConsumer(server.CONSUMER_KEY,
-                            server.CONSUMER_SECRET);
+                    consumer = new VolleyOAuthConsumer(server.getConsumerKey(),
+                            server.getConsumerSecret());
                     consumer.setTokenWithSecret(prefs.getAccessToken(),
                             prefs.getAccessTokenSecret());
                 }
@@ -265,6 +259,7 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
      * android.os.Bundle)
      */
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+        setLoadingViewVisible(true);
         return new CursorLoader(
                 mContext,
                 DocumentsContract.CONTENT_URI

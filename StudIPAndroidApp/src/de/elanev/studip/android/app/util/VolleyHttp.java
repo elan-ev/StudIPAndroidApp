@@ -14,90 +14,78 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
 /**
+ * Singleton class for easier accessing the Volley HTTP Stack
+ *
  * @author joern
- * 
  */
 public class VolleyHttp implements Cloneable {
-	// private static final int MAX_IMAGE_CACHE_ENTIRES = 100;
 
-	private static RequestQueue mRequestQueue;
-	private static ImageLoader mImageLoader;
-	private final static int maxMemory = (int) (Runtime.getRuntime()
-			.maxMemory() / 1024);
-	private final static int cacheSize = maxMemory / 8;
-	private static VolleyHttp mInstance;
+    private final static int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+    private final static int cacheSize = maxMemory / 8;
+    private static RequestQueue mRequestQueue;
+    private static ImageLoader mImageLoader;
+    private static VolleyHttp mInstance;
 
-	/**
-	 * Returns on instance of VolleHttp
-	 * 
-	 * @param context
-	 *            the execution context
-	 * @return the VolleyHttp instance
-	 */
-	public static VolleyHttp getVolleyHttp(Context context) {
-		if (mInstance == null) {
-			// Thread safety
-			synchronized (VolleyHttp.class) {
-				mInstance = new VolleyHttp();
-				init(context);
-			}
+    /*
+     * No access
+     */
+    private VolleyHttp() {
+    }
 
-		}
+    /**
+     * Returns on instance of VolleHttp
+     *
+     * @param context the execution context
+     * @return the VolleyHttp instance
+     */
+    public static VolleyHttp getVolleyHttp(Context context) {
+        if (mInstance == null) {
+            // Thread safety
+            synchronized (VolleyHttp.class) {
+                mInstance = new VolleyHttp();
+                mRequestQueue = Volley.newRequestQueue(context);
+                mImageLoader = new ImageLoader(mRequestQueue, new BitmapLruCache(cacheSize));
+            }
 
-		return mInstance;
-	}
+        }
 
-	/*
-	 * Initializes the this Singleton
-	 * 
-	 * @param context the context
-	 */
-	private static void init(Context context) {
-		mRequestQueue = Volley.newRequestQueue(context);
-		mImageLoader = new ImageLoader(mRequestQueue, new BitmapLruCache(
-				cacheSize));
-	}
+        return mInstance;
+    }
 
-	/**
-	 * Returns the RequestQueue if properly initialized
-	 * 
-	 * @return Volley RequestQueue
-	 */
-	public RequestQueue getRequestQueue() {
-		if (mRequestQueue != null) {
-			return mRequestQueue;
-		} else {
-			throw new IllegalStateException("RequestQueue not initialized");
-		}
-	}
+    /**
+     * Returns the RequestQueue if properly initialized
+     *
+     * @return Volley RequestQueue
+     */
+    public RequestQueue getRequestQueue() {
+        if (mRequestQueue != null) {
+            return mRequestQueue;
+        } else {
+            throw new IllegalStateException("RequestQueue not initialized");
+        }
+    }
 
-	/**
-	 * Returns instance of ImageLoader
-	 * 
-	 * @return Volley ImageLoader
-	 */
-	public ImageLoader getImageLoader() {
-		if (mImageLoader != null) {
-			return mImageLoader;
-		} else {
-			throw new IllegalStateException("ImageLoader not initialized");
-		}
-	}
+    /**
+     * Returns instance of ImageLoader
+     *
+     * @return Volley ImageLoader
+     */
+    public ImageLoader getImageLoader() {
+        if (mImageLoader != null) {
+            return mImageLoader;
+        } else {
+            throw new IllegalStateException("ImageLoader not initialized");
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#clone()
-	 */
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		return new CloneNotSupportedException("Singleton must not be cloned");
-	}
-
-	/*
-	 * No access
-	 */
-	private VolleyHttp() {
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return new CloneNotSupportedException("Singleton must not be cloned");
+    }
 
 }

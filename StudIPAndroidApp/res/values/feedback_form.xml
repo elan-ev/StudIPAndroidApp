@@ -7,7 +7,7 @@
 -->
 <resources>
 
-    <string name="feedback_form_email" translatable="false">kursmanager@uos.de</string>
+    <string name="feedback_form_email" translatable="false">studipmobil@elan-ev.de</string>
     <string name="feedback_form_subject" translatable="false">Stud.IP mobile Android Feedback</string>
     <string name="feedback_form_message_template">Wenn Sie Fragen, Wünsche, Bemerkungen oder ein Fehler entdeckt haben, 
         können Sie uns gerne Feedback senden.\nWir kümmern uns dann darum.\n\n===============\n

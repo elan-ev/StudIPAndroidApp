@@ -110,7 +110,7 @@ public class CourseScheduleFragment extends ProgressSherlockListFragment impleme
             return;
         }
         mAdapter.swapCursor(cursor);
-
+        setLoadingViewVisible(false);
     }
 
     public void onLoaderReset(Loader<Cursor> loader) {
