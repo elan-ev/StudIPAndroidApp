@@ -27,10 +27,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.android.volley.VolleyError;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.net.Server;
+import de.elanev.studip.android.app.backend.net.Servers;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
 import de.elanev.studip.android.app.util.ApiUtils;
@@ -51,6 +58,11 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
 public class SignInActivity extends SherlockFragmentActivity {
 
     private static final String TAG = SignInActivity.class.getSimpleName();
+    private static boolean mCoursesSynced = false;
+    private static boolean mSemestersSynced = false;
+    private static boolean mMessagesSynced = false;
+    private static boolean mContactsSynced = false;
+    private static boolean mNewsSynced = false;
 
     /*
      * (non-Javadoc)
@@ -100,12 +112,13 @@ public class SignInActivity extends SherlockFragmentActivity {
      *
      * @author joern
      */
-    public static class SignInFragment extends ListFragment {
+    public static class SignInFragment extends ListFragment implements SyncHelper.SyncHelperCallbacks {
         private Context mContext;
         private ArrayAdapter<Server> mAdapter;
         private boolean mSignInFormVisible = false;
         private ProgressBar mProgressBar;
         private View mSignInForm;
+        private TextView mSyncStatusTextView;
 
         /*
          * (non-Javadoc)
@@ -122,7 +135,9 @@ public class SignInActivity extends SherlockFragmentActivity {
             if (!ApiUtils.isOverApi11()) {
                 res = android.R.layout.simple_list_item_checked;
             }
-            mAdapter = new ServerAdapter(mContext, res, getItems());
+            mAdapter = new ServerAdapter(mContext, res, getItems().getServers());
+            return;
+
 
         }
 
@@ -140,6 +155,7 @@ public class SignInActivity extends SherlockFragmentActivity {
             mProgressBar = (ProgressBar) v
                     .findViewById(R.id.sign_in_progressbar);
             mSignInForm = v.findViewById(R.id.sign_in_form);
+            mSyncStatusTextView = (TextView) v.findViewById(R.id.sync_status);
             return v;
         }
 
@@ -243,7 +259,12 @@ public class SignInActivity extends SherlockFragmentActivity {
          * Simply triggers the prefetching at the SyncHelper
          */
         private void performPrefetchSync() {
-            SyncHelper.getInstance(mContext).prefetch(this);
+            if (!Prefs.getInstance(mContext).isFirstStart()) {
+                startNewsActivity();
+                return;
+            }
+            SyncHelper.getInstance(mContext).performSemestersSync(this);
+            Prefs.getInstance(mContext).setAppStarted();
         }
 
         /**
@@ -308,15 +329,114 @@ public class SignInActivity extends SherlockFragmentActivity {
         }
 
         /*
-         * Returns the list auf saved servers
+         * Returns the list auf saved servers. This method expects to find a correct formatted
+         * servers.json file in the Android assets folder
          */
-        private Server[] getItems() {
-			/*
-			 * WARNING: you need your own TempServerDeclares Class in the
-			 * de.elanev.studip.android.app.util package see:
-			 * de.elanev.studip.android.app.util.TempServerDeclaresExample
-			 */
-            return TempServerDeclares.servers;
+        private Servers getItems() {
+            ObjectMapper mapper = new ObjectMapper();
+            InputStream is = null;
+            Servers servers = null;
+            try {
+                is = mContext.getAssets().open("servers.json");
+                servers = mapper.readValue(is, Servers.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // If something went wrong, return an empty array
+            if (servers == null)
+                servers = new Servers(new Server[0]);
+
+            return servers;
+
+        }
+
+        @Override
+        public void onSyncStarted() {
+
+        }
+
+        @Override
+        public void onSyncStateChange(int status) {
+            switch (status) {
+                case SyncHelper.SyncHelperCallbacks.STARTED_SEMESTER_SYNC:
+                    mSyncStatusTextView.setText(R.string.syncing_semesters);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.STARTED_COURSES_SYNC:
+                    mSyncStatusTextView.setText(R.string.syncing_courses);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.STARTED_NEWS_SYNC:
+                    mSyncStatusTextView.setText(R.string.syncing_news);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.STARTED_CONTACTS_SYNC:
+                    mSyncStatusTextView.setText(R.string.syncing_contacts);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.STARTED_MESSAGES_SYNC:
+                    mSyncStatusTextView.setText(R.string.syncing_messages);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.STARTED_USER_SYNC:
+                    mSyncStatusTextView.setText(R.string.syncing_users);
+                    break;
+            }
+        }
+
+        @Override
+        public void onSyncFinished(int status) {
+            switch (status) {
+                case SyncHelper.SyncHelperCallbacks.FINISHED_SEMESTER_SYNC:
+                    mSemestersSynced = true;
+                    SyncHelper.getInstance(mContext).performCoursesSync(this);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.FINISHED_COURSES_SYNC:
+                    mCoursesSynced = true;
+                    SyncHelper.getInstance(mContext).performContactsSync(this);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.FINISHED_NEWS_SYNC:
+                    mNewsSynced = true;
+                    SyncHelper.getInstance(mContext).performMessagesSync(this);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.FINISHED_MESSAGES_SYNC:
+                    mMessagesSynced = true;
+                    break;
+                case SyncHelper.SyncHelperCallbacks.FINISHED_CONTACTS_SYNC:
+                    mContactsSynced = true;
+                    break;
+                case SyncHelper.SyncHelperCallbacks.FINISHED_USER_SYNC:
+                    mCoursesSynced = false;
+                    mContactsSynced = false;
+                    mMessagesSynced = false;
+                    mNewsSynced = false;
+                    startNewsActivity();
+                    return;
+            }
+
+            if (mContactsSynced && mMessagesSynced && mCoursesSynced && mNewsSynced)
+                SyncHelper.getInstance(mContext).performPendingUserSync(this);
+
+        }
+
+        @Override
+        public void onSyncError(int status, VolleyError error) {
+            switch (status) {
+                case SyncHelper.SyncHelperCallbacks.ERROR_SEMESTER_SYNC:
+                    SyncHelper.getInstance(mContext).performCoursesSync(this);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.ERROR_COURSES_SYNC:
+                    SyncHelper.getInstance(mContext).performContactsSync(this);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.ERROR_NEWS_SYNC:
+                    SyncHelper.getInstance(mContext).performMessagesSync(this);
+                    break;
+                case SyncHelper.SyncHelperCallbacks.ERROR_MESSAGES_SYNC:
+                case SyncHelper.SyncHelperCallbacks.ERROR_CONTACTS_SYNC:
+                case SyncHelper.SyncHelperCallbacks.ERROR_USER_SYNC:
+                    mCoursesSynced = false;
+                    mContactsSynced = false;
+                    mMessagesSynced = false;
+                    mNewsSynced = false;
+                    startNewsActivity();
+                    return;
+            }
         }
 
         /*
@@ -361,7 +481,7 @@ public class SignInActivity extends SherlockFragmentActivity {
                 }
                 Server server = data[position];
                 ((TextView) convertView.findViewById(android.R.id.text1))
-                        .setText(server.NAME);
+                        .setText(server.getName());
                 convertView.setTag(server);
                 return convertView;
             }

@@ -14,11 +14,11 @@
     <string name="user_address_icon">Benutzer Adresse Icon</string>
     <string name="menu_item_icon">Menüpunkt Icon</string>
 
-    <string name="app_name">Stud.IP mobile</string>
+    <string name="app_name">Stud.IP mobil</string>
     <string name="loading">laden</string>
     <string name="help">Hilfe</string>
     <string name="Activities">Aktivitäten</string>
-    <string name="News">Neuigkeiten</string>
+    <string name="News">Ankündigungen</string>
     <string name="Courses">Kurse</string>
     <string name="Events">Veranstaltungen</string>
     <string name="Messages">Nachrichten</string>
@@ -119,14 +119,26 @@
     <string name="show_more">Mehr anzeigen</string>
     <string name="show_less">Weniger anzeigen</string>
     <string name="Details">Beschreibung</string>
-    <string name="latest_news">Neueste Nachricht</string>
+    <string name="latest_news">Neueste Ankündigungen</string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Datenschutzerklärung</string>
     <string name="licenses">Lizenzen</string>
-    <string name="about_studip_mobile">Über Stud.IP mobile</string>
-    <string name="about_text">Stud.IP mobile erlaubt es Ihnen schnell und einfach auf das Stud.IP Ihrer Hochschule zuzugreifen ohne die Seite in einem Browser aufrufen zu müssen.</string>
+    <string name="about_studip_mobile">Über Stud.IP mobil</string>
+    <string name="about_text">Stud.IP mobil erlaubt es Ihnen schnell und einfach auf das Stud.IP Ihrer Hochschule zuzugreifen ohne die Seite in einem Browser aufrufen zu müssen.</string>
     <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">Besuchen Sie unsere Homepage</a></string>
     <string name="legal_notice">Impressum</string>
 
+    <!-- SignIn Activity -->
+    <string name="syncing_semesters">Synchronisiere Semester</string>
+    <string name="syncing_courses">Synchronisiere Kurse</string>
+    <string name="syncing_news">Synchronisiere Ankündigungen</string>
+    <string name="syncing_contacts">Synchronisiere Kontakte</string>
+    <string name="syncing_messages">Synchronisiere Nachrichten</string>
+    <string name="syncing_users">Synchronisiere Benutzerdaten</string>
+    <string name="no_servers">Keine Server vorhanden</string>
+
+    <!-- UserList Fragment -->
+    <string name="successfully_deleted">Erfolgreich gelöscht</string>
+    <string name="successfully_added">Erfolgreich hinzugefügt</string>
 </resources>
