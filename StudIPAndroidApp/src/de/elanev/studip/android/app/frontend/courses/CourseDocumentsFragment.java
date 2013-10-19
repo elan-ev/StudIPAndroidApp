@@ -7,7 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.courses;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Query;
@@ -19,7 +18,6 @@ import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -27,7 +25,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
@@ -36,13 +33,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.net.Server;
-import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.ApiUtils;
@@ -51,9 +48,6 @@ import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author joern
@@ -212,8 +206,15 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                     consumer.setTokenWithSecret(prefs.getAccessToken(),
                             prefs.getAccessTokenSecret());
                 }
-                // Sign the download URI with the OAuth credentials
+
+                // Since HTTPS is only supported on ICS and higher, we replace HTTPS with HTTP
+                if (!ApiUtils.isOverApi14()) {
+                    downloadUrl = downloadUrl.replace("https://", "http://");
+                }
+
+                // Sign the download URL with the OAuth credentials and parse the URI
                 String signedDownloadUrl = consumer.sign(downloadUrl);
+                Uri downloadUri = Uri.parse(signedDownloadUrl);
 
                 // Create the download request
                 Request request = new Request(Uri.parse(signedDownloadUrl));
@@ -226,6 +227,7 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                 request.setTitle(name);
                 // Set a description of this download
                 request.setDescription(fileDesc);
+
                 // TODO: Check which destinations are available and set it
                 // Set the local destination for the download
                 // request.setDestinationInExternalPublicDir(
