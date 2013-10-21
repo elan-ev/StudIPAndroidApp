@@ -9,6 +9,7 @@ package de.elanev.studip.android.app.util;
 
 import android.content.Context;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
@@ -76,6 +77,18 @@ public class VolleyHttp implements Cloneable {
         } else {
             throw new IllegalStateException("ImageLoader not initialized");
         }
+    }
+
+    /**
+     * Cancels all pending requests in the queue
+     */
+    public void cancelAll() {
+        mRequestQueue.cancelAll(new RequestQueue.RequestFilter() {
+            @Override
+            public boolean apply(Request<?> request) {
+                return true;
+            }
+        });
     }
 
     /*
