@@ -6,6 +6,7 @@
   http://www.gnu.org/licenses/gpl.html
 -->
 <resources>
+
     <!-- Content descriptions -->
     <string name="user_image">Benutzerbild</string>
     <string name="file_icon">Datei Icon</string>
@@ -32,7 +33,9 @@
     <string name="menu">Menü</string>
     <string name="Development">Entwicklung</string>
     <string name="Authorize">Autorisieren</string>
+
     <string name="choose_server">Server wählen</string>
+
     <string name="no_data">Keine Daten</string>
     <string name="Overview">Übersicht</string>
     <string name="Global">Global</string>
@@ -41,31 +44,12 @@
     <string name="minutes_ago">vor %d Minuten</string>
     <string name="an_hour_ago">vor einer Stunde</string>
     <string name="hours_ago">vor %d Stunden"</string>
-    <string name="yesterday">Gestern</string>
+    <string name="yesterday">gestern</string>
     <string name="days_ago">vor %d Tagen</string>
     <string name="by">von</string>
-    <string name="Inbox">Eingang</string>
-    <string name="Outbox">Ausgang</string>
-    <string name="Compose">Erstellen</string>
+
     <string name="Menu">Menü</string>
-    <string name="mark_as_read">als gelesen markieren</string>
-    <string name="read">gelesen</string>
-    <string name="delete_message">Nachricht löschen</string>
-    <string name="delete">löschen</string>
-    <string name="forward_message">Nachricht weiterleiten</string>
-    <string name="forward">weiterleiten</string>
-    <string name="reply_message">Nachricht antworten</string>
-    <string name="reply">antworten</string>
-    <string name="message_marked_read">Nachricht als gelesen markiert</string>
-    <string name="message_deleted">Nachricht gelöscht</string>
-    <string name="Receiver">Empfänger</string>
-    <string name="Subject">Betreff</string>
-    <string name="original_message">Original Nachricht</string>
-    <string name="message_forward_string">WG</string>
-    <string name="message_reply_string">AW</string>
-    <string name="Send">Senden</string>
-    <string name="compose_message">Nachricht schreiben</string>
-    <string name="message_sent">Nachricht versandt</string>
+
     <string name="internal_error">Interner Server Fehler</string>
     <string name="wrong_parameter">Falsche Parameter</string>
     <string name="receiver_not_found">Empfänger unbekannt</string>
@@ -78,7 +62,7 @@
     <string name="no_groups">Du hast noch keine Gruppen erstellt!</string>
     <string name="no_contacts">Es sind keine Kontakte vorhanden!</string>
     <string name="no_favorites">Du hast noch keine Favoriten markiert!</string>
-    <string name="no_messages">Du hast keine Nachrichten!</string>
+
     <string name="no_users">Keine Benutzer vorhanden.</string>
     <string name="studip_app_contacts_favorites">StudipApp Favoriten</string>
     <string name="Add_to_favorites">Zu Favoriten hinzufügen</string>
@@ -87,15 +71,9 @@
     <string name="Remove_from_contacts">Aus Kontakte entfernen</string>
     <string name="manage_groups">Gruppen verwalten</string>
     <string name="user">Benutzer</string>
-    <string name="Send_message">Nachricht senden</string>
-    <string name="Message">Nachricht</string>
-    <string name="choose_receiver">Bitte Empfänger angeben</string>
-    <string name="enter_subject">Bitte einen Betreff angeben</string>
-    <string name="enter_message">Bitte eine Nachricht eingeben</string>
     <string name="personal_info">Persönliche Informationen</string>
     <string name="contact_info">Kontakt Informationen</string>
     <string name="crash_toast_string">Es ist ein Problem aufgetreten. Ein Absturzbericht wird gesendet.</string>
-    <string name="user_details_icon">UserDetailsIcon</string>
     <string name="Feedback">Feedback</string>
     <string name="open_drawer">Navigation öffnen</string>
     <string name="close_drawer">Navigation schließen</string>
@@ -121,9 +99,21 @@
     <string name="Details">Beschreibung</string>
     <string name="latest_news">Neueste Ankündigungen</string>
 
+    <!-- Course Downloads -->
+    <string name="download_completed">Download abgeschlossen</string>
+    <string name="error_cannot_resume">FEHLER: Download kann nicht forgeführt werden</string>
+    <string name="error_device_not_found">FEHLER: Gerät nicht gefunden</string>
+    <string name="error_file_already_exists">FEHLER: Datei bereits vorhanden</string>
+    <string name="error_file_error">FEHLER: Datei fehler</string>
+    <string name="error_http_data_error">FEHLER: HTTP Daten Fehler</string>
+    <string name="error_insufficient_space">FEHLER: Nicht genügend Speicherplatz</string>
+    <string name="error_to_many_redirects">FEHLER: Zu viele Weiterleitungen</string>
+    <string name="error_unhandled_error_code">FEHLER: Unbehandelter HTTP Fehler</string>
+
     <!-- About app Activity -->
     <string name="privacy_policy">Datenschutzerklärung</string>
     <string name="licenses">Lizenzen</string>
+    <string name="version_and_copyright" translatable="false">Version: %1$s (%2$s) \n &#169; 2013 ELAN e.V. Oldenburg</string>
     <string name="about_studip_mobile">Über Stud.IP mobil</string>
     <string name="about_text">Stud.IP mobil erlaubt es Ihnen schnell und einfach auf das Stud.IP Ihrer Hochschule zuzugreifen ohne die Seite in einem Browser aufrufen zu müssen.</string>
     <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">Besuchen Sie unsere Homepage</a></string>
@@ -137,8 +127,45 @@
     <string name="syncing_messages">Synchronisiere Nachrichten</string>
     <string name="syncing_users">Synchronisiere Benutzerdaten</string>
     <string name="no_servers">Keine Server vorhanden</string>
+     <string name="sync_notice">Abhängig von Ihrer Internetverbindung und der Stud.IP Auslastung
+        kann dieser Vorgang mehrere Minuten in Anspruch nehmen.</string>
+    <string name="authentication">Authentifizierung</string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Erfolgreich gelöscht</string>
     <string name="successfully_added">Erfolgreich hinzugefügt</string>
+
+    <!-- Messages -->
+    <string name="Inbox">Eingang</string>
+    <string name="Outbox">Ausgang</string>
+    <string name="Compose">Erstellen</string>
+    <string name="mark_as_read">als gelesen markieren</string>
+    <string name="read">gelesen</string>
+    <string name="delete_message">Nachricht löschen</string>
+    <string name="delete">löschen</string>
+    <string name="forward_message">Nachricht weiterleiten</string>
+    <string name="forward">weiterleiten</string>
+    <string name="reply_message">Nachricht antworten</string>
+    <string name="reply">antworten</string>
+    <string name="message_marked_read">Nachricht als gelesen markiert</string>
+    <string name="message_deleted">Nachricht gelöscht</string>
+    <string name="Receiver">Empfänger</string>
+    <string name="Subject">Betreff</string>
+    <string name="original_message">Original Nachricht</string>
+    <string name="message_forward_string">WG</string>
+    <string name="message_reply_string">AW</string>
+    <string name="Send">Senden</string>
+    <string name="compose_message">Nachricht schreiben</string>
+    <string name="message_sent">Nachricht versandt</string>
+    <string name="no_messages">Du hast keine Nachrichten!</string>
+    <string name="Send_message">Nachricht senden</string>
+    <string name="Message">Nachricht</string>
+    <string name="please_choose_receiver">Bitte Empfänger angeben</string>
+    <string name="please_enter_subject">Bitte einen Betreff angeben</string>
+    <string name="please_enter_message">Bitte eine Nachricht eingeben</string>
+    <string name="enter_forename_lastname">Vorname Nachname eingeben</string>
+    <string name="enter_subject">Betreff eingeben</string>
+    <string name="enter_message">Nachricht eingeben</string>
+
+
 </resources>
