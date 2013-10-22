@@ -6,152 +6,165 @@
   http://www.gnu.org/licenses/gpl.html
 -->
 <resources>
-
     <!-- Content descriptions -->
     <string name="studip_logo" translatable="false">StudIP Logo</string>
-    <string name="user_image">Benutzerbild</string>
-    <string name="file_icon">Datei Icon</string>
-    <string name="message_unread_icon">Nachricht nicht gelesen icon</string>
     <string name="email_icon" translatable="false">Email Icon</string>
     <string name="homepage_icon" translatable="false">Homepage Icon</string>
-    <string name="phone_number_icon">Telefon Nummer Icon</string>
-    <string name="user_address_icon">Benutzer Adresse Icon</string>
-    <string name="menu_item_icon">Menüpunkt Icon</string>
+    <string name="user_image">User Image</string>
+    <string name="file_icon">File Icon</string>
+    <string name="message_unread_icon">message not read icon</string>
+    <string name="phone_number_icon">Phone number icon</string>
+    <string name="user_address_icon">User address icon</string>
+    <string name="menu_item_icon">Menu item icon</string>
     <string name="icon" translatable="false">Icon</string>
 
     <string name="app_name">Stud.IP mobil</string>
-    <string name="loading">laden</string>
+    <string name="loading">loading</string>
     <string name="help">Hilfe</string>
-    <string name="Activities">Aktivitäten</string>
-    <string name="News">Ankündigungen</string>
-    <string name="Courses">Kurse</string>
-    <string name="Events">Veranstaltungen</string>
-    <string name="Messages">Nachrichten</string>
-    <string name="Contacts">Kontakte</string>
-    <string name="Documents">Dateien</string>
-    <string name="Settings">Einstellungen</string>
-    <string name="Help">Hilfe</string>
-    <string name="Information">Informationen</string>
-    <string name="Logout">Abmelden</string>
-    <string name="General">Allgemein</string>
-    <string name="menu">Menü</string>
-    <string name="Development">Entwicklung</string>
-    <string name="Authorize">Autorisieren</string>
-
-    <string name="choose_server">Server wählen</string>
-
-    <string name="no_data">Keine Daten</string>
-    <string name="Overview">Übersicht</string>
+    <string name="Activities">Activities</string>
+    <string name="News">News</string>
+    <string name="Courses">Courses</string>
+    <string name="Events">Events</string>
+    <string name="Messages">Messages</string>
+    <string name="Contacts">Contacts</string>
+    <string name="Documents">Files</string>
+    <string name="Settings">Settings</string>
+    <string name="Help">Help</string>
+    <string name="Information">Information</string>
+    <string name="Logout">Logout</string>
+    <string name="General">General</string>
+    <string name="menu">menu</string>
+    <string name="Development">Development</string>
+    <string name="Authorize">Authorize</string>
+    <string name="choose_server">Choose server</string>
+    <string name="no_data">No Data</string>
+    <string name="Overview">Overview</string>
     <string name="Global">Global</string>
-    <string name="just_now">gerade eben</string>
-    <string name="a_minute_ago">vor einer Minute</string>
-    <string name="minutes_ago">vor %d Minuten</string>
-    <string name="an_hour_ago">vor einer Stunde</string>
-    <string name="hours_ago">vor %d Stunden"</string>
-    <string name="yesterday">gestern</string>
-    <string name="days_ago">vor %d Tagen</string>
-    <string name="by">von</string>
-
-    <string name="Inbox">Eingang</string>
-    <string name="Outbox">Ausgang</string>
-    <string name="Compose">Erstellen</string>
-    <string name="Menu">Menü</string>
-    <string name="mark_as_read">als gelesen markieren</string>
-    <string name="read">gelesen</string>
-    <string name="delete_message">Nachricht löschen</string>
-    <string name="delete">löschen</string>
-    <string name="forward_message">Nachricht weiterleiten</string>
-    <string name="forward">weiterleiten</string>
-    <string name="reply_message">Nachricht antworten</string>
-    <string name="reply">antworten</string>
-    <string name="message_marked_read">Nachricht als gelesen markiert</string>
-    <string name="message_deleted">Nachricht gelöscht</string>
-    <string name="Receiver">Empfänger</string>
-    <string name="Subject">Betreff</string>
-    <string name="original_message">Original Nachricht</string>
-    <string name="message_forward_string">WG</string>
-    <string name="message_reply_string">AW</string>
-    <string name="Send">Senden</string>
-    <string name="compose_message">Nachricht schreiben</string>
-    <string name="message_sent">Nachricht versandt</string>
-    <string name="internal_error">Interner Server Fehler</string>
-    <string name="wrong_parameter">Falsche Parameter</string>
-    <string name="receiver_not_found">Empfänger unbekannt</string>
-    <string name="unknown_error">Unbekannter Fehler aufgetreten</string>
-    <string name="something_went_wrong">Es ist ein Fehler aufgetreten</string>
-    <string name="Favorites">Favoriten</string>
-    <string name="Groups">Gruppen</string>
-    <string name="All">Alle</string>
+    <string name="just_now">just now</string>
+    <string name="a_minute_ago">a minute ago</string>
+    <string name="minutes_ago">%d minutes ago</string>
+    <string name="an_hour_ago">an hour ago</string>
+    <string name="hours_ago">%d hours ago</string>
+    <string name="yesterday">yesterday</string>
+    <string name="days_ago">%d days ago</string>
+    <string name="by">by</string>
+    <string name="internal_error">Internal Error</string>
+    <string name="wrong_parameter">Wrong parameter</string>
+    <string name="receiver_not_found">Unknown receiver</string>
+    <string name="unknown_error">Unknwon error</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="Favorites">Favorites</string>
+    <string name="Groups">Groups</string>
+    <string name="All">All</string>
     <string name="sorry">Sorry!</string>
-    <string name="no_groups">Du hast noch keine Gruppen erstellt!</string>
-    <string name="no_contacts">Es sind keine Kontakte vorhanden!</string>
-    <string name="no_favorites">Du hast noch keine Favoriten markiert!</string>
-
-
-    <string name="no_messages">Du hast keine Nachrichten!</string>
-
-
-    <string name="no_users">Keine Benutzer vorhanden.</string>
-    <string name="studip_app_contacts_favorites">StudipApp Favoriten</string>
-    <string name="Add_to_favorites">Zu Favoriten hinzufügen</string>
-    <string name="Remove_from_favorites">Aus Favoriten entfernen</string>
-    <string name="Add_to_contacts">Zu Kontakte hinzufügen </string>
-    <string name="Remove_from_contacts">Aus Kontakte entfernen</string>
-    <string name="manage_groups">Gruppen verwalten</string>
-    <string name="user">Benutzer</string>
-    <string name="Send_message">Nachricht senden</string>
-    <string name="Message">Nachricht</string>
-    <string name="choose_receiver">Bitte Empfänger angeben</string>
-    <string name="enter_subject">Bitte einen Betreff angeben</string>
-    <string name="enter_message">Bitte eine Nachricht eingeben</string>
-    <string name="personal_info">Persönliche Informationen</string>
-    <string name="contact_info">Kontakt Informationen</string>
-    <string name="crash_toast_string">Es ist ein Problem aufgetreten. Ein Absturzbericht wird gesendet.</string>
-
+    <string name="no_groups">You haven\'t created any groups!</string>
+    <string name="no_contacts">You have no contacts!</string>
+    <string name="no_favorites">You haven\'t selected any favorites!</string>
+    <string name="no_users">No users available.</string>
+    <string name="studip_app_contacts_favorites">StudipApp Favorites</string>
+    <string name="Add_to_favorites">Add to favorites</string>
+    <string name="Remove_from_favorites">Remove from favorites</string>
+    <string name="Add_to_contacts">Add to contacts</string>
+    <string name="Remove_from_contacts">Remove from contacts</string>
+    <string name="manage_groups">Manage groups</string>
+    <string name="user">User</string>
+    <string name="personal_info">Personal info</string>
+    <string name="contact_info">Contact info</string>
+    <string name="crash_toast_string">Something went wrong. Sending crash report.</string>
     <string name="Feedback">Feedback</string>
-    <string name="open_drawer">Navigation öffnen</string>
-    <string name="close_drawer">Navigation schließen</string>
+    <string name="open_drawer">Open Navigation</string>
+    <string name="close_drawer">Close Navigation</string>
 
     <!-- CourseView Activity -->
-    <string name="upcoming_events">Anstehende Veranstaltungen</string>
-    <string name="appointments">Termine</string>
-    <string name="attendees">Mitglieder</string>
-    <string name="time_room">Zeit / Veranstaltunsort</string>
-    <string name="Teacher">DozentIn</string>
-    <string name="next_appointments">Nächste Termin</string>
-    <string name="Tutor">TutorIn</string>
-    <string name="Student">StudentIn</string>
-    <string name="no_appointments">Keine Termine</string>
-    <string name="no_courses">Du bist in keinem Kurs eingetragen.</string>
-    <string name="no_attendees">Es sind keine Teilnehmer vorhanden.</string>
-    <string name="no_documents">Es wurden noch keine Dokumente hochgeladen.</string>
-    <string name="no_news">Keine Ankündigungen vorhanden.</string>
-    <string name="no_details">Keine Beschreibung vorhanden.</string>
-    <string name="Schedule">Ablaufplan</string>
-    <string name="show_more">Mehr anzeigen</string>
-    <string name="show_less">Weniger anzeigen</string>
-    <string name="Details">Beschreibung</string>
-    <string name="latest_news">Neueste Ankündigungen</string>
+    <string name="upcoming_events">Upcoming events</string>
+    <string name="appointments">Appointments</string>
+    <string name="attendees">Participants</string>
+    <string name="time_room">Time / Room</string>
+    <string name="Teacher">Teacher</string>
+    <string name="next_appointments">Next appointments</string>
+    <string name="Tutor">Tutor</string>
+    <string name="Student">Student</string>
+    <string name="no_appointments">No appointments</string>
+    <string name="no_courses">You are not participants any courses.</string>
+    <string name="no_attendees">No one is participants.</string>
+    <string name="no_documents">Nothing uploaded yet.</string>
+    <string name="no_news">No announcements available.</string>
+    <string name="no_details">No details available.</string>
+    <string name="Schedule">Schedule</string>
+    <string name="show_more">Show more</string>
+    <string name="show_less">Show less</string>
+    <string name="Details">Details</string>
+    <string name="latest_news">Latest news</string>
+
+    <!-- Course Downloads -->
+    <string name="download_completed">Download complete</string>
+    <string name="error_cannot_resume">ERROR_CANNOT_RESUME</string>
+    <string name="error_device_not_found">ERROR_DEVICE_NOT_FOUND</string>
+    <string name="error_file_already_exists">ERROR_FILE_ALREADY_EXISTS</string>
+    <string name="error_file_error">ERROR_FILE_ERROR</string>
+    <string name="error_http_data_error">ERROR_HTTP_DATA_ERROR</string>
+    <string name="error_insufficient_space">ERROR_INSUFFICIENT_SPACE</string>
+    <string name="error_to_many_redirects">ERROR_TOO_MANY_REDIRECTS</string>
+    <string name="error_unhandled_error_code">ERROR_UNHANDLED_HTTP_CODE</string>
 
     <!-- About app Activity -->
-    <string name="privacy_policy">Datenschutzerklärung</string>
-    <string name="licenses">Lizenzen</string>
-    <string name="version_and_copyright" translatable="false">Version: %1$s (%2$s) \n &#169; 2013 ELAN e.V. Oldenburg</string>
-        <string name="about_studip_mobile">Über Stud.IP mobil</string>
-        <string name="about_text">Stud.IP mobil erlaubt es Ihnen schnell und einfach auf das Stud.IP Ihrer Hochschule zuzugreifen ohne die Seite in einem Browser aufrufen zu müssen.</string>
-    <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">Besuchen Sie unsere Homepage</a></string>
-    <string name="legal_notice">Impressum</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="licenses">Licenses</string>
+    <string name="about_studip_mobile">About Stud.IP mobil</string>
+    <string name="about_text">Stud.IP mobil for Android allows you to easily access your
+        universities Stud.IP without opening the browser. The app offers you an optimized
+        experience for your android device.
+    </string>
+    <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">visit our website</a></string>
+    <string name="legal_notice">Legal notice</string>
 
     <!-- SignIn Activity -->
-    <string name="syncing_semesters">Synchronisiere Semester</string>
-    <string name="syncing_courses">Synchronisiere Kurse</string>
-    <string name="syncing_news">Synchronisiere Ankündigungen</string>
-    <string name="syncing_contacts">Synchronisiere Kontakte</string>
-    <string name="syncing_messages">Synchronisiere Nachrichten</string>
-    <string name="syncing_users">Synchronisiere Benutzerdaten</string>
-    <string name="no_servers">Keine Server vorhanden</string>
+    <string name="syncing_semesters">Synchronizing semesters</string>
+    <string name="syncing_courses">Synchronizing courses</string>
+    <string name="syncing_news">Synchronizing news</string>
+    <string name="syncing_contacts">Synchronizing contacts</string>
+    <string name="syncing_messages">Synchronizing messages</string>
+    <string name="syncing_users">Synchronizing userdata</string>
+    <string name="no_servers">No servers available</string>
+    <string name="sync_notice">Depending on your internet connection and Stud.IP
+        utilization this process may take several minutes to complete.</string>
+    <string name="authentication">Authentication</string>
 
     <!-- UserList Fragment -->
-    <string name="successfully_deleted">Erfolgreich gelöscht</string>
-    <string name="successfully_added">Erfolgreich hinzugefügt</string>
+    <string name="successfully_deleted">Successfully deleted</string>
+    <string name="successfully_added">Successfully added</string>
+
+    <!-- Messages -->
+    <string name="Inbox">Inbox</string>
+    <string name="Outbox">Outbox</string>
+    <string name="Compose">Compose</string>
+    <string name="Menu">Menu</string>
+    <string name="mark_as_read">Mark message as read</string>
+    <string name="read">read</string>
+    <string name="delete_message">Delete this message</string>
+    <string name="delete">delete</string>
+    <string name="forward_message">Forward this message</string>
+    <string name="forward">forward</string>
+    <string name="reply_message">Reply to message</string>
+    <string name="reply">reply</string>
+    <string name="message_marked_read">Marked message as read</string>
+    <string name="message_deleted">Message deleted</string>
+    <string name="Receiver">Receiver</string>
+    <string name="Subject">Subject</string>
+    <string name="original_message">Original message</string>
+    <string name="message_forward_string">FWD</string>
+    <string name="message_reply_string">RE</string>
+    <string name="Send">send</string>
+    <string name="compose_message">Compose new message</string>
+    <string name="message_sent">Message sent</string>
+    <string name="no_messages">You don\'t have any messages!</string>
+    <string name="Send_message">Send message</string>
+    <string name="Message">Message</string>
+    <string name="please_choose_receiver">Please choose a receiver</string>
+    <string name="please_enter_subject">Please enter a message subject</string>
+    <string name="please_enter_message">Please enter a message</string>
+    <string name="enter_forename_lastname">Enter Forename Lastname</string>
+    <string name="enter_subject">Enter subject</string>
+    <string name="enter_message">Enter message</string>
+
 </resources>
