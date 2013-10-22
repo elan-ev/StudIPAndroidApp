@@ -84,6 +84,22 @@ public class MessageDetailFragment extends SherlockFragment implements
     private VolleyOAuthConsumer mConsumer;
     private TextView mMessageSubjectTextView, mMessageDateTextView, mMessageBodyTextView;
     private ImageView mUserImageView;
+    private boolean mDeleteButtonVisible = true;
+
+    /**
+     * Returns a new instance of MessageDetailFragment and sets its arguments with the passed
+     * bundle.
+     *
+     * @param arguments arguments to set to fragment
+     * @return new instance of MessageDetailFragment
+     */
+    public static MessageDetailFragment newInstance(Bundle arguments) {
+        MessageDetailFragment fragment = new MessageDetailFragment();
+
+        fragment.setArguments(arguments);
+
+        return fragment;
+    }
 
     /*
      * (non-Javadoc)
@@ -247,73 +263,77 @@ public class MessageDetailFragment extends SherlockFragment implements
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-     * .support.v4.content.Loader)
-     */
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity
-     * #onCreateOptionsMenu(com.actionbarsherlock.view.Menu)
-     */
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.delete_message).setVisible(mDeleteButtonVisible);
+
+        if (!mDeleteButtonVisible) {
+            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+        } else {
+            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+        }
+
+        super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.message_detail_menu, menu);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity
-     * #onOptionsItemSelected(com.actionbarsherlock.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
 
             case R.id.delete_message:
+                if (getSherlockActivity() != null) {
+                    mDeleteButtonVisible = false;
+                    getSherlockActivity().supportInvalidateOptionsMenu();
+                }
+
                 String contactsUrl = String.format(
                         getString(R.string.restip_messages_messageid), mApiUrl,
                         mMessageId);
                 StringRequest request = new StringRequest(Method.DELETE,
-                        contactsUrl, new Listener<String>() {
-                    public void onResponse(String response) {
-                        getActivity().finish();
-                        getLoaderManager().getLoader(0).abandon();
-                        mContext.getContentResolver().delete(
-                                MessagesContract.CONTENT_URI_MESSAGES
-                                        .buildUpon().appendPath(mMessageId)
-                                        .build(), null, null);
-                        Toast.makeText(mContext,
-                                getString(R.string.message_deleted),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }, new ErrorListener() {
-                    /*
-                     * (non-Javadoc)
-                     *
-                     * @see com.android.volley.Response.ErrorListener
-                     * #onErrorResponse(com.android.volley. VolleyError)
-                     */
-                    public void onErrorResponse(VolleyError error) {
-                        if (error.getMessage() != null)
-                            Log.e(TAG, error.getMessage());
-                        Toast.makeText(
-                                mContext,
-                                getString(R.string.something_went_wrong)
-                                        + error.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
+                        contactsUrl,
+                        new Listener<String>() {
+                            public void onResponse(String response) {
+                                getActivity().finish();
+                                getLoaderManager().getLoader(0).abandon();
+                                mContext.getContentResolver().delete(
+                                        MessagesContract.CONTENT_URI_MESSAGES
+                                                .buildUpon().appendPath(mMessageId)
+                                                .build(), null, null);
+                                Toast.makeText(mContext,
+                                        getString(R.string.message_deleted),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        },
+                        new ErrorListener() {
+                            /*
+                             * (non-Javadoc)
+                             *
+                             * @see com.android.volley.Response.ErrorListener
+                             * #onErrorResponse(com.android.volley. VolleyError)
+                             */
+                            public void onErrorResponse(VolleyError error) {
+                                if (getSherlockActivity() != null) {
+                                    mDeleteButtonVisible = true;
+                                    getSherlockActivity().supportInvalidateOptionsMenu();
+
+                                    if (error.getMessage() != null)
+                                        Log.e(TAG, error.getMessage());
+                                    Toast.makeText(
+                                            mContext,
+                                            getString(R.string.something_went_wrong)
+                                                    + error.getMessage(),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
                 );
 
                 try {

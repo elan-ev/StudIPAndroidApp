@@ -22,6 +22,7 @@
     <dimen name="list_item_vert_margin">8dp</dimen>
     <dimen name="text_size_medium">16sp</dimen>
     <dimen name="text_size_small">14sp</dimen>
+    <dimen name="text_size_micro">12sp</dimen>
     <dimen name="layout_padding_normal">8dp</dimen>
     <dimen name="layout_padding_small">4dp</dimen>
     <dimen name="layout_margin_normal">8dp</dimen>

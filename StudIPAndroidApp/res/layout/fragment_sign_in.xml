@@ -17,7 +17,6 @@
         android:layout_width="wrap_content"
         android:layout_height="175dp"
         android:layout_gravity="center_horizontal"
-        android:adjustViewBounds="true"
         android:contentDescription="@string/studip_logo"
         android:paddingLeft="48dp"
         android:paddingRight="48dp"
@@ -79,26 +78,49 @@
             />
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/sign_in_progressbar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:indeterminate="true"
-        android:visibility="gone"
-        />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/sign_in_progressbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="visible"
+            />
+
+        <de.elanev.studip.android.app.widget.TypefacedTextView
+            android:id="@+id/sync_status"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/layout_margin_normal"
+            android:text="@string/authentication"
+            android:textColor="@color/primary_text_dark"
+            android:textSize="@dimen/text_size_medium"
+            android:visibility="visible"
+            font:typeface="Roboto-Thin.ttf"/>
+    </LinearLayout>
 
     <de.elanev.studip.android.app.widget.TypefacedTextView
-        android:id="@+id/sync_status"
+        android:id="@+id/sync_notice"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center"
+        android:layout_margin="@dimen/layout_margin_normal"
+        android:gravity="center_horizontal"
+        android:text="@string/sync_notice"
         android:textColor="@color/primary_text_dark"
-        android:textSize="@dimen/text_size_medium"
+        android:textSize="@dimen/text_size_micro"
         android:visibility="visible"
-        font:typeface="Roboto-Thin.ttf"/>
+        font:typeface="Roboto-Light.ttf"/>
 
 </LinearLayout>

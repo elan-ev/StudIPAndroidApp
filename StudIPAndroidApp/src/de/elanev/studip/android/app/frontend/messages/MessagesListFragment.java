@@ -265,17 +265,19 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.compose_icon:
+        if (isAdded()) {
+            switch (item.getItemId()) {
+                case R.id.compose_icon:
 
-                Intent intent = new Intent(mContext, MessageComposeActivity.class);
-                startActivity(intent);
+                    Intent intent = new Intent(mContext, MessageComposeActivity.class);
+                    startActivity(intent);
+                    break;
 
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
         }
+        return true;
 
     }
 

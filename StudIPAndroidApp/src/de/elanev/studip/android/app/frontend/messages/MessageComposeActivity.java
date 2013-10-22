@@ -10,33 +10,48 @@ package de.elanev.studip.android.app.frontend.messages;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 
 import de.elanev.studip.android.app.R;
 
 public class MessageComposeActivity extends SherlockFragmentActivity {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
-	 */
+    private static final String TAG = MessageComposeActivity.class.getSimpleName();
+
+    /*
+         * (non-Javadoc)
+         * 
+         * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
+         */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        Bundle args = getIntent().getExtras();
+
 		setContentView(R.layout.content_frame);
 		setTitle(R.string.compose_message);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		Bundle args = getIntent().getExtras();
+//
+//		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//		Fragment frag = MessageComposeFragment.instantiate(this,
+//				MessageComposeFragment.class.getName());
+//		frag.setArguments(args);
+//		ft.replace(R.id.content_frame, frag, "messageComposeFragment").commit();
 
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		Fragment frag = MessageComposeFragment.instantiate(this,
-				MessageComposeFragment.class.getName());
-		frag.setArguments(args);
-		ft.replace(R.id.content_frame, frag, "messageComposeFragment").commit();
+        if (savedInstanceState == null) {
+            MessageComposeFragment meesageComposeFragment = MessageComposeFragment.newInstance(args);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.content_frame, meesageComposeFragment,
+                            MessageComposeFragment.class.getName())
+                    .commit();
+
+        }
 
 	}
 

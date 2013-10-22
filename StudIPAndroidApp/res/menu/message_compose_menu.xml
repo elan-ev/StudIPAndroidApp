@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/send_icon"
         android:icon="@drawable/ic_action_send"
         android:showAsAction="ifRoom|withText"
-        android:title="@string/Send">
+        android:title="@string/Send_message"
+        android:titleCondensed="@string/Send">
     </item>
 
 </menu>

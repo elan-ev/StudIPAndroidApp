@@ -15,52 +15,60 @@ import android.support.v4.app.NavUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 
 import de.elanev.studip.android.app.R;
 
 public class MessageDetailActivity extends SherlockFragmentActivity {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.content_frame);
+    /*
+     * (non-Javadoc)
+     *
+     * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        Bundle args = getIntent().getExtras();
+        // No arguments, nothing to display, finish activity
+        if (args == null) {
+            finish();
+            return;
+        }
+
+        setContentView(R.layout.content_frame);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		Bundle args = getIntent().getExtras();
-		if (args != null) {
-			FragmentManager fm = getSupportFragmentManager();
-			FragmentTransaction ft = fm.beginTransaction();
-			Fragment frag = MessageDetailFragment.instantiate(this,
-					MessageDetailFragment.class.getName());
-			frag.setArguments(args);
-			ft.replace(R.id.content_frame, frag, "messageDetailFragment")
-					.commit();
-		}
-	}
+        if (savedInstanceState == null) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
-	 * (com.actionbarsherlock.view.MenuItem)
-	 */
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		// Respond to the action bar's Up/Home button
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
-		}
+            MessageDetailFragment messageDetailFragment = MessageDetailFragment.newInstance(args);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.content_frame, messageDetailFragment,
+                            MessageComposeFragment.class.getName())
+                    .commit();
 
-		return super.onOptionsItemSelected(item);
-	}
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
+     * (com.actionbarsherlock.view.MenuItem)
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
 }
