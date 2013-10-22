@@ -786,8 +786,9 @@ public class RestIpProvider extends ContentProvider {
                 } else {
                     orderBy = sortOrder;
                 }
+//                        DocumentsContract.DOCUMENTS_JOIN_USERS_JOIN_COURSES_JOIN_FOLDERS,
                 c = db.query(
-                        DocumentsContract.DOCUMENTS_JOIN_USERS_JOIN_COURSES_JOIN_FOLDERS,
+                        DocumentsContract.DOCUMENTS_JOIN_COURSES_JOIN_FOLDERS,
                         projection,
                         DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_COURSE_ID
                                 + " = "
