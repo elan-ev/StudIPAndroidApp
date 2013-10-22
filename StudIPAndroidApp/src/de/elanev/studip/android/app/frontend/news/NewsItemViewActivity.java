@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.NavUtils;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -145,6 +146,8 @@ public class NewsItemViewActivity extends SherlockFragmentActivity {
             mBodyTextView = (TextView) v.findViewById(R.id.news_body);
             mAuthorTextView = (TextView) v.findViewById(R.id.news_author);
             mUserImageView = (ImageView) v.findViewById(R.id.user_image);
+
+            mBodyTextView.setMovementMethod(LinkMovementMethod.getInstance());
             return v;
         }
 
