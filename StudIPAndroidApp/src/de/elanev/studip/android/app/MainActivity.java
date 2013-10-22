@@ -38,6 +38,7 @@ import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
 import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
 import de.elanev.studip.android.app.frontend.news.NewsListFragment;
 import de.elanev.studip.android.app.util.Prefs;
+import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * @author joern
@@ -270,6 +271,9 @@ public class MainActivity extends SherlockFragmentActivity {
      * Deletes the preferences and database to logout of the service
      */
     private void logout() {
+        //Cancel all pending network requests
+        VolleyHttp.getVolleyHttp(this).cancelAll();
+
         // Resetting the SyncHelper
         SyncHelper.getInstance(this).resetSyncHelper();
 

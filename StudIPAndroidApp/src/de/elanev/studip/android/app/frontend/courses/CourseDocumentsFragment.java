@@ -7,10 +7,9 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.courses;
 
-import android.annotation.TargetApi;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
-import android.app.DownloadManager.Query;
 import android.app.DownloadManager.Request;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,15 +18,14 @@ import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
@@ -36,24 +34,24 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.net.Server;
-import de.elanev.studip.android.app.backend.net.SyncHelper;
+import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author joern
@@ -62,6 +60,10 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
         LoaderCallbacks<Cursor> {
     public static final String TAG = CourseDocumentsFragment.class
             .getSimpleName();
+    private static final String FILE_ID = CourseDocumentsFragment.class.getName() + ".fileId";
+    private static final String FILE_NAME = CourseDocumentsFragment.class.getName() + ".fileName";
+    private static final String FILE_DESCRIPTION = CourseDocumentsFragment.class.getName() +
+            ".fileDescription";
     /**
      * Content Observer listening for changes in the database
      */
@@ -86,41 +88,31 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            DownloadManager mgr = (DownloadManager) context.getSystemService(Context
+                    .DOWNLOAD_SERVICE);
             String action = intent.getAction();
-            // Check of the download was completed
             if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
-                Query query = new Query();
-                query.setFilterById(mDownloadReference);
-                // Get reference to the download manager
-                DownloadManager downloadManager = (DownloadManager) getActivity()
-                        .getSystemService(Context.DOWNLOAD_SERVICE);
-                Cursor c = downloadManager.query(query);
-                // Check if the download was successful
-                if (c.moveToFirst()) {
-                    int columnIndex = c
-                            .getColumnIndex(DownloadManager.COLUMN_STATUS);
-                    if (DownloadManager.STATUS_SUCCESSFUL == c
-                            .getInt(columnIndex)) {
-                        Toast.makeText(mContext, "Download fertiggestellt",
-                                Toast.LENGTH_SHORT).show();
-
-                        // Show the download activity
-                        startActivity(new Intent(
-                                DownloadManager.ACTION_VIEW_DOWNLOADS));
-                    } else {
-                        Toast.makeText(mContext,
-                                getString(R.string.something_went_wrong),
-                                Toast.LENGTH_SHORT).show();
-                    }
+                long receivedID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L);
+                DownloadManager.Query query = new DownloadManager.Query();
+                query.setFilterById(receivedID);
+                Cursor cursor = mgr.query(query);
+                int statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
+                int reasonIndex = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+                if (cursor.moveToFirst()) {
+                    queryStatus(cursor.getInt(statusIndex), cursor.getInt(reasonIndex));
                 }
+                cursor.close();
             }
         }
+
     };
     private SimpleSectionedListAdapter mAdapter;
     private DocumentsAdapter mDocumentsAdapter;
-    private long mDownloadReference;
+    private long mDownloadReference = -1L;
     private DownloadManager mDownloadManager;
     private Bundle mArgs;
+    private VolleyOAuthConsumer mConsumer;
+    private String mApiUrl;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -128,6 +120,19 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
         mArgs = getArguments();
         String cid = mArgs.getString(
                 CoursesContract.Columns.Courses.COURSE_ID);
+
+        Prefs prefs = Prefs.getInstance(mContext);
+        if (prefs.isAppAuthorized()) {
+            Server server = prefs.getServer();
+            mConsumer = new VolleyOAuthConsumer(server.getConsumerKey(),
+                    server.getConsumerSecret());
+            mConsumer.setTokenWithSecret(prefs.getAccessToken(),
+                    prefs.getAccessTokenSecret());
+        }
+        // Get reference to the download manager
+        mDownloadManager = (DownloadManager) getActivity()
+                .getSystemService(Context.DOWNLOAD_SERVICE);
+        mApiUrl = prefs.getServer().getApiUrl();
 
     }
 
@@ -137,14 +142,12 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
 
         setEmptyMessage(R.string.no_documents);
         mDocumentsAdapter = new DocumentsAdapter(mContext);
-        mAdapter = new SimpleSectionedListAdapter(mContext,
-                R.layout.list_item_header, mDocumentsAdapter);
+        mAdapter = new SimpleSectionedListAdapter(mContext, R.layout.list_item_header,
+                mDocumentsAdapter);
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
 
-        // Get reference to the download manager
-        mDownloadManager = (DownloadManager) getActivity().getSystemService(
-                Context.DOWNLOAD_SERVICE);
+
     }
 
     @Override
@@ -167,13 +170,157 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
         getActivity().unregisterReceiver(mDownloadManagerReceiver);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.ListFragment#onListItemClick(android.widget.ListView
-     * , android.view.View, int, long)
-     */
+    @SuppressLint("NewApi")
+    private void startDocumentDownload(Bundle fileInfo) {
+        String fileId = fileInfo.getString(FILE_ID);
+        String fileName = fileInfo.getString(FILE_NAME);
+        String fileDescription = fileInfo.getString(FILE_DESCRIPTION);
+
+//        if (!ApiUtils.isOverApi14())
+//            fileName = fileName.replace(" ", "_");
+
+        boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS)
+                .mkdirs();
+
+        // Query DownloadManager and check of file is already being downloaded
+        boolean isDownloading = false;
+
+        if (externalDownloadsDir) {
+            DownloadManager.Query query = new DownloadManager.Query();
+            query.setFilterByStatus(DownloadManager.STATUS_PAUSED |
+                    DownloadManager.STATUS_PENDING |
+                    DownloadManager.STATUS_RUNNING |
+                    DownloadManager.STATUS_SUCCESSFUL);
+            Cursor cur = mDownloadManager.query(query);
+            int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+            for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+                isDownloading = (Environment.DIRECTORY_DOWNLOADS + fileName == cur.getString(col));
+            }
+            cur.close();
+        }
+
+        if (!isDownloading) {
+            try {
+                // Create the download URI
+                String downloadUrl = String
+                        .format(getString(R.string.restip_documents_documentid_download), mApiUrl,
+                                fileId);
+
+
+                // Since HTTPS is only supported on ICS and higher, we replace HTTPS with HTTP
+                if (!ApiUtils.isOverApi14())
+                    downloadUrl = downloadUrl.replace("https://", "http://");
+
+                // Sign the download URL with the OAuth credentials and parse the URI
+                String signedDownloadUrl = downloadUrl;
+                Uri downloadUri = Uri.parse(signedDownloadUrl);
+
+                // Create the download request
+                Request request = new Request(Uri.parse(signedDownloadUrl))
+                        .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
+                                DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
+                        .setAllowedOverRoaming(false)                   // Disallow roaming downloading
+                        .setTitle(fileName)                             // Title of this download
+                        .setDescription(fileDescription);               // Description of this download
+                if (externalDownloadsDir)
+                    request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+                            fileName);
+                // download location and file name
+
+
+                //Allowing the scanning by MediaScanner
+                if (ApiUtils.isOverApi11()) {
+                    request.allowScanningByMediaScanner();
+                    request.setNotificationVisibility(DownloadManager.Request
+                            .VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                }
+
+                mConsumer.sign(request);
+                // Enqueue the download request and save download reference
+                mDownloadReference = mDownloadManager.enqueue(request);
+
+            } catch (OAuthMessageSignerException e) {
+                e.printStackTrace();
+            } catch (OAuthExpectationFailedException e) {
+                e.printStackTrace();
+            } catch (OAuthCommunicationException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    private void queryStatus(int queryStatus, int queryReason) {
+
+        switch (queryStatus) {
+            case DownloadManager.STATUS_FAILED:
+                showToastMessage(getDownloadFailedReason(queryReason));
+                break;
+
+//            case DownloadManager.STATUS_PAUSED:
+//                showToastMessage("Download paused!");
+//                break;
+//
+//            case DownloadManager.STATUS_PENDING:
+//                showToastMessage("Download pending!");
+//                break;
+//
+//            case DownloadManager.STATUS_RUNNING:
+//                showToastMessage("Download in progress!");
+//                break;
+
+            case DownloadManager.STATUS_SUCCESSFUL:
+                showToastMessage(R.string.download_completed);
+                //Show the download activity if the API is below Honeycomb
+                if (!ApiUtils.isOverApi11())
+                    startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
+                break;
+
+            default:
+                showToastMessage(R.string.unknown_error);
+                break;
+        }
+
+    }
+
+    private int getDownloadFailedReason(int queryReason) {
+        switch (queryReason) {
+            case DownloadManager.ERROR_CANNOT_RESUME:
+                return R.string.error_cannot_resume;
+
+            case DownloadManager.ERROR_DEVICE_NOT_FOUND:
+                return R.string.error_device_not_found;
+
+            case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
+                return R.string.error_file_already_exists;
+
+            case DownloadManager.ERROR_FILE_ERROR:
+                return R.string.error_file_error;
+
+            case DownloadManager.ERROR_HTTP_DATA_ERROR:
+                return R.string.error_http_data_error;
+
+            case DownloadManager.ERROR_INSUFFICIENT_SPACE:
+                return R.string.error_insufficient_space;
+
+            case DownloadManager.ERROR_TOO_MANY_REDIRECTS:
+                return R.string.error_to_many_redirects;
+
+            case DownloadManager.ERROR_UNHANDLED_HTTP_CODE:
+                return R.string.error_unhandled_error_code;
+
+            default:
+                return R.string.unknown_error;
+        }
+
+    }
+
+    private void showToastMessage(int stringRes) {
+        if (isAdded())
+            Toast.makeText(mContext, stringRes, Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
@@ -186,9 +333,9 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
             String fileId = c
                     .getString(c
                             .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_ID));
-            // String fileName = c
-            // .getString(c
-            // .getColumnIndex(DocumentsContract.Columns.DOCUMENT_FILENAME));
+            String fileName = c
+                    .getString(c
+                            .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_FILENAME));
             String name = c
                     .getString(c
                             .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_NAME));
@@ -196,68 +343,15 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                     .getString(c
                             .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_DESCRIPTION));
 
-            try {
-                // Create the download URI
-                String apiUrl = Prefs.getInstance(mContext).getServer().getApiUrl();
-                String downloadUrl = String
-                        .format(getString(R.string.restip_documents_documentid_download),
-                                apiUrl, fileId);
+            Bundle fileInfo = new Bundle();
+            fileInfo.putString(FILE_ID, fileId);
+            fileInfo.putString(FILE_NAME, fileName);
+            fileInfo.putString(FILE_DESCRIPTION, fileDesc);
 
-                Prefs prefs = Prefs.getInstance(mContext);
-                VolleyOAuthConsumer consumer = null;
-                if (prefs.isAppAuthorized()) {
-                    Server server = prefs.getServer();
-                    consumer = new VolleyOAuthConsumer(server.getConsumerKey(),
-                            server.getConsumerSecret());
-                    consumer.setTokenWithSecret(prefs.getAccessToken(),
-                            prefs.getAccessTokenSecret());
-                }
-                // Sign the download URI with the OAuth credentials
-                String signedDownloadUrl = consumer.sign(downloadUrl);
-
-                // Create the download request
-                Request request = new Request(Uri.parse(signedDownloadUrl));
-                // Restrict the types of networks
-                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI
-                        | DownloadManager.Request.NETWORK_MOBILE);
-                // Disallow downloading over roaming
-                request.setAllowedOverRoaming(false);
-                // Set the title of this download
-                request.setTitle(name);
-                // Set a description of this download
-                request.setDescription(fileDesc);
-                // TODO: Check which destinations are available and set it
-                // Set the local destination for the download
-                // request.setDestinationInExternalPublicDir(
-                // Environment.DIRECTORY_DOWNLOADS, fileName);
-                // Allowing the scanning by MediaScanner
-//                if (ApiUtils.isOverApi11())
-//                    request.allowScanningByMediaScanner();
-
-                // Enqueue the download request and save download reference
-                mDownloadReference = mDownloadManager.enqueue(request);
-
-                Toast.makeText(mContext, "Download gestartet",
-                        Toast.LENGTH_SHORT).show();
-
-            } catch (OAuthMessageSignerException e) {
-                e.printStackTrace();
-            } catch (OAuthExpectationFailedException e) {
-                e.printStackTrace();
-            } catch (OAuthCommunicationException e) {
-                e.printStackTrace();
-            }
-
+            startDocumentDownload(fileInfo);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-     * android.os.Bundle)
-     */
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
         setLoadingViewVisible(true);
         return new CursorLoader(
@@ -276,13 +370,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                         + " DESC");
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-     * .support.v4.content.Loader, java.lang.Object)
-     */
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (getActivity() == null) {
             return;
@@ -315,13 +402,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
         setLoadingViewVisible(false);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-     * .support.v4.content.Loader)
-     */
     public void onLoaderReset(Loader<Cursor> loader) {
         mDocumentsAdapter.swapCursor(null);
     }
@@ -344,6 +424,7 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
     /*
      * ListAdapter for document entries in the database
      */
+
     private class DocumentsAdapter extends CursorAdapter {
 
         /**
@@ -354,13 +435,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
 
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.support.v4.widget.CursorAdapter#bindView(android.view.View,
-         * android.content.Context, android.database.Cursor)
-         */
         @Override
         public void bindView(View view, Context context, final Cursor c) {
             String fileName = c
@@ -402,13 +476,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
 
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.support.v4.widget.CursorAdapter#newView(android.content.Context
-         * , android.database.Cursor, android.view.ViewGroup)
-         */
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             return getActivity().getLayoutInflater().inflate(

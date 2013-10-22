@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <AutoCompleteTextView
         android:id="@+id/message_compose_receiver"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+        android:textColor="@color/primary_text_light"
         android:ems="10"
-        android:hint="@string/Receiver"
-        android:inputType="textPersonName" />
+        android:hint="@string/enter_forename_lastname"
+        android:inputType="textPersonName"/>
 
     <EditText
         android:id="@+id/message_compose_subject"
@@ -20,8 +21,8 @@
         android:layout_margin="8dp"
         android:layout_marginTop="22dp"
         android:ems="10"
-        android:hint="@string/Subject"
-        android:inputType="textEmailSubject" />
+        android:hint="@string/enter_subject"
+        android:inputType="textEmailSubject"/>
 
     <EditText
         android:id="@+id/message_compose_message"
@@ -30,11 +31,8 @@
         android:layout_margin="8dp"
         android:layout_marginTop="16dp"
         android:ems="10"
-        android:hint="@string/compose_message"
+        android:hint="@string/enter_message"
         android:inputType="textMultiLine"
-        android:singleLine="false" >
-
-        <requestFocus />
-    </EditText>
+        android:singleLine="false"/>
 
 </LinearLayout>

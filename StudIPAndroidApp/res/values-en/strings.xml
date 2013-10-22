@@ -44,28 +44,6 @@
     <string name="yesterday">yesterday</string>
     <string name="days_ago">%d days ago</string>
     <string name="by">by</string>
-    <string name="Inbox">Inbox</string>
-    <string name="Outbox">Outbox</string>
-    <string name="Compose">Compose</string>
-    <string name="Menu">Menu</string>
-    <string name="mark_as_read">mark as read</string>
-    <string name="read">read</string>
-    <string name="delete_message">delete message</string>
-    <string name="delete">delete</string>
-    <string name="forward_message">forward message</string>
-    <string name="forward">forward</string>
-    <string name="reply_message">reply message</string>
-    <string name="reply">reply</string>
-    <string name="message_marked_read">message marked as read</string>
-    <string name="message_deleted">message deleted</string>
-    <string name="Receiver">Receiver</string>
-    <string name="Subject">Subject</string>
-    <string name="original_message">original message</string>
-    <string name="message_forward_string">FWD</string>
-    <string name="message_reply_string">RE</string>
-    <string name="Send">send</string>
-    <string name="compose_message">Compose message</string>
-    <string name="message_sent">Message sent</string>
     <string name="internal_error">Internal Error</string>
     <string name="wrong_parameter">Wrong parameter</string>
     <string name="receiver_not_found">Unknown receiver</string>
@@ -78,7 +56,6 @@
     <string name="no_groups">You haven\'t created any groups!</string>
     <string name="no_contacts">You have no contacts!</string>
     <string name="no_favorites">You haven\'t selected any favorites!</string>
-    <string name="no_messages">You don\'t have any messages!</string>
     <string name="no_users">No users available.</string>
     <string name="studip_app_contacts_favorites">StudipApp Favorites</string>
     <string name="Add_to_favorites">Add to favorites</string>
@@ -87,11 +64,6 @@
     <string name="Remove_from_contacts">Remove from contacts</string>
     <string name="manage_groups">Manage groups</string>
     <string name="user">User</string>
-    <string name="Send_message">Send message</string>
-    <string name="Message">Message</string>
-    <string name="choose_receiver">Please choose a receiver</string>
-    <string name="enter_subject">Please enter a message subject</string>
-    <string name="enter_message">Please enter a message</string>
     <string name="personal_info">Personal info</string>
     <string name="contact_info">Contact info</string>
     <string name="crash_toast_string">Something went wrong. Sending crash report.</string>
@@ -120,6 +92,17 @@
     <string name="Details">Details</string>
     <string name="latest_news">Latest news</string>
 
+    <!-- Course Downloads -->
+    <string name="download_completed">Download complete</string>
+    <string name="error_cannot_resume">ERROR_CANNOT_RESUME</string>
+    <string name="error_device_not_found">ERROR_DEVICE_NOT_FOUND</string>
+    <string name="error_file_already_exists">ERROR_FILE_ALREADY_EXISTS</string>
+    <string name="error_file_error">ERROR_FILE_ERROR</string>
+    <string name="error_http_data_error">ERROR_HTTP_DATA_ERROR</string>
+    <string name="error_insufficient_space">ERROR_INSUFFICIENT_SPACE</string>
+    <string name="error_to_many_redirects">ERROR_TOO_MANY_REDIRECTS</string>
+    <string name="error_unhandled_error_code">ERROR_UNHANDLED_HTTP_CODE</string>
+
     <!-- About app Activity -->
     <string name="privacy_policy">Privacy policy</string>
     <string name="licenses">Licenses</string>
@@ -139,8 +122,45 @@
     <string name="syncing_messages">Synchronizing messages</string>
     <string name="syncing_users">Synchronizing userdata</string>
     <string name="no_servers">No servers available</string>
+    <string name="sync_notice">Depending on your internet connection and Stud.IP
+        utilization this process may take several minutes to complete.</string>
+    <string name="authentication">Authentication</string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Successfully deleted</string>
     <string name="successfully_added">Successfully added</string>
+
+    <!-- Messages -->
+    <string name="Inbox">Inbox</string>
+    <string name="Outbox">Outbox</string>
+    <string name="Compose">Compose</string>
+    <string name="Menu">Menu</string>
+    <string name="mark_as_read">Mark message as read</string>
+    <string name="read">read</string>
+    <string name="delete_message">Delete this message</string>
+    <string name="delete">delete</string>
+    <string name="forward_message">Forward this message</string>
+    <string name="forward">forward</string>
+    <string name="reply_message">Reply to message</string>
+    <string name="reply">reply</string>
+    <string name="message_marked_read">Marked message as read</string>
+    <string name="message_deleted">Message deleted</string>
+    <string name="Receiver">Receiver</string>
+    <string name="Subject">Subject</string>
+    <string name="original_message">Original message</string>
+    <string name="message_forward_string">FWD</string>
+    <string name="message_reply_string">RE</string>
+    <string name="Send">send</string>
+    <string name="compose_message">Compose new message</string>
+    <string name="message_sent">Message sent</string>
+    <string name="no_messages">You don\'t have any messages!</string>
+    <string name="Send_message">Send message</string>
+    <string name="Message">Message</string>
+    <string name="please_choose_receiver">Please choose a receiver</string>
+    <string name="please_enter_subject">Please enter a message subject</string>
+    <string name="please_enter_message">Please enter a message</string>
+    <string name="enter_forename_lastname">Enter Forename Lastname</string>
+    <string name="enter_subject">Enter subject</string>
+    <string name="enter_message">Enter message</string>
+
 </resources>

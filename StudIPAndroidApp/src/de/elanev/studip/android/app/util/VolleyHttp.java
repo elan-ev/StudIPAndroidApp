@@ -9,9 +9,16 @@ package de.elanev.studip.android.app.util;
 
 import android.content.Context;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.squareup.okhttp.OkHttpClient;
+
+import java.net.CookieHandler;
+import java.net.CookieManager;
+
+import de.elanev.studip.android.app.backend.net.util.OkHttpStack;
 
 /**
  * Singleton class for easier accessing the Volley HTTP Stack
@@ -25,6 +32,8 @@ public class VolleyHttp implements Cloneable {
     private static RequestQueue mRequestQueue;
     private static ImageLoader mImageLoader;
     private static VolleyHttp mInstance;
+    private static CookieManager mCookiemanager;
+    private static OkHttpClient mOkHttpClient;
 
     /*
      * No access
@@ -43,7 +52,12 @@ public class VolleyHttp implements Cloneable {
             // Thread safety
             synchronized (VolleyHttp.class) {
                 mInstance = new VolleyHttp();
-                mRequestQueue = Volley.newRequestQueue(context);
+                mCookiemanager = new CookieManager();
+                CookieHandler.setDefault(mCookiemanager);
+                mOkHttpClient = new OkHttpClient();
+                mOkHttpClient.setCookieHandler(CookieHandler.getDefault());
+                mRequestQueue = Volley.newRequestQueue(context, new OkHttpStack(mOkHttpClient));
+//                mRequestQueue = Volley.newRequestQueue(context);
                 mImageLoader = new ImageLoader(mRequestQueue, new BitmapLruCache(cacheSize));
             }
 
@@ -76,6 +90,18 @@ public class VolleyHttp implements Cloneable {
         } else {
             throw new IllegalStateException("ImageLoader not initialized");
         }
+    }
+
+    /**
+     * Cancels all pending requests in the queue
+     */
+    public void cancelAll() {
+        mRequestQueue.cancelAll(new RequestQueue.RequestFilter() {
+            @Override
+            public boolean apply(Request<?> request) {
+                return true;
+            }
+        });
     }
 
     /*

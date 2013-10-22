@@ -12,9 +12,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
+import android.support.v4.util.DebugUtils;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 
+import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.net.Server;
@@ -62,6 +66,7 @@ public class SignInActivity extends SherlockFragmentActivity {
     private static boolean mMessagesSynced = false;
     private static boolean mContactsSynced = false;
     private static boolean mNewsSynced = false;
+    private static TimingLogger mDebugTimingLogger;
 
     /*
      * (non-Javadoc)
@@ -174,6 +179,24 @@ public class SignInActivity extends SherlockFragmentActivity {
                 performPrefetchSync();
 
             } else {
+                View selectedView = getListView().getSelectedView();
+                if (!mAdapter.isEmpty() && selectedView == null) {
+//                    getListView().setSelectionAfterHeaderView();
+//                    if (!ApiUtils.isOverApi11())
+//                        getListView().setItemChecked(0, true);
+
+//                    Server server = (Server) mAdapter.getItem(0);
+//                    Prefs.getInstance(mContext).setServer(server);
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            getListView().performItemClick(
+                                    getListView().getChildAt(0),
+                                    0,
+                                    getListView().getAdapter().getItemId(0));
+                        }
+                    });
+                }
                 showLoginForm();
                 Button signInButton = (Button) getView().findViewById(R.id.sign_in_button);
                 signInButton.setOnClickListener(new OnClickListener() {
@@ -221,11 +244,15 @@ public class SignInActivity extends SherlockFragmentActivity {
         public void onListItemClick(ListView l, View v, int position, long id) {
             super.onListItemClick(l, v, position, id);
 
-            if (!ApiUtils.isOverApi11()) {
-                getListView().setItemChecked(position, true);
-            }
+            if (position != ListView.INVALID_POSITION && position <= l.getCount()) {
+                if (!ApiUtils.isOverApi11()) {
+                    getListView().setItemChecked(position, true);
+                }
 
-            Prefs.getInstance(mContext).setServer((Server) v.getTag());
+                Server server = mAdapter.getItem(position);
+
+                Prefs.getInstance(mContext).setServer(server);
+            }
 
         }
 
@@ -259,6 +286,7 @@ public class SignInActivity extends SherlockFragmentActivity {
                 startNewsActivity();
                 return;
             }
+
 
             SyncHelper.getInstance(mContext).performSemestersSync(this);
             Prefs.getInstance(mContext).setAppStarted();
@@ -462,22 +490,15 @@ public class SignInActivity extends SherlockFragmentActivity {
                 this.data = data;
             }
 
-            /*
-             * (non-Javadoc)
-             *
-             * @see android.widget.ArrayAdapter#getView(int, android.view.View,
-             * android.view.ViewGroup)
-             */
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
 
                 if (convertView == null) {
                     LayoutInflater inflater = ((Activity) context)
                             .getLayoutInflater();
-                    convertView = inflater.inflate(textViewResourceId, parent,
-                            false);
-
+                    convertView = inflater.inflate(textViewResourceId, parent, false);
                 }
+
                 Server server = data[position];
                 ((TextView) convertView.findViewById(android.R.id.text1))
                         .setText(server.getName());
@@ -485,14 +506,14 @@ public class SignInActivity extends SherlockFragmentActivity {
                 return convertView;
             }
 
-            /*
-             * (non-Javadoc)
-             *
-             * @see android.widget.ArrayAdapter#getCount()
-             */
             @Override
             public int getCount() {
                 return data.length;
+            }
+
+            @Override
+            public Server getItem(int position) {
+                return data[position];
             }
         }
 

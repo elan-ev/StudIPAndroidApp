@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -41,6 +42,7 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -75,6 +77,22 @@ public class MessageComposeFragment extends SherlockFragment implements
     private AutoCompleteTextView mAutoCompleteTextView;
     private UserAdapter mAdapter;
     private EditText mSubjectEditTextView, mMessageEditTextView;
+    private boolean mSendButtonVisible = true;
+
+    /**
+     * Returns a new instance of MessageComposeFragement and sets its arguments with the passed
+     * bundle.
+     *
+     * @param arguments arguments to set to fragment
+     * @return new instance of MessageComposeFragment
+     */
+    public static MessageComposeFragment newInstance(Bundle arguments) {
+        MessageComposeFragment fragment = new MessageComposeFragment();
+
+        fragment.setArguments(arguments);
+
+        return fragment;
+    }
 
     /*
      * (non-Javadoc)
@@ -144,6 +162,7 @@ public class MessageComposeFragment extends SherlockFragment implements
         if (mUserItem != null && mMessageFlag != MESSAGE_FORWARD) {
             mAutoCompleteTextView.setText(mUserItem.getFullname());
             mAutoCompleteTextView.setTag(mUserItem);
+            mAutoCompleteTextView.setEnabled(false);
         }
 
         // set message subject and fragment title according to the messageFlag
@@ -177,7 +196,7 @@ public class MessageComposeFragment extends SherlockFragment implements
                             getString(R.string.original_message),
                             TextTools.getLocalizedAuthorAndDateString(
                                     mUserItem.getFullname(), mDate, mContext),
-                            mMessage));
+                            Html.fromHtml(mMessage)));
 
         mAutoCompleteTextView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -186,6 +205,7 @@ public class MessageComposeFragment extends SherlockFragment implements
                                     int position, long id) {
                 UserItem item = (UserItem) parent.getItemAtPosition(position);
                 mAutoCompleteTextView.setTag(item);
+                mAutoCompleteTextView.setEnabled(false);
             }
         });
 
@@ -203,6 +223,15 @@ public class MessageComposeFragment extends SherlockFragment implements
             }
         });
 
+        if (TextUtils.isEmpty(mAutoCompleteTextView.getText())) {
+            mAutoCompleteTextView.requestFocus();
+        } else if (TextUtils.isEmpty(mSubjectEditTextView.getText())) {
+            mSubjectEditTextView.requestFocus();
+        } else {
+            mMessageEditTextView.requestFocus();
+            mMessageEditTextView.setSelection(0);
+        }
+
     }
 
     /*
@@ -217,12 +246,26 @@ public class MessageComposeFragment extends SherlockFragment implements
         mAutoCompleteTextView.dismissDropDown();
     }
 
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.send_icon).setVisible(mSendButtonVisible);
+
+        if (!mSendButtonVisible) {
+            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+        } else {
+            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+        }
+
+
+        super.onPrepareOptionsMenu(menu);
+    }
+
     /*
-     * (non-Javadoc)
-     *
-     * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
-     * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
-     */
+         * (non-Javadoc)
+         *
+         * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
+         * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
+         */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.message_compose_menu, menu);
@@ -244,56 +287,79 @@ public class MessageComposeFragment extends SherlockFragment implements
                 return true;
 
             case R.id.send_icon:
-
                 // Check if all fields are filled
                 UserItem user = (UserItem) mAutoCompleteTextView.getTag();
-                if (user == null
-                        || TextUtils.isEmpty(mAutoCompleteTextView.getText())) {
-                    Toast.makeText(mContext, R.string.choose_receiver,
-                            Toast.LENGTH_LONG).show();
+                if (user == null || TextUtils.isEmpty(mAutoCompleteTextView.getText())) {
+
+                    Toast.makeText(mContext, R.string.please_choose_receiver, Toast.LENGTH_LONG)
+                            .show();
                     mAutoCompleteTextView.requestFocus();
+
                 } else if (TextUtils.isEmpty(mSubjectEditTextView.getText())) {
-                    Toast.makeText(mContext, R.string.enter_subject,
-                            Toast.LENGTH_LONG).show();
+
+                    Toast.makeText(mContext, R.string.please_enter_subject, Toast.LENGTH_LONG)
+                            .show();
                     mSubjectEditTextView.requestFocus();
+
                 } else if (TextUtils.isEmpty(mMessageEditTextView.getText())) {
-                    Toast.makeText(mContext, R.string.enter_message,
-                            Toast.LENGTH_LONG).show();
+
+                    Toast.makeText(mContext, R.string.please_enter_message, Toast.LENGTH_LONG)
+                            .show();
                     mMessageEditTextView.requestFocus();
+
                 } else {
 
+                    mSendButtonVisible = false;
+                    getSherlockActivity().supportInvalidateOptionsMenu();
+
                     String apiUrl = Prefs.getInstance(mContext).getServer().getApiUrl();
-                    String messagesUrl = String.format(
-                            getString(R.string.restip_messages), apiUrl);
+                    String messagesUrl = String.format(getString(R.string.restip_messages), apiUrl);
 
                     // Create Jackson HTTP post request
                     JacksonRequest<Message> request = new JacksonRequest<Message>(
-                            messagesUrl, Message.class, null,
+                            messagesUrl,
+                            Message.class,
+                            null,
                             new Listener<Message>() {
 
                                 public void onResponse(Message response) {
-                                    getActivity().finish();
-                                    Toast.makeText(mContext,
-                                            getString(R.string.message_sent),
-                                            Toast.LENGTH_SHORT).show();
+
+                                    if (getActivity() != null) {
+                                        getActivity().finish();
+
+                                        Toast.makeText(mContext,
+                                                getString(R.string.message_sent),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+
                                 }
-                            }, new ErrorListener() {
-                        /*
-                         * (non-Javadoc)
-                         *
-                         * @see com.android.volley.Response. ErrorListener
-                         * #onErrorResponse(com .android.volley.
-                         * VolleyError)
-                         */
-                        public void onErrorResponse(VolleyError error) {
-                            if (error.getMessage() != null) {
-                                Toast.makeText(mContext,
-                                        "Fehler: " + error.getMessage(),
-                                        Toast.LENGTH_SHORT).show();
-                                Log.wtf(TAG, error.getMessage());
-                            }
-                        }
-                    }, Method.POST
+                            },
+                            new ErrorListener() {
+                                /*
+                                 * (non-Javadoc)
+                                 *
+                                 * @see com.android.volley.Response. ErrorListener
+                                 * #onErrorResponse(com .android.volley.
+                                 * VolleyError)
+                                 */
+                                public void onErrorResponse(VolleyError error) {
+
+                                    if (getActivity() != null) {
+                                        mSendButtonVisible = true;
+                                        getSherlockActivity().supportInvalidateOptionsMenu();
+
+                                        if (error.getMessage() != null) {
+                                            Toast.makeText(mContext,
+                                                    "Fehler: " + error.getMessage(),
+                                                    Toast.LENGTH_SHORT)
+                                                    .show();
+                                        }
+                                        Log.wtf(TAG, error.getMessage());
+                                    }
+
+                                }
+                            },
+                            Method.POST
                     );
 
                     // Set parameters
@@ -330,7 +396,6 @@ public class MessageComposeFragment extends SherlockFragment implements
                 return true;
 
             default:
-
                 return super.onOptionsItemSelected(item);
 
         }
@@ -366,8 +431,7 @@ public class MessageComposeFragment extends SherlockFragment implements
             cursor.moveToNext();
         }
 
-        mAdapter = new UserAdapter(mContext,
-                android.R.layout.simple_dropdown_item_1line, items);
+        mAdapter = new UserAdapter(mContext, android.R.layout.simple_dropdown_item_1line, items);
         mAutoCompleteTextView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
     }

@@ -81,6 +81,10 @@ public class SyncHelper {
     private static Set<String> mUserSyncQueue = Collections.synchronizedSet(new HashSet<String>());
     private static ArrayList<ContentProviderOperation> mUserDbOp = new
             ArrayList<ContentProviderOperation>();
+    // TODO Make dependent on device connection type
+    DefaultRetryPolicy mRetryPolicy = new DefaultRetryPolicy(30000,
+            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
 
     private SyncHelper() {
     }
@@ -422,6 +426,7 @@ public class SyncHelper {
                                             new ContactGroupsHandler(response)
                                                     .parse());
 
+                                    contactsRequest.setRetryPolicy(mRetryPolicy);
                                     VolleyHttp.getVolleyHttp(mContext)
                                             .getRequestQueue()
                                             .add(contactsRequest);
@@ -446,6 +451,7 @@ public class SyncHelper {
                         Method.GET
                 );
 
+                contactGroupsRequest.setRetryPolicy(mRetryPolicy);
                 VolleyHttp.getVolleyHttp(mContext)
                         .getRequestQueue()
                         .add(contactGroupsRequest);
@@ -527,11 +533,7 @@ public class SyncHelper {
                         Method.GET
                 );
 
-                // TODO Make dependent on device connection type
-                coursesRequest.setRetryPolicy(new DefaultRetryPolicy(30000,
-                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
+                coursesRequest.setRetryPolicy(mRetryPolicy);
                 VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
                         .add(coursesRequest);
 
@@ -603,7 +605,6 @@ public class SyncHelper {
                 requestNewsForRange(id,
                         new Listener<News>() {
                             public void onResponse(News response) {
-
                                 try {
                                     ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
                                     for (NewsItem n : response.news) {
@@ -735,6 +736,7 @@ public class SyncHelper {
             if (count < 1) {
                 try {
                     JacksonRequest<User> userJacksonRequest = createUserRequest(userId, callbacks);
+                    userJacksonRequest.setRetryPolicy(mRetryPolicy);
                     VolleyHttp
                             .getVolleyHttp(mContext)
                             .getRequestQueue()
@@ -798,6 +800,7 @@ public class SyncHelper {
                             },
                             Method.GET
                     );
+                    userJacksonRequest.setRetryPolicy(mRetryPolicy);
                     VolleyHttp
                             .getVolleyHttp(mContext)
                             .getRequestQueue()
@@ -867,6 +870,7 @@ public class SyncHelper {
                     },
                     Method.GET
             );
+            semestersRequest.setRetryPolicy(mRetryPolicy);
             VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
                     .add(semestersRequest);
 
@@ -915,6 +919,7 @@ public class SyncHelper {
                     },
                     Method.GET
             );
+            newsRequest.setRetryPolicy(mRetryPolicy);
             VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
                     .add(newsRequest);
 
@@ -964,6 +969,7 @@ public class SyncHelper {
                 }
             }, Method.GET
             );
+            eventsRequest.setRetryPolicy(mRetryPolicy);
             VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
                     .add(eventsRequest);
         } catch (OAuthMessageSignerException e) {
@@ -1054,6 +1060,7 @@ public class SyncHelper {
                     Method.GET
             );
 
+            messageFoldersRequest.setRetryPolicy(mRetryPolicy);
             VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
                     .add(messageFoldersRequest);
 
@@ -1098,6 +1105,7 @@ public class SyncHelper {
                     }, Method.GET
             );
 
+            messagesRequest.setRetryPolicy(mRetryPolicy);
             VolleyHttp.getVolleyHttp(mContext)
                     .getRequestQueue()
                     .add(messagesRequest);
@@ -1157,6 +1165,8 @@ public class SyncHelper {
                 }
             }, Method.GET
             );
+
+            messagesRequest.setRetryPolicy(mRetryPolicy);
             VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
                     .add(messagesRequest);
         } catch (OAuthExpectationFailedException e) {
@@ -1215,6 +1225,7 @@ public class SyncHelper {
             }, Method.GET
             );
 
+            messagesRequest.setRetryPolicy(mRetryPolicy);
             VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
                     .add(messagesRequest);
 
