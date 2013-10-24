@@ -7,10 +7,15 @@
  ******************************************************************************/
 import java.text.SimpleDateFormat
 
-def versionMajor = 0 //beta
+def versionMajor = 0 //prod
 def versionMinor = 7
-def versionPatch = 8
+def versionPatch = 9
 def versionBuild = 1
+
+def versionMajorBeta = 0 //beta
+def versionMinorBeta = 8
+def versionPatchBeta = 0
+def versionBuildBeta = 1
 
 final Console console = System.console();
 
@@ -92,7 +97,7 @@ android {
 
     defaultConfig {
 
-        minSdkVersion 10
+        minSdkVersion 15
         targetSdkVersion 18
 
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
@@ -103,32 +108,21 @@ android {
           public static final String VERSION_NAME = \\"${versionName}\\";
           public static final String VERSION_CODE = \\"${versionCode}\\";
         """
-
     }
 
-
-    sourceSets {
-
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
+    productFlavors {
+        beta {
+            minSdkVersion 10
+            versionCode versionMajorBeta * 10000 + versionMinorBeta * 1000 + versionPatchBeta *
+                    100 + versionBuildBeta
+            versionName "${versionMajorBeta}.${versionMinorBeta}.${versionPatchBeta}-beta"
         }
 
-        release {
-            manifest.srcFile 'AndroidManifestRelease.xml'
+        prod {
+            minSdkVersion 15
+            versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+            versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         }
-
-        debug {
-            assets.srcDirs = ['assetsDebug']
-        }
-
-        instrumentTest.setRoot('tests')
-
     }
 
     buildTypes {
@@ -150,8 +144,43 @@ android {
 
         applicationVariants.all { variant ->
             def file = variant.outputFile
-            variant.outputFile = new File(file.parent, file.name.replace(".apk", "-" + defaultConfig.versionName + ".apk"))
+            variant.outputFile = new File(file.parent, file.name.replace(".apk",
+                    "-" + variant.productFlavors.versionName + ".apk"))
         }
 
     }
+
+    sourceSets {
+
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        release {
+            manifest.srcFile 'AndroidManifestRelease.xml'
+        }
+
+        prod {
+            assets.srcDirs = ['assets']
+        }
+
+        beta {
+            assets.srcDirs = ['assetsBeta']
+            res.srcDirs = ['resBeta']
+        }
+
+        debug {
+            assets.srcDirs = ['assetsDebug']
+        }
+
+        instrumentTest.setRoot('tests')
+
+    }
+
 }
