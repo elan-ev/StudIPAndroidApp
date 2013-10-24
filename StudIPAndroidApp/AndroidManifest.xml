@@ -5,19 +5,14 @@
   which accompanies this distribution, and is available at
   http://www.gnu.org/licenses/gpl.html
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
     package="de.elanev.studip.android.app"
-    android:versionCode="7001"
-    android:versionName="0.7.0.1">
-
-    <uses-sdk
-        android:minSdkVersion="10"
-        android:targetSdkVersion="18" />
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Application permissions -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <!-- General application settings -->
     <application
@@ -36,9 +31,9 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
@@ -50,14 +45,14 @@
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".backend.net.oauth.SignInActivity" />
+                android:value=".backend.net.oauth.SignInActivity"/>
         </activity>
 
         <!-- Main activity with navigation drawer and content frame -->
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"/>
 
         <!-- News list and details view activity -->
         <activity
@@ -68,7 +63,7 @@
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".MainActivity"/>
         </activity>
 
         <!-- Courses list and detail view activities -->
@@ -80,7 +75,7 @@
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".MainActivity"/>
         </activity>
 
         <!-- Messages list, details view and compose activities -->
@@ -92,17 +87,17 @@
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".MainActivity"/>
         </activity>
         <activity
             android:name=".frontend.messages.MessageComposeActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"/>
 
         <!-- user details view activity -->
         <activity
             android:name=".widget.UserDetailsActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"/>
 
         <!-- RestIpProvider for rest API calls -->
         <provider
@@ -110,7 +105,7 @@
             android:authorities="de.elanev.studip.android.app"
             android:exported="false"
             android:label="@string/app_name"
-            android:syncable="true" />
+            android:syncable="true"/>
     </application>
 
 </manifest>
