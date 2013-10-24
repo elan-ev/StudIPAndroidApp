@@ -348,12 +348,10 @@ public class MessageComposeFragment extends SherlockFragment implements
                                         mSendButtonVisible = true;
                                         getSherlockActivity().supportInvalidateOptionsMenu();
 
-                                        if (error.getMessage() != null) {
-                                            Toast.makeText(mContext,
-                                                    "Fehler: " + error.getMessage(),
-                                                    Toast.LENGTH_SHORT)
-                                                    .show();
-                                        }
+                                        Toast.makeText(mContext,
+                                                R.string.something_went_wrong,
+                                                Toast.LENGTH_SHORT)
+                                                .show();
                                         Log.wtf(TAG, error.getMessage());
                                     }
 
@@ -431,7 +429,7 @@ public class MessageComposeFragment extends SherlockFragment implements
             cursor.moveToNext();
         }
 
-        mAdapter = new UserAdapter(mContext, android.R.layout.simple_dropdown_item_1line, items);
+        mAdapter = new UserAdapter(mContext, R.layout.list_item_single_text, items);
         mAutoCompleteTextView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
     }
