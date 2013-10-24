@@ -41,14 +41,11 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.net.Server;
-import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
@@ -130,8 +127,7 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                     prefs.getAccessTokenSecret());
         }
         // Get reference to the download manager
-        mDownloadManager = (DownloadManager) getActivity()
-                .getSystemService(Context.DOWNLOAD_SERVICE);
+        mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
         mApiUrl = prefs.getServer().getApiUrl();
 
     }
@@ -176,9 +172,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
         String fileName = fileInfo.getString(FILE_NAME);
         String fileDescription = fileInfo.getString(FILE_DESCRIPTION);
 
-//        if (!ApiUtils.isOverApi14())
-//            fileName = fileName.replace(" ", "_");
-
         boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS)
                 .mkdirs();
@@ -200,11 +193,13 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
             cur.close();
         }
 
+
         if (!isDownloading) {
             try {
                 // Create the download URI
                 String downloadUrl = String
-                        .format(getString(R.string.restip_documents_documentid_download), mApiUrl,
+                        .format(getString(R.string.restip_documents_documentid_download),
+                                mApiUrl,
                                 fileId);
 
 
@@ -213,8 +208,9 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                     downloadUrl = downloadUrl.replace("https://", "http://");
 
                 // Sign the download URL with the OAuth credentials and parse the URI
-                String signedDownloadUrl = downloadUrl;
+                String signedDownloadUrl = mConsumer.sign(downloadUrl);
                 Uri downloadUri = Uri.parse(signedDownloadUrl);
+
 
                 // Create the download request
                 Request request = new Request(Uri.parse(signedDownloadUrl))
@@ -228,7 +224,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                             fileName);
                 // download location and file name
 
-
                 //Allowing the scanning by MediaScanner
                 if (ApiUtils.isOverApi11()) {
                     request.allowScanningByMediaScanner();
@@ -236,8 +231,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                             .VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                 }
 
-                mConsumer.sign(request);
-                // Enqueue the download request and save download reference
                 mDownloadReference = mDownloadManager.enqueue(request);
 
             } catch (OAuthMessageSignerException e) {
@@ -272,9 +265,8 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
 
             case DownloadManager.STATUS_SUCCESSFUL:
                 showToastMessage(R.string.download_completed);
-                //Show the download activity if the API is below Honeycomb
-                if (!ApiUtils.isOverApi11())
-                    startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
+                // Show the download activity
+                startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
                 break;
 
             default:
