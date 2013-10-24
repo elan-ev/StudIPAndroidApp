@@ -301,15 +301,19 @@ public class MessageDetailFragment extends SherlockFragment implements
                         contactsUrl,
                         new Listener<String>() {
                             public void onResponse(String response) {
-                                getActivity().finish();
+
                                 getLoaderManager().getLoader(0).abandon();
                                 mContext.getContentResolver().delete(
                                         MessagesContract.CONTENT_URI_MESSAGES
                                                 .buildUpon().appendPath(mMessageId)
                                                 .build(), null, null);
-                                Toast.makeText(mContext,
-                                        getString(R.string.message_deleted),
-                                        Toast.LENGTH_SHORT).show();
+                                if (getActivity() != null && isAdded()) {
+                                    getActivity().finish();
+                                    Toast.makeText(mContext,
+                                            getString(R.string.message_deleted),
+                                            Toast.LENGTH_SHORT)
+                                            .show();
+                                }
                             }
                         },
                         new ErrorListener() {
@@ -326,11 +330,14 @@ public class MessageDetailFragment extends SherlockFragment implements
 
                                     if (error.getMessage() != null)
                                         Log.e(TAG, error.getMessage());
-                                    Toast.makeText(
-                                            mContext,
-                                            getString(R.string.something_went_wrong)
-                                                    + error.getMessage(),
-                                            Toast.LENGTH_SHORT).show();
+
+                                    if (getActivity() != null && isAdded())
+                                        Toast.makeText(
+                                                mContext,
+                                                getString(R.string.something_went_wrong) + error
+                                                        .getMessage(),
+                                                Toast.LENGTH_SHORT)
+                                                .show();
                                 }
                             }
                         }
