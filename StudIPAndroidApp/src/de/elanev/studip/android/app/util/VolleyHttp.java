@@ -54,10 +54,10 @@ public class VolleyHttp implements Cloneable {
                 mInstance = new VolleyHttp();
                 mCookiemanager = new CookieManager();
                 CookieHandler.setDefault(mCookiemanager);
-                mOkHttpClient = new OkHttpClient();
-                mOkHttpClient.setCookieHandler(CookieHandler.getDefault());
-                mRequestQueue = Volley.newRequestQueue(context, new OkHttpStack(mOkHttpClient));
-//                mRequestQueue = Volley.newRequestQueue(context);
+//                mOkHttpClient = new OkHttpClient();
+//                mOkHttpClient.setCookieHandler(CookieHandler.getDefault());
+//                mRequestQueue = Volley.newRequestQueue(context, new OkHttpStack(mOkHttpClient));
+                mRequestQueue = Volley.newRequestQueue(context);
                 mImageLoader = new ImageLoader(mRequestQueue, new BitmapLruCache(cacheSize));
             }
 
