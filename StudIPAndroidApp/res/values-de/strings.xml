@@ -126,9 +126,14 @@
     <string name="syncing_messages">Synchronisiere Nachrichten</string>
     <string name="syncing_users">Synchronisiere Benutzerdaten</string>
     <string name="no_servers">Keine Server vorhanden</string>
-     <string name="sync_notice">Abhängig von Ihrer Internetverbindung und der Stud.IP Auslastung
-        kann dieser Vorgang mehrere Minuten in Anspruch nehmen.</string>
+     <string name="sync_notice">
+         Abhängig von Ihrer Internetverbindung und der Stud.IP Auslastung
+        kann dieser Vorgang mehrere Minuten in Anspruch nehmen.
+     </string>
     <string name="authentication">Authentifizierung</string>
+    <string name="missing_studip_message">
+       <![CDATA[<u>Fehlt Ihr Stud.IP? <br />Kontaktieren Sie uns!</u>]]>
+    </string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Erfolgreich gelöscht</string>
@@ -165,6 +170,5 @@
     <string name="enter_forename_lastname">Vorname Nachname eingeben</string>
     <string name="enter_subject">Betreff eingeben</string>
     <string name="enter_message">Nachricht eingeben</string>
-
 
 </resources>
