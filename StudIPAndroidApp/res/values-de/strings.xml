@@ -20,8 +20,8 @@
     <string name="help">Hilfe</string>
     <string name="Activities">Aktivitäten</string>
     <string name="News">Ankündigungen</string>
-    <string name="Courses">Kurse</string>
-    <string name="Events">Veranstaltungen</string>
+    <string name="Courses">Veranstaltungen</string>
+    <string name="Events">Termine</string>
     <string name="Messages">Nachrichten</string>
     <string name="Contacts">Kontakte</string>
     <string name="Documents">Dateien</string>
@@ -79,7 +79,7 @@
     <string name="close_drawer">Navigation schließen</string>
 
     <!-- CourseView Activity -->
-    <string name="upcoming_events">Anstehende Veranstaltungen</string>
+    <string name="upcoming_events">Anstehende Termine</string>
     <string name="appointments">Termine</string>
     <string name="attendees">Mitglieder</string>
     <string name="time_room">Zeit / Veranstaltunsort</string>
@@ -88,7 +88,7 @@
     <string name="Tutor">TutorIn</string>
     <string name="Student">StudentIn</string>
     <string name="no_appointments">Keine Termine</string>
-    <string name="no_courses">Du bist in keinem Kurs eingetragen.</string>
+    <string name="no_courses">Du bist in keiner Verantstaltung eingetragen.</string>
     <string name="no_attendees">Es sind keine Teilnehmer vorhanden.</string>
     <string name="no_documents">Es wurden noch keine Dokumente hochgeladen.</string>
     <string name="no_news">Keine Ankündigungen vorhanden.</string>
@@ -120,15 +120,20 @@
 
     <!-- SignIn Activity -->
     <string name="syncing_semesters">Synchronisiere Semester</string>
-    <string name="syncing_courses">Synchronisiere Kurse</string>
+    <string name="syncing_courses">Synchronisiere Veranstaltungen</string>
     <string name="syncing_news">Synchronisiere Ankündigungen</string>
     <string name="syncing_contacts">Synchronisiere Kontakte</string>
     <string name="syncing_messages">Synchronisiere Nachrichten</string>
     <string name="syncing_users">Synchronisiere Benutzerdaten</string>
     <string name="no_servers">Keine Server vorhanden</string>
-     <string name="sync_notice">Abhängig von Ihrer Internetverbindung und der Stud.IP Auslastung
-        kann dieser Vorgang mehrere Minuten in Anspruch nehmen.</string>
+     <string name="sync_notice">
+         Abhängig von Ihrer Internetverbindung und der Stud.IP Auslastung
+        kann dieser Vorgang mehrere Minuten in Anspruch nehmen.
+     </string>
     <string name="authentication">Authentifizierung</string>
+    <string name="missing_studip_message">
+       <![CDATA[<u>Fehlt Ihr Stud.IP? <br />Kontaktieren Sie uns!</u>]]>
+    </string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Erfolgreich gelöscht</string>
@@ -165,6 +170,5 @@
     <string name="enter_forename_lastname">Vorname Nachname eingeben</string>
     <string name="enter_subject">Betreff eingeben</string>
     <string name="enter_message">Nachricht eingeben</string>
-
 
 </resources>
