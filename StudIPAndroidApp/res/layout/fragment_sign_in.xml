@@ -25,9 +25,9 @@
     <LinearLayout
         android:id="@+id/sign_in_form"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <ListView
             android:id="@android:id/list"
@@ -66,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginBottom="48dp"
+            android:layout_marginBottom="8dp"
             android:layout_marginLeft="48dp"
             android:layout_marginRight="48dp"
             android:layout_marginTop="8dp"
@@ -76,22 +76,24 @@
             android:gravity="center"
             android:text="@string/Authorize"
             />
+
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:id="@+id/progress_info"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
         android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <ProgressBar
             android:id="@+id/sign_in_progressbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:indeterminate="true"
-            android:visibility="visible"
             />
 
         <de.elanev.studip.android.app.widget.TypefacedTextView
@@ -100,27 +102,43 @@
             xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_margin="@dimen/layout_margin_normal"
             android:text="@string/authentication"
             android:textColor="@color/primary_text_dark"
             android:textSize="@dimen/text_size_medium"
-            android:visibility="visible"
             font:typeface="Roboto-Thin.ttf"/>
     </LinearLayout>
 
-    <de.elanev.studip.android.app.widget.TypefacedTextView
-        android:id="@+id/sync_notice"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+    <LinearLayout
+        android:id="@+id/info_box"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/layout_margin_normal"
-        android:gravity="center_horizontal"
-        android:text="@string/sync_notice"
-        android:textColor="@color/primary_text_dark"
-        android:textSize="@dimen/text_size_micro"
-        android:visibility="visible"
-        font:typeface="Roboto-Light.ttf"/>
+        android:background="#40000000"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/layout_padding_normal"
+        >
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/icon"
+            android:src="@drawable/ic_menu_info"
+            />
+
+        <de.elanev.studip.android.app.widget.TypefacedTextView
+            android:id="@+id/info_box_message"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/missing_studip_message"
+            android:textColor="@color/primary_text_dark"
+            android:textSize="@dimen/text_size_micro"
+            font:typeface="Roboto-Light.ttf"/>
+    </LinearLayout>
 
 </LinearLayout>
