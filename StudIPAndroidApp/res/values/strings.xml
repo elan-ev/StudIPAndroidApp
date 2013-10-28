@@ -127,9 +127,14 @@
     <string name="syncing_messages">Synchronizing messages</string>
     <string name="syncing_users">Synchronizing userdata</string>
     <string name="no_servers">No servers available</string>
-    <string name="sync_notice">Depending on your internet connection and Stud.IP
-        utilization this process may take several minutes to complete.</string>
+    <string name="sync_notice">
+        Depending on your internet connection and Stud.IP
+        utilization this process may take several minutes to complete.
+    </string>
     <string name="authentication">Authentication</string>
+    <string name="missing_studip_message">
+        <![CDATA[<u>Your Stud.IP is missing? <br />Contact us!</u>]]>
+    </string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Successfully deleted</string>
