@@ -10,18 +10,20 @@ package de.elanev.studip.android.app.backend.net.oauth;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
-import android.support.v4.util.DebugUtils;
+import android.text.Html;
 import android.util.Log;
-import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -66,7 +68,6 @@ public class SignInActivity extends SherlockFragmentActivity {
     private static boolean mMessagesSynced = false;
     private static boolean mContactsSynced = false;
     private static boolean mNewsSynced = false;
-    private static TimingLogger mDebugTimingLogger;
 
     /*
      * (non-Javadoc)
@@ -111,12 +112,35 @@ public class SignInActivity extends SherlockFragmentActivity {
      * @author joern
      */
     public static class SignInFragment extends ListFragment implements SyncHelper.SyncHelperCallbacks {
+        Animation slideUpIn;
         private Context mContext;
         private ArrayAdapter<Server> mAdapter;
         private boolean mSignInFormVisible = false;
-        private ProgressBar mProgressBar;
-        private View mSignInForm;
-        private TextView mSyncStatusTextView;
+        private boolean mMissingBoxShown = false;
+        private View mSignInForm, mProgressInfo, mInfoBoxView;
+        private TextView mSyncStatusTextView, mInfoBoxTextView;
+        private OnClickListener mMissingServerOnClickListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_SENDTO,
+                        Uri.fromParts("mailto",
+                                getString(R.string.feedback_form_email),
+                                null));
+                intent.putExtra(Intent.EXTRA_SUBJECT,
+                        "Feedback: Missing Stud.IP");
+                intent.putExtra(
+                        Intent.EXTRA_TEXT,
+                        String.format(
+                                getString(R.string.feedback_form_message_template),
+                                Build.VERSION.SDK_INT,
+                                BuildConfig.VERSION_NAME,
+                                BuildConfig.VERSION_CODE,
+                                BuildConfig.BUILD_TIME));
+
+                startActivity(Intent.createChooser(intent,
+                        getString(R.string.feedback_form_action)));
+            }
+        };
 
         public static SignInFragment newInstance() {
             SignInFragment fragment = new SignInFragment();
@@ -140,6 +164,7 @@ public class SignInActivity extends SherlockFragmentActivity {
                 res = android.R.layout.simple_list_item_checked;
             }
             mAdapter = new ServerAdapter(mContext, res, getItems().getServers());
+            slideUpIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up_in);
 
         }
 
@@ -154,9 +179,15 @@ public class SignInActivity extends SherlockFragmentActivity {
                                  Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_sign_in, null);
 
-            mProgressBar = (ProgressBar) v.findViewById(R.id.sign_in_progressbar);
+            mProgressInfo = v.findViewById(R.id.progress_info);
             mSignInForm = v.findViewById(R.id.sign_in_form);
+            mInfoBoxTextView = (TextView) v.findViewById(R.id.info_box_message);
+            mInfoBoxView = v.findViewById(R.id.info_box);
+
             mSyncStatusTextView = (TextView) v.findViewById(R.id.sync_status);
+            // Set missing message text from html to get undline.. (stupid)
+            ((TextView) v.findViewById(R.id.info_box_message))
+                    .setText(Html.fromHtml(getString(R.string.missing_studip_message)));
 
             return v;
         }
@@ -210,12 +241,23 @@ public class SignInActivity extends SherlockFragmentActivity {
 
         }
 
+        @Override
+        public void onStart() {
+            super.onStart();
+
+            if (!mMissingBoxShown) {
+                getView().findViewById(R.id.info_box).startAnimation(slideUpIn);
+                mMissingBoxShown = true;
+            }
+
+        }
+
         /*
-         * (non-Javadoc)
-         *
-         * @see android.support.v4.app.Fragment#onActivityResult(int, int,
-         * android.content.Intent)
-         */
+                 * (non-Javadoc)
+                 *
+                 * @see android.support.v4.app.Fragment#onActivityResult(int, int,
+                 * android.content.Intent)
+                 */
         @Override
         public void onActivityResult(int requestCode, int resultCode,
                                      Intent intent) {
@@ -262,8 +304,10 @@ public class SignInActivity extends SherlockFragmentActivity {
         private void showLoginForm() {
             if (!mSignInFormVisible) {
                 mSignInForm.setVisibility(View.VISIBLE);
-                mProgressBar.setVisibility(View.GONE);
+                mProgressInfo.setVisibility(View.GONE);
                 mSignInFormVisible = true;
+                mInfoBoxTextView.setText(Html.fromHtml(getString(R.string.missing_studip_message)));
+                mInfoBoxView.setOnClickListener(mMissingServerOnClickListener);
             }
         }
 
@@ -273,8 +317,10 @@ public class SignInActivity extends SherlockFragmentActivity {
         private void hideLoginForm() {
             if (mSignInFormVisible) {
                 mSignInForm.setVisibility(View.GONE);
-                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressInfo.setVisibility(View.VISIBLE);
                 mSignInFormVisible = false;
+                mInfoBoxTextView.setText(Html.fromHtml(getString(R.string.sync_notice)));
+                mInfoBoxView.setOnClickListener(null);
             }
         }
 
