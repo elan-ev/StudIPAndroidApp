@@ -14,7 +14,7 @@ def versionBuild = 1
 
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8
-def versionPatchBeta = 0
+def versionPatchBeta = 1
 def versionBuildBeta = 1
 
 final Console console = System.console();
@@ -102,12 +102,6 @@ android {
 
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-
-        buildConfig """\
-          public static final String BUILD_TIME = "${buildTime()}";
-          public static final String VERSION_NAME = \\"${versionName}\\";
-          public static final String VERSION_CODE = \\"${versionCode}\\";
-        """
     }
 
     productFlavors {
@@ -116,12 +110,22 @@ android {
             versionCode versionMajorBeta * 10000 + versionMinorBeta * 1000 + versionPatchBeta *
                     100 + versionBuildBeta
             versionName "${versionMajorBeta}.${versionMinorBeta}.${versionPatchBeta}-beta"
+            buildConfig """\
+          public static final String BUILD_TIME = "${buildTime()}";
+          public static final String VERSION_NAME = \\"${versionName}\\";
+          public static final String VERSION_CODE = \\"${versionCode}\\";
+        """
         }
 
         prod {
             minSdkVersion 15
             versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
             versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+            buildConfig """\
+          public static final String BUILD_TIME = "${buildTime()}";
+          public static final String VERSION_NAME = \\"${versionName}\\";
+          public static final String VERSION_CODE = \\"${versionCode}\\";
+        """
         }
     }
 
