@@ -115,12 +115,19 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         setLoadingViewVisible(true);
-        return new CursorLoader(getActivity(), CoursesContract.CONTENT_URI,
+        return new CursorLoader(getActivity(),
+                CoursesContract.CONTENT_URI,
                 CourseQuery.PROJECTION,
-                CoursesContract.Columns.Courses.COURSE_ID + " != " + "'"
+                CoursesContract.Columns.Courses.COURSE_ID
+                        + " != "
+                        + "'"
                         + getString(R.string.restip_news_global_identifier)
-                        + "'", null,
-                SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN + " DESC");
+                        + "'",
+                null,
+                CoursesContract.Qualified.Courses.COURSES_COURSE_DURATION_TIME
+                        + " DESC, "
+                        + SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN
+                        + " DESC");
     }
 
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -133,6 +140,13 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
         String prevSemesterId = null;
         String currSemesterId = null;
         while (!cursor.isAfterLast()) {
+            if (cursor.getInt(cursor.getColumnIndex(CoursesContract.Columns.Courses
+                    .COURSE_DURATION_TIME)) == -1) {
+                sections.add(new SimpleSectionedListAdapter.Section(
+                        cursor.getPosition(),
+                        mContext.getString(R.string.course_without_duration_limit)));
+                break;
+            }
             currSemesterId = cursor
                     .getString(cursor
                             .getColumnIndex(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID));
@@ -168,6 +182,7 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
                 CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
                 CoursesContract.Qualified.Courses.COURSES_COURSE_TYPE,
                 CoursesContract.Qualified.Courses.COURSES_COURSE_COLOR,
+                CoursesContract.Qualified.Courses.COURSES_COURSE_DURATION_TIME,
                 SemestersContract.Qualified.SEMESTERS_SEMESTER_ID,
                 SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE,
                 SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN};
@@ -211,9 +226,15 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
 
             courseTitleTextVew.setText(courseTitle);
             if (type == 99) {
-                icon.setImageResource(R.drawable.ic_studygroup);
+                if (TextUtils.equals(courseColor, "#ffffff"))
+                    icon.setImageResource(R.drawable.ic_studygroup_blue);
+                else
+                    icon.setImageResource(R.drawable.ic_studygroup);
             } else {
-                icon.setImageResource(R.drawable.ic_menu_courses);
+                if (TextUtils.equals(courseColor, "#ffffff"))
+                    icon.setImageResource(R.drawable.ic_seminar_blue);
+                else
+                    icon.setImageResource(R.drawable.ic_menu_courses);
             }
 
             try {
