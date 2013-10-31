@@ -57,8 +57,8 @@ public class CourseScheduleFragment extends ProgressSherlockListFragment impleme
         mContext = getActivity();
 
         String[] from = new String[]{EventsContract.Columns.EVENT_TITLE,
-                EventsContract.Columns.EVENT_ROOM};
-        int[] to = new int[]{R.id.event_title, R.id.event_room};
+                EventsContract.Columns.EVENT_ROOM, EventsContract.Columns.EVENT_DESCRIPTION};
+        int[] to = new int[]{R.id.event_title, R.id.event_room, R.id.event_description};
 
         mAdapter = new SimpleCursorAdapter(mContext, R.layout.list_item_event,
                 null, from, to, 0);
@@ -120,7 +120,8 @@ public class CourseScheduleFragment extends ProgressSherlockListFragment impleme
     private interface CourseEventsListQuery {
         String[] projection = {EventsContract.Columns._ID,
                 EventsContract.Columns.EVENT_TITLE,
-                EventsContract.Columns.EVENT_ROOM};
+                EventsContract.Columns.EVENT_ROOM,
+                EventsContract.Columns.EVENT_DESCRIPTION};
     }
 
 }

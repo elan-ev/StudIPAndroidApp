@@ -78,6 +78,9 @@
     <string name="open_drawer">Navigation öffnen</string>
     <string name="close_drawer">Navigation schließen</string>
 
+    <!-- Courses List -->
+    <string name="course_without_duration_limit">Veranstaltungen mit unbegrenzter Laufzeit</string>
+
     <!-- CourseView Activity -->
     <string name="upcoming_events">Anstehende Termine</string>
     <string name="appointments">Termine</string>
