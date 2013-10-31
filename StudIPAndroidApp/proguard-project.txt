@@ -26,3 +26,18 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+
+-keepattributes *Annotation*,EnclosingMethod
+-keepattributes SourceFile,LineNumberTable
+
+-keep class android.support.v4.** { *; }
+-keep interface android.support.v4.** { *; }
+-keep class com.actionbarsherlock.** { *; }
+-keep interface com.actionbarsherlock.** { *; }
+-keep class org.apache.http.** { *; }
+
+-dontwarn android.support.v4.**
+-dontwarn org.apache.**
+-dontwarn com.actionbarsherlock.internal.**
+-dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
