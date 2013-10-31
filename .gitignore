@@ -117,3 +117,5 @@ StudIPAndroidApp/AndroidManifestRelease.xml
 StudIPAndroidApp/assets/servers.json
 assetsDebug/
 assetsBeta/
+
+StudIPAndroidApp/src/de/elanev/studip/android/app/util/ServerData.java
