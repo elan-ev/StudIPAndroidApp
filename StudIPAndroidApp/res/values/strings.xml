@@ -75,6 +75,9 @@
     <string name="open_drawer">Open Navigation</string>
     <string name="close_drawer">Close Navigation</string>
 
+    <!-- Courses List -->
+    <string name="course_without_duration_limit">Courses without duration limit</string>
+
     <!-- CourseView Activity -->
     <string name="upcoming_events">Upcoming events</string>
     <string name="appointments">Appointments</string>
