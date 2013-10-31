@@ -144,6 +144,9 @@ android {
             versionNameSuffix '-RELEASE'
             debuggable = false;
             signingConfig signingConfigs.release
+            runProguard=true
+            proguardFile 'proguard-project.txt'
+            proguardFile getDefaultProguardFile('proguard-android.txt')
         }
 
         applicationVariants.all { variant ->
@@ -171,16 +174,13 @@ android {
         }
 
         prod {
-            assets.srcDirs = ['assets']
         }
 
         beta {
-            assets.srcDirs = ['assetsBeta']
             res.srcDirs = ['resBeta']
         }
 
         debug {
-            assets.srcDirs = ['assetsDebug']
         }
 
         instrumentTest.setRoot('tests')
