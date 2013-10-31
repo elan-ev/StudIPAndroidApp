@@ -47,6 +47,7 @@ import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
+import de.elanev.studip.android.app.util.ServerData;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -405,11 +406,9 @@ public class SignInActivity extends SherlockFragmentActivity {
          */
         private Servers getItems() {
             ObjectMapper mapper = new ObjectMapper();
-            InputStream is = null;
             Servers servers = null;
             try {
-                is = mContext.getAssets().open("servers.json");
-                servers = mapper.readValue(is, Servers.class);
+                servers = mapper.readValue(ServerData.serverJson, Servers.class);
             } catch (IOException e) {
                 e.printStackTrace();
             }
