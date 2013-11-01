@@ -10,11 +10,13 @@
  */
 package de.elanev.studip.android.app.util;
 
-import de.elanev.studip.android.app.backend.net.Server;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import com.mndfcktory.android.encryptedUserprefs.SecurePreferences;
+
+import de.elanev.studip.android.app.backend.net.Server;
+
 
 /**
  * @author joern
@@ -28,8 +30,11 @@ public class Prefs {
     private static final String SERVER_KEY = "serverKey";
     private static final String SERVER_SECRET = "serverSecret";
     private static final String APP_FIRST_START = "appFirstStart";
+    private static final String APP_SECURE_START = "appSecureStart";
+    private static final String TAG = Prefs.class.getSimpleName();
     private static Prefs mInstance;
     private static Context mContext;
+    private static SecurePreferences mPrefs;
 
 
     private Prefs() {
@@ -43,21 +48,21 @@ public class Prefs {
         if (mInstance == null)
             mInstance = new Prefs(context);
 
+        if (mPrefs == null)
+            mPrefs = new SecurePreferences(mContext,
+                    APP_PREFS_NAME,
+                    Config.PRIVATE_KEY,
+                    Installation.id(mContext),
+                    true);
+
         return mInstance;
     }
 
-    private static SharedPreferences getPrefs() {
-        return mContext.getSharedPreferences(APP_PREFS_NAME,
-                Activity.MODE_PRIVATE);
-    }
-
     /*
-     * Clear preferences for debuging
+     * Clear preferences
      */
     public void clearPrefs() {
-        SharedPreferences.Editor prefsEditor = getPrefs().edit();
-        prefsEditor.clear();
-        prefsEditor.apply();
+        mPrefs.clear();
     }
 
     /*
@@ -65,10 +70,10 @@ public class Prefs {
      */
     public Server getServer() {
         Server server = null;
-        String serverName = getPrefs().getString(SERVER_NAME, null);
-        String serverUrl = getPrefs().getString(SERVER_URL, null);
-        String serverKey = getPrefs().getString(SERVER_KEY, null);
-        String serverSecret = getPrefs().getString(SERVER_SECRET, null);
+        String serverName = mPrefs.getString(SERVER_NAME);
+        String serverUrl = mPrefs.getString(SERVER_URL);
+        String serverKey = mPrefs.getString(SERVER_KEY);
+        String serverSecret = mPrefs.getString(SERVER_SECRET);
         if (serverName != null && serverUrl != null && serverKey != null
                 && serverSecret != null) {
             server = new Server(serverName, serverKey, serverSecret, serverUrl);
@@ -78,12 +83,10 @@ public class Prefs {
     }
 
     public void setServer(Server value) {
-        SharedPreferences.Editor prefsEditor = getPrefs().edit();
-        prefsEditor.putString(SERVER_NAME, value.getName());
-        prefsEditor.putString(SERVER_URL, value.getBaseUrl());
-        prefsEditor.putString(SERVER_KEY, value.getConsumerKey());
-        prefsEditor.putString(SERVER_SECRET, value.getConsumerSecret());
-        prefsEditor.apply();
+        mPrefs.putString(SERVER_NAME, value.getName());
+        mPrefs.putString(SERVER_URL, value.getBaseUrl());
+        mPrefs.putString(SERVER_KEY, value.getConsumerKey());
+        mPrefs.putString(SERVER_SECRET, value.getConsumerSecret());
     }
 
     /*
@@ -91,24 +94,19 @@ public class Prefs {
      */
     public String getAccessToken() {
 
-        return getPrefs().getString(ACCESS_TOKEN, null);
+        return mPrefs.getString(ACCESS_TOKEN);
     }
 
     public void setAccessToken(String value) {
-        SharedPreferences.Editor prefsEditor = getPrefs().edit();
-        prefsEditor.putString(ACCESS_TOKEN, value);
-        prefsEditor.apply();
+        mPrefs.putString(ACCESS_TOKEN, value);
     }
 
     public String getAccessTokenSecret() {
-
-        return getPrefs().getString(ACCESS_TOKEN_SECRET, null);
+        return mPrefs.getString(ACCESS_TOKEN_SECRET);
     }
 
     public void setAccessTokenSecret(String value) {
-        SharedPreferences.Editor prefsEditor = getPrefs().edit();
-        prefsEditor.putString(ACCESS_TOKEN_SECRET, value);
-        prefsEditor.apply();
+        mPrefs.putString(ACCESS_TOKEN_SECRET, value);
     }
 
     /*
@@ -119,12 +117,25 @@ public class Prefs {
     }
 
     public boolean isFirstStart() {
-        return getPrefs().getBoolean(APP_FIRST_START, true);
+        return mContext
+                .getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(APP_FIRST_START, true);
     }
 
     public void setAppStarted() {
-        SharedPreferences.Editor prefsEditor = getPrefs().edit();
-        prefsEditor.putBoolean(APP_FIRST_START, false);
-        prefsEditor.apply();
+        SharedPreferences.Editor prefsEditor = mContext
+                .getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE)
+                .edit();
+
+        prefsEditor.putBoolean(APP_FIRST_START, false)
+                .commit();
+    }
+
+    public boolean isSecureStarted() {
+        return mPrefs.getBoolean(APP_SECURE_START, false);
+    }
+
+    public void setSecureStarted() {
+        mPrefs.putBoolean(APP_SECURE_START, true);
     }
 }
