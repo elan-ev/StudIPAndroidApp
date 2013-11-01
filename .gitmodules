@@ -7,3 +7,6 @@
 [submodule "libprojects/SherlockNavigationDrawer"]
 	path = libprojects/SherlockNavigationDrawer
 	url = https://github.com/mndfcked/SherlockNavigationDrawer.git
+[submodule "libprojects/encrypted-userprefs"]
+	path = libprojects/encrypted-userprefs
+	url = https://github.com/mndfcked/encrypted-userprefs.git
