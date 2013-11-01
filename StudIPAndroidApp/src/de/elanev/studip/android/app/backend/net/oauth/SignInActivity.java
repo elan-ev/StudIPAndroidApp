@@ -27,7 +27,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,11 +35,11 @@ import com.android.volley.VolleyError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.net.Server;
 import de.elanev.studip.android.app.backend.net.Servers;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
@@ -84,6 +83,19 @@ public class SignInActivity extends SherlockFragmentActivity {
 
         this.setContentView(R.layout.content_frame);
 
+        if (!Prefs.getInstance(this).isSecureStarted()) {
+            // Delete the app database
+            getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
+            // Clear the app preferences
+            Prefs.getInstance(this).clearPrefs();
+            Prefs.getInstance(this).setSecureStarted();
+        }
+
+        if (!Prefs.getInstance(this).isFirstStart()) {
+            startNewsActivity();
+            return;
+        }
+
 		/*
          * Clear shared prefs for debugging
 		 */
@@ -105,6 +117,24 @@ public class SignInActivity extends SherlockFragmentActivity {
     @Override
     public void onBackPressed() {
         return;
+    }
+
+    /**
+     * Starts the next activity after prefetching
+     */
+    public void startNewsActivity() {
+
+        Intent intent = new Intent(this, MainActivity.class);
+
+        if (ApiUtils.isOverApi11()) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        } else {
+            finish();
+        }
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(intent);
     }
 
     /**
@@ -213,12 +243,6 @@ public class SignInActivity extends SherlockFragmentActivity {
             } else {
                 View selectedView = getListView().getSelectedView();
                 if (!mAdapter.isEmpty() && selectedView == null) {
-//                    getListView().setSelectionAfterHeaderView();
-//                    if (!ApiUtils.isOverApi11())
-//                        getListView().setItemChecked(0, true);
-
-//                    Server server = (Server) mAdapter.getItem(0);
-//                    Prefs.getInstance(mContext).setServer(server);
                     new Handler().post(new Runnable() {
                         @Override
                         public void run() {
@@ -329,34 +353,8 @@ public class SignInActivity extends SherlockFragmentActivity {
          * Simply triggers the prefetching at the SyncHelper
          */
         private void performPrefetchSync() {
-            if (!Prefs.getInstance(mContext).isFirstStart()) {
-                startNewsActivity();
-                return;
-            }
-
-
             SyncHelper.getInstance(mContext).performSemestersSync(this);
             Prefs.getInstance(mContext).setAppStarted();
-        }
-
-        /**
-         * Starts the next activity after prefetching
-         */
-        public void startNewsActivity() {
-            if (getActivity() == null)
-                return;
-
-            Intent intent = new Intent(mContext, MainActivity.class);
-
-            if (ApiUtils.isOverApi11()) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            } else {
-                getActivity().finish();
-            }
-
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            startActivity(intent);
         }
 
         /*
@@ -476,7 +474,9 @@ public class SignInActivity extends SherlockFragmentActivity {
                     mContactsSynced = false;
                     mMessagesSynced = false;
                     mNewsSynced = false;
-                    startNewsActivity();
+                    if (getActivity() != null) {
+                        ((SignInActivity) getActivity()).startNewsActivity();
+                    }
                     return;
             }
 
@@ -506,7 +506,9 @@ public class SignInActivity extends SherlockFragmentActivity {
                     mContactsSynced = false;
                     mMessagesSynced = false;
                     mNewsSynced = false;
-                    startNewsActivity();
+                    if (getActivity() != null) {
+                        ((SignInActivity) getActivity()).startNewsActivity();
+                    }
                     return;
             }
         }
