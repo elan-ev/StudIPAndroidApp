@@ -7,6 +7,7 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -68,9 +69,15 @@ public final class StuffUtil {
 
 
         // Start an intent so show the sign in screen
+        startSignInActivity(context);
+    }
+
+    public static void startSignInActivity(Context context) {
+        // Start an intent so show the sign in screen
         Intent intent = new Intent(context, SignInActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
         context.startActivity(intent);
     }
 }
