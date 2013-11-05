@@ -44,7 +44,7 @@ import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.Server;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;

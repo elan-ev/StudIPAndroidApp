@@ -39,9 +39,9 @@ import java.io.IOException;
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.datamodel.Server;
+import de.elanev.studip.android.app.backend.datamodel.Servers;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
-import de.elanev.studip.android.app.backend.net.Server;
-import de.elanev.studip.android.app.backend.net.Servers;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
 import de.elanev.studip.android.app.util.ApiUtils;
@@ -108,7 +108,6 @@ public class SignInActivity extends SherlockFragmentActivity {
                     .commit();
         }
 
-        getSupportActionBar().hide();
     }
 
     /*
