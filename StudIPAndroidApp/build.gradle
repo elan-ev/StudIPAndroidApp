@@ -8,13 +8,13 @@
 import java.text.SimpleDateFormat
 
 def versionMajor = 0 //prod
-def versionMinor = 7
-def versionPatch = 9
+def versionMinor = 8
+def versionPatch = 2
 def versionBuild = 1
 
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8
-def versionPatchBeta = 1
+def versionPatchBeta = 4
 def versionBuildBeta = 1
 
 final Console console = System.console();
