@@ -42,6 +42,7 @@ import de.elanev.studip.android.app.backend.datamodel.News;
 import de.elanev.studip.android.app.backend.datamodel.NewsItem;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
 import de.elanev.studip.android.app.backend.datamodel.Semesters;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
@@ -56,6 +57,7 @@ import de.elanev.studip.android.app.backend.net.sync.EventsHandler;
 import de.elanev.studip.android.app.backend.net.sync.MessagesHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
+import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.VolleyHttp;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -105,7 +107,8 @@ public class SyncHelper {
             mConsumer = new VolleyOAuthConsumer(mServer.getConsumerKey(), mServer.getConsumerSecret());
             mConsumer.setTokenWithSecret(prefs.getAccessToken(), prefs.getAccessTokenSecret());
         } else {
-            throw new IllegalStateException("App must be authorized");
+//            throw new IllegalStateException("App must be authorized");
+            StuffUtil.startSignInActivity(mContext);
         }
 
         mContext = context;

@@ -27,6 +27,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
 
 import de.elanev.studip.android.app.backend.db.AbstractContract;
@@ -38,6 +40,7 @@ import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
 import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
 import de.elanev.studip.android.app.frontend.news.NewsListFragment;
 import de.elanev.studip.android.app.util.Prefs;
+import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
@@ -143,13 +146,14 @@ public class MainActivity extends SherlockFragmentActivity {
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
-     * (com.actionbarsherlock.view.MenuItem)
-     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getSupportMenuInflater().inflate(R.menu.main, menu);
+
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(
             com.actionbarsherlock.view.MenuItem item) {
@@ -162,6 +166,19 @@ public class MainActivity extends SherlockFragmentActivity {
             } else {
                 mDrawerLayout.openDrawer(mDrawerListView);
             }
+        }
+
+        switch (item.getItemId()) {
+            case R.id.menu_feedback:
+                StuffUtil.startFeedback(this);
+                return true;
+
+            case R.id.menu_about:
+                StuffUtil.startAbout(this);
+                return true;
+            case R.id.menu_sign_out:
+                StuffUtil.signOut(this);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -208,42 +225,6 @@ public class MainActivity extends SherlockFragmentActivity {
                             frag = new ContactsGroupsFragment();
                         }
                         break;
-                    // case SETTINGS_MENU_ITEM:
-                    // TODO: Settings for prefetch behavior, Stud.IP installation, appearance
-                    // break;
-                    // case HELP_MENU_ITEM:
-                    // TODO: Information about how to use the app
-                    // break;
-                    case R.id.navigation_information:
-                        fragTag = AboutFragment.class.getName();
-                        frag = findFragment(fragTag);
-                        if (frag == null) {
-                            frag = new AboutFragment();
-                        }
-                        break;
-                    case R.id.navigation_feedback:
-                        Intent intent = new Intent(Intent.ACTION_SENDTO,
-                                Uri.fromParts("mailto",
-                                        getString(R.string.feedback_form_email),
-                                        null));
-                        intent.putExtra(Intent.EXTRA_SUBJECT,
-                                getString(R.string.feedback_form_subject));
-                        intent.putExtra(
-                                Intent.EXTRA_TEXT,
-                                String.format(
-                                        getString(R.string.feedback_form_message_template),
-                                        Build.VERSION.SDK_INT,
-                                        BuildConfig.VERSION_NAME,
-                                        BuildConfig.VERSION_CODE,
-                                        BuildConfig.BUILD_TIME));
-
-                        startActivity(Intent.createChooser(intent,
-                                getString(R.string.feedback_form_action)));
-                        return;
-                    case R.id.navigation_logout:
-                        logout();
-                        mDrawerLayout.closeDrawers();
-                        return;
                 }
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, frag, fragTag).commit();
@@ -324,21 +305,6 @@ public class MainActivity extends SherlockFragmentActivity {
                             R.id.navigation_contacts,
                             R.drawable.ic_menu_community,
                             getString(R.string.Contacts)));
-            adapter.add(
-                    new MenuItem(
-                            R.id.navigation_feedback,
-                            R.drawable.ic_menu_feedback,
-                            getString(R.string.Feedback)));
-            adapter.add(
-                    new MenuItem(
-                            R.id.navigation_information,
-                            R.drawable.ic_menu_info,
-                            getString(R.string.about_studip_mobile)));
-            adapter.add(
-                    new MenuItem(
-                            R.id.navigation_logout,
-                            R.drawable.ic_menu_logout,
-                            getString(R.string.Logout)));
         }
         return adapter;
     }
@@ -382,7 +348,7 @@ public class MainActivity extends SherlockFragmentActivity {
     /**
      * An array adapter which holds MenuItems
      */
-    public class MenuAdapter extends ArrayAdapter<MenuItem> {
+    public class MenuAdapter extends ArrayAdapter<MainActivity.MenuItem> {
 
         /**
          * Creates a new MenuArrayAdapter for the context

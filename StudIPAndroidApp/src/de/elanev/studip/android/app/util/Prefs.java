@@ -15,7 +15,7 @@ import android.content.SharedPreferences;
 
 import com.mndfcktory.android.encryptedUserprefs.SecurePreferences;
 
-import de.elanev.studip.android.app.backend.net.Server;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 
 
 /**

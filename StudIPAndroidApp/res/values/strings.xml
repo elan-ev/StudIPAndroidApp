@@ -20,7 +20,6 @@
 
     <string name="app_name">Stud.IP mobil</string>
     <string name="loading">loading</string>
-    <string name="help">Hilfe</string>
     <string name="Activities">Activities</string>
     <string name="News">News</string>
     <string name="Courses">Courses</string>
@@ -29,9 +28,6 @@
     <string name="Contacts">Contacts</string>
     <string name="Documents">Files</string>
     <string name="Settings">Settings</string>
-    <string name="Help">Help</string>
-    <string name="Information">Information</string>
-    <string name="Logout">Logout</string>
     <string name="General">General</string>
     <string name="menu">menu</string>
     <string name="Development">Development</string>
@@ -71,7 +67,6 @@
     <string name="personal_info">Personal info</string>
     <string name="contact_info">Contact info</string>
     <string name="crash_toast_string">Something went wrong. Sending crash report.</string>
-    <string name="Feedback">Feedback</string>
     <string name="open_drawer">Open Navigation</string>
     <string name="close_drawer">Close Navigation</string>
 
@@ -175,5 +170,10 @@
     <string name="enter_forename_lastname">Enter Forename Lastname</string>
     <string name="enter_subject">Enter subject</string>
     <string name="enter_message">Enter message</string>
+
+    <!-- Main OptionsMenu -->
+    <string name="About">About</string>
+    <string name="Logout">Logout</string>
+    <string name="Feedback">Feedback</string>
 
 </resources>

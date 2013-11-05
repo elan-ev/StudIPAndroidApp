@@ -99,6 +99,11 @@
             android:name=".widget.UserDetailsActivity"
             android:screenOrientation="portrait"/>
 
+        <!-- about thte app activity -->
+        <activity
+            android:name=".frontend.AboutActivity"
+            android:screenOrientation="portrait"/>
+
         <!-- RestIpProvider for rest API calls -->
         <provider
             android:name=".backend.provider.RestIpProvider"
