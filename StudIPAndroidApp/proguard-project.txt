@@ -28,14 +28,21 @@
 #}
 
 
--keepattributes *Annotation*,EnclosingMethod
--keepattributes SourceFile,LineNumberTable
+-keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature
 
 -keep class android.support.v4.** { *; }
 -keep interface android.support.v4.** { *; }
 -keep class com.actionbarsherlock.** { *; }
 -keep interface com.actionbarsherlock.** { *; }
 -keep class org.apache.http.** { *; }
+-keep class com.fasterxml.** { *; }
+-keep public class de.elanev.studip.android.app.backend.datamodel.** {
+  public void set*(***);
+  public *** get();
+}
+-keepclassmembers class de.elanev.studip.android.app.backend.datamodel.** {
+   public *;
+}
 
 -dontwarn android.support.v4.**
 -dontwarn org.apache.**
