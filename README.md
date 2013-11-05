@@ -27,7 +27,7 @@ otherwise it will not compile.
 * Maven will take care of the rest
 
 ### Server setup
-The app now expects a servers.json in ```StudIPAndroidApp/assets/```. It needs to be formatted as followed:
+The app now expects a static servers String variable in ```de.elanev.studip.android.app.util.ServerData.java```. Formatted as followed:
 ```json
 {
   "servers": [
@@ -54,7 +54,7 @@ The app now expects a servers.json in ```StudIPAndroidApp/assets/```. It needs t
   ]
 }
 ```
-
+Because the SharedPrefs are now AES encrypted the App expects a PRIVATE_KEY String constant in ```de.elanev.studip.android.app.util.Config.java``` also.
 Contributing
 ------------
 * Improve the code
