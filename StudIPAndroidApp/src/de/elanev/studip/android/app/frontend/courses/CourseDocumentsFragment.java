@@ -40,7 +40,7 @@ import java.util.List;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
-import de.elanev.studip.android.app.backend.net.Server;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.ApiUtils;
