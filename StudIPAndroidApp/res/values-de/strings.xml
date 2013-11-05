@@ -17,7 +17,6 @@
 
     <string name="app_name">Stud.IP mobil</string>
     <string name="loading">laden</string>
-    <string name="help">Hilfe</string>
     <string name="Activities">Aktivitäten</string>
     <string name="News">Ankündigungen</string>
     <string name="Courses">Veranstaltungen</string>
@@ -26,16 +25,11 @@
     <string name="Contacts">Kontakte</string>
     <string name="Documents">Dateien</string>
     <string name="Settings">Einstellungen</string>
-    <string name="Help">Hilfe</string>
-    <string name="Information">Informationen</string>
-    <string name="Logout">Abmelden</string>
     <string name="General">Allgemein</string>
     <string name="menu">Menü</string>
     <string name="Development">Entwicklung</string>
     <string name="Authorize">Autorisieren</string>
-
     <string name="choose_server">Server wählen</string>
-
     <string name="no_data">Keine Daten</string>
     <string name="Overview">Übersicht</string>
     <string name="Global">Global</string>
@@ -47,9 +41,7 @@
     <string name="yesterday">gestern</string>
     <string name="days_ago">vor %d Tagen</string>
     <string name="by">von</string>
-
     <string name="Menu">Menü</string>
-
     <string name="internal_error">Interner Server Fehler</string>
     <string name="wrong_parameter">Falsche Parameter</string>
     <string name="receiver_not_found">Empfänger unbekannt</string>
@@ -62,7 +54,6 @@
     <string name="no_groups">Du hast noch keine Gruppen erstellt!</string>
     <string name="no_contacts">Es sind keine Kontakte vorhanden!</string>
     <string name="no_favorites">Du hast noch keine Favoriten markiert!</string>
-
     <string name="no_users">Keine Benutzer vorhanden.</string>
     <string name="studip_app_contacts_favorites">StudipApp Favoriten</string>
     <string name="Add_to_favorites">Zu Favoriten hinzufügen</string>
@@ -74,7 +65,6 @@
     <string name="personal_info">Persönliche Informationen</string>
     <string name="contact_info">Kontakt Informationen</string>
     <string name="crash_toast_string">Es ist ein Problem aufgetreten. Ein Absturzbericht wird gesendet.</string>
-    <string name="Feedback">Feedback</string>
     <string name="open_drawer">Navigation öffnen</string>
     <string name="close_drawer">Navigation schließen</string>
 
@@ -173,5 +163,10 @@
     <string name="enter_forename_lastname">Vorname Nachname eingeben</string>
     <string name="enter_subject">Betreff eingeben</string>
     <string name="enter_message">Nachricht eingeben</string>
+
+    <!-- Main Options Menu -->
+    <string name="About">About</string>
+    <string name="Logout">Abmelden</string>
+    <string name="Feedback">Feedback</string>
 
 </resources>
