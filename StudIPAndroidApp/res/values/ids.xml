@@ -4,7 +4,4 @@
     <item name="navigation_courses" type="id" />
     <item name="navigation_messages" type="id" />
     <item name="navigation_contacts" type="id" />
-    <item name="navigation_feedback" type="id" />
-    <item name="navigation_information" type="id" />
-    <item name="navigation_logout" type="id" />
 </resources>
