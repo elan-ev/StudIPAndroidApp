@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
 import com.android.volley.VolleyError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,6 +48,7 @@ import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.ServerData;
+import de.elanev.studip.android.app.util.StuffUtil;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -116,6 +118,32 @@ public class SignInActivity extends SherlockFragmentActivity {
     @Override
     public void onBackPressed() {
         return;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getSupportMenuInflater().inflate(R.menu.main, menu);
+        menu.removeItem(R.id.menu_sign_out);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(
+            com.actionbarsherlock.view.MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.menu_feedback:
+                StuffUtil.startFeedback(this);
+                return true;
+
+            case R.id.menu_about:
+                StuffUtil.startAbout(this);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     /**
