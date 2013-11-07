@@ -7,7 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.util;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,6 +14,7 @@ import android.os.Build;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
@@ -55,7 +55,7 @@ public final class StuffUtil {
 
     public static void signOut(Context context) {
         //Cancel all pending network requests
-        VolleyHttp.getVolleyHttp(context).cancelAll();
+        StudIPApplication.getInstance().cancelAllPendingRequests(SyncHelper.TAG);
 
         // Resetting the SyncHelper
         SyncHelper.getInstance(context).resetSyncHelper();

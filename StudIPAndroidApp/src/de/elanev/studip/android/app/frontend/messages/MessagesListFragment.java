@@ -42,16 +42,16 @@ import java.util.List;
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.StudIPApplication;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
-import de.elanev.studip.android.app.util.VolleyHttp;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -224,7 +224,7 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
         }
-        VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(request);
+        StudIPApplication.getInstance().addToRequestQueue(request);
     }
 
     /*
