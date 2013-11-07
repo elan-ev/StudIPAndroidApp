@@ -193,10 +193,10 @@ public class SyncHelper {
             throws OAuthCommunicationException, OAuthExpectationFailedException, OAuthMessageSignerException {
         final String usersUrl = String.format(
                 mContext.getString(R.string.restip_users) + ".json",
-                mServer.getApiUrl(), id);
-        final String request = mConsumer.sign(usersUrl);
+                mServer.getApiUrl(),
+                id);
 
-        return new JacksonRequest<User>(request,
+        JacksonRequest<User> userJacksonRequest = new JacksonRequest<User>(usersUrl,
                 User.class,
                 null,
                 new Listener<User>() {
@@ -239,6 +239,9 @@ public class SyncHelper {
                 Method.GET
         );
 
+        mConsumer.sign(userJacksonRequest);
+
+        return userJacksonRequest;
     }
 
     /*
@@ -369,92 +372,97 @@ public class SyncHelper {
             mLastContactsSync = currTime;
             Log.i(TAG, "SYNCING CONTACTS");
 
+            final ContentResolver resolver = mContext.getContentResolver();
+            final String contactsURL = String.format(mContext.getString(R.string.restip_contacts)
+                    + ".json", mServer.getApiUrl());
+            final String contactGroupsURL = String.format(mContext.getString(R.string.restip_contacts_groups)
+                    + ".json", mServer.getApiUrl());
+
+            // Request Contacts
+            final JacksonRequest<Contacts> contactsRequest = new JacksonRequest<Contacts>(
+                    contactsURL,
+                    Contacts.class,
+                    null,
+                    new Listener<Contacts>() {
+                        public void onResponse(Contacts response) {
+                            try {
+                                resolver.applyBatch(
+                                        AbstractContract.CONTENT_AUTHORITY,
+                                        parseContacts(response));
+
+                                mUserSyncQueue.addAll(response.contacts);
+
+                                if (callbacks != null)
+                                    callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
+
+                                Log.i(TAG, "FINISHED SYNCING CONTACTS");
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            } catch (OperationApplicationException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    },
+                    new ErrorListener() {
+                        public void onErrorResponse(VolleyError error) {
+                            if (callbacks != null)
+                                callbacks.onSyncError(SyncHelperCallbacks
+                                        .ERROR_CONTACTS_SYNC, error);
+
+                            if (error.getMessage() != null)
+                                Log.wtf(TAG, error.getMessage());
+                        }
+                    },
+                    Method.GET
+            );
+
+            // Request ContactGroups
+            final JacksonRequest<ContactGroups> contactGroupsRequest = new JacksonRequest<ContactGroups>(
+                    contactGroupsURL,
+                    ContactGroups.class,
+                    null,
+                    new Listener<ContactGroups>() {
+                        public void onResponse(ContactGroups response) {
+
+                            try {
+                                resolver.applyBatch(
+                                        AbstractContract.CONTENT_AUTHORITY,
+                                        new ContactGroupsHandler(response)
+                                                .parse());
+
+
+                                VolleyHttp.getVolleyHttp(mContext)
+                                        .getRequestQueue()
+                                        .add(contactsRequest);
+
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            } catch (OperationApplicationException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    },
+                    new ErrorListener() {
+                        public void onErrorResponse(VolleyError error) {
+                            if (callbacks != null)
+                                callbacks.onSyncError(SyncHelperCallbacks
+                                        .ERROR_CONTACTS_SYNC, error);
+
+                            if (error.getMessage() != null)
+                                Log.wtf(TAG, error.getMessage());
+                        }
+                    },
+                    Method.GET
+            );
+
+            contactsRequest.setRetryPolicy(mRetryPolicy);
+            contactGroupsRequest.setRetryPolicy(mRetryPolicy);
+
             try {
-                final ContentResolver resolver = mContext.getContentResolver();
-                final String contactsURL = String.format(mContext.getString(R.string.restip_contacts)
-                        + ".json", mServer.getApiUrl());
-                final String contactGroupsURL = String.format(mContext.getString(R.string.restip_contacts_groups)
-                        + ".json", mServer.getApiUrl());
 
-                // Request Contacts
-                final JacksonRequest<Contacts> contactsRequest = new JacksonRequest<Contacts>(
-                        mConsumer.sign(contactsURL),
-                        Contacts.class,
-                        null,
-                        new Listener<Contacts>() {
-                            public void onResponse(Contacts response) {
-                                try {
-                                    resolver.applyBatch(
-                                            AbstractContract.CONTENT_AUTHORITY,
-                                            parseContacts(response));
-
-                                    mUserSyncQueue.addAll(response.contacts);
-
-                                    if (callbacks != null)
-                                        callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
-
-                                    Log.i(TAG, "FINISHED SYNCING CONTACTS");
-                                } catch (RemoteException e) {
-                                    e.printStackTrace();
-                                } catch (OperationApplicationException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                        },
-                        new ErrorListener() {
-                            public void onErrorResponse(VolleyError error) {
-                                if (callbacks != null)
-                                    callbacks.onSyncError(SyncHelperCallbacks
-                                            .ERROR_CONTACTS_SYNC, error);
-
-                                if (error.getMessage() != null)
-                                    Log.wtf(TAG, error.getMessage());
-                            }
-                        },
-                        Method.GET
-                );
-
-                // Request ContactGroups
-                final JacksonRequest<ContactGroups> contactGroupsRequest = new JacksonRequest<ContactGroups>(
-                        mConsumer.sign(contactGroupsURL),
-                        ContactGroups.class,
-                        null,
-                        new Listener<ContactGroups>() {
-                            public void onResponse(ContactGroups response) {
-
-                                try {
-                                    resolver.applyBatch(
-                                            AbstractContract.CONTENT_AUTHORITY,
-                                            new ContactGroupsHandler(response)
-                                                    .parse());
-
-                                    contactsRequest.setRetryPolicy(mRetryPolicy);
-                                    VolleyHttp.getVolleyHttp(mContext)
-                                            .getRequestQueue()
-                                            .add(contactsRequest);
-
-                                } catch (RemoteException e) {
-                                    e.printStackTrace();
-                                } catch (OperationApplicationException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        },
-                        new ErrorListener() {
-                            public void onErrorResponse(VolleyError error) {
-                                if (callbacks != null)
-                                    callbacks.onSyncError(SyncHelperCallbacks
-                                            .ERROR_CONTACTS_SYNC, error);
-
-                                if (error.getMessage() != null)
-                                    Log.wtf(TAG, error.getMessage());
-                            }
-                        },
-                        Method.GET
-                );
-
-                contactGroupsRequest.setRetryPolicy(mRetryPolicy);
+                mConsumer.sign(contactsRequest);
+                mConsumer.sign(contactGroupsRequest);
                 VolleyHttp.getVolleyHttp(mContext)
                         .getRequestQueue()
                         .add(contactGroupsRequest);
@@ -487,56 +495,57 @@ public class SyncHelper {
                     mServer.getApiUrl());
 
             JacksonRequest<Courses> coursesRequest;
+            coursesRequest = new JacksonRequest<Courses>(coursesUrl,
+                    Courses.class,
+                    null,
+                    new Listener<Courses>() {
+                        public void onResponse(Courses response) {
+
+                            try {
+                                mContext.getContentResolver().applyBatch(
+                                        AbstractContract.CONTENT_AUTHORITY,
+                                        parseCourses(response));
+
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            } catch (OperationApplicationException e) {
+                                e.printStackTrace();
+                            }
+
+                            HashSet<String> courseIdSet = new HashSet<String>();
+                            for (Course c : response.courses) {
+                                mUserSyncQueue.addAll(c.teachers);
+                                mUserSyncQueue.addAll(c.tutors);
+                                courseIdSet.add(c.course_id);
+                            }
+
+                            // add global news to sync queue
+                            courseIdSet.add(mContext.getString(R.string
+                                    .restip_news_global_identifier));
+                            performNewsSyncForIds(courseIdSet, callbacks);
+                            if (callbacks != null)
+                                callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_COURSES_SYNC);
+                            Log.i(TAG, "FINISHED SYNCING COURSES");
+
+                        }
+
+                    },
+                    new ErrorListener() {
+                        public void onErrorResponse(VolleyError error) {
+                            if (callbacks != null)
+                                callbacks.onSyncError(SyncHelperCallbacks.ERROR_COURSES_SYNC, error);
+
+                            if (error.getMessage() != null)
+                                Log.wtf(TAG, error.getMessage());
+                        }
+                    },
+                    Method.GET
+            );
+
+            coursesRequest.setRetryPolicy(mRetryPolicy);
+
             try {
-                final String signedCoursesUrl = mConsumer.sign(coursesUrl);
-                coursesRequest = new JacksonRequest<Courses>(signedCoursesUrl,
-                        Courses.class,
-                        null,
-                        new Listener<Courses>() {
-                            public void onResponse(Courses response) {
-
-                                try {
-                                    mContext.getContentResolver().applyBatch(
-                                            AbstractContract.CONTENT_AUTHORITY,
-                                            parseCourses(response));
-
-                                } catch (RemoteException e) {
-                                    e.printStackTrace();
-                                } catch (OperationApplicationException e) {
-                                    e.printStackTrace();
-                                }
-
-                                HashSet<String> courseIdSet = new HashSet<String>();
-                                for (Course c : response.courses) {
-                                    mUserSyncQueue.addAll(c.teachers);
-                                    mUserSyncQueue.addAll(c.tutors);
-                                    courseIdSet.add(c.course_id);
-                                }
-
-                                // add global news to sync queue
-                                courseIdSet.add(mContext.getString(R.string
-                                        .restip_news_global_identifier));
-                                performNewsSyncForIds(courseIdSet, callbacks);
-                                if (callbacks != null)
-                                    callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_COURSES_SYNC);
-                                Log.i(TAG, "FINISHED SYNCING COURSES");
-
-                            }
-
-                        },
-                        new ErrorListener() {
-                            public void onErrorResponse(VolleyError error) {
-                                if (callbacks != null)
-                                    callbacks.onSyncError(SyncHelperCallbacks.ERROR_COURSES_SYNC, error);
-
-                                if (error.getMessage() != null)
-                                    Log.wtf(TAG, error.getMessage());
-                            }
-                        },
-                        Method.GET
-                );
-
-                coursesRequest.setRetryPolicy(mRetryPolicy);
+                mConsumer.sign(coursesRequest);
                 VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
                         .add(coursesRequest);
 
@@ -785,25 +794,27 @@ public class SyncHelper {
             c.close();
 
             if (count < 1) {
-                try {
-                    final String usersUrl = String.format(
-                            mContext.getString(R.string.restip_users) + ".json",
-                            mServer.getApiUrl(), userId);
-                    final String request = mConsumer.sign(usersUrl);
+                final String usersUrl = String.format(
+                        mContext.getString(R.string.restip_users) + ".json",
+                        mServer.getApiUrl(),
+                        userId);
 
-                    JacksonRequest<User> userJacksonRequest = new JacksonRequest<User>(request,
-                            User.class,
-                            null,
-                            listener,
-                            new ErrorListener() {
-                                public void onErrorResponse(
-                                        VolleyError error) {
-                                    Log.wtf(TAG, error.getMessage());
-                                }
-                            },
-                            Method.GET
-                    );
-                    userJacksonRequest.setRetryPolicy(mRetryPolicy);
+                JacksonRequest<User> userJacksonRequest = new JacksonRequest<User>(usersUrl,
+                        User.class,
+                        null,
+                        listener,
+                        new ErrorListener() {
+                            public void onErrorResponse(
+                                    VolleyError error) {
+                                Log.wtf(TAG, error.getMessage());
+                            }
+                        },
+                        Method.GET
+                );
+                userJacksonRequest.setRetryPolicy(mRetryPolicy);
+
+                try {
+                    mConsumer.sign(userJacksonRequest);
                     VolleyHttp
                             .getVolleyHttp(mContext)
                             .getRequestQueue()
@@ -837,43 +848,44 @@ public class SyncHelper {
                 mContext.getString(R.string.restip_semesters) + ".json",
                 mServer.getApiUrl());
 
-        JacksonRequest<Semesters> semestersRequest;
-        try {
-            semestersRequest = new JacksonRequest<Semesters>(
-                    mConsumer.sign(semestersUrl),
-                    Semesters.class,
-                    null,
-                    new Listener<Semesters>() {
-                        public void onResponse(Semesters response) {
+        JacksonRequest<Semesters> semestersRequest = new JacksonRequest<Semesters>(
+                semestersUrl,
+                Semesters.class,
+                null,
+                new Listener<Semesters>() {
+                    public void onResponse(Semesters response) {
 
-                            try {
-                                mContext.getContentResolver().applyBatch(
-                                        AbstractContract.CONTENT_AUTHORITY,
-                                        parseSemesters(response));
+                        try {
+                            mContext.getContentResolver().applyBatch(
+                                    AbstractContract.CONTENT_AUTHORITY,
+                                    parseSemesters(response));
 
-                                if (callbacks != null)
-                                    callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_SEMESTER_SYNC);
-                                Log.i(TAG, "FINISHED SYNCING SEMESTERS");
-                            } catch (RemoteException e) {
-                                e.printStackTrace();
-                            } catch (OperationApplicationException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                    },
-                    new ErrorListener() {
-                        public void onErrorResponse(VolleyError error) {
                             if (callbacks != null)
-                                callbacks.onSyncError(SyncHelperCallbacks.ERROR_SEMESTER_SYNC, error);
-
-                            if (error.getMessage() != null)
-                                Log.wtf(TAG, error.getMessage());
+                                callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_SEMESTER_SYNC);
+                            Log.i(TAG, "FINISHED SYNCING SEMESTERS");
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        } catch (OperationApplicationException e) {
+                            e.printStackTrace();
                         }
-                    },
-                    Method.GET
-            );
-            semestersRequest.setRetryPolicy(mRetryPolicy);
+                    }
+
+                },
+                new ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+                        if (callbacks != null)
+                            callbacks.onSyncError(SyncHelperCallbacks.ERROR_SEMESTER_SYNC, error);
+
+                        if (error.getMessage() != null)
+                            Log.wtf(TAG, error.getMessage());
+                    }
+                },
+                Method.GET
+        );
+        semestersRequest.setRetryPolicy(mRetryPolicy);
+
+        try {
+            mConsumer.sign(semestersRequest);
             VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
                     .add(semestersRequest);
 
@@ -906,23 +918,26 @@ public class SyncHelper {
                 mServer.getApiUrl(), range);
 
         JacksonRequest<News> newsRequest;
-        try {
-            newsRequest = new JacksonRequest<News>(mConsumer.sign(newsUrl),
-                    News.class,
-                    null,
-                    listener,
-                    new ErrorListener() {
-                        public void onErrorResponse(VolleyError error) {
-                            if (callbacks != null)
-                                callbacks.onSyncError(SyncHelperCallbacks.ERROR_NEWS_SYNC, error);
 
-                            if (error.getMessage() != null)
-                                Log.wtf(TAG, error.getMessage());
-                        }
-                    },
-                    Method.GET
-            );
-            newsRequest.setRetryPolicy(mRetryPolicy);
+        newsRequest = new JacksonRequest<News>(newsUrl,
+                News.class,
+                null,
+                listener,
+                new ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+                        if (callbacks != null)
+                            callbacks.onSyncError(SyncHelperCallbacks.ERROR_NEWS_SYNC, error);
+
+                        if (error.getMessage() != null)
+                            Log.wtf(TAG, error.getMessage());
+                    }
+                },
+                Method.GET
+        );
+        newsRequest.setRetryPolicy(mRetryPolicy);
+
+        try {
+            mConsumer.sign(newsRequest);
             VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
                     .add(newsRequest);
 
@@ -937,6 +952,7 @@ public class SyncHelper {
             e.printStackTrace();
         }
 
+
     }
 
     /**
@@ -950,30 +966,33 @@ public class SyncHelper {
                 mContext.getString(R.string.restip_courses_courseid_events)
                         + ".json", mServer.getApiUrl(), courseId);
         JacksonRequest<Events> eventsRequest;
-        try {
-            eventsRequest = new JacksonRequest<Events>(
-                    mConsumer.sign(eventsUrl), Events.class, null,
-                    new Listener<Events>() {
-                        public void onResponse(Events response) {
-                            try {
-                                mContext.getContentResolver().applyBatch(
-                                        AbstractContract.CONTENT_AUTHORITY,
-                                        new EventsHandler(response).parse());
-                            } catch (RemoteException e) {
-                                e.printStackTrace();
-                            } catch (OperationApplicationException e) {
-                                e.printStackTrace();
-                            }
+        eventsRequest = new JacksonRequest<Events>(
+                eventsUrl, Events.class, null,
+                new Listener<Events>() {
+                    public void onResponse(Events response) {
+                        try {
+                            mContext.getContentResolver().applyBatch(
+                                    AbstractContract.CONTENT_AUTHORITY,
+                                    new EventsHandler(response).parse());
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        } catch (OperationApplicationException e) {
+                            e.printStackTrace();
                         }
+                    }
 
-                    }, new ErrorListener() {
-                public void onErrorResponse(VolleyError error) {
-                    Log.wtf(TAG, error.getMessage());
-                }
-            }, Method.GET
-            );
-            eventsRequest.setRetryPolicy(mRetryPolicy);
-            VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+                }, new ErrorListener() {
+            public void onErrorResponse(VolleyError error) {
+                Log.wtf(TAG, error.getMessage());
+            }
+        }, Method.GET
+        );
+        eventsRequest.setRetryPolicy(mRetryPolicy);
+
+        try {
+            mConsumer.sign(eventsRequest);
+            VolleyHttp.getVolleyHttp(mContext)
+                    .getRequestQueue()
                     .add(eventsRequest);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
@@ -1002,69 +1021,73 @@ public class SyncHelper {
         final String box = boxes[0];
         Log.i(TAG, "PERFORMING MESSAGES SYNC FOR BOX " + box);
 
-        try {
-            String signedBoxUrl = mConsumer.sign(String.format(
-                    mContext.getString(R.string.restip_messages_box),
-                    mServer.getApiUrl(), box));
+        String boxUrl = String.format(
+                mContext.getString(R.string.restip_messages_box),
+                mServer.getApiUrl(),
+                box);
 
-            JacksonRequest<MessageFolders> messageFoldersRequest = new JacksonRequest<MessageFolders>(
-                    signedBoxUrl,
-                    MessageFolders.class,
-                    null,
-                    new Listener<MessageFolders>() {
-                        public void onResponse(final MessageFolders foldersResponse) {
+        JacksonRequest<MessageFolders> messageFoldersRequest = new JacksonRequest<MessageFolders>(
+                boxUrl,
+                MessageFolders.class,
+                null,
+                new Listener<MessageFolders>() {
+                    public void onResponse(final MessageFolders foldersResponse) {
 
-                            for (int i = 0; i < foldersResponse.folders.size(); i++) {
+                        for (int i = 0; i < foldersResponse.folders.size(); i++) {
 
-                                final int finalI = i;
-                                requestMessagesForFolder(foldersResponse.folders.get(i), box,
-                                        callbacks,
-                                        new Listener<Messages>() {
-                                            public void onResponse(Messages response) {
-                                                try {
+                            final int finalI = i;
+                            requestMessagesForFolder(foldersResponse.folders.get(i), box,
+                                    callbacks,
+                                    new Listener<Messages>() {
+                                        public void onResponse(Messages response) {
+                                            try {
 
-                                                    for (Message m : response.messages) {
-                                                        mUserSyncQueue.add(m.sender_id);
-                                                        mUserSyncQueue.add(m.receiver_id);
-                                                    }
-
-                                                    mContext.getContentResolver().applyBatch(
-                                                            AbstractContract.CONTENT_AUTHORITY,
-                                                            new MessagesHandler(response,
-                                                                    foldersResponse.folders.get(finalI),
-                                                                    box).parse());
-
-                                                    if (callbacks != null
-                                                            && finalI == foldersResponse.folders.size() - 1) {
-                                                        callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_MESSAGES_SYNC);
-                                                        Log.i(TAG, "FINISHED SYNCING MESSAGES");
-                                                        return;
-                                                    }
-
-                                                } catch (RemoteException e) {
-                                                    e.printStackTrace();
-                                                } catch (OperationApplicationException e) {
-                                                    e.printStackTrace();
+                                                for (Message m : response.messages) {
+                                                    mUserSyncQueue.add(m.sender_id);
+                                                    mUserSyncQueue.add(m.receiver_id);
                                                 }
+
+                                                mContext.getContentResolver().applyBatch(
+                                                        AbstractContract.CONTENT_AUTHORITY,
+                                                        new MessagesHandler(response,
+                                                                foldersResponse.folders.get(finalI),
+                                                                box).parse());
+
+                                                if (callbacks != null
+                                                        && finalI == foldersResponse.folders.size() - 1) {
+                                                    callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_MESSAGES_SYNC);
+                                                    Log.i(TAG, "FINISHED SYNCING MESSAGES");
+                                                    return;
+                                                }
+
+                                            } catch (RemoteException e) {
+                                                e.printStackTrace();
+                                            } catch (OperationApplicationException e) {
+                                                e.printStackTrace();
                                             }
-                                        });
-                            }
+                                        }
+                                    });
                         }
-                    },
-                    new ErrorListener() {
-                        public void onErrorResponse(VolleyError error) {
-                            if (callbacks != null)
-                                callbacks.onSyncError(SyncHelperCallbacks.ERROR_MESSAGES_SYNC, error);
+                    }
+                },
+                new ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+                        if (callbacks != null)
+                            callbacks.onSyncError(SyncHelperCallbacks.ERROR_MESSAGES_SYNC, error);
 
-                            if (error.getMessage() != null)
-                                Log.wtf(TAG, error.getMessage());
-                        }
-                    },
-                    Method.GET
-            );
+                        if (error.getMessage() != null)
+                            Log.wtf(TAG, error.getMessage());
+                    }
+                },
+                Method.GET
+        );
 
-            messageFoldersRequest.setRetryPolicy(mRetryPolicy);
-            VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+        messageFoldersRequest.setRetryPolicy(mRetryPolicy);
+
+        try {
+            mConsumer.sign(messageFoldersRequest);
+            VolleyHttp.getVolleyHttp(mContext)
+                    .getRequestQueue()
                     .add(messageFoldersRequest);
 
         } catch (OAuthExpectationFailedException e) {
@@ -1086,29 +1109,33 @@ public class SyncHelper {
                                           final SyncHelperCallbacks callbacks,
                                           Listener<Messages> listener) {
         Log.i(TAG, "SYNCING MESSAGES FOR FOLDER " + folder);
-        String signedFolderUrl;
+        String folderUrl = String.format(
+                mContext.getString(R.string.restip_messages_box_folderid),
+                mServer.getApiUrl(),
+                box,
+                folder);
+
+        JacksonRequest<Messages> messagesRequest = new JacksonRequest<Messages>(
+                folderUrl,
+                Messages.class,
+                null,
+                listener,
+                new ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+                        if (callbacks != null)
+                            callbacks.onSyncError(SyncHelperCallbacks
+                                    .ERROR_MESSAGES_SYNC, error);
+
+                        if (error.getMessage() != null)
+                            Log.wtf(TAG, error.getMessage());
+                    }
+                }, Method.GET
+        );
+
         try {
-            signedFolderUrl = mConsumer.sign(String.format(
-                    mContext.getString(R.string.restip_messages_box_folderid),
-                    mServer.getApiUrl(), box, folder));
-            JacksonRequest<Messages> messagesRequest = new JacksonRequest<Messages>(
-                    signedFolderUrl,
-                    Messages.class,
-                    null,
-                    listener,
-                    new ErrorListener() {
-                        public void onErrorResponse(VolleyError error) {
-                            if (callbacks != null)
-                                callbacks.onSyncError(SyncHelperCallbacks
-                                        .ERROR_MESSAGES_SYNC, error);
-
-                            if (error.getMessage() != null)
-                                Log.wtf(TAG, error.getMessage());
-                        }
-                    }, Method.GET
-            );
-
             messagesRequest.setRetryPolicy(mRetryPolicy);
+
+            mConsumer.sign(messagesRequest);
             VolleyHttp.getVolleyHttp(mContext)
                     .getRequestQueue()
                     .add(messagesRequest);
@@ -1131,46 +1158,48 @@ public class SyncHelper {
     public void performDocumentsSyncForCourse(final String courseId) {
         Log.i(TAG, "PERFORMING DOCUMENTS SYNC FOR COURSE " + courseId);
 
-        String signedFoldersUrl;
-        try {
-            signedFoldersUrl = mConsumer.sign(String.format(mContext
-                    .getString(R.string.restip_documents_rangeid_folder),
-                    mServer.getApiUrl(), courseId)
-                    + ".json");
+        String foldersUrl = String.format(mContext
+                .getString(R.string.restip_documents_rangeid_folder),
+                mServer.getApiUrl(), courseId)
+                + ".json";
 
-            JacksonRequest<DocumentFolders> messagesRequest = new JacksonRequest<DocumentFolders>(
-                    signedFoldersUrl, DocumentFolders.class, null,
-                    new Listener<DocumentFolders>() {
-                        public void onResponse(DocumentFolders response) {
-                            if (!response.documents.isEmpty())
-                                try {
-                                    mContext.getContentResolver().applyBatch(
-                                            AbstractContract.CONTENT_AUTHORITY,
-                                            new DocumentsHandler(
-                                                    response.documents,
-                                                    courseId).parse());
-                                } catch (RemoteException e) {
-                                    e.printStackTrace();
-                                } catch (OperationApplicationException e) {
-                                    e.printStackTrace();
-                                }
-
-                            for (DocumentFolder folder : response.folders) {
-                                requestDocumentsForFolder(folder, courseId);
+        JacksonRequest<DocumentFolders> messagesRequest = new JacksonRequest<DocumentFolders>(
+                foldersUrl, DocumentFolders.class, null,
+                new Listener<DocumentFolders>() {
+                    public void onResponse(DocumentFolders response) {
+                        if (!response.documents.isEmpty())
+                            try {
+                                mContext.getContentResolver().applyBatch(
+                                        AbstractContract.CONTENT_AUTHORITY,
+                                        new DocumentsHandler(
+                                                response.documents,
+                                                courseId).parse());
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            } catch (OperationApplicationException e) {
+                                e.printStackTrace();
                             }
 
+                        for (DocumentFolder folder : response.folders) {
+                            requestDocumentsForFolder(folder, courseId);
                         }
 
-                    }, new ErrorListener() {
-                public void onErrorResponse(VolleyError error) {
-                    if (error.getMessage() != null)
-                        Log.wtf(TAG, error.getMessage());
-                }
-            }, Method.GET
-            );
+                    }
 
-            messagesRequest.setRetryPolicy(mRetryPolicy);
-            VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+                }, new ErrorListener() {
+            public void onErrorResponse(VolleyError error) {
+                if (error.getMessage() != null)
+                    Log.wtf(TAG, error.getMessage());
+            }
+        }, Method.GET
+        );
+
+        messagesRequest.setRetryPolicy(mRetryPolicy);
+
+        try {
+            mConsumer.sign(messagesRequest);
+            VolleyHttp.getVolleyHttp(mContext)
+                    .getRequestQueue()
                     .add(messagesRequest);
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
@@ -1189,47 +1218,48 @@ public class SyncHelper {
         Log.i(TAG, "PERFORMING DOCUMENTS SYNC FOR COURSE " + courseId
                 + " Folder: " + folder.folder_id);
 
-        String signedFoldersUrl;
-        try {
-            signedFoldersUrl = mConsumer
-                    .sign(String.format(
-                            mContext.getString(R.string.restip_documents_rangeid_folder_folderid),
-                            mServer.getApiUrl(), courseId, folder.folder_id)
-                            + ".json");
-            JacksonRequest<DocumentFolders> messagesRequest = new JacksonRequest<DocumentFolders>(
-                    signedFoldersUrl, DocumentFolders.class, null,
-                    new Listener<DocumentFolders>() {
-                        public void onResponse(DocumentFolders response) {
-                            if (!response.documents.isEmpty())
-                                try {
-                                    mContext.getContentResolver().applyBatch(
-                                            AbstractContract.CONTENT_AUTHORITY,
-                                            new DocumentsHandler(
-                                                    response.documents,
-                                                    courseId, folder).parse());
-                                } catch (RemoteException e) {
-                                    e.printStackTrace();
-                                } catch (OperationApplicationException e) {
-                                    e.printStackTrace();
-                                }
-
-                            for (DocumentFolder folder : response.folders) {
-                                // Recursive request the subfolders
-                                requestDocumentsForFolder(folder, courseId);
+        String foldersUrl = String.format(
+                mContext.getString(R.string.restip_documents_rangeid_folder_folderid),
+                mServer.getApiUrl(), courseId, folder.folder_id)
+                + ".json";
+        JacksonRequest<DocumentFolders> messagesRequest = new JacksonRequest<DocumentFolders>(
+                foldersUrl, DocumentFolders.class, null,
+                new Listener<DocumentFolders>() {
+                    public void onResponse(DocumentFolders response) {
+                        if (!response.documents.isEmpty())
+                            try {
+                                mContext.getContentResolver().applyBatch(
+                                        AbstractContract.CONTENT_AUTHORITY,
+                                        new DocumentsHandler(
+                                                response.documents,
+                                                courseId, folder).parse());
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            } catch (OperationApplicationException e) {
+                                e.printStackTrace();
                             }
 
+                        for (DocumentFolder folder : response.folders) {
+                            // Recursive request the subfolders
+                            requestDocumentsForFolder(folder, courseId);
                         }
 
-                    }, new ErrorListener() {
-                public void onErrorResponse(VolleyError error) {
-                    if (error.getMessage() != null)
-                        Log.wtf(TAG, error.getMessage());
-                }
-            }, Method.GET
-            );
+                    }
 
-            messagesRequest.setRetryPolicy(mRetryPolicy);
-            VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
+                }, new ErrorListener() {
+            public void onErrorResponse(VolleyError error) {
+                if (error.getMessage() != null)
+                    Log.wtf(TAG, error.getMessage());
+            }
+        }, Method.GET
+        );
+
+        messagesRequest.setRetryPolicy(mRetryPolicy);
+
+        try {
+            mConsumer.sign(messagesRequest);
+            VolleyHttp.getVolleyHttp(mContext)
+                    .getRequestQueue()
                     .add(messagesRequest);
 
         } catch (OAuthExpectationFailedException e) {
