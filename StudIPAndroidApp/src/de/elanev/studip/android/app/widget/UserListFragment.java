@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.ContactGroups;
 import de.elanev.studip.android.app.backend.datamodel.Contacts;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
@@ -58,7 +59,6 @@ import de.elanev.studip.android.app.backend.net.sync.ContactsHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.VolleyHttp;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
@@ -123,8 +123,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
         }
-        VolleyHttp.getVolleyHttp(context).getRequestQueue()
-                .add(contactAddRequest);
+        StudIPApplication.getInstance().addToRequestQueue(contactAddRequest);
     }
 
     private static void deleteUserFromContacts(final String userId, final Context context) {
@@ -172,7 +171,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
         }
-        VolleyHttp.getVolleyHttp(context).getRequestQueue().add(request);
+        StudIPApplication.getInstance().addToRequestQueue(request);
     }
 
     private static void deleteUserFromGroup(final String userId,
@@ -220,7 +219,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
         }
-        VolleyHttp.getVolleyHttp(context).getRequestQueue().add(request);
+        StudIPApplication.getInstance().addToRequestQueue(request);
     }
 
     private static void addUserToGroup(final String userId, final String groupId, final Context context) {
@@ -268,8 +267,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
         }
-        VolleyHttp.getVolleyHttp(context).getRequestQueue()
-                .add(userAddRequest);
+        StudIPApplication.getInstance().addToRequestQueue(userAddRequest);
 
     }
 
