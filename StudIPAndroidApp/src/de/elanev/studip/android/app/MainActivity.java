@@ -10,8 +10,6 @@ package de.elanev.studip.android.app;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,20 +26,17 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
 
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
-import de.elanev.studip.android.app.frontend.AboutFragment;
 import de.elanev.studip.android.app.frontend.contacts.ContactsGroupsFragment;
 import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
 import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
 import de.elanev.studip.android.app.frontend.news.NewsListFragment;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
-import de.elanev.studip.android.app.util.VolleyHttp;
 
 /**
  * @author joern
@@ -253,7 +248,7 @@ public class MainActivity extends SherlockFragmentActivity {
      */
     private void logout() {
         //Cancel all pending network requests
-        VolleyHttp.getVolleyHttp(this).cancelAll();
+        StudIPApplication.getInstance().cancelAllPendingRequests(SyncHelper.TAG);
 
         // Resetting the SyncHelper
         SyncHelper.getInstance(this).resetSyncHelper();

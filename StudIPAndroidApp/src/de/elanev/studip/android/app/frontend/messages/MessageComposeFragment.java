@@ -7,13 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.messages;
 
-import java.util.ArrayList;
-import java.util.Locale;
-
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -47,16 +40,22 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 
+import java.util.ArrayList;
+import java.util.Locale;
+
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Message;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
-import de.elanev.studip.android.app.util.VolleyHttp;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
 
 /**
  * @author joern
@@ -387,7 +386,7 @@ public class MessageComposeFragment extends SherlockFragment implements
                     }
 
                     // Add request to HTTP request queue
-                    VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(request);
+                    StudIPApplication.getInstance().addToRequestQueue(request);
 
                 }
                 return true;

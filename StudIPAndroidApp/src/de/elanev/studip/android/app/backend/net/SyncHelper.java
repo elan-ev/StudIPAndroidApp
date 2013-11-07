@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.ContactGroups;
 import de.elanev.studip.android.app.backend.datamodel.Contacts;
 import de.elanev.studip.android.app.backend.datamodel.Course;
@@ -58,7 +59,6 @@ import de.elanev.studip.android.app.backend.net.sync.MessagesHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
-import de.elanev.studip.android.app.util.VolleyHttp;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
@@ -69,7 +69,7 @@ import oauth.signpost.exception.OAuthMessageSignerException;
  * @author joern
  */
 public class SyncHelper {
-    protected static final String TAG = SyncHelper.class.getSimpleName();
+    public static final String TAG = SyncHelper.class.getSimpleName();
     private static final long COURSES_SYNC_THRESHOLD = 3600000; // 1h
     private static final long NEWS_SYNC_THRESHOLD = 60000; // 1min
     private static final long CONTACTS_SYNC_THRESHOLD = 60000; // 1min
@@ -432,9 +432,8 @@ public class SyncHelper {
                                                 .parse());
 
 
-                                VolleyHttp.getVolleyHttp(mContext)
-                                        .getRequestQueue()
-                                        .add(contactsRequest);
+                                StudIPApplication.getInstance()
+                                        .addToRequestQueue(contactsRequest, TAG);
 
                             } catch (RemoteException e) {
                                 e.printStackTrace();
@@ -463,9 +462,7 @@ public class SyncHelper {
 
                 mConsumer.sign(contactsRequest);
                 mConsumer.sign(contactGroupsRequest);
-                VolleyHttp.getVolleyHttp(mContext)
-                        .getRequestQueue()
-                        .add(contactGroupsRequest);
+                StudIPApplication.getInstance().addToRequestQueue(contactGroupsRequest, TAG);
 
                 if (callbacks != null)
                     callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_CONTACTS_SYNC);
@@ -546,8 +543,7 @@ public class SyncHelper {
 
             try {
                 mConsumer.sign(coursesRequest);
-                VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
-                        .add(coursesRequest);
+                StudIPApplication.getInstance().addToRequestQueue(coursesRequest, TAG);
 
                 // Tell the listener that the course sync started
                 if (callbacks != null)
@@ -749,10 +745,8 @@ public class SyncHelper {
                 try {
                     JacksonRequest<User> userJacksonRequest = createUserRequest(userId, callbacks);
                     userJacksonRequest.setRetryPolicy(mRetryPolicy);
-                    VolleyHttp
-                            .getVolleyHttp(mContext)
-                            .getRequestQueue()
-                            .add(createUserRequest(userId, callbacks));
+                    StudIPApplication.getInstance()
+                            .addToRequestQueue(createUserRequest(userId, callbacks), TAG);
 
                     if (callbacks != null)
                         callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
@@ -815,10 +809,7 @@ public class SyncHelper {
 
                 try {
                     mConsumer.sign(userJacksonRequest);
-                    VolleyHttp
-                            .getVolleyHttp(mContext)
-                            .getRequestQueue()
-                            .add(userJacksonRequest);
+                    StudIPApplication.getInstance().addToRequestQueue(userJacksonRequest, TAG);
 
                     if (callbacks != null)
                         callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
@@ -886,8 +877,7 @@ public class SyncHelper {
 
         try {
             mConsumer.sign(semestersRequest);
-            VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
-                    .add(semestersRequest);
+            StudIPApplication.getInstance().addToRequestQueue(semestersRequest, TAG);
 
             if (callbacks != null)
                 callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_SEMESTER_SYNC);
@@ -938,8 +928,7 @@ public class SyncHelper {
 
         try {
             mConsumer.sign(newsRequest);
-            VolleyHttp.getVolleyHttp(mContext).getRequestQueue()
-                    .add(newsRequest);
+            StudIPApplication.getInstance().addToRequestQueue(newsRequest, TAG);
 
             if (callbacks != null)
                 callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
@@ -991,9 +980,7 @@ public class SyncHelper {
 
         try {
             mConsumer.sign(eventsRequest);
-            VolleyHttp.getVolleyHttp(mContext)
-                    .getRequestQueue()
-                    .add(eventsRequest);
+            StudIPApplication.getInstance().addToRequestQueue(eventsRequest, TAG);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
@@ -1087,9 +1074,7 @@ public class SyncHelper {
 
         try {
             mConsumer.sign(messageFoldersRequest);
-            VolleyHttp.getVolleyHttp(mContext)
-                    .getRequestQueue()
-                    .add(messageFoldersRequest);
+            StudIPApplication.getInstance().addToRequestQueue(messageFoldersRequest, TAG);
 
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
@@ -1138,9 +1123,7 @@ public class SyncHelper {
             messagesRequest.setRetryPolicy(mRetryPolicy);
 
             mConsumer.sign(messagesRequest);
-            VolleyHttp.getVolleyHttp(mContext)
-                    .getRequestQueue()
-                    .add(messagesRequest);
+            StudIPApplication.getInstance().addToRequestQueue(messagesRequest, TAG);
 
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
@@ -1200,9 +1183,7 @@ public class SyncHelper {
 
         try {
             mConsumer.sign(messagesRequest);
-            VolleyHttp.getVolleyHttp(mContext)
-                    .getRequestQueue()
-                    .add(messagesRequest);
+            StudIPApplication.getInstance().addToRequestQueue(messagesRequest, TAG);
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
@@ -1260,9 +1241,7 @@ public class SyncHelper {
 
         try {
             mConsumer.sign(messagesRequest);
-            VolleyHttp.getVolleyHttp(mContext)
-                    .getRequestQueue()
-                    .add(messagesRequest);
+            StudIPApplication.getInstance().addToRequestQueue(messagesRequest, TAG);
 
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
