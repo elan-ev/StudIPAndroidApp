@@ -1036,7 +1036,8 @@ public class SyncHelper {
                         for (int i = 0; i < foldersResponse.folders.size(); i++) {
 
                             final int finalI = i;
-                            requestMessagesForFolder(foldersResponse.folders.get(i), box,
+                            requestMessagesForFolder(i,
+                                    box,
                                     callbacks,
                                     new Listener<Messages>() {
                                         public void onResponse(Messages response) {
@@ -1104,10 +1105,11 @@ public class SyncHelper {
      * Requests the messages for the passed folder and saves them to the content
      * provider
      */
-    private void requestMessagesForFolder(final String folder,
+    private void requestMessagesForFolder(final int folder,
                                           final String box,
                                           final SyncHelperCallbacks callbacks,
                                           Listener<Messages> listener) {
+
         Log.i(TAG, "SYNCING MESSAGES FOR FOLDER " + folder);
         String folderUrl = String.format(
                 mContext.getString(R.string.restip_messages_box_folderid),
