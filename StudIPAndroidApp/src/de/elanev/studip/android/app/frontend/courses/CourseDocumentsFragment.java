@@ -28,7 +28,6 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -38,12 +37,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
-import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.ApiUtils;
+import de.elanev.studip.android.app.util.FileUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -453,16 +453,8 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
             fileSizeTextView.setText(fileSize);
 
             // Set correct icon for specific MIMEType
-            if (TextUtils.equals(fileMimeType, MimeTypeMap.getSingleton()
-                    .getMimeTypeFromExtension("zip"))
-                    || TextUtils.equals(fileMimeType, MimeTypeMap
-                    .getSingleton().getMimeTypeFromExtension("rar"))
-                    || TextUtils.equals(fileMimeType, MimeTypeMap
-                    .getSingleton().getMimeTypeFromExtension("7z"))) {
-                fileIconImageView.setImageResource(R.drawable.ic_file_archive);
-            } else {
-                fileIconImageView.setImageResource(R.drawable.ic_file_text);
-            }
+            int fileResource = FileUtils.getResourceForMimeType(fileMimeType);
+            fileIconImageView.setImageResource(fileResource);
 
             view.setTag(fileId);
 
