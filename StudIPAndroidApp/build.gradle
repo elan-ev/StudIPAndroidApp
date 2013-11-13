@@ -15,7 +15,7 @@ def versionBuild = 1
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8
 def versionPatchBeta = 4
-def versionBuildBeta = 1
+def versionBuildBeta = 2
 
 final Console console = System.console();
 
