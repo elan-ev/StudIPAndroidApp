@@ -6,6 +6,9 @@
   http://www.gnu.org/licenses/gpl.html
 -->
 <resources>
+    <!-- General -->
+    <string name="not_supported">Not supported</string>
+
     <!-- Content descriptions -->
     <string name="user_image">User Image</string>
     <string name="file_icon">File Icon</string>
@@ -100,6 +103,9 @@
     <string name="error_insufficient_space">ERROR_INSUFFICIENT_SPACE</string>
     <string name="error_to_many_redirects">ERROR_TOO_MANY_REDIRECTS</string>
     <string name="error_unhandled_error_code">ERROR_UNHANDLED_HTTP_CODE</string>
+    <string name="version_not_supported_message">
+        Unfortunately your Android version is currently not supporting downloads from Stud.IP.
+    </string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Privacy policy</string>
