@@ -9,10 +9,13 @@ package de.elanev.studip.android.app.frontend.courses;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.ContentObserver;
@@ -21,6 +24,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -168,78 +175,91 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
 
     @SuppressLint("NewApi")
     private void startDocumentDownload(Bundle fileInfo) {
-        String fileId = fileInfo.getString(FILE_ID);
-        String fileName = fileInfo.getString(FILE_NAME);
-        String fileDescription = fileInfo.getString(FILE_DESCRIPTION);
+        // Do not allow downloading because unfixed bugs in pre ics download manager cause
+        // downloads from Stud.IP API to fail
+        if (ApiUtils.isOverApi14()) {
+            String fileId = fileInfo.getString(FILE_ID);
+            String fileName = fileInfo.getString(FILE_NAME);
+            String fileDescription = fileInfo.getString(FILE_DESCRIPTION);
 
-        boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS)
-                .mkdirs();
+            boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS)
+                    .mkdirs();
 
-        // Query DownloadManager and check of file is already being downloaded
-        boolean isDownloading = false;
+            // Query DownloadManager and check of file is already being downloaded
+            boolean isDownloading = false;
 
-        if (externalDownloadsDir) {
-            DownloadManager.Query query = new DownloadManager.Query();
-            query.setFilterByStatus(DownloadManager.STATUS_PAUSED |
-                    DownloadManager.STATUS_PENDING |
-                    DownloadManager.STATUS_RUNNING |
-                    DownloadManager.STATUS_SUCCESSFUL);
-            Cursor cur = mDownloadManager.query(query);
-            int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
-            for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-                isDownloading = (Environment.DIRECTORY_DOWNLOADS + fileName == cur.getString(col));
+            if (externalDownloadsDir) {
+                DownloadManager.Query query = new DownloadManager.Query();
+                query.setFilterByStatus(DownloadManager.STATUS_PAUSED |
+                        DownloadManager.STATUS_PENDING |
+                        DownloadManager.STATUS_RUNNING |
+                        DownloadManager.STATUS_SUCCESSFUL);
+                Cursor cur = mDownloadManager.query(query);
+                int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+                for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+                    isDownloading = (Environment.DIRECTORY_DOWNLOADS + fileName == cur.getString(col));
+                }
+                cur.close();
             }
-            cur.close();
-        }
 
 
-        if (!isDownloading) {
-            try {
-                // Create the download URI
-                String downloadUrl = String
-                        .format(getString(R.string.restip_documents_documentid_download),
-                                mApiUrl,
-                                fileId);
+            if (!isDownloading) {
+                try {
+                    // Create the download URI
+                    String downloadUrl = String
+                            .format(getString(R.string.restip_documents_documentid_download),
+                                    mApiUrl,
+                                    fileId);
 
 
-                // Since HTTPS is only supported on ICS and higher, we replace HTTPS with HTTP
-                if (!ApiUtils.isOverApi14())
                     downloadUrl = downloadUrl.replace("https://", "http://");
 
-                // Sign the download URL with the OAuth credentials and parse the URI
-                String signedDownloadUrl = mConsumer.sign(downloadUrl);
-                Uri downloadUri = Uri.parse(signedDownloadUrl);
+                    // Sign the download URL with the OAuth credentials and parse the URI
+                    String signedDownloadUrl = mConsumer.sign(downloadUrl);
+                    Uri downloadUri = Uri.parse(signedDownloadUrl);
 
 
-                // Create the download request
-                Request request = new Request(Uri.parse(signedDownloadUrl))
-                        .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
-                                DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
-                        .setAllowedOverRoaming(false)                   // Disallow roaming downloading
-                        .setTitle(fileName)                             // Title of this download
-                        .setDescription(fileDescription);               // Description of this download
-                if (externalDownloadsDir)
-                    request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                            fileName);
-                // download location and file name
+                    // Create the download request
+                    Request request = new Request(Uri.parse(signedDownloadUrl))
+                            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
+                                    DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
+                            .setAllowedOverRoaming(false)                   // Disallow roaming downloading
+                            .setTitle(fileName)                             // Title of this download
+                            .setDescription(fileDescription);               // Description of this download
+                    if (externalDownloadsDir)
+                        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+                                fileName);
+                    // download location and file name
 
-                //Allowing the scanning by MediaScanner
-                if (ApiUtils.isOverApi11()) {
+                    //Allowing the scanning by MediaScanner
                     request.allowScanningByMediaScanner();
                     request.setNotificationVisibility(DownloadManager.Request
                             .VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+                    mDownloadReference = mDownloadManager.enqueue(request);
+
+                } catch (OAuthMessageSignerException e) {
+                    e.printStackTrace();
+                } catch (OAuthExpectationFailedException e) {
+                    e.printStackTrace();
+                } catch (OAuthCommunicationException e) {
+                    e.printStackTrace();
                 }
-
-                mDownloadReference = mDownloadManager.enqueue(request);
-
-            } catch (OAuthMessageSignerException e) {
-                e.printStackTrace();
-            } catch (OAuthExpectationFailedException e) {
-                e.printStackTrace();
-            } catch (OAuthCommunicationException e) {
-                e.printStackTrace();
             }
+        } else {
+
+            // Android Version to old, show an warning dialog instead
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            Fragment prev = fm.findFragmentByTag("warning_dialog");
+            if (prev != null) {
+                ft.remove(prev);
+            }
+            ft.addToBackStack(null);
+
+            new WarningDialog(R.string.not_supported,
+                    R.string.version_not_supported_message).show(ft, "warning_dialog");
         }
 
     }
@@ -413,10 +433,45 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                 DocumentsContract.Qualified.DocumentFolders.DOCUMENTS_FOLDERS_FOLDER_NAME};
     }
 
+    /**
+     * DialogFramgnet for showing a warning to the user
+     */
+    public static class WarningDialog extends DialogFragment {
+
+        private int title;
+        private int message;
+
+        /**
+         * Returns a new WarningDialog instance containing the supplied title and message to show.
+         *
+         * @param title   the resource id for the dialog title
+         * @param message the resource id for the dialog message
+         */
+        public WarningDialog(int title, int message) {
+            this.title = title;
+            this.message = message;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            return new AlertDialog.Builder(getActivity())
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setPositiveButton(android.R.string.ok,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    dialog.dismiss();
+                                }
+                            }
+                    )
+                    .create();
+        }
+    }
+
     /*
      * ListAdapter for document entries in the database
      */
-
     private class DocumentsAdapter extends CursorAdapter {
 
         /**
