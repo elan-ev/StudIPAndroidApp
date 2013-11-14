@@ -7,9 +7,11 @@
 -->
 <resources>
 
-    <string name="feedback_form_message_template">Should you habe any questions, comments, feature requests or found an error, 
+    <string name="feedback_form_message_template">
+        Should you habe any questions, comments, feature requests or found an error,
         please contact us via email.\nWe take care of your request.\n\n===============\n
-        Ihr Feedback:\n===============\n\nAndroid API Version: %1$d\nStud.IP mobile Version: %2$s \nBuild: %3$s (%4$s)</string>
+        Ihr Feedback:\n===============\n\nAndroid API Version: %1$d\nStud.IP mobil Version: %2$s \nBuild: %3$s (%4$s)
+    </string>
     <string name="feedback_form_action">Email senden</string>
 
 </resources>
