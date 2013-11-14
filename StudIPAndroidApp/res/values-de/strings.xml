@@ -105,7 +105,7 @@
     <string name="error_to_many_redirects">FEHLER: Zu viele Weiterleitungen</string>
     <string name="error_unhandled_error_code">FEHLER: Unbehandelter HTTP Fehler</string>
     <string name="version_not_supported_message">
-        Leider unterstützt Ihre Android Version, zur Zeit, keine Downloads von Stud.IP.
+        Leider unterstützt Ihre Android Version zur Zeit keine Downloads von Stud.IP.
     </string>
 
     <!-- About app Activity -->
