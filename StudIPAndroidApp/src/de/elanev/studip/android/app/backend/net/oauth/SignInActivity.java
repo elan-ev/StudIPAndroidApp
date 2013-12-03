@@ -10,9 +10,7 @@ package de.elanev.studip.android.app.backend.net.oauth;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ListFragment;
@@ -33,11 +31,11 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.android.volley.VolleyError;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -135,7 +133,8 @@ public class SignInActivity extends SherlockFragmentActivity {
 
         switch (item.getItemId()) {
             case R.id.menu_feedback:
-                StuffUtil.startFeedback(this);
+                String contact_mail = Prefs.getInstance(this).getServer().getContactEmail();
+                StuffUtil.startFeedback(this, contact_mail);
                 return true;
 
             case R.id.menu_about:
@@ -180,23 +179,9 @@ public class SignInActivity extends SherlockFragmentActivity {
         private OnClickListener mMissingServerOnClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_SENDTO,
-                        Uri.fromParts("mailto",
-                                getString(R.string.feedback_form_email),
-                                null));
-                intent.putExtra(Intent.EXTRA_SUBJECT,
-                        "Feedback: Missing Stud.IP");
-                intent.putExtra(
-                        Intent.EXTRA_TEXT,
-                        String.format(
-                                getString(R.string.feedback_form_message_template),
-                                Build.VERSION.SDK_INT,
-                                BuildConfig.VERSION_NAME,
-                                BuildConfig.VERSION_CODE,
-                                BuildConfig.BUILD_TIME));
 
-                startActivity(Intent.createChooser(intent,
-                        getString(R.string.feedback_form_action)));
+                // Send missing server mails to the developers mail address
+                StuffUtil.startFeedback(getActivity(), getString(R.string.feedback_form_developer_mail));
             }
         };
 
@@ -434,6 +419,8 @@ public class SignInActivity extends SherlockFragmentActivity {
             Servers servers = null;
             try {
                 servers = mapper.readValue(ServerData.serverJson, Servers.class);
+            } catch (JsonParseException e) {
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -605,8 +592,7 @@ public class SignInActivity extends SherlockFragmentActivity {
             @Override
             protected String doInBackground(String... params) {
                 try {
-                    return OAuthConnector.getProvider().retrieveRequestToken(
-                            OAuthConnector.getConsumer(), "");
+                    return OAuthConnector.getProvider().retrieveRequestToken(OAuthConnector.getConsumer(), "");
                 } catch (OAuthMessageSignerException e) {
                     e.printStackTrace();
                 } catch (OAuthNotAuthorizedException e) {
