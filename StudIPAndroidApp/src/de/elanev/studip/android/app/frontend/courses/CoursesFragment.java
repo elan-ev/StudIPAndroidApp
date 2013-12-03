@@ -12,20 +12,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.CursorWrapper;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -34,14 +34,14 @@ import java.util.List;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
-import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 /**
  * @author joern
  */
 public class CoursesFragment extends ProgressSherlockListFragment implements
-        LoaderCallbacks<Cursor> {
+        LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
     public static final String TAG = CoursesFragment.class.getSimpleName();
     protected final ContentObserver mObserver = new ContentObserver(
             new Handler()) {
@@ -57,14 +57,14 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
             }
         }
     };
-    private CourseAdapter mCourseAdapter;
-    private SimpleSectionedListAdapter mAdapter;
+    private CoursesAdapter mAdapter;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mContext = getSherlockActivity();
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -72,10 +72,11 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
 
         setEmptyMessage(R.string.no_courses);
 
-        mCourseAdapter = new CourseAdapter(mContext);
-        mAdapter = new SimpleSectionedListAdapter(mContext,
-                R.layout.list_item_header, mCourseAdapter);
-        setListAdapter(mAdapter);
+        mAdapter = new CoursesAdapter(getActivity(),
+                new ArrayList<CourseItem>(),
+                new ArrayList<Section>());
+        mListView.setOnItemClickListener(this);
+        mListView.setAdapter(mAdapter);
 
         getLoaderManager().initLoader(0, null, this);
     }
@@ -94,23 +95,14 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        Object selectedObject = l.getItemAtPosition(position);
-        if (selectedObject instanceof CursorWrapper) {
-            Intent intent = new Intent();
-            intent.setClass(getActivity(), CourseViewActivity.class);
-            intent.putExtra(
-                    CoursesContract.Columns.Courses.COURSE_ID,
-                    ((CursorWrapper) selectedObject).getString(((CursorWrapper) selectedObject)
-                            .getColumnIndex(CoursesContract.Columns.Courses.COURSE_ID)));
-            intent.putExtra(
-                    CoursesContract.Columns.Courses._ID,
-                    ((CursorWrapper) selectedObject).getString(((CursorWrapper) selectedObject)
-                            .getColumnIndex(CoursesContract.Columns.Courses._ID)));
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        CourseItem item = (CourseItem) mListView.getItemAtPosition(position);
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), CourseViewActivity.class);
+        intent.putExtra(CoursesContract.Columns.Courses.COURSE_ID, item.courseId);
+        intent.putExtra(CoursesContract.Columns.Courses._ID, item.id);
 
-            mContext.startActivity(intent);
-        }
+        mContext.startActivity(intent);
     }
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -135,36 +127,55 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
             return;
         }
 
-        List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
+        ArrayList<CourseItem> items = new ArrayList<CourseItem>();
+        ArrayList<CourseItem> longRunningCourses = new ArrayList<CourseItem>();
+        ArrayList<Section> sections = new ArrayList<Section>();
+        String prevSemesterId = "";
+        String currSemesterId = "";
+
         cursor.moveToFirst();
-        String prevSemesterId = null;
-        String currSemesterId = null;
         while (!cursor.isAfterLast()) {
-            if (cursor.getInt(cursor.getColumnIndex(CoursesContract.Columns.Courses
-                    .COURSE_DURATION_TIME)) == -1) {
-                sections.add(new SimpleSectionedListAdapter.Section(
-                        cursor.getPosition(),
-                        mContext.getString(R.string.course_without_duration_limit)));
-                break;
-            }
-            currSemesterId = cursor
-                    .getString(cursor
-                            .getColumnIndex(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID));
-            if (!TextUtils.equals(prevSemesterId, currSemesterId)) {
-                sections.add(new SimpleSectionedListAdapter.Section(
-                        cursor.getPosition(),
-                        cursor.getString(cursor
-                                .getColumnIndex(SemestersContract.Columns.SEMESTER_TITLE))));
+            String title = cursor.getString(1);
+            int type = cursor.getInt(cursor
+                    .getColumnIndex(CoursesContract.Columns.Courses.COURSE_TYPE));
+            long duration = cursor.getLong(cursor
+                    .getColumnIndex(CoursesContract.Columns.Courses.COURSE_DURATION_TIME));
+            String color = cursor.getString(cursor
+                    .getColumnIndex(CoursesContract.Columns.Courses.COURSE_COLOR));
+            long id = cursor.getLong(cursor
+                    .getColumnIndex(CoursesContract.Columns.Courses._ID));
+            String courseId = cursor.getString(cursor
+                    .getColumnIndex(CoursesContract.Columns.Courses.COURSE_ID));
+            currSemesterId = cursor.getString(cursor.getColumnIndex(CoursesContract
+                    .Columns
+                    .Courses
+                    .COURSE_SEMESERT_ID));
+
+
+            if (duration != 0) {
+                longRunningCourses.add(new CourseItem(id, courseId, title, type, color));
+            } else {
+                if (!TextUtils.equals(prevSemesterId, currSemesterId)) {
+                    sections.add(new Section(items.size(),
+                            cursor.getString(
+                                    cursor.getColumnIndex(SemestersContract
+                                            .Columns
+                                            .SEMESTER_TITLE))));
+                }
+
+                items.add(new CourseItem(id, courseId, title, type, color));
             }
             prevSemesterId = currSemesterId;
             cursor.moveToNext();
         }
 
-        mCourseAdapter.changeCursor(cursor);
+        if (!longRunningCourses.isEmpty()) {
+            sections.add(new Section(items.size(),
+                    getString(R.string.course_without_duration_limit)));
+            items.addAll(longRunningCourses);
+        }
 
-        SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
-                .size()];
-        mAdapter.setSections(sections.toArray(dummy));
+        mAdapter.updateData(items, sections);
 
         setLoadingViewVisible(false);
     }
@@ -189,75 +200,166 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
 
     }
 
-    /*
-     * CursorAdapter subclass to display the courses list item properly
-     */
-    private class CourseAdapter extends CursorAdapter {
+    private class CoursesAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
-        /**
-         * Constructs the CourseAdapter with the passed context
-         *
-         * @param context execution context
-         */
-        public CourseAdapter(Context context) {
-            super(context, null, false);
+        private final Context mContext;
+        private LayoutInflater mInflater;
+        private List<CourseItem> mObjects;
+        private List<Section> mSections;
+
+        public CoursesAdapter(Context context,
+                              List<CourseItem> objects,
+                              List<Section> sections) {
+            this.mContext = context;
+            this.mObjects = objects;
+            this.mInflater = LayoutInflater.from(context);
+            this.mSections = sections;
+
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.support.v4.widget.CursorAdapter#bindView(android.view.View,
-         * android.content.Context, android.database.Cursor)
-         */
         @Override
-        public void bindView(View view, Context context, final Cursor cursor) {
-            final String courseTitle = cursor.getString(1);
-            final int type = cursor.getInt(
-                    cursor.getColumnIndex(
-                            CoursesContract.Columns.Courses.COURSE_TYPE));
-            final String courseColor = cursor.getString(
-                    cursor.getColumnIndex(
-                            CoursesContract.Columns.Courses.COURSE_COLOR));
-            final TextView courseTitleTextVew = (TextView) view
-                    .findViewById(R.id.text1);
-            final ImageView icon = (ImageView) view.findViewById(R.id.icon1);
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View row = convertView;
+            if (row == null) {
+                row = mInflater.inflate(R.layout.list_item_single_text_icon, parent, false);
+                CourseHolder holder = new CourseHolder();
+                holder.title = (TextView) row.findViewById(R.id.text1);
+                holder.icon = (ImageView) row.findViewById(R.id.icon1);
+                row.setTag(holder);
+            }
 
+            // Get resources for the position
+            String title = mObjects.get(position).title;
+            int type = mObjects.get(position).type;
+            String color = mObjects.get(position).color;
 
-            courseTitleTextVew.setText(courseTitle);
+            // get holder and update views with positions informations
+            CourseHolder holder = (CourseHolder) row.getTag();
+            holder.title.setText(title);
             if (type == 99) {
-                if (TextUtils.equals(courseColor, "#ffffff"))
-                    icon.setImageResource(R.drawable.ic_studygroup_blue);
+                if (TextUtils.equals(color, "#ffffff"))
+                    holder.icon.setImageResource(R.drawable.ic_studygroup_blue);
                 else
-                    icon.setImageResource(R.drawable.ic_studygroup);
+                    holder.icon.setImageResource(R.drawable.ic_studygroup);
             } else {
-                if (TextUtils.equals(courseColor, "#ffffff"))
-                    icon.setImageResource(R.drawable.ic_seminar_blue);
+                if (TextUtils.equals(color, "#ffffff"))
+                    holder.icon.setImageResource(R.drawable.ic_seminar_blue);
                 else
-                    icon.setImageResource(R.drawable.ic_menu_courses);
+                    holder.icon.setImageResource(R.drawable.ic_menu_courses);
             }
 
-            try {
-                int c = Color.parseColor(courseColor);
-                icon.setBackgroundColor(c);
-            } catch (Exception e) {
-                Log.wtf(TAG, e.getMessage());
-            }
+            if (color != null)
+                try {
+                    int c = Color.parseColor(color);
+                    holder.icon.setBackgroundColor(c);
+                } catch (Exception e) {
+                    Log.wtf(TAG, e.getMessage());
+                }
+
+            return row;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.support.v4.widget.CursorAdapter#newView(android.content.Context
-         * , android.database.Cursor, android.view.ViewGroup)
-         */
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return getActivity().getLayoutInflater().inflate(
-                    R.layout.list_item_single_text_icon, parent, false);
+        public int getCount() {
+            return mObjects == null ? 0 : mObjects.size();
         }
 
+        @Override
+        public CourseItem getItem(int position) {
+            return mObjects.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return mObjects.isEmpty();
+        }
+
+        @Override
+        public View getHeaderView(int position, View view, ViewGroup viewGroup) {
+            HeaderViewHolder holder;
+
+            if (view == null) {
+                holder = new HeaderViewHolder();
+                view = mInflater.inflate(R.layout.list_item_header, viewGroup, false);
+                holder.text = (TextView) view.findViewById(R.id.list_item_header_textview);
+                view.setTag(holder);
+            } else {
+                holder = (HeaderViewHolder) view.getTag();
+            }
+
+            int headerPos = (int) getHeaderId(position);
+            String headerText = mSections.get(headerPos).title;
+            holder.text.setText(headerText);
+
+            return view;
+        }
+
+        @Override
+        public long getHeaderId(int position) {
+            if (mSections.isEmpty())
+                return 0;
+
+            for (int i = 0; i < mSections.size(); i++) {
+                if (position < mSections.get(i).index) {
+                    return i - 1;
+                }
+            }
+            return mSections.size() - 1;
+        }
+
+        public void updateData(List<CourseItem> items, List<Section> sections) {
+            mObjects.clear();
+            mSections.clear();
+            mObjects.addAll(items);
+            mSections.addAll(sections);
+            this.notifyDataSetChanged();
+        }
+
+        class CourseHolder {
+            ImageView icon;
+            TextView title;
+        }
+
+        class HeaderViewHolder {
+            TextView text;
+        }
     }
 
+    private static class CourseItem {
+        public String title, color, courseId;
+        public int type;
+        long id;
+
+        public CourseItem() {
+        }
+
+
+        public CourseItem(long id, String courseId, String title, int type, String color) {
+            this.title = title;
+            this.type = type;
+            this.color = color;
+            this.id = id;
+            this.courseId = courseId;
+        }
+    }
+
+    /**
+     * A section for the adapter, has to have a title and a section starting index
+     */
+    public static class Section {
+        String title;
+        int index;
+
+        public Section(int index, String title) {
+            this.index = index;
+            this.title = title;
+        }
+    }
 }
+
+

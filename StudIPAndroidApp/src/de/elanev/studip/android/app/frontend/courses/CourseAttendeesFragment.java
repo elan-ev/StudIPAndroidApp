@@ -7,14 +7,19 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.frontend.courses;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.View;
+import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +28,12 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
+import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.widget.ListAdapterUsers;
+import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
+import de.elanev.studip.android.app.widget.UserDetailsActivity;
 import de.elanev.studip.android.app.widget.UserListFragment;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * @author joern
@@ -49,7 +57,6 @@ public class CourseAttendeesFragment extends UserListFragment implements
         }
     };
     private ListAdapterUsers mUsersAdapter;
-    private SimpleSectionedListAdapter mAdapter;
     private Bundle mArgs;
     private String mCourseId;
 
@@ -61,6 +68,7 @@ public class CourseAttendeesFragment extends UserListFragment implements
         mCourseId = mArgs.getString(CoursesContract.Columns.Courses.COURSE_ID);
         // Creating the adapters for the listview
 
+        mUsersAdapter = new ListAdapterUsers(mContext);
     }
 
     @Override
@@ -69,11 +77,10 @@ public class CourseAttendeesFragment extends UserListFragment implements
 
         setEmptyMessage(R.string.no_attendees);
 
-        mUsersAdapter = new ListAdapterUsers(mContext);
-        mAdapter = new SimpleSectionedListAdapter(mContext,
-                R.layout.list_item_header, mUsersAdapter);
-        setListAdapter(mAdapter);
+        mListView.setOnItemClickListener(this);
+        mListView.setOnStickyHeaderOffsetChangedListener(this);
 
+        mListView.setAdapter(mUsersAdapter);
         // initialize CursorLoader
         getLoaderManager().initLoader(0, mArgs, this);
 
@@ -125,7 +132,7 @@ public class CourseAttendeesFragment extends UserListFragment implements
             return;
         }
 
-        List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
+        List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
         cursor.moveToFirst();
         int prevRole = -1;
         int currRole = -1;
@@ -148,7 +155,7 @@ public class CourseAttendeesFragment extends UserListFragment implements
                     default:
                         throw new UnknownError("unknown role type");
                 }
-                sections.add(new SimpleSectionedListAdapter.Section(cursor
+                sections.add(new SectionedCursorAdapter.Section(cursor
                         .getPosition(), role));
             }
 
@@ -157,11 +164,9 @@ public class CourseAttendeesFragment extends UserListFragment implements
             cursor.moveToNext();
         }
 
+        mUsersAdapter.setSections(sections);
         mUsersAdapter.changeCursor(cursor);
 
-        SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
-                .size()];
-        mAdapter.setSections(sections.toArray(dummy));
 
         setLoadingViewVisible(false);
     }
@@ -175,6 +180,19 @@ public class CourseAttendeesFragment extends UserListFragment implements
      */
     public void onLoaderReset(Loader<Cursor> loader) {
         mUsersAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor c = (Cursor) mListView.getItemAtPosition(position);
+
+        String userId = c.getString(c
+                .getColumnIndex(UsersContract.Columns.USER_ID));
+        if (userId != null) {
+            Intent intent = new Intent(mContext, UserDetailsActivity.class);
+            intent.putExtra(UsersContract.Columns.USER_ID, userId);
+            mContext.startActivity(intent);
+        }
     }
 
     private interface UsersQuery {
