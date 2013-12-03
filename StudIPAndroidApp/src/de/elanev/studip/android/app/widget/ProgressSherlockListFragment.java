@@ -7,38 +7,38 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.widget;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.app.SherlockFragment;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.util.ApiUtils;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * Created by joern on 09.10.13.
  */
-public class ProgressSherlockListFragment extends SherlockListFragment {
+public class ProgressSherlockListFragment extends SherlockFragment implements StickyListHeadersListView.OnStickyHeaderOffsetChangedListener {
 
     private View mListContainerView, mProgressView;
     private TextView mEmptyMessageTextView;
     protected Context mContext;
+    protected StickyListHeadersListView mListView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getSherlockActivity();
+
     }
 
-    /*
-         * (non-Javadoc)
-         *
-         * @see android.support.v4.app.ListFragment#onCreateView(android.view.
-         * LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-         */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -47,8 +47,19 @@ public class ProgressSherlockListFragment extends SherlockListFragment {
         mEmptyMessageTextView = (TextView) v.findViewById(R.id.empty_message);
         mListContainerView = v.findViewById(R.id.list_container);
         mProgressView = v.findViewById(R.id.progressbar);
+        mListView = (StickyListHeadersListView) v.findViewById(android.R.id.list);
+        mListView.setEmptyView(v.findViewById(android.R.id.empty));
 
         return v;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        mListView.setDrawingListUnderStickyHeader(true);
+        mListView.setAreHeadersSticky(true);
+        mListView.setOnStickyHeaderOffsetChangedListener(this);
     }
 
     /**
@@ -70,5 +81,12 @@ public class ProgressSherlockListFragment extends SherlockListFragment {
             mListContainerView.setVisibility(visible ? View.GONE : View.VISIBLE);
             mProgressView.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public void onStickyHeaderOffsetChanged(StickyListHeadersListView stickyListHeadersListView, View view, int offset) {
+        if (ApiUtils.isOverApi11())
+            view.setAlpha(1 - (offset / (float) view.getMeasuredHeight()));
     }
 }
