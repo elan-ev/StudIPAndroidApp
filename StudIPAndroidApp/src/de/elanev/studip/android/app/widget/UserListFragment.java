@@ -13,7 +13,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
-import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -31,7 +30,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.Request.Method;
@@ -67,7 +65,7 @@ import oauth.signpost.exception.OAuthMessageSignerException;
  * @author joern
  */
 public abstract class UserListFragment extends ProgressSherlockListFragment implements
-        LoaderCallbacks<Cursor> {
+        LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
     private static final String TAG = UserListFragment.class.getCanonicalName();
     private static VolleyOAuthConsumer mConsumer;
@@ -304,29 +302,8 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         super.onActivityCreated(savedInstanceState);
 
         setEmptyMessage(R.string.no_users);
-
         setHasOptionsMenu(true);
-        registerForContextMenu(getListView());
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.ListFragment#onListItemClick(android.widget
-     * .ListView , android.view.View, int, long)
-     */
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        Cursor c = (Cursor) l.getItemAtPosition(position);
-
-        String userId = c.getString(c
-                .getColumnIndex(UsersContract.Columns.USER_ID));
-        if (userId != null) {
-            Intent intent = new Intent(mContext, UserDetailsActivity.class);
-            intent.putExtra(UsersContract.Columns.USER_ID, userId);
-            mContext.startActivity(intent);
-        }
+        registerForContextMenu(mListView);
     }
 
     /**
@@ -338,7 +315,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        Cursor listItemCursor = (Cursor) getListAdapter()
+        Cursor listItemCursor = (Cursor) mListView.getAdapter()
                 .getItem(info.position);
 
         final String[] projection = new String[]{
@@ -386,7 +363,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
             int itemId = item.getItemId();
 
             // Get userInfo from cursor
-            Cursor c = (Cursor) getListAdapter().getItem(info.position);
+            Cursor c = (Cursor) mListView.getAdapter().getItem(info.position);
             String userId = c.getString(c
                     .getColumnIndex(UsersContract.Columns.USER_ID));
 
