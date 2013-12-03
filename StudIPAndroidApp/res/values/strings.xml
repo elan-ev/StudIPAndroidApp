@@ -86,8 +86,8 @@
     <string name="Tutor">Tutor</string>
     <string name="Student">Student</string>
     <string name="no_appointments">No appointments</string>
-    <string name="no_courses">You are not participants any courses.</string>
-    <string name="no_attendees">No one is participants.</string>
+    <string name="no_courses">You\'re not taking part in any courses.</string>
+    <string name="no_attendees">No one is taking part in this course.</string>
     <string name="no_documents">Nothing uploaded yet.</string>
     <string name="no_news">No announcements available.</string>
     <string name="no_details">No details available.</string>
