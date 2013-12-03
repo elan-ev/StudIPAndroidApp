@@ -17,12 +17,11 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -32,15 +31,15 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 
 /**
  * @author joern
  */
 public class NewsListFragment extends ProgressSherlockListFragment implements
-        LoaderCallbacks<Cursor> {
+        LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
     public static final String TAG = NewsListFragment.class.getSimpleName();
     protected final ContentObserver mObserver = new ContentObserver(
@@ -58,7 +57,6 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
         }
     };
     private NewsAdapter mNewsAdapter;
-    private SimpleSectionedListAdapter mAdapter;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -66,11 +64,10 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
         getActivity().setTitle(R.string.News);
 
         setEmptyMessage(R.string.no_news);
+        mListView.setOnItemClickListener(this);
 
         mNewsAdapter = new NewsAdapter(mContext);
-        mAdapter = new SimpleSectionedListAdapter(mContext,
-                R.layout.list_item_header, mNewsAdapter);
-        setListAdapter(mAdapter);
+        mListView.setAdapter(mNewsAdapter);
         // initialize CursorLoader
         getLoaderManager().initLoader(0, null, this);
     }
@@ -88,11 +85,70 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
         getActivity().getContentResolver().unregisterContentObserver(mObserver);
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
+    /*
+     * (non-Javadoc)
+     *
+     * @see de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#
+     * onCreateLoader (int, android.os.Bundle)
+     */
+    public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+        setLoadingViewVisible(true);
+        return new CursorLoader(getActivity(), NewsContract.CONTENT_URI,
+                NewsQuery.PROJECTION, null, null,
+                NewsContract.DEFAULT_SORT_ORDER);
+    }
 
-        Cursor c = (Cursor) l.getItemAtPosition(position);
+    /*
+     * (non-Javadoc)
+     *
+     * @see de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#
+     * onLoadFinished (android.support.v4.content.Loader,
+     * android.database.Cursor)
+     */
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (getActivity() == null) {
+            return;
+        }
+
+        List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
+        cursor.moveToFirst();
+        String prevCourseId = null;
+        String currentCourseId = null;
+        while (!cursor.isAfterLast()) {
+            currentCourseId = cursor
+                    .getString(cursor
+                            .getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
+            if (!TextUtils.equals(prevCourseId, currentCourseId)) {
+                SectionedCursorAdapter.Section section = new SectionedCursorAdapter.Section(
+                        cursor.getPosition(),
+                        cursor.getString(cursor
+                                .getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE)));
+
+                sections.add(section);
+            }
+            prevCourseId = currentCourseId;
+            cursor.moveToNext();
+        }
+
+        mNewsAdapter.setSections(sections);
+        mNewsAdapter.swapCursor(cursor);
+
+        setLoadingViewVisible(false);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset
+     * (android .support.v4.content.Loader)
+     */
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mNewsAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor c = (Cursor) mListView.getItemAtPosition(position);
         String topic = c.getString(c
                 .getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
         String body = c.getString(c
@@ -122,69 +178,6 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
         intent.setClass(getActivity(), NewsItemViewActivity.class);
         intent.putExtras(args);
         startActivity(intent);
-
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#
-     * onCreateLoader (int, android.os.Bundle)
-     */
-    public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-        setLoadingViewVisible(true);
-        return new CursorLoader(getActivity(), NewsContract.CONTENT_URI,
-                NewsQuery.PROJECTION, null, null,
-                NewsContract.DEFAULT_SORT_ORDER);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#
-     * onLoadFinished (android.support.v4.content.Loader,
-     * android.database.Cursor)
-     */
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (getActivity() == null) {
-            return;
-        }
-
-        List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
-        cursor.moveToFirst();
-        String prevCourseId = null;
-        String currentCourseId = null;
-        while (!cursor.isAfterLast()) {
-            currentCourseId = cursor
-                    .getString(cursor
-                            .getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
-            if (!TextUtils.equals(prevCourseId, currentCourseId)) {
-                sections.add(new SimpleSectionedListAdapter.Section(
-                        cursor.getPosition(),
-                        cursor.getString(cursor
-                                .getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE))));
-            }
-            prevCourseId = currentCourseId;
-            cursor.moveToNext();
-        }
-
-        mNewsAdapter.swapCursor(cursor);
-
-        SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
-                .size()];
-        mAdapter.setSections(sections.toArray(dummy));
-
-        setLoadingViewVisible(false);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset
-     * (android .support.v4.content.Loader)
-     */
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mNewsAdapter.swapCursor(null);
     }
 
     private interface NewsQuery {
@@ -203,18 +196,13 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
 
     }
 
-    private class NewsAdapter extends CursorAdapter {
+    private class NewsAdapter extends SectionedCursorAdapter {
+
 
         public NewsAdapter(Context context) {
-            super(context, null, false);
+            super(context);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see android.support.v4.widget.CursorAdapter#bindView(android.view
-         * .View, android.content.Context, android.database.Cursor)
-         */
         @Override
         public void bindView(View view, Context context, final Cursor cursor) {
             final String newsTopic = cursor.getString(cursor
@@ -247,12 +235,6 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
                     newsDate, getActivity()));
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see android.support.v4.widget.CursorAdapter#newView(android.content
-         * .Context , android.database.Cursor, android.view.ViewGroup)
-         */
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             return getActivity().getLayoutInflater().inflate(
