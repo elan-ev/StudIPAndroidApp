@@ -31,10 +31,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -48,11 +48,11 @@ import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
-import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.FileUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
@@ -61,7 +61,7 @@ import oauth.signpost.exception.OAuthMessageSignerException;
  * @author joern
  */
 public class CourseDocumentsFragment extends ProgressSherlockListFragment implements
-        LoaderCallbacks<Cursor> {
+        LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
     public static final String TAG = CourseDocumentsFragment.class
             .getSimpleName();
     private static final String FILE_ID = CourseDocumentsFragment.class.getName() + ".fileId";
@@ -110,7 +110,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
         }
 
     };
-    private SimpleSectionedListAdapter mAdapter;
     private DocumentsAdapter mDocumentsAdapter;
     private long mDownloadReference = -1L;
     private DownloadManager mDownloadManager;
@@ -137,6 +136,8 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
         mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
         mApiUrl = prefs.getServer().getApiUrl();
 
+        mDocumentsAdapter = new DocumentsAdapter(mContext);
+
     }
 
     @Override
@@ -144,10 +145,10 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
         super.onActivityCreated(savedInstanceState);
 
         setEmptyMessage(R.string.no_documents);
-        mDocumentsAdapter = new DocumentsAdapter(mContext);
-        mAdapter = new SimpleSectionedListAdapter(mContext, R.layout.list_item_header,
-                mDocumentsAdapter);
-        setListAdapter(mAdapter);
+
+        mListView.setOnItemClickListener(this);
+
+        mListView.setAdapter(mDocumentsAdapter);
         getLoaderManager().initLoader(0, null, this);
 
 
@@ -333,37 +334,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
             Toast.makeText(mContext, stringRes, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-
-        // If a valid row was selected, create a download
-        if (position != ListView.INVALID_POSITION) {
-
-            // get the file information from the cursor at the selected position
-            Cursor c = (Cursor) getListAdapter().getItem(position);
-            String fileId = c
-                    .getString(c
-                            .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_ID));
-            String fileName = c
-                    .getString(c
-                            .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_FILENAME));
-            String name = c
-                    .getString(c
-                            .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_NAME));
-            String fileDesc = c
-                    .getString(c
-                            .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_DESCRIPTION));
-
-            Bundle fileInfo = new Bundle();
-            fileInfo.putString(FILE_ID, fileId);
-            fileInfo.putString(FILE_NAME, fileName);
-            fileInfo.putString(FILE_DESCRIPTION, fileDesc);
-
-            startDocumentDownload(fileInfo);
-        }
-    }
-
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
         setLoadingViewVisible(true);
         return new CursorLoader(
@@ -387,7 +357,7 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
             return;
         }
 
-        List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
+        List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
         cursor.moveToFirst();
         String prevFolder = null;
         String currFolder = null;
@@ -396,7 +366,7 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                     .getString(cursor
                             .getColumnIndex(DocumentsContract.Columns.DocumentFolders.FOLDER_NAME));
             if (!TextUtils.equals(currFolder, prevFolder)) {
-                sections.add(new SimpleSectionedListAdapter.Section(cursor
+                sections.add(new SectionedCursorAdapter.Section(cursor
                         .getPosition(), currFolder));
             }
 
@@ -405,17 +375,43 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
             cursor.moveToNext();
         }
 
-        mDocumentsAdapter.changeCursor(cursor);
-
-        SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
-                .size()];
-        mAdapter.setSections(sections.toArray(dummy));
+        mDocumentsAdapter.setSections(sections);
+        mDocumentsAdapter.swapCursor(cursor);
 
         setLoadingViewVisible(false);
     }
 
     public void onLoaderReset(Loader<Cursor> loader) {
         mDocumentsAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+// If a valid row was selected, create a download
+        if (position != ListView.INVALID_POSITION) {
+
+            // get the file information from the cursor at the selected position
+            Cursor c = (Cursor) mListView.getAdapter().getItem(position);
+            String fileId = c
+                    .getString(c
+                            .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_ID));
+            String fileName = c
+                    .getString(c
+                            .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_FILENAME));
+            String name = c
+                    .getString(c
+                            .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_NAME));
+            String fileDesc = c
+                    .getString(c
+                            .getColumnIndex(DocumentsContract.Columns.Documents.DOCUMENT_DESCRIPTION));
+
+            Bundle fileInfo = new Bundle();
+            fileInfo.putString(FILE_ID, fileId);
+            fileInfo.putString(FILE_NAME, fileName);
+            fileInfo.putString(FILE_DESCRIPTION, fileDesc);
+
+            startDocumentDownload(fileInfo);
+        }
     }
 
     /*
@@ -472,13 +468,13 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
     /*
      * ListAdapter for document entries in the database
      */
-    private class DocumentsAdapter extends CursorAdapter {
+    private class DocumentsAdapter extends SectionedCursorAdapter {
 
         /**
          * @param context
          */
         public DocumentsAdapter(Context context) {
-            super(context, null, false);
+            super(context);
 
         }
 

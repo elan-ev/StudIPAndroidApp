@@ -29,6 +29,7 @@ public class Prefs {
     private static final String SERVER_URL = "serverUrl";
     private static final String SERVER_KEY = "serverKey";
     private static final String SERVER_SECRET = "serverSecret";
+    private static final String SERVER_CONTACT_EMAIL = "serverContactEmail";
     private static final String APP_FIRST_START = "appFirstStart";
     private static final String APP_SECURE_START = "appSecureStart";
     private static final String TAG = Prefs.class.getSimpleName();
@@ -74,9 +75,10 @@ public class Prefs {
         String serverUrl = mPrefs.getString(SERVER_URL);
         String serverKey = mPrefs.getString(SERVER_KEY);
         String serverSecret = mPrefs.getString(SERVER_SECRET);
+        String contactEmail = mPrefs.getString(SERVER_CONTACT_EMAIL);
         if (serverName != null && serverUrl != null && serverKey != null
                 && serverSecret != null) {
-            server = new Server(serverName, serverKey, serverSecret, serverUrl);
+            server = new Server(serverName, serverKey, serverSecret, serverUrl, contactEmail);
         }
 
         return server;
@@ -87,6 +89,7 @@ public class Prefs {
         mPrefs.putString(SERVER_URL, value.getBaseUrl());
         mPrefs.putString(SERVER_KEY, value.getConsumerKey());
         mPrefs.putString(SERVER_SECRET, value.getConsumerSecret());
+        mPrefs.putString(SERVER_CONTACT_EMAIL, value.getContactEmail());
     }
 
     /*

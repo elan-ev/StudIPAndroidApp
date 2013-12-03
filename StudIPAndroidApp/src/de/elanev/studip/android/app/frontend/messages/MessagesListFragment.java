@@ -18,10 +18,10 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -49,10 +49,10 @@ import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
-import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
@@ -61,7 +61,7 @@ import oauth.signpost.exception.OAuthMessageSignerException;
  * @author joern
  */
 public class MessagesListFragment extends ProgressSherlockListFragment implements
-        LoaderCallbacks<Cursor> {
+        LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
     public static final String TAG = MessagesListFragment.class.getSimpleName();
     protected final ContentObserver mObserver = new ContentObserver(
             new Handler()) {
@@ -78,7 +78,6 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
         }
     };
     private MessagesAdapter mMessagesAdapter;
-    private SimpleSectionedListAdapter mAdapter;
     private String mApiUrl;
     private VolleyOAuthConsumer mConsumer;
 
@@ -95,11 +94,8 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
 
         // Creating the adapters for the listview
         mMessagesAdapter = new MessagesAdapter(mContext);
-        mAdapter = new SimpleSectionedListAdapter(mContext,
-                R.layout.list_item_header, mMessagesAdapter);
 
         setHasOptionsMenu(true);
-        setListAdapter(mAdapter);
     }
 
     @Override
@@ -108,6 +104,9 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
         getActivity().setTitle(R.string.Messages);
         setEmptyMessage(R.string.no_messages);
 
+        mListView.setOnItemClickListener(this);
+
+        mListView.setAdapter(mMessagesAdapter);
         // initialize CursorLoader
         getLoaderManager().initLoader(0, null, this);
     }
@@ -143,36 +142,6 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
 //                messagesFolder);
 //        getLoaderManager().initLoader(0, args, this);
 //    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.ListFragment#onListItemClick(android.widget.ListView
-     * , android.view.View, int, long)
-     */
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        if (position != ListView.INVALID_POSITION) {
-            Cursor c = (Cursor) l.getItemAtPosition(position);
-            String messageId = c
-                    .getString(c
-                            .getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_ID));
-            int messageIntId = c.getInt(c
-                    .getColumnIndex(MessagesContract.Columns.Messages._ID));
-            int unread = c
-                    .getInt(c
-                            .getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_UNREAD));
-            if (unread != 0)
-                markMessageAsRead(messageId, messageIntId);
-
-            Intent intent = new Intent(mContext, MessageDetailActivity.class);
-            intent.putExtra(MessagesContract.Columns.Messages.MESSAGE_ID,
-                    messageId);
-
-            startActivity(intent);
-        }
-    }
 
     /**
      * @param messageId
@@ -320,35 +289,36 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
             return;
         }
 
-        List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
-        cursor.moveToFirst();
-        if (!cursor.isAfterLast())
-            getActivity()
-                    .setTitle(
-                            cursor.getString(cursor
-                                    .getColumnIndex(MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_NAME)));
+        if (cursor.getCount() <= 0) {
+            List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
+            cursor.moveToFirst();
+            if (!cursor.isAfterLast())
+                getActivity()
+                        .setTitle(
+                                cursor.getString(cursor
+                                        .getColumnIndex(MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_NAME)));
 
-        long previousDay = -1;
-        long currentDay = -1;
-        while (!cursor.isAfterLast()) {
-            currentDay = cursor
-                    .getLong(cursor
-                            .getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_MKDATE));
-            if (!TextTools.isSameDay(previousDay * 1000L, currentDay * 1000L)) {
-                sections.add(new SimpleSectionedListAdapter.Section(cursor
-                        .getPosition(), TextTools.getLocalizedTime(
-                        currentDay * 1000L, mContext)));
+            long previousDay = -1;
+            long currentDay = -1;
+            while (!cursor.isAfterLast()) {
+                currentDay = cursor
+                        .getLong(cursor
+                                .getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_MKDATE));
+                if (!TextTools.isSameDay(previousDay * 1000L, currentDay * 1000L)) {
+                    sections.add(new SectionedCursorAdapter.Section(cursor
+                            .getPosition(), TextTools.getLocalizedTime(
+                            currentDay * 1000L, mContext)));
+                }
+
+                previousDay = currentDay;
+
+                cursor.moveToNext();
             }
 
-            previousDay = currentDay;
-
-            cursor.moveToNext();
+            mMessagesAdapter.setSections(sections);
         }
 
-        mMessagesAdapter.changeCursor(cursor);
-        SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
-                .size()];
-        mAdapter.setSections(sections.toArray(dummy));
+        mMessagesAdapter.swapCursor(cursor);
 
         setLoadingViewVisible(false);
     }
@@ -362,6 +332,29 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
      */
     public void onLoaderReset(Loader<Cursor> loader) {
         mMessagesAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (position != ListView.INVALID_POSITION) {
+            Cursor c = (Cursor) mListView.getItemAtPosition(position);
+            String messageId = c
+                    .getString(c
+                            .getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_ID));
+            int messageIntId = c.getInt(c
+                    .getColumnIndex(MessagesContract.Columns.Messages._ID));
+            int unread = c
+                    .getInt(c
+                            .getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_UNREAD));
+            if (unread != 0)
+                markMessageAsRead(messageId, messageIntId);
+
+            Intent intent = new Intent(mContext, MessageDetailActivity.class);
+            intent.putExtra(MessagesContract.Columns.Messages.MESSAGE_ID,
+                    messageId);
+
+            startActivity(intent);
+        }
     }
 
     /*
@@ -383,10 +376,10 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
                 UsersContract.Qualified.USERS_USER_AVATAR_NORMAL};
     }
 
-    private class MessagesAdapter extends CursorAdapter {
+    private class MessagesAdapter extends SectionedCursorAdapter {
 
         public MessagesAdapter(Context context) {
-            super(context, null, false);
+            super(context);
         }
 
         /*

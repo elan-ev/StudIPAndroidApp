@@ -25,12 +25,13 @@ public class Server implements Serializable {
     private String requestUrl;  // = OAUTH_URL + "/request_token";
     private String authorizationUrl;    // = OAUTH_URL + "/authorize";
     private String apiUrl;      // = BASE_URL + "/api";
+    private String contactEmail;
 
     public Server() {
     }
 
     public Server(String name, String consumerKey, String consumerSecret,
-                  String baseUrl) {
+                  String baseUrl, String contactEmail) {
         this.name = name;
         this.consumerKey = consumerKey;
         this.consumerSecret = consumerSecret;
@@ -39,6 +40,7 @@ public class Server implements Serializable {
         this.authorizationUrl = this.baseUrl + "/oauth/authorize";
         this.requestUrl = this.baseUrl + "/oauth/request_token";
         this.apiUrl = this.baseUrl + "/api";
+        this.contactEmail = contactEmail;
     }
 
     public String getName() {
@@ -111,6 +113,15 @@ public class Server implements Serializable {
     @JsonProperty("api_url")
     public void setApiUrl(String apiUrl) {
         this.apiUrl = apiUrl;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    @JsonProperty("contact_email")
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
     }
 
     public String getID() {

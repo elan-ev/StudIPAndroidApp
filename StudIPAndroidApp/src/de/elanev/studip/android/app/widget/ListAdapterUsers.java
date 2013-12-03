@@ -25,13 +25,12 @@ import de.elanev.studip.android.app.backend.db.UsersContract;
 /**
  * @author joern
  */
-public class ListAdapterUsers extends CursorAdapter {
+public class ListAdapterUsers extends SectionedCursorAdapter {
     protected static final String TAG = ListAdapterUsers.class
             .getCanonicalName();
 
     public ListAdapterUsers(Context context) {
-        super(context, null, false);
-
+        super(context);
     }
 
     /*
