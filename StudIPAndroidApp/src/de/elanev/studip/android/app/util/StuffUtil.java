@@ -31,10 +31,10 @@ public final class StuffUtil {
         context.startActivity(intent);
     }
 
-    public static void startFeedback(Context context) {
+    public static void startFeedback(Context context, String contact_mail) {
         Intent intent = new Intent(Intent.ACTION_SENDTO,
                 Uri.fromParts("mailto",
-                        context.getString(R.string.feedback_form_email),
+                        contact_mail,
                         null));
 
         intent.putExtra(Intent.EXTRA_SUBJECT,
