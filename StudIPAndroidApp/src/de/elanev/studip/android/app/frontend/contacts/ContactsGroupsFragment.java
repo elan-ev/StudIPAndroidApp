@@ -8,6 +8,7 @@
 package de.elanev.studip.android.app.frontend.contacts;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -15,14 +16,18 @@ import android.os.Handler;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
-import de.elanev.studip.android.app.frontend.util.SimpleSectionedListAdapter;
+import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.widget.ListAdapterUsers;
+import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
+import de.elanev.studip.android.app.widget.UserDetailsActivity;
 import de.elanev.studip.android.app.widget.UserListFragment;
 
 /**
@@ -44,7 +49,13 @@ public class ContactsGroupsFragment extends UserListFragment {
         }
     };
     private ListAdapterUsers mUserAdapter;
-    private SimpleSectionedListAdapter mAdapter;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mUserAdapter = new ListAdapterUsers(mContext);
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -52,11 +63,10 @@ public class ContactsGroupsFragment extends UserListFragment {
         getActivity().setTitle(R.string.Contacts);
         setEmptyMessage(R.string.no_contacts);
 
-        mUserAdapter = new ListAdapterUsers(mContext);
-        mAdapter = new SimpleSectionedListAdapter(mContext,
-                R.layout.list_item_header, mUserAdapter);
-        setListAdapter(mAdapter);
+        mListView.setOnItemClickListener(this);
+        mListView.setOnStickyHeaderOffsetChangedListener(this);
 
+        mListView.setAdapter(mUserAdapter);
         // initialize CursorLoader
         getLoaderManager().initLoader(0, null, this);
     }
@@ -100,7 +110,7 @@ public class ContactsGroupsFragment extends UserListFragment {
             return;
         }
 
-        List<SimpleSectionedListAdapter.Section> sections = new ArrayList<SimpleSectionedListAdapter.Section>();
+        List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
         cursor.moveToFirst();
         String prevGroup = null;
         String currGroup = null;
@@ -110,7 +120,7 @@ public class ContactsGroupsFragment extends UserListFragment {
                     .getString(cursor
                             .getColumnIndex(ContactsContract.Columns.ContactGroups.GROUP_NAME));
             if (!TextUtils.equals(currGroup, prevGroup)) {
-                sections.add(new SimpleSectionedListAdapter.Section(cursor
+                sections.add(new SectionedCursorAdapter.Section(cursor
                         .getPosition(), currGroup));
             }
 
@@ -119,11 +129,8 @@ public class ContactsGroupsFragment extends UserListFragment {
             cursor.moveToNext();
         }
 
-        mUserAdapter.changeCursor(cursor);
-
-        SimpleSectionedListAdapter.Section[] dummy = new SimpleSectionedListAdapter.Section[sections
-                .size()];
-        mAdapter.setSections(sections.toArray(dummy));
+        mUserAdapter.setSections(sections);
+        mUserAdapter.swapCursor(cursor);
 
         setLoadingViewVisible(false);
     }
@@ -137,6 +144,19 @@ public class ContactsGroupsFragment extends UserListFragment {
      */
     public void onLoaderReset(Loader<Cursor> loader) {
         mUserAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor c = (Cursor) mListView.getItemAtPosition(position);
+
+        String userId = c.getString(c
+                .getColumnIndex(UsersContract.Columns.USER_ID));
+        if (userId != null) {
+            Intent intent = new Intent(mContext, UserDetailsActivity.class);
+            intent.putExtra(UsersContract.Columns.USER_ID, userId);
+            mContext.startActivity(intent);
+        }
     }
 
 }
