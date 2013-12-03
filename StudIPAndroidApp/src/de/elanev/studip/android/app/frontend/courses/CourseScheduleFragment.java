@@ -11,6 +11,7 @@
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -19,16 +20,21 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.actionbarsherlock.app.SherlockListFragment;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
-import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 
 /**
  * @author joern
  */
-public class CourseScheduleFragment extends ProgressSherlockListFragment implements
+public class CourseScheduleFragment extends SherlockListFragment implements
         LoaderCallbacks<Cursor> {
     public static final String TAG = CourseScheduleFragment.class
             .getSimpleName();
@@ -49,6 +55,48 @@ public class CourseScheduleFragment extends ProgressSherlockListFragment impleme
     };
     private Bundle mArgs;
     private SimpleCursorAdapter mAdapter;
+    private View mListContainerView, mProgressView;
+    private TextView mEmptyMessageTextView;
+    protected Context mContext;
+
+    /*
+         * (non-Javadoc)
+         *
+         * @see android.support.v4.app.ListFragment#onCreateView(android.view.
+         * LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+         */
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View v = inflater.inflate(R.layout.simple_list, null);
+        mEmptyMessageTextView = (TextView) v.findViewById(R.id.empty_message);
+        mListContainerView = v.findViewById(R.id.list_container);
+        mProgressView = v.findViewById(R.id.progressbar);
+
+        return v;
+    }
+
+    /**
+     * Sets the message resource to be displayed when the ListView is empty
+     *
+     * @param messageRes string resource for the empty message
+     */
+    protected void setEmptyMessage(int messageRes) {
+        mEmptyMessageTextView.setText(messageRes);
+    }
+
+    /**
+     * Toggles the visibility of the list container and progress bar
+     *
+     * @param visible progress bar visibility
+     */
+    protected void setLoadingViewVisible(boolean visible) {
+        if (mProgressView != null && mListContainerView != null) {
+            mListContainerView.setVisibility(visible ? View.GONE : View.VISIBLE);
+            mProgressView.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,30 +127,31 @@ public class CourseScheduleFragment extends ProgressSherlockListFragment impleme
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        activity.getContentResolver().registerContentObserver(
-                EventsContract.CONTENT_URI, true, mEventsObserver);
+        activity.getContentResolver()
+                .registerContentObserver(EventsContract.CONTENT_URI, true, mEventsObserver);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        getActivity().getContentResolver().unregisterContentObserver(
-                mEventsObserver);
+        getActivity().getContentResolver().unregisterContentObserver(mEventsObserver);
     }
 
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
         setLoadingViewVisible(true);
-        return new CursorLoader(
+        CursorLoader loader = new CursorLoader(
                 mContext,
                 CoursesContract.CONTENT_URI
                         .buildUpon()
                         .appendPath("events")
-                        .appendPath(
-                                data.getString(CoursesContract.Columns.Courses.COURSE_ID))
+                        .appendPath(data.getString(CoursesContract.Columns.Courses.COURSE_ID))
                         .build(),
                 CourseEventsListQuery.projection,
                 EventsContract.Columns.EVENT_START + " >= strftime('%s','now')",
-                null, EventsContract.DEFAULT_SORT_ORDER);
+                null,
+                EventsContract.DEFAULT_SORT_ORDER);
+
+        return loader;
     }
 
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
