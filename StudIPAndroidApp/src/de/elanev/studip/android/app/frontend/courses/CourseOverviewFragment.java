@@ -211,6 +211,8 @@ public class CourseOverviewFragment extends SherlockFragment implements
      */
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 
+        String cid = data.getString(CoursesContract.Columns.Courses.COURSE_ID);
+        long dbid = data.getLong(CoursesContract.Columns.Courses._ID);
         // Create loaders based on id
         switch (id) {
             case COURSE_LOADER:
@@ -218,8 +220,7 @@ public class CourseOverviewFragment extends SherlockFragment implements
                         mContext,
                         CoursesContract.CONTENT_URI
                                 .buildUpon()
-                                .appendPath(
-                                        data.getString(CoursesContract.Columns.Courses._ID))
+                                .appendPath(Long.toString(dbid))
                                 .build(), CourseItemQuery.projection, null, null,
                         CoursesContract.DEFAULT_SORT_ORDER);
 
@@ -229,8 +230,7 @@ public class CourseOverviewFragment extends SherlockFragment implements
                         CoursesContract.CONTENT_URI
                                 .buildUpon()
                                 .appendPath("events")
-                                .appendPath(
-                                        data.getString(CoursesContract.Columns.Courses.COURSE_ID))
+                                .appendPath(cid)
                                 .build(), CourseEventQuery.projection,
                         EventsContract.Columns.EVENT_START
                                 + " >= strftime('%s','now')", null,
@@ -241,8 +241,7 @@ public class CourseOverviewFragment extends SherlockFragment implements
                         mContext,
                         NewsContract.CONTENT_URI
                                 .buildUpon()
-                                .appendPath(
-                                        data.getString(CoursesContract.Columns.Courses.COURSE_ID))
+                                .appendPath(cid)
                                 .build(), CourseNewsQuery.PROJECTION, null, null,
                         NewsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
         }

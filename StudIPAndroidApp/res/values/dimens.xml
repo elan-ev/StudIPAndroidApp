@@ -27,6 +27,7 @@
     <dimen name="layout_padding_small">4dp</dimen>
     <dimen name="layout_margin_normal">8dp</dimen>
     <dimen name="layout_margin_small">4dp</dimen>
+    <dimen name="touch_default_site">48dp</dimen>
 
     <dimen name="user_image_medium">80dp</dimen>
 </resources>
