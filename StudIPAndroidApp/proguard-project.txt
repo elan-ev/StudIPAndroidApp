@@ -27,6 +27,10 @@
 #   public *;
 #}
 
+-libraryjars libs/armeabi.jar
+-libraryjars libs/x86.jar
+-libraryjars libs/guava-r09.jar
+-libraryjars libs/sqlcipher.jar
 
 -keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature
 
@@ -34,8 +38,18 @@
 -keep interface android.support.v4.** { *; }
 -keep class com.actionbarsherlock.** { *; }
 -keep interface com.actionbarsherlock.** { *; }
+-keep class net.sqlcipher.** { *; }
+-keep interface net.sqlcipher.** { *; }
+-keep class net.sqlcipher.database.** { *; }
+-keep interface net.sqlcipher.database.** { *; }
+-keep class info.guardianproject.database.** {*;}
+-keep class info.guardianproject.database.sqlcipher.** {*;}
 -keep class org.apache.http.** { *; }
+-keep class org.apache.harmony.** { *; }
+-keep class com.android.org.conscrypt.** { *; }
+-keep class com.google.vending.** { *; }
 -keep class com.fasterxml.** { *; }
+-keep class com.google.common.** { *; }
 -keep public class de.elanev.studip.android.app.backend.datamodel.** {
   public void set*(***);
   public *** get();
@@ -48,3 +62,4 @@
 -dontwarn org.apache.**
 -dontwarn com.actionbarsherlock.internal.**
 -dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
+-dontwarn com.google.common.**
