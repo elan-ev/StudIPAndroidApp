@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 
+import com.crashlytics.android.Crashlytics;
+
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
@@ -32,25 +34,34 @@ public final class StuffUtil {
     }
 
     public static void startFeedback(Context context, String contact_mail) {
-        Intent intent = new Intent(Intent.ACTION_SENDTO,
-                Uri.fromParts("mailto",
-                        contact_mail,
-                        null));
+        try {
+            Intent intent = new Intent(Intent.ACTION_SENDTO,
+                    Uri.fromParts("mailto",
+                            contact_mail,
+                            null));
 
-        intent.putExtra(Intent.EXTRA_SUBJECT,
-                context.getString(R.string.feedback_form_subject));
+            intent.putExtra(Intent.EXTRA_SUBJECT,
+                    context.getString(R.string.feedback_form_subject));
 
-        intent.putExtra(
-                Intent.EXTRA_TEXT,
-                String.format(
-                        context.getString(R.string.feedback_form_message_template),
-                        Build.VERSION.SDK_INT,
-                        BuildConfig.VERSION_NAME,
-                        BuildConfig.VERSION_CODE,
-                        BuildConfig.BUILD_TIME));
+            intent.putExtra(
+                    Intent.EXTRA_TEXT,
+                    String.format(
+                            context.getString(R.string.feedback_form_message_template),
+                            Build.VERSION.SDK_INT,
+                            BuildConfig.VERSION_NAME,
+                            BuildConfig.VERSION_CODE,
+                            BuildConfig.BUILD_TIME));
 
-        context.startActivity(Intent.createChooser(intent,
-                context.getString(R.string.feedback_form_action)));
+            context.startActivity(Intent.createChooser(intent,
+                    context.getString(R.string.feedback_form_action)));
+        } catch (Exception e) {
+            if (BuildConfig.USE_CRASHLYTICS)
+                Crashlytics.logException(e);
+            
+            return;
+        }
+
+
     }
 
     public static void signOut(Context context) {
