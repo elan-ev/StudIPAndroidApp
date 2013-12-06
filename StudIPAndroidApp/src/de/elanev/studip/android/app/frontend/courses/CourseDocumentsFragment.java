@@ -44,13 +44,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.backend.datamodel.Server;
+import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
-import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.FileUtils;
-import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -114,7 +112,6 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
     private long mDownloadReference = -1L;
     private DownloadManager mDownloadManager;
     private Bundle mArgs;
-    private VolleyOAuthConsumer mConsumer;
     private String mApiUrl;
 
     @Override
@@ -124,17 +121,12 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
         String cid = mArgs.getString(
                 CoursesContract.Columns.Courses.COURSE_ID);
 
-        Prefs prefs = Prefs.getInstance(mContext);
-        if (prefs.isAppAuthorized()) {
-            Server server = prefs.getServer();
-            mConsumer = new VolleyOAuthConsumer(server.getConsumerKey(),
-                    server.getConsumerSecret());
-            mConsumer.setTokenWithSecret(prefs.getAccessToken(),
-                    prefs.getAccessTokenSecret());
-        }
         // Get reference to the download manager
         mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-        mApiUrl = prefs.getServer().getApiUrl();
+        mApiUrl = StudIPApplication.getInstance()
+                .getOAuthConnector()
+                .getServer()
+                .getApiUrl();
 
         mDocumentsAdapter = new DocumentsAdapter(mContext);
 
@@ -217,7 +209,10 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                     downloadUrl = downloadUrl.replace("https://", "http://");
 
                     // Sign the download URL with the OAuth credentials and parse the URI
-                    String signedDownloadUrl = mConsumer.sign(downloadUrl);
+                    String signedDownloadUrl = StudIPApplication.getInstance()
+                            .getOAuthConnector()
+                            .getConsumer()
+                            .sign(downloadUrl);
                     Uri downloadUri = Uri.parse(signedDownloadUrl);
 
 
