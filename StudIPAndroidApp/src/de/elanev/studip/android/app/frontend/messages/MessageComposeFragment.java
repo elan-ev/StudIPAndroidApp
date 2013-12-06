@@ -46,10 +46,8 @@ import java.util.Locale;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Message;
-import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
@@ -366,17 +364,11 @@ public class MessageComposeFragment extends SherlockFragment implements
                             .toString());
 
                     // Sign request
-                    Prefs prefs = Prefs.getInstance(mContext);
-                    VolleyOAuthConsumer consumer = null;
-                    if (prefs.isAppAuthorized()) {
-                        Server server = prefs.getServer();
-                        consumer = new VolleyOAuthConsumer(server.getConsumerKey(),
-                                server.getConsumerSecret());
-                        consumer.setTokenWithSecret(prefs.getAccessToken(),
-                                prefs.getAccessTokenSecret());
-                    }
                     try {
-                        consumer.sign(request);
+                        StudIPApplication.getInstance()
+                                .getOAuthConnector()
+                                .getConsumer()
+                                .sign(request);
                     } catch (OAuthMessageSignerException e) {
                         e.printStackTrace();
                     } catch (OAuthExpectationFailedException e) {
