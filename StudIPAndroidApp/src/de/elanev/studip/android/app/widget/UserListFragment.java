@@ -51,12 +51,10 @@ import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupHandler;
 import de.elanev.studip.android.app.backend.net.sync.ContactsHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
-import de.elanev.studip.android.app.util.Prefs;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
@@ -68,7 +66,6 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
     private static final String TAG = UserListFragment.class.getCanonicalName();
-    private static VolleyOAuthConsumer mConsumer;
     private static ContentResolver mResolver;
     private static String mApiUrl;
 
@@ -113,7 +110,10 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                 Method.PUT
         );
         try {
-            mConsumer.sign(contactAddRequest);
+            StudIPApplication.getInstance()
+                    .getOAuthConnector()
+                    .getConsumer()
+                    .sign(contactAddRequest);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
@@ -161,7 +161,10 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         );
 
         try {
-            mConsumer.sign(request);
+            StudIPApplication.getInstance()
+                    .getOAuthConnector()
+                    .getConsumer()
+                    .sign(request);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
@@ -209,7 +212,10 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         );
 
         try {
-            mConsumer.sign(request);
+            StudIPApplication.getInstance()
+                    .getOAuthConnector()
+                    .getConsumer()
+                    .sign(request);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
@@ -257,7 +263,10 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                 Method.PUT
         );
         try {
-            mConsumer.sign(userAddRequest);
+            StudIPApplication.getInstance()
+                    .getOAuthConnector()
+                    .getConsumer()
+                    .sign(userAddRequest);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
@@ -279,16 +288,10 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         super.onCreate(savedInstanceState);
         mResolver = mContext.getContentResolver();
 
-        // FIXME Only temp, later use Consumer Singleton
-        mConsumer = new VolleyOAuthConsumer(Prefs.getInstance(mContext)
-                .getServer().getConsumerKey(), Prefs.getInstance(mContext)
-                .getServer().getConsumerSecret());
-
-        mConsumer.setTokenWithSecret(Prefs.getInstance(mContext)
-                .getAccessToken(), Prefs.getInstance(mContext)
-                .getAccessTokenSecret());
-
-        mApiUrl = Prefs.getInstance(mContext).getServer().getApiUrl();
+        mApiUrl = StudIPApplication.getInstance()
+                .getOAuthConnector()
+                .getServer()
+                .getApiUrl();
 
     }
 
