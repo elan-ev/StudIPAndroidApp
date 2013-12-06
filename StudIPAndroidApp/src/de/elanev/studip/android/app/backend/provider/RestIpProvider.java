@@ -7,10 +7,6 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.provider;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -20,16 +16,22 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDoneException;
-import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import net.sqlcipher.DatabaseUtils;
+import net.sqlcipher.SQLException;
+import net.sqlcipher.database.SQLiteConstraintException;
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDoneException;
+import net.sqlcipher.database.SQLiteStatement;
+
+import java.util.ArrayList;
+import java.util.Map;
+
 import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.backend.db.AuthenticationContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DatabaseHandler;
@@ -40,6 +42,7 @@ import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
+import de.elanev.studip.android.app.util.Config;
 
 /**
  * @author joern
@@ -90,6 +93,7 @@ public class RestIpProvider extends ContentProvider {
     private static final int CONTACTS_GROUPS_ID = 803;
     private static final int CONTACTS_GROUP_MEMBERS = 804;
     private static final int CONTACTS_GROUP_MEMBERS_GROUPID = 805;
+    private static final int AUTHENTICATION = 900;
     private long mLastDocumentsSync = -1;
     private long mLastCoursesSync = -1;
     private long mLastNewsSync = -1;
@@ -167,6 +171,10 @@ public class RestIpProvider extends ContentProvider {
                 CONTACTS_GROUP_MEMBERS_GROUPID);
         matcher.addURI(authority, "contacts/groups/*", CONTACTS_GROUPS_ID);
         matcher.addURI(authority, "contacts/*", CONTACTS_ID);
+
+        // matchers for authentication
+        matcher.addURI(authority, "authentication", AUTHENTICATION);
+
         return matcher;
     }
 
@@ -174,7 +182,7 @@ public class RestIpProvider extends ContentProvider {
                                               String idColumn, ContentValues values, boolean updateFlag) {
         try {
             return db.insertOrThrow(table, null, values);
-        } catch (SQLException e) {
+        } catch (SQLiteConstraintException e) {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT ").append(idColumn).append(" FROM ")
                     .append(table).append(" WHERE ");
@@ -300,6 +308,8 @@ public class RestIpProvider extends ContentProvider {
                 return ContactsContract.CONTENT_TYPE_CONTACT_GROUPS;
             case CONTACTS_GROUPS_ID:
                 return ContactsContract.CONTENT_ITEM_TYPE_CONTACT_GROUPS;
+            case AUTHENTICATION:
+                return AuthenticationContract.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown mime type: " + uri);
         }
@@ -320,7 +330,7 @@ public class RestIpProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-                .getWritableDatabase();
+                .getWritableDatabase(Config.PRIVATE_KEY);
         int retVal = -1;
 
         // Deleting the whole db
@@ -427,6 +437,12 @@ public class RestIpProvider extends ContentProvider {
                                 + selection + ")" : ""), selectionArgs);
                 return retVal;
             }
+            case AUTHENTICATION: {
+                return db.delete(AuthenticationContract.TABLE_AUTHENTICATION,
+                        selection,
+                        selectionArgs);
+            }
+
             default: {
                 throw new UnsupportedOperationException("Unsupported delete uri: "
                         + uri);
@@ -454,7 +470,7 @@ public class RestIpProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-                .getWritableDatabase();
+                .getWritableDatabase(Config.PRIVATE_KEY);
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case NEWS: {
@@ -555,6 +571,17 @@ public class RestIpProvider extends ContentProvider {
                 return ContentUris.withAppendedId(
                         ContactsContract.CONTENT_URI_CONTACT_GROUPS, rowId);
             }
+            case AUTHENTICATION: {
+                delete(uri, null, null);
+                long rowId = db.insertWithOnConflict(
+                        AuthenticationContract.TABLE_AUTHENTICATION,
+                        null,
+                        values,
+                        SQLiteDatabase.CONFLICT_REPLACE);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return ContentUris.withAppendedId(
+                        AuthenticationContract.CONTENT_URI, rowId);
+            }
             default: {
                 throw new UnsupportedOperationException("Unsupported insert uri: "
                         + uri);
@@ -565,9 +592,9 @@ public class RestIpProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
-
+        String key = Config.PRIVATE_KEY;
         SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-                .getReadableDatabase();
+                .getReadableDatabase(Config.PRIVATE_KEY);
         String orderBy;
         final int match = sUriMatcher.match(uri);
         Cursor c = null;
@@ -983,6 +1010,18 @@ public class RestIpProvider extends ContentProvider {
                         ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS);
                 break;
             }
+            case AUTHENTICATION: {
+                c = db.query(AuthenticationContract.TABLE_AUTHENTICATION,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        null);
+                c.setNotificationUri(getContext().getContentResolver(),
+                        AuthenticationContract.CONTENT_URI);
+                break;
+            }
             default:
                 throw new IllegalArgumentException("Unsupported uri: " + uri);
         }
@@ -1000,7 +1039,7 @@ public class RestIpProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
         SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-                .getReadableDatabase();
+                .getReadableDatabase(Config.PRIVATE_KEY);
         int affectedRows = 0;
         final int match = sUriMatcher.match(uri);
 
@@ -1031,7 +1070,7 @@ public class RestIpProvider extends ContentProvider {
             ArrayList<ContentProviderOperation> operations)
             throws OperationApplicationException {
         final SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-                .getWritableDatabase();
+                .getWritableDatabase(Config.PRIVATE_KEY);
         db.beginTransaction();
         try {
             final int numOperations = operations.size();
@@ -1055,7 +1094,7 @@ public class RestIpProvider extends ContentProvider {
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
         SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-                .getWritableDatabase();
+                .getWritableDatabase(Config.PRIVATE_KEY);
         final int match = sUriMatcher.match(uri);
         int rowsInserted = 0;
         switch (match) {

@@ -10,12 +10,12 @@ import java.text.SimpleDateFormat
 def versionMajor = 0 //prod
 def versionMinor = 8
 def versionPatch = 5
-def versionBuild = 1
+def versionBuild = 11
 
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8
 def versionPatchBeta = 5
-def versionBuildBeta = 5
+def versionBuildBeta = 12
 
 final Console console = System.console();
 
@@ -37,7 +37,7 @@ repositories {
 }
 
 dependencies {
-
+    compile fileTree(dir: 'libs', include: '*.jar')
     compile 'com.android.support:support-v4:18.+'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.2.2'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.2.2'
@@ -120,7 +120,7 @@ android {
         }
 
         prod {
-            minSdkVersion 15
+            minSdkVersion 10
             versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
             versionName "${versionMajor}.${versionMinor}.${versionPatch}"
             buildConfig """\

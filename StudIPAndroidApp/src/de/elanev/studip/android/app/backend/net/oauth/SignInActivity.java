@@ -10,10 +10,8 @@ package de.elanev.studip.android.app.backend.net.oauth;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ListFragment;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,7 +27,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.android.volley.VolleyError;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,21 +39,17 @@ import java.io.IOException;
 
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.Servers;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.backend.db.DatabaseHandler;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.ServerData;
 import de.elanev.studip.android.app.util.StuffUtil;
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.OAuthProvider;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * Activity for handling the full sign in and authorization process. It triggers
@@ -79,27 +76,27 @@ public class SignInActivity extends SherlockFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         this.setContentView(R.layout.content_frame);
 
-        if (!Prefs.getInstance(this).isSecureStarted()) {
-            // Delete the app database
-            getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
-            // Clear the app preferences
-            Prefs.getInstance(this).clearPrefs();
-            Prefs.getInstance(this).setSecureStarted();
-        }
+        if (Prefs.getInstance(this).isAppAuthorized()) {
+            // Check if unsecured data needs to be cleared
+            if (!Prefs.getInstance(this).isSecureStarted()) {
+                // Encrypt legacy database
+                DatabaseHandler.deleteLegacyDatabase(this);
+                // Delete the app database
+                getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
+                // Clear the app preferences
+                Prefs.getInstance(this).clearPrefs();
+                Prefs.getInstance(this).setSecureStarted();
 
-        if (!Prefs.getInstance(this).isFirstStart()) {
-            startNewsActivity();
-            return;
+            } else {
+                Server s = Prefs.getInstance(this).getServer();
+                Bundle tokens = Prefs.getInstance(this).getAccessToken();
+                OAuthConnector connector = new OAuthConnector(s, tokens);
+                StudIPApplication.getInstance().setOAuthConnector(connector);
+                startNewsActivity();
+            }
         }
-
-		/*
-         * Clear shared prefs for debugging
-		 */
-        // Prefs.getInstance(getApplicationContext()).clearPrefs();
 
         if (savedInstanceState == null) {
             SignInFragment signInFragment = SignInFragment.newInstance();
@@ -116,33 +113,6 @@ public class SignInActivity extends SherlockFragmentActivity {
     @Override
     public void onBackPressed() {
         return;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getSupportMenuInflater().inflate(R.menu.main, menu);
-        menu.removeItem(R.id.menu_sign_out);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(
-            com.actionbarsherlock.view.MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.menu_feedback:
-                String contact_mail = Prefs.getInstance(this).getServer().getContactEmail();
-                StuffUtil.startFeedback(this, contact_mail);
-                return true;
-
-            case R.id.menu_about:
-                StuffUtil.startAbout(this);
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -168,9 +138,11 @@ public class SignInActivity extends SherlockFragmentActivity {
      *
      * @author joern
      */
-    public static class SignInFragment extends ListFragment implements SyncHelper.SyncHelperCallbacks {
+    public static class SignInFragment extends SherlockListFragment implements SyncHelper.SyncHelperCallbacks,
+            OAuthConnector.OAuthCallbacks {
         Animation slideUpIn;
         private Context mContext;
+        private Server mSelectedServer;
         private ArrayAdapter<Server> mAdapter;
         private boolean mSignInFormVisible = false;
         private boolean mMissingBoxShown = false;
@@ -191,11 +163,6 @@ public class SignInActivity extends SherlockFragmentActivity {
             return fragment;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-         */
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -209,14 +176,9 @@ public class SignInActivity extends SherlockFragmentActivity {
             mAdapter = new ServerAdapter(mContext, res, getItems().getServers());
             slideUpIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up_in);
 
+            setHasOptionsMenu(true);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see android.support.v4.app.ListFragment#onCreateView(android.view.
-         * LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-         */
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -235,12 +197,6 @@ public class SignInActivity extends SherlockFragmentActivity {
             return v;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-         */
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
@@ -248,30 +204,26 @@ public class SignInActivity extends SherlockFragmentActivity {
             mAdapter.notifyDataSetChanged();
             getListView().setSelector(R.drawable.list_item_selector);
 
-            if (Prefs.getInstance(mContext).getServer() != null
-                    && Prefs.getInstance(mContext).isAppAuthorized()) {
-                performPrefetchSync();
+            View selectedView = getListView().getSelectedView();
+            if (!mAdapter.isEmpty() && selectedView == null) {
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        getListView().performItemClick(
+                                getListView().getChildAt(0),
+                                0,
+                                getListView().getAdapter().getItemId(0));
+                    }
+                });
 
-            } else {
-                View selectedView = getListView().getSelectedView();
-                if (!mAdapter.isEmpty() && selectedView == null) {
-                    new Handler().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            getListView().performItemClick(
-                                    getListView().getChildAt(0),
-                                    0,
-                                    getListView().getAdapter().getItemId(0));
-                        }
-                    });
-                }
                 showLoginForm();
                 Button signInButton = (Button) getView().findViewById(R.id.sign_in_button);
                 signInButton.setOnClickListener(new OnClickListener() {
 
                     public void onClick(View v) {
-                        hideLoginForm();
-                        connect();
+                        if (mSelectedServer != null) {
+                            connect();
+                        }
                     }
                 });
             }
@@ -289,12 +241,33 @@ public class SignInActivity extends SherlockFragmentActivity {
 
         }
 
-        /*
-                 * (non-Javadoc)
-                 *
-                 * @see android.support.v4.app.Fragment#onActivityResult(int, int,
-                 * android.content.Intent)
-                 */
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            inflater.inflate(R.menu.main, menu);
+            menu.removeItem(R.id.menu_sign_out);
+
+            super.onCreateOptionsMenu(menu, inflater);
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+
+            switch (item.getItemId()) {
+                case R.id.menu_feedback:
+                    if (mSelectedServer != null) {
+                        String contact_mail = mSelectedServer.getContactEmail();
+                        StuffUtil.startFeedback(getActivity(), contact_mail);
+                    }
+                    return true;
+
+                case R.id.menu_about:
+                    StuffUtil.startAbout(getActivity());
+                    return true;
+            }
+
+            return super.onOptionsItemSelected(item);
+        }
+
         @Override
         public void onActivityResult(int requestCode, int resultCode,
                                      Intent intent) {
@@ -302,23 +275,12 @@ public class SignInActivity extends SherlockFragmentActivity {
 
             if (resultCode == RESULT_OK) {
                 Log.d(TAG, "ACCESS TOKEN FLAG SET");
-                Bundle extras = intent.getExtras();
-                String token = extras.getString("token");
-                String tokenSecret = extras.getString("tokenSecret");
-                Log.d(TAG, token + ", " + tokenSecret);
-                Log.i(TAG, OAuthConnector.getConsumer().getToken() + " "
-                        + OAuthConnector.getConsumer().getTokenSecret());
-                new AccessTokenTask().execute();
+                StudIPApplication.getInstance()
+                        .getOAuthConnector()
+                        .getAccessToken(this);
             }
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.support.v4.app.ListFragment#onListItemClick(android.widget
-         * .ListView , android.view.View, int, long)
-         */
         @Override
         public void onListItemClick(ListView l, View v, int position, long id) {
             super.onListItemClick(l, v, position, id);
@@ -328,9 +290,7 @@ public class SignInActivity extends SherlockFragmentActivity {
                     getListView().setItemChecked(position, true);
                 }
 
-                Server server = mAdapter.getItem(position);
-
-                Prefs.getInstance(mContext).setServer(server);
+                mSelectedServer = mAdapter.getItem(position);
             }
 
         }
@@ -375,39 +335,25 @@ public class SignInActivity extends SherlockFragmentActivity {
          * OAuthConnector if it's already saved.
          */
         private boolean connect() {
-            if (Prefs.getInstance(mContext).getServer() != null) {
 
-                OAuthConnector.init(Prefs.getInstance(mContext).getServer());
-
-                if (NetworkUtils.getConnectivityStatus(mContext) != NetworkUtils.NOT_CONNECTED) {
-
-                    if (!Prefs.getInstance(mContext).isAppAuthorized()) {
-                        new RequestTokenTask().execute();
-
-                    } else {
-
-                        String accessToken = Prefs.getInstance(mContext)
-                                .getAccessToken();
-                        String accessSecret = Prefs.getInstance(mContext)
-                                .getAccessTokenSecret();
-
-                        if (accessToken != null && accessSecret != null) {
-                            OAuthConnector.setAccessToken(accessToken,
-                                    accessSecret);
-
-                            return true;
-                        }
-                    }
-                } else {
-                    Toast.makeText(mContext, "Not connected", Toast.LENGTH_LONG)
-                            .show();
-                    showLoginForm();
-                }
+            if (!Prefs.getInstance(mContext).isAppAuthorized()) {
+                authorize();
             } else {
-                showLoginForm();
+                return false;
             }
-            return false;
+            return true;
+        }
 
+        private void authorize() {
+            if (NetworkUtils.getConnectivityStatus(mContext) == NetworkUtils.NOT_CONNECTED) {
+                Toast.makeText(mContext, "Not connected", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            hideLoginForm();
+
+            StudIPApplication.getInstance().setOAuthConnector(new OAuthConnector(mSelectedServer));
+            StudIPApplication.getInstance().getOAuthConnector().getRequestToken(this);
         }
 
         /*
@@ -527,6 +473,38 @@ public class SignInActivity extends SherlockFragmentActivity {
             }
         }
 
+        @Override
+        public void onRequestTokenReceived(String authUrl) {
+            Log.d("Verbinung", "request Token geholt");
+            Log.d("sAuthUrl", authUrl);
+            int requestCode = 0;
+            Intent intent = new Intent(mContext, WebViewActivity.class);
+            intent.putExtra("sAuthUrl", authUrl);
+            startActivityForResult(intent, requestCode);
+        }
+
+        @Override
+        public void onAccessTokenReceived(String token, String tokenSecret) {
+            Bundle tokens = new Bundle();
+            tokens.putString(Prefs.ACCESS_TOKEN, token);
+            tokens.putString(Prefs.ACCESS_TOKEN_SECRET, tokenSecret);
+            Prefs.getInstance(mContext).setAccessToken(mSelectedServer, tokens);
+            Prefs.getInstance(mContext).setAppAuthorized(true);
+            performPrefetchSync();
+        }
+
+        @Override
+        public void onRequestTokenRequestError(OAuthError e) {
+            Toast.makeText(mContext, e.errorMessage, Toast.LENGTH_LONG).show();
+            showLoginForm();
+        }
+
+        @Override
+        public void onAccesTokenRequestError(OAuthError e) {
+            Toast.makeText(mContext, e.errorMessage, Toast.LENGTH_LONG).show();
+            showLoginForm();
+        }
+
         /*
          * Array adapter class which holds and displays the saved servers
          */
@@ -577,134 +555,5 @@ public class SignInActivity extends SherlockFragmentActivity {
                 return data[position];
             }
         }
-
-        /*
-         * AsyncTask for requesting the request token from the API
-         */
-        private class RequestTokenTask extends
-                AsyncTask<String, Integer, String> {
-
-            /*
-             * (non-Javadoc)
-             *
-             * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-             */
-            @Override
-            protected String doInBackground(String... params) {
-                try {
-                    return OAuthConnector.getProvider().retrieveRequestToken(OAuthConnector.getConsumer(), "");
-                } catch (OAuthMessageSignerException e) {
-                    e.printStackTrace();
-                } catch (OAuthNotAuthorizedException e) {
-                    e.printStackTrace();
-                } catch (OAuthExpectationFailedException e) {
-                    e.printStackTrace();
-                } catch (OAuthCommunicationException e) {
-                    e.printStackTrace();
-                }
-
-                return null;
-            }
-
-            /*
-             * (non-Javadoc)
-             *
-             * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-             */
-            @Override
-            protected void onPostExecute(String result) {
-                if (getActivity() == null)
-                    return;
-
-                // If the RequestToken request was successful, show the
-                // permission prompt
-                if (result != null) {
-                    Log.d("Verbinung", "request Token geholt");
-                    Log.d("sAuthUrl", result);
-                    int requestCode = 0;
-                    Intent intent = new Intent(mContext, WebViewActivity.class);
-                    intent.putExtra("sAuthUrl", result);
-                    startActivityForResult(intent, requestCode);
-                } else {
-                    Toast.makeText(mContext,
-                            getString(R.string.something_went_wrong),
-                            Toast.LENGTH_LONG).show();
-                    showLoginForm();
-                }
-            }
-        }
-
-        /*
-         * AsyncTask for requesting the access token from the API
-         */
-        private class AccessTokenTask extends
-                AsyncTask<String, Integer, String> {
-
-            /*
-             * (non-Javadoc)
-             *
-             * @see android.os.AsyncTask#onPreExecute()
-             */
-            @Override
-            protected void onPreExecute() {
-                hideLoginForm();
-            }
-
-            /*
-             * (non-Javadoc)
-             *
-             * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-             */
-            @Override
-            protected String doInBackground(String... arg0) {
-                OAuthConsumer consumer = OAuthConnector.getConsumer();
-                OAuthProvider provider = OAuthConnector.getProvider();
-
-                Log.i(TAG,
-                        consumer.getToken() + " " + consumer.getTokenSecret());
-
-                try {
-                    provider.retrieveAccessToken(consumer, null);
-                    Prefs.getInstance(mContext).setAccessToken(
-                            consumer.getToken());
-                    Prefs.getInstance(mContext).setAccessTokenSecret(
-                            consumer.getTokenSecret());
-
-                    return "SUCCESS";
-                } catch (OAuthMessageSignerException e) {
-                    e.printStackTrace();
-                } catch (OAuthNotAuthorizedException e) {
-                    e.printStackTrace();
-                } catch (OAuthExpectationFailedException e) {
-                    e.printStackTrace();
-                } catch (OAuthCommunicationException e) {
-                    e.printStackTrace();
-                }
-                return "FAIL";
-            }
-
-            /*
-             * (non-Javadoc)
-             *
-             * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-             */
-            @Override
-            protected void onPostExecute(String result) {
-                if (getActivity() == null)
-                    return;
-
-                // If the access token was requested successfully, start the
-                // prefetching
-                if (result.equals("SUCCESS")) {
-                    performPrefetchSync();
-                } else {
-                    Toast.makeText(mContext,
-                            getString(R.string.something_went_wrong),
-                            Toast.LENGTH_LONG).show();
-
-                }
-            }
-        }
-
     }
 }

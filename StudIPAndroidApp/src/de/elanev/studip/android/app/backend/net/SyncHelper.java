@@ -101,17 +101,15 @@ public class SyncHelper {
         if (mInstance == null)
             mInstance = new SyncHelper();
 
+        mContext = context;
+
         Prefs prefs = Prefs.getInstance(context);
         if (prefs.isAppAuthorized()) {
-            mServer = prefs.getServer();
-            mConsumer = new VolleyOAuthConsumer(mServer.getConsumerKey(), mServer.getConsumerSecret());
-            mConsumer.setTokenWithSecret(prefs.getAccessToken(), prefs.getAccessTokenSecret());
+            mConsumer = StudIPApplication.getInstance().getOAuthConnector().getConsumer();
+            mServer = StudIPApplication.getInstance().getOAuthConnector().getServer();
         } else {
-//            throw new IllegalStateException("App must be authorized");
-            StuffUtil.startSignInActivity(mContext);
+            StuffUtil.startSignInActivity(context);
         }
-
-        mContext = context;
 
         return mInstance;
     }
@@ -717,6 +715,7 @@ public class SyncHelper {
 
             c.moveToNext();
         }
+        c.close();
 
     }
 

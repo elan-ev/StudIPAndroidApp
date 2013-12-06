@@ -43,9 +43,7 @@ import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
-import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -80,7 +78,6 @@ public class MessageDetailFragment extends SherlockFragment implements
             mSenderForename, mSenderLastname, mSenderTitlePost, mUserImageUrl;
     private long mDate;
     private String mApiUrl;
-    private VolleyOAuthConsumer mConsumer;
     private TextView mMessageSubjectTextView, mMessageDateTextView, mMessageBodyTextView;
     private ImageView mUserImageView;
     private boolean mDeleteButtonVisible = true;
@@ -110,14 +107,10 @@ public class MessageDetailFragment extends SherlockFragment implements
         super.onCreate(savedInstanceState);
         mArgs = getArguments();
         mContext = getActivity();
-        Prefs prefs = Prefs.getInstance(mContext);
-        Server s = prefs.getServer();
+        Server s = StudIPApplication.getInstance()
+                .getOAuthConnector()
+                .getServer();
         mApiUrl = s.getApiUrl();
-
-        mConsumer = new VolleyOAuthConsumer(s.getConsumerKey(), s.getConsumerSecret());
-
-        mConsumer.setTokenWithSecret(prefs.getAccessToken(),
-                prefs.getAccessTokenSecret());
 
     }
 
@@ -343,7 +336,10 @@ public class MessageDetailFragment extends SherlockFragment implements
                 );
 
                 try {
-                    mConsumer.sign(request);
+                    StudIPApplication.getInstance()
+                            .getOAuthConnector()
+                            .getConsumer()
+                            .sign(request);
                 } catch (OAuthMessageSignerException e) {
                     e.printStackTrace();
                 } catch (OAuthExpectationFailedException e) {
