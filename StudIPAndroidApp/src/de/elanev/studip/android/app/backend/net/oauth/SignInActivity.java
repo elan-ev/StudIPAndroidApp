@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ListFragment;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +27,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.android.volley.VolleyError;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -113,31 +115,6 @@ public class SignInActivity extends SherlockFragmentActivity {
         return;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getSupportMenuInflater().inflate(R.menu.main, menu);
-        menu.removeItem(R.id.menu_sign_out);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_feedback:
-                String contact_mail = Prefs.getInstance(this).getServer().getContactEmail();
-                StuffUtil.startFeedback(this, contact_mail);
-                return true;
-
-            case R.id.menu_about:
-                StuffUtil.startAbout(this);
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     /**
      * Starts the next activity after prefetching
      */
@@ -161,7 +138,7 @@ public class SignInActivity extends SherlockFragmentActivity {
      *
      * @author joern
      */
-    public static class SignInFragment extends ListFragment implements SyncHelper.SyncHelperCallbacks,
+    public static class SignInFragment extends SherlockListFragment implements SyncHelper.SyncHelperCallbacks,
             OAuthConnector.OAuthCallbacks {
         Animation slideUpIn;
         private Context mContext;
@@ -186,11 +163,6 @@ public class SignInActivity extends SherlockFragmentActivity {
             return fragment;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-         */
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -204,14 +176,9 @@ public class SignInActivity extends SherlockFragmentActivity {
             mAdapter = new ServerAdapter(mContext, res, getItems().getServers());
             slideUpIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up_in);
 
+            setHasOptionsMenu(true);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see android.support.v4.app.ListFragment#onCreateView(android.view.
-         * LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-         */
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -230,12 +197,6 @@ public class SignInActivity extends SherlockFragmentActivity {
             return v;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-         */
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
@@ -280,12 +241,33 @@ public class SignInActivity extends SherlockFragmentActivity {
 
         }
 
-        /*
-                 * (non-Javadoc)
-                 *
-                 * @see android.support.v4.app.Fragment#onActivityResult(int, int,
-                 * android.content.Intent)
-                 */
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            inflater.inflate(R.menu.main, menu);
+            menu.removeItem(R.id.menu_sign_out);
+
+            super.onCreateOptionsMenu(menu, inflater);
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+
+            switch (item.getItemId()) {
+                case R.id.menu_feedback:
+                    if (mSelectedServer != null) {
+                        String contact_mail = mSelectedServer.getContactEmail();
+                        StuffUtil.startFeedback(getActivity(), contact_mail);
+                    }
+                    return true;
+
+                case R.id.menu_about:
+                    StuffUtil.startAbout(getActivity());
+                    return true;
+            }
+
+            return super.onOptionsItemSelected(item);
+        }
+
         @Override
         public void onActivityResult(int requestCode, int resultCode,
                                      Intent intent) {
@@ -299,13 +281,6 @@ public class SignInActivity extends SherlockFragmentActivity {
             }
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.support.v4.app.ListFragment#onListItemClick(android.widget
-         * .ListView , android.view.View, int, long)
-         */
         @Override
         public void onListItemClick(ListView l, View v, int position, long id) {
             super.onListItemClick(l, v, position, id);
