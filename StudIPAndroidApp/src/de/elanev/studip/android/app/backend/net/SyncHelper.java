@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
 import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -103,8 +104,7 @@ public class SyncHelper {
 
         mContext = context;
 
-        Prefs prefs = Prefs.getInstance(context);
-        if (prefs.isAppAuthorized()) {
+        if (Prefs.getInstance(context).isAppAuthorized()) {
             mConsumer = StudIPApplication.getInstance().getOAuthConnector().getConsumer();
             mServer = StudIPApplication.getInstance().getOAuthConnector().getServer();
         } else {
@@ -356,7 +356,7 @@ public class SyncHelper {
 
     public void forcePerformContactsSync(SyncHelperCallbacks callbacks) {
         mLastContactsSync = 0;
-        performContactsSync(callbacks);
+        performContactsSync(callbacks, Request.Priority.IMMEDIATE);
     }
 
     /**
@@ -364,7 +364,7 @@ public class SyncHelper {
      *
      * @param callbacks SyncHelperCallbacks for calling back, can be null
      */
-    public void performContactsSync(final SyncHelperCallbacks callbacks) {
+    public void performContactsSync(final SyncHelperCallbacks callbacks, Request.Priority priority) {
         long currTime = System.currentTimeMillis();
         if ((currTime - mLastContactsSync) > CONTACTS_SYNC_THRESHOLD) {
             mLastContactsSync = currTime;
@@ -455,6 +455,10 @@ public class SyncHelper {
 
             contactsRequest.setRetryPolicy(mRetryPolicy);
             contactGroupsRequest.setRetryPolicy(mRetryPolicy);
+            if (priority != null) {
+                contactGroupsRequest.setPriority(priority);
+                contactsRequest.setPriority(priority);
+            }
 
             try {
 
@@ -805,6 +809,7 @@ public class SyncHelper {
                         Method.GET
                 );
                 userJacksonRequest.setRetryPolicy(mRetryPolicy);
+                userJacksonRequest.setPriority(Request.Priority.LOW);
 
                 try {
                     mConsumer.sign(userJacksonRequest);
@@ -976,7 +981,7 @@ public class SyncHelper {
         }, Method.GET
         );
         eventsRequest.setRetryPolicy(mRetryPolicy);
-
+        eventsRequest.setPriority(Request.Priority.IMMEDIATE);
         try {
             mConsumer.sign(eventsRequest);
             StudIPApplication.getInstance().addToRequestQueue(eventsRequest, TAG);
@@ -1070,7 +1075,7 @@ public class SyncHelper {
         );
 
         messageFoldersRequest.setRetryPolicy(mRetryPolicy);
-
+        messageFoldersRequest.setPriority(Request.Priority.IMMEDIATE);
         try {
             mConsumer.sign(messageFoldersRequest);
             StudIPApplication.getInstance().addToRequestQueue(messageFoldersRequest, TAG);
@@ -1120,7 +1125,7 @@ public class SyncHelper {
 
         try {
             messagesRequest.setRetryPolicy(mRetryPolicy);
-
+            messagesRequest.setPriority(Request.Priority.IMMEDIATE);
             mConsumer.sign(messagesRequest);
             StudIPApplication.getInstance().addToRequestQueue(messagesRequest, TAG);
 
@@ -1147,7 +1152,7 @@ public class SyncHelper {
                 mServer.getApiUrl(), courseId)
                 + ".json";
 
-        JacksonRequest<DocumentFolders> messagesRequest = new JacksonRequest<DocumentFolders>(
+        JacksonRequest<DocumentFolders> documentFoldersRequest = new JacksonRequest<DocumentFolders>(
                 foldersUrl, DocumentFolders.class, null,
                 new Listener<DocumentFolders>() {
                     public void onResponse(DocumentFolders response) {
@@ -1178,11 +1183,12 @@ public class SyncHelper {
         }, Method.GET
         );
 
-        messagesRequest.setRetryPolicy(mRetryPolicy);
+        documentFoldersRequest.setRetryPolicy(mRetryPolicy);
+        documentFoldersRequest.setPriority(Request.Priority.IMMEDIATE);
 
         try {
-            mConsumer.sign(messagesRequest);
-            StudIPApplication.getInstance().addToRequestQueue(messagesRequest, TAG);
+            mConsumer.sign(documentFoldersRequest);
+            StudIPApplication.getInstance().addToRequestQueue(documentFoldersRequest, TAG);
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
@@ -1204,7 +1210,7 @@ public class SyncHelper {
                 mContext.getString(R.string.restip_documents_rangeid_folder_folderid),
                 mServer.getApiUrl(), courseId, folder.folder_id)
                 + ".json";
-        JacksonRequest<DocumentFolders> messagesRequest = new JacksonRequest<DocumentFolders>(
+        JacksonRequest<DocumentFolders> documentRequest = new JacksonRequest<DocumentFolders>(
                 foldersUrl, DocumentFolders.class, null,
                 new Listener<DocumentFolders>() {
                     public void onResponse(DocumentFolders response) {
@@ -1236,12 +1242,12 @@ public class SyncHelper {
         }, Method.GET
         );
 
-        messagesRequest.setRetryPolicy(mRetryPolicy);
+        documentRequest.setRetryPolicy(mRetryPolicy);
+        documentRequest.setPriority(Request.Priority.IMMEDIATE);
 
         try {
-            mConsumer.sign(messagesRequest);
-            StudIPApplication.getInstance().addToRequestQueue(messagesRequest, TAG);
-
+            mConsumer.sign(documentRequest);
+            StudIPApplication.getInstance().addToRequestQueue(documentRequest, TAG);
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {

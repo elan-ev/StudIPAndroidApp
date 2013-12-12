@@ -417,7 +417,7 @@ public class SignInActivity extends SherlockFragmentActivity {
                     break;
                 case SyncHelper.SyncHelperCallbacks.FINISHED_COURSES_SYNC:
                     mCoursesSynced = true;
-                    SyncHelper.getInstance(mContext).performContactsSync(this);
+                    SyncHelper.getInstance(mContext).performContactsSync(this, null);
                     break;
                 case SyncHelper.SyncHelperCallbacks.FINISHED_NEWS_SYNC:
                     mNewsSynced = true;
@@ -452,7 +452,7 @@ public class SignInActivity extends SherlockFragmentActivity {
                     SyncHelper.getInstance(mContext).performCoursesSync(this);
                     break;
                 case SyncHelper.SyncHelperCallbacks.ERROR_COURSES_SYNC:
-                    SyncHelper.getInstance(mContext).performContactsSync(this);
+                    SyncHelper.getInstance(mContext).performContactsSync(this, null);
                     break;
                 case SyncHelper.SyncHelperCallbacks.ERROR_NEWS_SYNC:
                     SyncHelper.getInstance(mContext).performMessagesSync(this);
