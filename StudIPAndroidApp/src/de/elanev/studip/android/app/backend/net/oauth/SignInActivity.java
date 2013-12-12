@@ -11,7 +11,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -148,6 +147,7 @@ public class SignInActivity extends SherlockFragmentActivity {
         private boolean mMissingBoxShown = false;
         private View mSignInForm, mProgressInfo, mInfoBoxView;
         private TextView mSyncStatusTextView, mInfoBoxTextView;
+        private ListView mListView;
         private OnClickListener mMissingServerOnClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -188,6 +188,7 @@ public class SignInActivity extends SherlockFragmentActivity {
             mSignInForm = v.findViewById(R.id.sign_in_form);
             mInfoBoxTextView = (TextView) v.findViewById(R.id.info_box_message);
             mInfoBoxView = v.findViewById(R.id.info_box);
+            mListView = (ListView) v.findViewById(android.R.id.list);
 
             mSyncStatusTextView = (TextView) v.findViewById(R.id.sync_status);
             // Set missing message text from html to get undline.. (stupid)
@@ -202,32 +203,26 @@ public class SignInActivity extends SherlockFragmentActivity {
             super.onActivityCreated(savedInstanceState);
             setListAdapter(mAdapter);
             mAdapter.notifyDataSetChanged();
-            getListView().setSelector(R.drawable.list_item_selector);
+            mListView.setSelector(R.drawable.list_item_selector);
 
-            View selectedView = getListView().getSelectedView();
-            if (!mAdapter.isEmpty() && selectedView == null) {
-                new Handler().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        getListView().performItemClick(
-                                getListView().getChildAt(0),
-                                0,
-                                getListView().getAdapter().getItemId(0));
+
+            showLoginForm();
+            Button signInButton = (Button) getView().findViewById(R.id.sign_in_button);
+            signInButton.setOnClickListener(new OnClickListener() {
+
+                public void onClick(View v) {
+                    if (mSelectedServer != null) {
+                        connect();
                     }
-                });
+                }
+            });
 
-                showLoginForm();
-                Button signInButton = (Button) getView().findViewById(R.id.sign_in_button);
-                signInButton.setOnClickListener(new OnClickListener() {
 
-                    public void onClick(View v) {
-                        if (mSelectedServer != null) {
-                            connect();
-                        }
-                    }
-                });
+            if (!mAdapter.isEmpty() && mSignInFormVisible) {
+                mListView.setSelection(0);
+                mListView.setItemChecked(0, true);
+                mSelectedServer = mAdapter.getItem(0);
             }
-
         }
 
         @Override
