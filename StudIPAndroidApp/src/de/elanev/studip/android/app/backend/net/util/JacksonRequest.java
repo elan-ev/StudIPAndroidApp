@@ -12,6 +12,7 @@ import android.util.Log;
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -38,6 +39,7 @@ public class JacksonRequest<T> extends VolleySignPostRequestWrapper<T> {
     private final Class<T> clazz;
     private final Map<String, String> headers;
     private final Listener<T> listener;
+    private Priority mPriority = Priority.NORMAL;
 
     /**
      * Make a GET request and return a parsed object from JSON.
@@ -124,4 +126,13 @@ public class JacksonRequest<T> extends VolleySignPostRequestWrapper<T> {
         listener.onResponse(response);
     }
 
+    @Override
+    public Priority getPriority() {
+        return mPriority;
+    }
+
+    public void setPriority(Priority priority) {
+        if(priority != null)
+            mPriority = priority;
+    }
 }
