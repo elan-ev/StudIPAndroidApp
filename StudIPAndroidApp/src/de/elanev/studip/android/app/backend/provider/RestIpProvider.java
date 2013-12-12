@@ -515,17 +515,17 @@ public class RestIpProvider extends ContentProvider {
                         rowId);
             }
             case DOCUMENTS: {
-                long rowId = db.insertWithOnConflict(
-                        DocumentsContract.TABLE_DOCUMENTS, null, values,
-                        SQLiteDatabase.CONFLICT_IGNORE);
+                long rowId = insertIgnoringConflict(db,
+                        DocumentsContract.TABLE_DOCUMENTS, DocumentsContract.Columns.Documents._ID,
+                        values, false);
                 getContext().getContentResolver().notifyChange(uri, null);
                 return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
                         rowId);
             }
             case DOCUMENTS_FOLDER: {
-                long rowId = db.insertWithOnConflict(
-                        DocumentsContract.TABLE_DOCUMENT_FOLDERS, null, values,
-                        SQLiteDatabase.CONFLICT_IGNORE);
+                long rowId = insertIgnoringConflict(db,
+                        DocumentsContract.TABLE_DOCUMENT_FOLDERS,
+                        DocumentsContract.Columns.DocumentFolders._ID, values, false);
                 getContext().getContentResolver().notifyChange(uri, null);
                 return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
                         rowId);
@@ -939,7 +939,7 @@ public class RestIpProvider extends ContentProvider {
                 break;
             }
             case CONTACTS: {
-                SyncHelper.getInstance(getContext()).performContactsSync(null);
+                SyncHelper.getInstance(getContext()).performContactsSync(null, null);
 
                 if (TextUtils.isEmpty(sortOrder)) {
                     orderBy = ContactsContract.DEFAULT_SORT_ORDER_CONTACTS;
@@ -993,7 +993,7 @@ public class RestIpProvider extends ContentProvider {
             case CONTACTS_GROUP_MEMBERS: {
                 long currTime = System.currentTimeMillis();
                 if ((currTime - mLastContactGroupsSync) > SYNC_THRESHOLD) {
-                    SyncHelper.getInstance(getContext()).performContactsSync(null);
+                    SyncHelper.getInstance(getContext()).performContactsSync(null, null);
                     mLastContactGroupsSync = currTime;
                 }
 
