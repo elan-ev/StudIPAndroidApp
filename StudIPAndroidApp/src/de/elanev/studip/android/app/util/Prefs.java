@@ -54,7 +54,7 @@ public class Prefs {
         mContext = context;
     }
 
-    public static Prefs getInstance(Context context) {
+    public static synchronized Prefs getInstance(Context context) {
         if (mInstance == null)
             mInstance = new Prefs(context);
 
