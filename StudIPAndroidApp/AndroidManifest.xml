@@ -88,8 +88,7 @@
         </activity>
         <activity
             android:name=".frontend.messages.MessageComposeActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:uiOptions="splitActionBarWhenNarrow"/>
+            android:windowSoftInputMode="adjustResize"/>
 
         <!-- user details view activity -->
         <activity
