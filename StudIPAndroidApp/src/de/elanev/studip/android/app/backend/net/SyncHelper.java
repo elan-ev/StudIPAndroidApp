@@ -52,6 +52,7 @@ import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.DocumentsHandler;
@@ -105,8 +106,8 @@ public class SyncHelper {
         mContext = context;
 
         if (Prefs.getInstance(context).isAppAuthorized()) {
-            mConsumer = StudIPApplication.getInstance().getOAuthConnector().getConsumer();
-            mServer = StudIPApplication.getInstance().getOAuthConnector().getServer();
+            mConsumer = OAuthConnector.getInstance(context).getConsumer();
+            mServer = OAuthConnector.getInstance(context).getServer();
         } else {
             StuffUtil.startSignInActivity(context);
         }

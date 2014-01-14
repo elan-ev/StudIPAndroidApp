@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
 def versionMajor = 0 //prod
 def versionMinor = 8
 def versionPatch = 5
-def versionBuild = 10
+def versionBuild = 11
 
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8
@@ -38,7 +38,7 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile 'com.android.support:support-v4:18.+'
+    compile 'com.android.support:support-v4:19.+'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.2.2'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.2.2'
     compile 'oauth.signpost:signpost-commonshttp4:1.2.1.2'
@@ -48,11 +48,9 @@ dependencies {
     compile 'com.crashlytics.android:crashlytics:1.+'
     compile 'com.squareup.picasso:picasso:2.1.1'
     compile 'com.squareup.okhttp:okhttp:1.2.1'
-    compile 'se.emilsjolander:stickylistheaders:2.1.3'
+    compile 'se.emilsjolander:stickylistheaders:2.1.4'
     compile project(':libprojects:volley')
     compile project(':libprojects:SherlockNavigationDrawer:SherlockNavigationDrawer')
-    compile project(':libprojects:encrypted-userprefs')
-
 }
 
 def buildTime() {
@@ -65,8 +63,8 @@ def buildTime() {
 
 android {
 
-    compileSdkVersion 18
-    buildToolsVersion "18.0.1"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.1"
 
     // Building from console
     signingConfigs {
@@ -99,49 +97,38 @@ android {
 
     defaultConfig {
 
-        minSdkVersion 15
-        targetSdkVersion 18
+        minSdkVersion 10
+        targetSdkVersion 19
 
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+        buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
     }
 
     productFlavors {
         beta {
-            minSdkVersion 10
             versionCode versionMajorBeta * 10000 + versionMinorBeta * 1000 + versionPatchBeta *
                     100 + versionBuildBeta
             versionName "${versionMajorBeta}.${versionMinorBeta}.${versionPatchBeta}-beta"
-            buildConfig """\
-          public static final String BUILD_TIME = "${buildTime()}";
-          public static final String VERSION_NAME = \\"${versionName}\\";
-          public static final String VERSION_CODE = \\"${versionCode}\\";
-        """
         }
 
         prod {
-            minSdkVersion 10
             versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
             versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-            buildConfig """\
-          public static final String BUILD_TIME = "${buildTime()}";
-          public static final String VERSION_NAME = \\"${versionName}\\";
-          public static final String VERSION_CODE = \\"${versionCode}\\";
-        """
         }
     }
 
     buildTypes {
 
         debug {
-            buildConfig "public static final boolean USE_CRASHLYTICS = false;"
+            buildConfigField "boolean", "USE_CRASHLYTICS", "false"
             ext.enableCrashlytics = false;
             versionNameSuffix '-DEBUG'
             debuggable = true;
         }
 
         release {
-            buildConfig "public static final boolean USE_CRASHLYTICS = true;"
+            buildConfigField "boolean", "USE_CRASHLYTICS", "true"
             ext.enableCrashlytics = true;
             versionNameSuffix '-RELEASE'
             debuggable = false;
@@ -187,6 +174,11 @@ android {
 
         instrumentTest.setRoot('tests')
 
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
     }
 
 }
