@@ -8,8 +8,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.crashlytics.android.Crashlytics;
 
-import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
-
 /*******************************************************************************
  * Copyright (c) 2013 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
@@ -31,16 +29,6 @@ public class StudIPApplication extends Application {
     public static String TAG = StudIPApplication.class.getSimpleName();
     private static StudIPApplication mInstance;
     private RequestQueue mRequestQueue;
-
-    public OAuthConnector getOAuthConnector() {
-        return mOAuthConnector;
-    }
-
-    public void setOAuthConnector(OAuthConnector authConnector) {
-        this.mOAuthConnector = authConnector;
-    }
-
-    private OAuthConnector mOAuthConnector;
 
     public static synchronized StudIPApplication getInstance() {
         return mInstance;
@@ -109,4 +97,5 @@ public class StudIPApplication extends Application {
         if (mRequestQueue != null)
             mRequestQueue.cancelAll(tag == null ? TAG : tag);
     }
+
 }
