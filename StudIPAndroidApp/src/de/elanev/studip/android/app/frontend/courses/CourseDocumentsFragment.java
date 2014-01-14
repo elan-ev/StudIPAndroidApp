@@ -47,6 +47,7 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
+import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.FileUtils;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
@@ -123,8 +124,7 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
 
         // Get reference to the download manager
         mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-        mApiUrl = StudIPApplication.getInstance()
-                .getOAuthConnector()
+        mApiUrl = OAuthConnector.getInstance(mContext)
                 .getServer()
                 .getApiUrl();
 
@@ -209,8 +209,7 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                     downloadUrl = downloadUrl.replace("https://", "http://");
 
                     // Sign the download URL with the OAuth credentials and parse the URI
-                    String signedDownloadUrl = StudIPApplication.getInstance()
-                            .getOAuthConnector()
+                    String signedDownloadUrl = OAuthConnector.getInstance(mContext)
                             .getConsumer()
                             .sign(downloadUrl);
                     Uri downloadUri = Uri.parse(signedDownloadUrl);

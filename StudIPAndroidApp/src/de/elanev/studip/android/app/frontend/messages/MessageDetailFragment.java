@@ -43,6 +43,7 @@ import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
 import de.elanev.studip.android.app.util.TextTools;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -107,9 +108,7 @@ public class MessageDetailFragment extends SherlockFragment implements
         super.onCreate(savedInstanceState);
         mArgs = getArguments();
         mContext = getActivity();
-        Server s = StudIPApplication.getInstance()
-                .getOAuthConnector()
-                .getServer();
+        Server s = OAuthConnector.getInstance(getActivity()).getServer();
         mApiUrl = s.getApiUrl();
 
     }
@@ -336,8 +335,7 @@ public class MessageDetailFragment extends SherlockFragment implements
                 );
 
                 try {
-                    StudIPApplication.getInstance()
-                            .getOAuthConnector()
+                    OAuthConnector.getInstance(getActivity())
                             .getConsumer()
                             .sign(request);
                 } catch (OAuthMessageSignerException e) {

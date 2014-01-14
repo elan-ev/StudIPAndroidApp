@@ -46,6 +46,7 @@ import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
+import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
@@ -81,8 +82,7 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mApiUrl = StudIPApplication.getInstance()
-                .getOAuthConnector()
+        mApiUrl = OAuthConnector.getInstance(getActivity())
                 .getServer()
                 .getApiUrl();
 
@@ -179,8 +179,7 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
         );
 
         try {
-            StudIPApplication.getInstance()
-                    .getOAuthConnector()
+            OAuthConnector.getInstance(getActivity())
                     .getConsumer()
                     .sign(request);
 

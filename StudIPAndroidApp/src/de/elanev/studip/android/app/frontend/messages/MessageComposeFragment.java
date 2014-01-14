@@ -48,6 +48,7 @@ import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Message;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
@@ -365,8 +366,7 @@ public class MessageComposeFragment extends SherlockFragment implements
 
                     // Sign request
                     try {
-                        StudIPApplication.getInstance()
-                                .getOAuthConnector()
+                        OAuthConnector.getInstance(mContext)
                                 .getConsumer()
                                 .sign(request);
                     } catch (OAuthMessageSignerException e) {
