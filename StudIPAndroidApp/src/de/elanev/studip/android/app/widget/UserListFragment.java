@@ -51,6 +51,7 @@ import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
+import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupHandler;
 import de.elanev.studip.android.app.backend.net.sync.ContactsHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
@@ -110,8 +111,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                 Method.PUT
         );
         try {
-            StudIPApplication.getInstance()
-                    .getOAuthConnector()
+            OAuthConnector.getInstance(context)
                     .getConsumer()
                     .sign(contactAddRequest);
         } catch (OAuthMessageSignerException e) {
@@ -161,8 +161,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         );
 
         try {
-            StudIPApplication.getInstance()
-                    .getOAuthConnector()
+            OAuthConnector.getInstance(context)
                     .getConsumer()
                     .sign(request);
         } catch (OAuthMessageSignerException e) {
@@ -212,8 +211,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         );
 
         try {
-            StudIPApplication.getInstance()
-                    .getOAuthConnector()
+            OAuthConnector.getInstance(context)
                     .getConsumer()
                     .sign(request);
         } catch (OAuthMessageSignerException e) {
@@ -263,8 +261,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                 Method.PUT
         );
         try {
-            StudIPApplication.getInstance()
-                    .getOAuthConnector()
+            OAuthConnector.getInstance(context)
                     .getConsumer()
                     .sign(userAddRequest);
         } catch (OAuthMessageSignerException e) {
@@ -288,8 +285,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         super.onCreate(savedInstanceState);
         mResolver = mContext.getContentResolver();
 
-        mApiUrl = StudIPApplication.getInstance()
-                .getOAuthConnector()
+        mApiUrl = OAuthConnector.getInstance(mContext)
                 .getServer()
                 .getApiUrl();
 

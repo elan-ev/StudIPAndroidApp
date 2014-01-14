@@ -54,7 +54,7 @@ public class Prefs {
         mContext = context;
     }
 
-    public static Prefs getInstance(Context context) {
+    public static synchronized Prefs getInstance(Context context) {
         if (mInstance == null)
             mInstance = new Prefs(context);
 
@@ -91,7 +91,8 @@ public class Prefs {
         c.moveToFirst();
         if (c.getCount() > 0) {
             String serverName = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_NAME));
-            String serverContact = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL));
+            String serverCon
+            tact = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL));
             String serverKey = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_KEY));
             String serverSecret = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_SECRET));
             String serverUrl = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_URL));
@@ -144,8 +145,6 @@ public class Prefs {
         values.put(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL, server.getContactEmail());
         values.put(AuthenticationContract.Columns.Authentication.SERVER_KEY, server.getConsumerKey());
         values.put(AuthenticationContract.Columns.Authentication.SERVER_SECRET, server.getConsumerSecret());
-
-        mContext.getContentResolver().insert(AuthenticationContract.CONTENT_URI, values);
     }
 
     /*

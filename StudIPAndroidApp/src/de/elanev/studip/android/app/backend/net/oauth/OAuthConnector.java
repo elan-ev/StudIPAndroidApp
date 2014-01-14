@@ -7,8 +7,10 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.net.oauth;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.util.Prefs;
@@ -23,6 +25,33 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
  * OAuth connector frame class to bundle all of the OAuth logic for easier access
  */
 public class OAuthConnector {
+
+    public static final String TAG = OAuthConnector.class.getSimpleName();
+
+    private static OAuthConnector sInstance;
+
+    public static synchronized OAuthConnector getInstance(Context context) {
+        if (context == null)
+            throw new IllegalArgumentException("Context must not be null.");
+
+        if (sInstance == null) {
+            Prefs prefs = Prefs.getInstance(context.getApplicationContext());
+            Server s = prefs.getServer();
+            if (s == null)
+                throw new IllegalStateException("Server not in preferences");
+
+            Bundle accessTokens = Prefs.getInstance(context.getApplicationContext()).getAccessToken();
+            if (accessTokens != null)
+                sInstance = new OAuthConnector(s, accessTokens);
+            else
+                sInstance = new OAuthConnector(s);
+            Log.d(TAG, "Created OAuthConnector instance");
+        }
+
+
+        Log.d(TAG, "Returning the mOAuthConnector insance!");
+        return sInstance;
+    }
 
     /**
      * Returns the server the OAuthConnector is currently connected to
@@ -40,6 +69,7 @@ public class OAuthConnector {
      */
     public void setServer(Server server) {
         this.mServer = server;
+        this.mConsumer = new VolleyOAuthConsumer(mServer.getConsumerKey(), mServer.getConsumerSecret());
     }
 
     /**
@@ -56,9 +86,9 @@ public class OAuthConnector {
      *
      * @param consumer VolleyOAuthConsumer to set in this connector
      */
-    public void setConsumer(VolleyOAuthConsumer consumer) {
-        this.mConsumer = consumer;
-    }
+//    public void setConsumer(VolleyOAuthConsumer consumer) {
+//        this.mConsumer = consumer;
+//    }
 
     private Server mServer = null;
     private VolleyOAuthConsumer mConsumer = null;
@@ -71,7 +101,7 @@ public class OAuthConnector {
      * @param server       Server object to be used for the initialisation of the consumer
      * @param accessTokens the access tokens to be used for initialisation of the consumer
      */
-    public OAuthConnector(Server server, Bundle accessTokens) {
+    private OAuthConnector(Server server, Bundle accessTokens) {
         this.mServer = server;
         // Initialize the consumer with the Server
         this.mConsumer = new VolleyOAuthConsumer(
@@ -90,7 +120,7 @@ public class OAuthConnector {
      *
      * @param server Server object to be used for the initialisation of the consumer
      */
-    public OAuthConnector(Server server) {
+    private OAuthConnector(Server server) {
         this.mServer = server;
         this.mConsumer = new VolleyOAuthConsumer(
                 server.getConsumerKey(),
@@ -205,12 +235,11 @@ public class OAuthConnector {
 
         @Override
         protected String doInBackground(String... params) {
-            if (mProvider == null) {
-                mProvider = new CommonsHttpOAuthProvider(
-                        mServer.getRequestUrl(),
-                        mServer.getAccessUrl(),
-                        mServer.getAuthorizationUrl());
-            }
+            mProvider = new CommonsHttpOAuthProvider(
+                    mServer.getRequestUrl(),
+                    mServer.getAccessUrl(),
+                    mServer.getAuthorizationUrl());
+
             try {
                 return mProvider.retrieveRequestToken(mConsumer, OAuth.OUT_OF_BAND);
             } catch (OAuthMessageSignerException e) {
@@ -272,8 +301,7 @@ public class OAuthConnector {
         @Override
         protected void onPostExecute(String[] result) {
 
-            // If the access token was requested successfully, start the
-            // prefetching
+            // If the access token was requested successfully, start the prefetching
             if (mCallbacks != null)
                 if (result != null) {
                     mCallbacks.onAccessTokenReceived(result[0], result[1]);

@@ -38,7 +38,6 @@ import java.io.IOException;
 
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.Servers;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
@@ -89,10 +88,6 @@ public class SignInActivity extends SherlockFragmentActivity {
                 Prefs.getInstance(this).setSecureStarted();
 
             } else {
-                Server s = Prefs.getInstance(this).getServer();
-                Bundle tokens = Prefs.getInstance(this).getAccessToken();
-                OAuthConnector connector = new OAuthConnector(s, tokens);
-                StudIPApplication.getInstance().setOAuthConnector(connector);
                 startNewsActivity();
             }
         }
@@ -212,7 +207,7 @@ public class SignInActivity extends SherlockFragmentActivity {
 
                 public void onClick(View v) {
                     if (mSelectedServer != null) {
-                        connect();
+                        authorize();
                     }
                 }
             });
@@ -270,9 +265,7 @@ public class SignInActivity extends SherlockFragmentActivity {
 
             if (resultCode == RESULT_OK) {
                 Log.d(TAG, "ACCESS TOKEN FLAG SET");
-                StudIPApplication.getInstance()
-                        .getOAuthConnector()
-                        .getAccessToken(this);
+                OAuthConnector.getInstance(getActivity()).getAccessToken(this);
             }
         }
 
@@ -324,21 +317,6 @@ public class SignInActivity extends SherlockFragmentActivity {
             Prefs.getInstance(mContext).setAppStarted();
         }
 
-        /*
-         * Checks if the server is set correctly, if the device is online and
-         * triggers the request of an new access token pair or sets it in the
-         * OAuthConnector if it's already saved.
-         */
-        private boolean connect() {
-
-            if (!Prefs.getInstance(mContext).isAppAuthorized()) {
-                authorize();
-            } else {
-                return false;
-            }
-            return true;
-        }
-
         private void authorize() {
             if (NetworkUtils.getConnectivityStatus(mContext) == NetworkUtils.NOT_CONNECTED) {
                 Toast.makeText(mContext, "Not connected", Toast.LENGTH_LONG).show();
@@ -346,9 +324,9 @@ public class SignInActivity extends SherlockFragmentActivity {
             }
 
             hideLoginForm();
-
-            StudIPApplication.getInstance().setOAuthConnector(new OAuthConnector(mSelectedServer));
-            StudIPApplication.getInstance().getOAuthConnector().getRequestToken(this);
+            Prefs.getInstance(mContext).setAccessToken(mSelectedServer, new Bundle());
+            OAuthConnector.getInstance(mContext).setServer(mSelectedServer);
+            OAuthConnector.getInstance(mContext).getRequestToken(this);
         }
 
         /*
