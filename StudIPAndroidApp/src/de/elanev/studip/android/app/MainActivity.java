@@ -28,6 +28,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
 
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
@@ -166,7 +167,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
         switch (item.getItemId()) {
             case R.id.menu_feedback:
-                String contact_mail = OAuthConnector.getInstance(this)
+                String contact_mail = Prefs.getInstance(this)
                         .getServer()
                         .getContactEmail();
                 StuffUtil.startFeedback(this, contact_mail);
