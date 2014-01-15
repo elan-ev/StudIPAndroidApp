@@ -7,19 +7,17 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.backend.net.oauth;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
 
 import de.elanev.studip.android.app.backend.datamodel.Server;
-import de.elanev.studip.android.app.util.Prefs;
 import oauth.signpost.OAuth;
 import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
+import oauth.signpost.http.HttpRequest;
 
 /**
  * OAuth connector frame class to bundle all of the OAuth logic for easier access
@@ -30,91 +28,32 @@ public class OAuthConnector {
 
     private static OAuthConnector sInstance;
 
-    public static synchronized OAuthConnector getInstance(Context context) {
-        if (context == null)
-            throw new IllegalArgumentException("Context must not be null.");
+    public static synchronized OAuthConnector with(Server server) {
+        if (server == null)
+            throw new IllegalArgumentException("Server must not be null.");
 
-        if (sInstance == null) {
-            Prefs prefs = Prefs.getInstance(context.getApplicationContext());
-            Server s = prefs.getServer();
-            if (s == null)
-                throw new IllegalStateException("Server not in preferences");
+        if (sInstance == null)
+            sInstance = new OAuthConnector(server);
 
-            Bundle accessTokens = Prefs.getInstance(context.getApplicationContext()).getAccessToken();
-            if (accessTokens != null)
-                sInstance = new OAuthConnector(s, accessTokens);
-            else
-                sInstance = new OAuthConnector(s);
-            Log.d(TAG, "Created OAuthConnector instance");
-        }
+        sInstance.setServer(server);
 
 
-        Log.d(TAG, "Returning the mOAuthConnector insance!");
         return sInstance;
     }
 
-    /**
-     * Returns the server the OAuthConnector is currently connected to
-     *
-     * @return Server object containing all Information about the Server the connector is connected to
-     */
-    public Server getServer() {
-        return mServer;
-    }
-
-    /**
-     * Set the Server the OAuthConnect should be connected to
-     *
-     * @param server Server object to be connected to
-     */
-    public void setServer(Server server) {
-        this.mServer = server;
-        this.mConsumer = new VolleyOAuthConsumer(mServer.getConsumerKey(), mServer.getConsumerSecret());
-    }
-
-    /**
-     * Returns the current consumer the connector is holding
-     *
-     * @return the current VolleyOAuthConsumer Object
-     */
-    public VolleyOAuthConsumer getConsumer() {
-        return mConsumer;
-    }
-
-    /**
-     * Sets a new VolleyOAuthConsumer for signing VolleyRequests
-     *
-     * @param consumer VolleyOAuthConsumer to set in this connector
-     */
-//    public void setConsumer(VolleyOAuthConsumer consumer) {
-//        this.mConsumer = consumer;
-//    }
-
+    private CommonsHttpOAuthProvider mProvider = null;
     private Server mServer = null;
     private VolleyOAuthConsumer mConsumer = null;
-    private CommonsHttpOAuthProvider mProvider = null;
 
-    /**
-     * Creates a new OAuthConnector which will be initialized with the passed Server information and
-     * access tokens passed with the Bundle
-     *
-     * @param server       Server object to be used for the initialisation of the consumer
-     * @param accessTokens the access tokens to be used for initialisation of the consumer
-     */
-    private OAuthConnector(Server server, Bundle accessTokens) {
-        this.mServer = server;
-        // Initialize the consumer with the Server
-        this.mConsumer = new VolleyOAuthConsumer(
-                server.getConsumerKey(),
-                server.getConsumerSecret());
-
-        // set the access tokens for this consumer
-        this.mConsumer.setTokenWithSecret(
-                accessTokens.getString(Prefs.ACCESS_TOKEN),
-                accessTokens.getString(Prefs.ACCESS_TOKEN_SECRET));
+    private void setServer(Server server) {
+        if (!TextUtils.equals(server.getBaseUrl(), mServer.getBaseUrl())) {
+            mServer = server;
+            mConsumer = new VolleyOAuthConsumer(server.getConsumerKey(), server.getConsumerSecret());
+        }
     }
 
-    /**
+
+    /*
      * Creates a new, unauthorized OAuthConnector. The VolleyOAuthConsumer will be initialized with
      * the passed Server, but no access tokens will be set.
      *
@@ -125,9 +64,15 @@ public class OAuthConnector {
         this.mConsumer = new VolleyOAuthConsumer(
                 server.getConsumerKey(),
                 server.getConsumerSecret());
+
+        String accessToken = mServer.getAccessToken();
+        String accessTokenSecret = mServer.getAccessTokenSecret();
+
+        if (accessToken != null || accessTokenSecret != null)
+            this.mConsumer.setTokenWithSecret(accessToken, accessTokenSecret);
     }
 
-    /**
+    /*
      * Tells the OAuthConnector to request a new request token from the endpoint. For this to work
      * the VolleyOAuthConsumer has to be correctly initalized with a server. Since we request a
      * request token the access tokens don't need to be set.
@@ -144,7 +89,7 @@ public class OAuthConnector {
         new RequestTokenTask(callbacks).execute();
     }
 
-    /**
+    /*
      * Requests a new access token form the endpoint set in the {@link de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer}.
      * For this to work the {@link de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer}
      * has to be correctly initalized with a server.
@@ -159,6 +104,26 @@ public class OAuthConnector {
      */
     public void getAccessToken(OAuthCallbacks callbacks) {
         new AccessTokenTask(callbacks).execute();
+    }
+
+    public HttpRequest sign(Object request) throws OAuthCommunicationException,
+            OAuthExpectationFailedException,
+            OAuthMessageSignerException,
+            OAuthNotAuthorizedException {
+        if (mConsumer.getToken() == null || mConsumer.getTokenSecret() == null)
+            throw new OAuthNotAuthorizedException();
+
+        return mConsumer.sign(request);
+    }
+
+    public String sign(String requestUrl) throws OAuthCommunicationException,
+            OAuthExpectationFailedException,
+            OAuthMessageSignerException,
+            OAuthNotAuthorizedException {
+        if (mConsumer.getToken() == null || mConsumer.getTokenSecret() == null)
+            throw new OAuthNotAuthorizedException();
+
+        return mConsumer.sign(requestUrl);
     }
 
     /**
