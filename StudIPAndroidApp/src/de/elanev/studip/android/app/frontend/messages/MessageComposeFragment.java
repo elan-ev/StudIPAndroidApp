@@ -46,15 +46,18 @@ import java.util.Locale;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Message;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
+import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * @author joern
@@ -366,15 +369,16 @@ public class MessageComposeFragment extends SherlockFragment implements
 
                     // Sign request
                     try {
-                        OAuthConnector.getInstance(mContext)
-                                .getConsumer()
-                                .sign(request);
+                        Server server = Prefs.getInstance(mContext).getServer();
+                        OAuthConnector.with(server).sign(request);
                     } catch (OAuthMessageSignerException e) {
                         e.printStackTrace();
                     } catch (OAuthExpectationFailedException e) {
                         e.printStackTrace();
                     } catch (OAuthCommunicationException e) {
                         e.printStackTrace();
+                    } catch (OAuthNotAuthorizedException e) {
+                        StuffUtil.startSignInActivity(mContext);
                     }
 
                     // Add request to HTTP request queue
