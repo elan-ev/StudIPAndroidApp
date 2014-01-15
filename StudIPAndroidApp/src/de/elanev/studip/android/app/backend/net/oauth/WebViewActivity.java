@@ -89,8 +89,6 @@ public class WebViewActivity extends SherlockActivity {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             if (url.contains("user")) {
-                Log.i(TAG, "AUTHURL" + url);
-
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 finish();
