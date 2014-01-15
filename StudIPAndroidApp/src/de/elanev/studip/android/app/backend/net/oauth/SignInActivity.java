@@ -265,7 +265,7 @@ public class SignInActivity extends SherlockFragmentActivity {
 
             if (resultCode == RESULT_OK) {
                 Log.d(TAG, "ACCESS TOKEN FLAG SET");
-                OAuthConnector.getInstance(getActivity()).getAccessToken(this);
+                OAuthConnector.with(mSelectedServer).getAccessToken(this);
             }
         }
 
@@ -324,9 +324,7 @@ public class SignInActivity extends SherlockFragmentActivity {
             }
 
             hideLoginForm();
-            Prefs.getInstance(mContext).setAccessToken(mSelectedServer, new Bundle());
-            OAuthConnector.getInstance(mContext).setServer(mSelectedServer);
-            OAuthConnector.getInstance(mContext).getRequestToken(this);
+            OAuthConnector.with(mSelectedServer).getRequestToken(this);
         }
 
         /*
@@ -458,10 +456,9 @@ public class SignInActivity extends SherlockFragmentActivity {
 
         @Override
         public void onAccessTokenReceived(String token, String tokenSecret) {
-            Bundle tokens = new Bundle();
-            tokens.putString(Prefs.ACCESS_TOKEN, token);
-            tokens.putString(Prefs.ACCESS_TOKEN_SECRET, tokenSecret);
-            Prefs.getInstance(mContext).setAccessToken(mSelectedServer, tokens);
+            mSelectedServer.setAccessToken(token);
+            mSelectedServer.setAccessTokenSecret(tokenSecret);
+            Prefs.getInstance(mContext).setServer(mSelectedServer);
             Prefs.getInstance(mContext).setAppAuthorized(true);
             performPrefetchSync();
         }

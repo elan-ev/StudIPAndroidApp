@@ -32,6 +32,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -47,6 +48,7 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.ContactGroups;
 import de.elanev.studip.android.app.backend.datamodel.Contacts;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -56,9 +58,12 @@ import de.elanev.studip.android.app.backend.net.sync.ContactGroupHandler;
 import de.elanev.studip.android.app.backend.net.sync.ContactsHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
+import de.elanev.studip.android.app.util.Prefs;
+import de.elanev.studip.android.app.util.StuffUtil;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * @author joern
@@ -111,16 +116,18 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                 Method.PUT
         );
         try {
-            OAuthConnector.getInstance(context)
-                    .getConsumer()
-                    .sign(contactAddRequest);
+            Server server = Prefs.getInstance(context).getServer();
+            OAuthConnector.with(server).sign(contactAddRequest);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(context);
         }
+        contactAddRequest.setPriority(Request.Priority.IMMEDIATE);
         StudIPApplication.getInstance().addToRequestQueue(contactAddRequest);
     }
 
@@ -161,16 +168,18 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         );
 
         try {
-            OAuthConnector.getInstance(context)
-                    .getConsumer()
-                    .sign(request);
+            Server server = Prefs.getInstance(context).getServer();
+            OAuthConnector.with(server).sign(request);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(context);
         }
+        request.setPriority(Request.Priority.IMMEDIATE);
         StudIPApplication.getInstance().addToRequestQueue(request);
     }
 
@@ -211,16 +220,18 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         );
 
         try {
-            OAuthConnector.getInstance(context)
-                    .getConsumer()
-                    .sign(request);
+            Server server = Prefs.getInstance(context).getServer();
+            OAuthConnector.with(server).sign(request);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(context);
         }
+        request.setPriority(Request.Priority.IMMEDIATE);
         StudIPApplication.getInstance().addToRequestQueue(request);
     }
 
@@ -261,16 +272,18 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                 Method.PUT
         );
         try {
-            OAuthConnector.getInstance(context)
-                    .getConsumer()
-                    .sign(userAddRequest);
+            Server server = Prefs.getInstance(context).getServer();
+            OAuthConnector.with(server).sign(userAddRequest);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(context);
         }
+        userAddRequest.setPriority(Request.Priority.IMMEDIATE);
         StudIPApplication.getInstance().addToRequestQueue(userAddRequest);
 
     }
@@ -285,9 +298,7 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         super.onCreate(savedInstanceState);
         mResolver = mContext.getContentResolver();
 
-        mApiUrl = OAuthConnector.getInstance(mContext)
-                .getServer()
-                .getApiUrl();
+        mApiUrl = Prefs.getInstance(getActivity()).getServer().getApiUrl();
 
     }
 

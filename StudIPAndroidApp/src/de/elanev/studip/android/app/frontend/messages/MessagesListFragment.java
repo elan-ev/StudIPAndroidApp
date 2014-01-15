@@ -43,17 +43,21 @@ import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
+import de.elanev.studip.android.app.util.Prefs;
+import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * @author joern
@@ -82,9 +86,7 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mApiUrl = OAuthConnector.getInstance(getActivity())
-                .getServer()
-                .getApiUrl();
+        mApiUrl = Prefs.getInstance(getActivity()).getServer().getApiUrl();
 
         // Creating the adapters for the listview
         mMessagesAdapter = new MessagesAdapter(mContext);
@@ -179,9 +181,8 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
         );
 
         try {
-            OAuthConnector.getInstance(getActivity())
-                    .getConsumer()
-                    .sign(request);
+            Server server = Prefs.getInstance(mContext).getServer();
+            OAuthConnector.with(server).sign(request);
 
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
@@ -189,6 +190,8 @@ public class MessagesListFragment extends ProgressSherlockListFragment implement
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(mContext);
         }
         StudIPApplication.getInstance().addToRequestQueue(request);
     }

@@ -26,6 +26,7 @@ import de.elanev.studip.android.app.backend.net.oauth.VolleySignPostRequestWrapp
 public class StringRequest extends VolleySignPostRequestWrapper<String> {
 
 	private final Listener<String> mListener;
+    private Priority mPriority = Priority.NORMAL;
 
 	/**
 	 * Creates a new request with the given method.
@@ -88,5 +89,15 @@ public class StringRequest extends VolleySignPostRequestWrapper<String> {
 		return Response.success(parsed,
 				HttpHeaderParser.parseCacheHeaders(response));
 	}
+
+    @Override
+    public Priority getPriority() {
+        return mPriority;
+    }
+
+    public void setPriority(Priority priority) {
+        if(priority != null)
+            mPriority = priority;
+    }
 
 }

@@ -45,10 +45,13 @@ import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
+import de.elanev.studip.android.app.util.Prefs;
+import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * @author joern
@@ -108,8 +111,7 @@ public class MessageDetailFragment extends SherlockFragment implements
         super.onCreate(savedInstanceState);
         mArgs = getArguments();
         mContext = getActivity();
-        Server s = OAuthConnector.getInstance(getActivity()).getServer();
-        mApiUrl = s.getApiUrl();
+        mApiUrl = Prefs.getInstance(getActivity()).getServer().getApiUrl();
 
     }
 
@@ -335,15 +337,16 @@ public class MessageDetailFragment extends SherlockFragment implements
                 );
 
                 try {
-                    OAuthConnector.getInstance(getActivity())
-                            .getConsumer()
-                            .sign(request);
+                    Server server = Prefs.getInstance(mContext).getServer();
+                    OAuthConnector.with(server).sign(request);
                 } catch (OAuthMessageSignerException e) {
                     e.printStackTrace();
                 } catch (OAuthExpectationFailedException e) {
                     e.printStackTrace();
                 } catch (OAuthCommunicationException e) {
                     e.printStackTrace();
+                } catch (OAuthNotAuthorizedException e) {
+                    StuffUtil.startSignInActivity(mContext);
                 }
                 StudIPApplication.getInstance().addToRequestQueue(request);
 
