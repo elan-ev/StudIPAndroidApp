@@ -44,17 +44,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPApplication;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.FileUtils;
+import de.elanev.studip.android.app.util.Prefs;
+import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * @author joern
@@ -124,9 +127,7 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
 
         // Get reference to the download manager
         mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-        mApiUrl = OAuthConnector.getInstance(mContext)
-                .getServer()
-                .getApiUrl();
+        mApiUrl = Prefs.getInstance(mContext).getServer().getApiUrl();
 
         mDocumentsAdapter = new DocumentsAdapter(mContext);
 
@@ -209,9 +210,8 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                     downloadUrl = downloadUrl.replace("https://", "http://");
 
                     // Sign the download URL with the OAuth credentials and parse the URI
-                    String signedDownloadUrl = OAuthConnector.getInstance(mContext)
-                            .getConsumer()
-                            .sign(downloadUrl);
+                    Server server = Prefs.getInstance(mContext).getServer();
+                    String signedDownloadUrl = OAuthConnector.with(server).sign(downloadUrl);
                     Uri downloadUri = Uri.parse(signedDownloadUrl);
 
 
@@ -240,6 +240,8 @@ public class CourseDocumentsFragment extends ProgressSherlockListFragment implem
                     e.printStackTrace();
                 } catch (OAuthCommunicationException e) {
                     e.printStackTrace();
+                } catch (OAuthNotAuthorizedException e) {
+                    StuffUtil.startSignInActivity(mContext);
                 }
             }
         } else {

@@ -53,7 +53,6 @@ import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
-import de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.DocumentsHandler;
 import de.elanev.studip.android.app.backend.net.sync.EventsHandler;
@@ -64,6 +63,7 @@ import de.elanev.studip.android.app.util.StuffUtil;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * A convenience class for interacting with the rest.IP endpoints
@@ -79,7 +79,6 @@ public class SyncHelper {
     private static long mLastContactsSync = 0;
     private static long mLastCoursesSync = 0;
     private static SyncHelper mInstance;
-    private static VolleyOAuthConsumer mConsumer;
     private static Server mServer;
     private static Context mContext;
     private static Set<String> mUserSyncQueue = Collections.synchronizedSet(new HashSet<String>());
@@ -104,13 +103,7 @@ public class SyncHelper {
             mInstance = new SyncHelper();
 
         mContext = context;
-
-        if (Prefs.getInstance(context).isAppAuthorized()) {
-            mConsumer = OAuthConnector.getInstance(context).getConsumer();
-            mServer = OAuthConnector.getInstance(context).getServer();
-        } else {
-            StuffUtil.startSignInActivity(context);
-        }
+        mServer = Prefs.getInstance(context).getServer();
 
         return mInstance;
     }
@@ -189,7 +182,7 @@ public class SyncHelper {
 
     private static JacksonRequest<User> createUserRequest(String id, final SyncHelperCallbacks
             callbacks)
-            throws OAuthCommunicationException, OAuthExpectationFailedException, OAuthMessageSignerException {
+            throws OAuthCommunicationException, OAuthExpectationFailedException, OAuthMessageSignerException, OAuthNotAuthorizedException {
         final String usersUrl = String.format(
                 mContext.getString(R.string.restip_users) + ".json",
                 mServer.getApiUrl(),
@@ -238,7 +231,7 @@ public class SyncHelper {
                 Method.GET
         );
 
-        mConsumer.sign(userJacksonRequest);
+        OAuthConnector.with(mServer).sign(userJacksonRequest);
 
         return userJacksonRequest;
     }
@@ -463,8 +456,8 @@ public class SyncHelper {
 
             try {
 
-                mConsumer.sign(contactsRequest);
-                mConsumer.sign(contactGroupsRequest);
+                OAuthConnector.with(mServer).sign(contactsRequest);
+                OAuthConnector.with(mServer).sign(contactGroupsRequest);
                 StudIPApplication.getInstance().addToRequestQueue(contactGroupsRequest, TAG);
 
                 if (callbacks != null)
@@ -476,6 +469,8 @@ public class SyncHelper {
                 e.printStackTrace();
             } catch (OAuthCommunicationException e) {
                 e.printStackTrace();
+            } catch (OAuthNotAuthorizedException e) {
+                StuffUtil.startSignInActivity(mContext);
             }
         }
     }
@@ -545,7 +540,7 @@ public class SyncHelper {
             coursesRequest.setRetryPolicy(mRetryPolicy);
 
             try {
-                mConsumer.sign(coursesRequest);
+                OAuthConnector.with(mServer).sign(coursesRequest);
                 StudIPApplication.getInstance().addToRequestQueue(coursesRequest, TAG);
 
                 // Tell the listener that the course sync started
@@ -558,6 +553,8 @@ public class SyncHelper {
                 e.printStackTrace();
             } catch (OAuthCommunicationException e) {
                 e.printStackTrace();
+            } catch (OAuthNotAuthorizedException e) {
+                StuffUtil.startSignInActivity(mContext);
             }
         }
 
@@ -761,6 +758,8 @@ public class SyncHelper {
                     e.printStackTrace();
                 } catch (OAuthMessageSignerException e) {
                     e.printStackTrace();
+                } catch (OAuthNotAuthorizedException e) {
+                    StuffUtil.startSignInActivity(mContext);
                 }
             }
         }
@@ -813,7 +812,7 @@ public class SyncHelper {
                 userJacksonRequest.setPriority(Request.Priority.LOW);
 
                 try {
-                    mConsumer.sign(userJacksonRequest);
+                    OAuthConnector.with(mServer).sign(userJacksonRequest);
                     StudIPApplication.getInstance().addToRequestQueue(userJacksonRequest, TAG);
 
                     if (callbacks != null)
@@ -825,6 +824,8 @@ public class SyncHelper {
                     e.printStackTrace();
                 } catch (OAuthMessageSignerException e) {
                     e.printStackTrace();
+                } catch (OAuthNotAuthorizedException e) {
+                    StuffUtil.startSignInActivity(mContext);
                 }
             } else {
                 Log.d(TAG, "USER ALREADY EXISTS");
@@ -881,7 +882,7 @@ public class SyncHelper {
         semestersRequest.setRetryPolicy(mRetryPolicy);
 
         try {
-            mConsumer.sign(semestersRequest);
+            OAuthConnector.with(mServer).sign(semestersRequest);
             StudIPApplication.getInstance().addToRequestQueue(semestersRequest, TAG);
 
             if (callbacks != null)
@@ -893,6 +894,8 @@ public class SyncHelper {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(mContext);
         }
 
     }
@@ -932,7 +935,7 @@ public class SyncHelper {
         newsRequest.setRetryPolicy(mRetryPolicy);
 
         try {
-            mConsumer.sign(newsRequest);
+            OAuthConnector.with(mServer).sign(newsRequest);
             StudIPApplication.getInstance().addToRequestQueue(newsRequest, TAG);
 
             if (callbacks != null)
@@ -944,6 +947,8 @@ public class SyncHelper {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(mContext);
         }
 
 
@@ -984,7 +989,7 @@ public class SyncHelper {
         eventsRequest.setRetryPolicy(mRetryPolicy);
         eventsRequest.setPriority(Request.Priority.IMMEDIATE);
         try {
-            mConsumer.sign(eventsRequest);
+            OAuthConnector.with(mServer).sign(eventsRequest);
             StudIPApplication.getInstance().addToRequestQueue(eventsRequest, TAG);
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
@@ -992,6 +997,8 @@ public class SyncHelper {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(mContext);
         }
     }
 
@@ -1078,7 +1085,7 @@ public class SyncHelper {
         messageFoldersRequest.setRetryPolicy(mRetryPolicy);
         messageFoldersRequest.setPriority(Request.Priority.IMMEDIATE);
         try {
-            mConsumer.sign(messageFoldersRequest);
+            OAuthConnector.with(mServer).sign(messageFoldersRequest);
             StudIPApplication.getInstance().addToRequestQueue(messageFoldersRequest, TAG);
 
         } catch (OAuthExpectationFailedException e) {
@@ -1087,6 +1094,8 @@ public class SyncHelper {
             e.printStackTrace();
         } catch (OAuthCommunicationException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(mContext);
         }
 //        }
     }
@@ -1127,7 +1136,7 @@ public class SyncHelper {
         try {
             messagesRequest.setRetryPolicy(mRetryPolicy);
             messagesRequest.setPriority(Request.Priority.IMMEDIATE);
-            mConsumer.sign(messagesRequest);
+            OAuthConnector.with(mServer).sign(messagesRequest);
             StudIPApplication.getInstance().addToRequestQueue(messagesRequest, TAG);
 
         } catch (OAuthExpectationFailedException e) {
@@ -1136,6 +1145,8 @@ public class SyncHelper {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(mContext);
         }
 
     }
@@ -1188,7 +1199,7 @@ public class SyncHelper {
         documentFoldersRequest.setPriority(Request.Priority.IMMEDIATE);
 
         try {
-            mConsumer.sign(documentFoldersRequest);
+            OAuthConnector.with(mServer).sign(documentFoldersRequest);
             StudIPApplication.getInstance().addToRequestQueue(documentFoldersRequest, TAG);
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
@@ -1196,6 +1207,8 @@ public class SyncHelper {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(mContext);
         }
     }
 
@@ -1247,7 +1260,7 @@ public class SyncHelper {
         documentRequest.setPriority(Request.Priority.IMMEDIATE);
 
         try {
-            mConsumer.sign(documentRequest);
+            OAuthConnector.with(mServer).sign(documentRequest);
             StudIPApplication.getInstance().addToRequestQueue(documentRequest, TAG);
         } catch (OAuthExpectationFailedException e) {
             e.printStackTrace();
@@ -1255,6 +1268,8 @@ public class SyncHelper {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(mContext);
         }
     }
 
