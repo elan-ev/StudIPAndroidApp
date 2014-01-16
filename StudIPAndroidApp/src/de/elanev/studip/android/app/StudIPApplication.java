@@ -8,6 +8,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.crashlytics.android.Crashlytics;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 /*******************************************************************************
  * Copyright (c) 2013 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
@@ -45,10 +47,13 @@ public class StudIPApplication extends Application {
         if (BuildConfig.USE_CRASHLYTICS)
             Crashlytics.start(this);
 
+        // Load SQLCipher JNI Libs
+        SQLiteDatabase.loadLibs(this);
+
         /*
          * Clear shared prefs for debugging
 		 */
-//        Prefs.getInstance(getApplicationContext()).clearPrefs();
+        //Prefs.getInstance(getApplicationContext()).clearPrefs();
     }
 
     /**
