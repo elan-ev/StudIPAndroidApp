@@ -10,12 +10,12 @@ import java.text.SimpleDateFormat
 def versionMajor = 0 //prod
 def versionMinor = 8
 def versionPatch = 5
-def versionBuild = 12
+def versionBuild = 13
 
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8
 def versionPatchBeta = 5
-def versionBuildBeta = 13
+def versionBuildBeta = 14
 
 final Console console = System.console();
 
