@@ -318,7 +318,7 @@ public class RestIpProvider extends ContentProvider {
     private void deleteDatabase() {
         Context context = getContext();
         DatabaseHandler.getInstance(context).close();
-        DatabaseHandler.getInstance(context).deleteDatabase(context);
+        DatabaseHandler.getInstance(context).deleteDatabase();
     }
 
     /*
