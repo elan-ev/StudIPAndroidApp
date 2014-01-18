@@ -50,7 +50,7 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:1.2.1'
     compile 'se.emilsjolander:stickylistheaders:2.1.4'
     compile project(':libprojects:volley')
-    compile project(':libprojects:SherlockNavigationDrawer:SherlockNavigationDrawer')
+    compile project(':libprojects:SherlockNavigationDrawer:AndroidStudio:SherlockNavigationDrawerProject:SherlockNavigationDrawer')
 }
 
 def buildTime() {

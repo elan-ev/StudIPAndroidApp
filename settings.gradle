@@ -1,4 +1,4 @@
 include ':StudIPAndroidApp'
 include ':libprojects:volley'
-include ':libprojects:SherlockNavigationDrawer:SherlockNavigationDrawer'
+include ':libprojects:SherlockNavigationDrawer:AndroidStudio:SherlockNavigationDrawerProject:SherlockNavigationDrawer'
 
