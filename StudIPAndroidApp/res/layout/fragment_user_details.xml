@@ -61,7 +61,7 @@
                 android:layout_below="@id/fullname"
                 android:layout_toRightOf="@id/user_image"
                 android:contentDescription="@string/email_icon"
-                android:src="@drawable/ic_mail" />
+                android:src="@drawable/ic_mail_black" />
 
             <de.elanev.studip.android.app.widget.TypefacedTextView
                 xmlns:android="http://schemas.android.com/apk/res/android"
@@ -110,7 +110,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:contentDescription="@string/homepage_icon"
-                android:src="@drawable/ic_home" />
+                android:src="@drawable/ic_homepage_black" />
 
             <de.elanev.studip.android.app.widget.TypefacedTextView
                 xmlns:android="http://schemas.android.com/apk/res/android"
@@ -140,7 +140,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:contentDescription="@string/phone_number_icon"
-                android:src="@drawable/ic_phone" />
+                android:src="@drawable/ic_phone_black" />
 
             <de.elanev.studip.android.app.widget.TypefacedTextView
                 xmlns:android="http://schemas.android.com/apk/res/android"
@@ -169,7 +169,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:contentDescription="@string/user_address_icon"
-                android:src="@drawable/ic_address" />
+                android:src="@drawable/ic_address_black" />
 
             <de.elanev.studip.android.app.widget.TypefacedTextView
                 xmlns:android="http://schemas.android.com/apk/res/android"

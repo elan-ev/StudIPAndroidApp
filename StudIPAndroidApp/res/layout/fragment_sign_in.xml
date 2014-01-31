@@ -71,7 +71,7 @@
             android:layout_marginRight="48dp"
             android:layout_marginTop="8dp"
             android:background="@android:color/background_light"
-            android:drawableLeft="@drawable/ic_key"
+            android:drawableLeft="@drawable/ic_key_blue"
             android:drawablePadding="-48dp"
             android:gravity="center"
             android:text="@string/Authorize"
@@ -124,7 +124,7 @@
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
             android:contentDescription="@string/icon"
-            android:src="@drawable/ic_menu_info"
+            android:src="@drawable/ic_info_circle"
             />
 
         <de.elanev.studip.android.app.widget.TypefacedTextView
