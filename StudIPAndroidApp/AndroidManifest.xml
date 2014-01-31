@@ -57,6 +57,7 @@
         <activity
             android:name=".frontend.news.NewsItemViewActivity"
             android:parentActivityName=".MainActivity">
+            <category android:name="android.intent.category.MONKEY" />
 
             <!-- Support 4.0 and lower -->
             <meta-data
@@ -68,6 +69,7 @@
         <activity
             android:name=".frontend.courses.CourseViewActivity"
             android:parentActivityName=".MainActivity">
+            <category android:name="android.intent.category.MONKEY" />
 
             <!-- Support 4.0 and lower -->
             <meta-data
@@ -80,6 +82,7 @@
             android:name=".frontend.messages.MessageDetailActivity"
             android:parentActivityName=".MainActivity"
             android:uiOptions="splitActionBarWhenNarrow">
+            <category android:name="android.intent.category.MONKEY" />
 
             <!-- Support 4.0 and lower -->
             <meta-data
@@ -93,6 +96,7 @@
         <!-- user details view activity -->
         <activity
             android:name=".widget.UserDetailsActivity"/>
+
 
         <!-- about thte app activity -->
         <activity
