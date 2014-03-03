@@ -1,7 +1,9 @@
 [submodule "libprojects/SherlockNavigationDrawer"]
 	path = libprojects/SherlockNavigationDrawer
 	url = https://github.com/mndfcked/SherlockNavigationDrawer.git
+  ignore = dirty
 [submodule "libprojects/volley"]
 	path = libprojects/volley
 	url = https://android.googlesource.com/platform/frameworks/volley
-	branch = master
+  branch = master
+  ignore = dirty
