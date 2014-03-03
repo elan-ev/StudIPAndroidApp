@@ -8,17 +8,22 @@
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 
 import com.actionbarsherlock.view.MenuItem;
+
+import java.util.List;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.frontend.util.TabbedFragmentActivity;
 
 /**
- * Activity for displaying a ViewPager with tabs for course overview, schedule, participants and documents.
+ * Activity for displaying a ViewPager with tabs for course overview,
+ * schedule, participants and documents.
  */
 public class CourseViewActivity extends TabbedFragmentActivity {
     ViewPager mPager;
@@ -84,4 +89,33 @@ public class CourseViewActivity extends TabbedFragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    public void onBackPressed() {
+        if (!returnBackStackImmediate(getSupportFragmentManager())) {
+            super.onBackPressed();
+        }
+    }
+
+    // HACK: propagate back button press to child fragments.
+    // (http://android.joao.jp/2013/09/back-stack-with-nested-fragments-back.html)
+    // FIXME: Fix with either a better hack, or an official solution
+    private boolean returnBackStackImmediate(FragmentManager fm) {
+        List<Fragment> fList = fm.getFragments();
+        Fragment fActive = mPagerAdapter.getItem(mPager.getCurrentItem());
+        if (fActive instanceof CourseDocumentsFragment) {
+            if (fList != null && fList.size() > 0) {
+                for (Fragment f : fList) {
+                    if (f.getChildFragmentManager().getBackStackEntryCount() > 0) {
+                        if (f.getChildFragmentManager().popBackStackImmediate()) {
+                            return true;
+                        } else {
+                            return returnBackStackImmediate(f.getChildFragmentManager());
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
