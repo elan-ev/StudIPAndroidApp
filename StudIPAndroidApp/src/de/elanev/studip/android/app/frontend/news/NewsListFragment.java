@@ -165,7 +165,7 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
                                 .getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
         String userImageUrl = c.getString(c
                 .getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-        long date = c.getLong(c.getColumnIndex(NewsContract.Columns.NEWS_DATE));
+        long date = c.getLong(c.getColumnIndex(NewsContract.Columns.NEWS_MKDATE));
 
         Bundle args = new Bundle();
         args.putString(NewsContract.Columns.NEWS_TOPIC, topic);
@@ -185,7 +185,7 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
         String[] PROJECTION = {NewsContract.Qualified.NEWS_ID,
                 NewsContract.Qualified.NEWS_NEWS_TOPIC,
                 NewsContract.Qualified.NEWS_NEWS_BODY,
-                NewsContract.Qualified.NEWS_NEWS_DATE,
+                NewsContract.Qualified.NEWS_NEWS_MKDATE,
                 NewsContract.Qualified.NEWS_NEWS_COURSE_ID,
                 UsersContract.Qualified.USERS_USER_TITLE_PRE,
                 UsersContract.Qualified.USERS_USER_TITLE_POST,
@@ -208,7 +208,7 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
             final String newsTopic = cursor.getString(cursor
                     .getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
             final Long newsDate = cursor.getLong(cursor
-                    .getColumnIndex(NewsContract.Columns.NEWS_DATE));
+                    .getColumnIndex(NewsContract.Columns.NEWS_MKDATE));
             final String userForename = cursor.getString(cursor
                     .getColumnIndex(UsersContract.Columns.USER_FORENAME));
             final String userLastname = cursor.getString(cursor

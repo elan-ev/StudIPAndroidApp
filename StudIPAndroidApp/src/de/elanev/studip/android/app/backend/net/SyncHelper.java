@@ -12,6 +12,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
@@ -114,11 +115,11 @@ public class SyncHelper {
         builder.withValue(NewsContract.Columns.NEWS_ID, news.news_id);
         builder.withValue(NewsContract.Columns.NEWS_TOPIC, news.topic);
         builder.withValue(NewsContract.Columns.NEWS_BODY, news.body);
-        builder.withValue(NewsContract.Columns.NEWS_DATE, news.date * 1000L);
+        builder.withValue(NewsContract.Columns.NEWS_DATE, news.date);
         builder.withValue(NewsContract.Columns.NEWS_USER_ID, news.user_id);
-        builder.withValue(NewsContract.Columns.NEWS_CHDATE, news.chdate * 1000L);
-        builder.withValue(NewsContract.Columns.NEWS_MKDATE, news.mkdate * 1000L);
-        builder.withValue(NewsContract.Columns.NEWS_EXPIRE, news.expire * 1000L);
+        builder.withValue(NewsContract.Columns.NEWS_CHDATE, news.chdate);
+        builder.withValue(NewsContract.Columns.NEWS_MKDATE, news.mkdate);
+        builder.withValue(NewsContract.Columns.NEWS_EXPIRE, news.expire);
         builder.withValue(NewsContract.Columns.NEWS_ALLOW_COMMENTS,
                 news.allow_comments);
         builder.withValue(NewsContract.Columns.NEWS_CHDATE_UID, news.chdate_uid);
@@ -694,31 +695,47 @@ public class SyncHelper {
      * @param callbacks SyncHelperCallbacks for calling back, can be null
      */
     public void loadUsersForCourse(String courseId, SyncHelperCallbacks callbacks) {
-        Cursor c = mContext.getContentResolver()
-                .query(CoursesContract.CONTENT_URI.buildUpon()
-                        .appendPath("userids")
-                        .appendPath(courseId)
-                        .build(),
-                        new String[]{CoursesContract.
-                                Columns.
-                                CourseUsers.
-                                COURSE_USER_USER_ID},
-                        null,
-                        null,
-                        null);
-        c.moveToFirst();
-        while (!c.isAfterLast()) {
-            String userId = c.getString(c.getColumnIndex(CoursesContract.
-                    Columns.
-                    CourseUsers.
-                    COURSE_USER_USER_ID));
 
-            requestUser(userId, callbacks);
+        new UserLoadTask().execute(new Object[]{courseId, callbacks});
 
-            c.moveToNext();
+    }
+
+    private class UserLoadTask extends AsyncTask<Object, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Object... params) {
+
+            String courseId = (String) params[0];
+            SyncHelperCallbacks callbacks = (SyncHelperCallbacks) params[1];
+
+            Cursor c = mContext.getContentResolver()
+                    .query(CoursesContract.CONTENT_URI.buildUpon()
+                            .appendPath("userids")
+                            .appendPath(courseId)
+                            .build(),
+                            new String[]{CoursesContract.
+                                    Columns.
+                                    CourseUsers.
+                                    COURSE_USER_USER_ID},
+                            null,
+                            null,
+                            null);
+            c.moveToFirst();
+
+            while (!c.isAfterLast()) {
+                String userId = c.getString(c.getColumnIndex(CoursesContract.
+                        Columns.
+                        CourseUsers.
+                        COURSE_USER_USER_ID));
+
+                requestUser(userId, callbacks);
+
+                c.moveToNext();
+            }
+            c.close();
+
+            return null;
         }
-        c.close();
-
     }
 
     /**

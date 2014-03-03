@@ -332,7 +332,7 @@ public class CourseOverviewFragment extends SherlockFragment implements
                     final String newsTopic = cursor.getString(cursor
                             .getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
                     final Long newsDate = cursor.getLong(cursor
-                            .getColumnIndex(NewsContract.Columns.NEWS_DATE));
+                            .getColumnIndex(NewsContract.Columns.NEWS_MKDATE));
                     final String newsBody = cursor.getString(cursor
                             .getColumnIndex(NewsContract.Columns.NEWS_BODY));
                     final String userForename = cursor.getString(cursor
@@ -403,7 +403,7 @@ public class CourseOverviewFragment extends SherlockFragment implements
 
         String[] PROJECTION = {NewsContract.Qualified.NEWS_NEWS_TOPIC,
                 NewsContract.Qualified.NEWS_NEWS_BODY,
-                NewsContract.Qualified.NEWS_NEWS_DATE,
+                NewsContract.Qualified.NEWS_NEWS_MKDATE,
                 UsersContract.Qualified.USERS_USER_FORENAME,
                 UsersContract.Qualified.USERS_USER_LASTNAME};
 
