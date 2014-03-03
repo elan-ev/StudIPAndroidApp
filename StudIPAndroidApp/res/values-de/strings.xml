@@ -8,6 +8,7 @@
 <resources>
     <!-- General -->
     <string name="not_supported">Nicht unterstützt</string>
+    <string name="back">Zurück</string>
 
     <!-- Content descriptions -->
     <string name="user_image">Benutzerbild</string>

@@ -8,70 +8,114 @@
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 
 import com.actionbarsherlock.view.MenuItem;
 
+import java.util.List;
+
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.frontend.util.TabbedFragmentActivity;
 
+/**
+ * Activity for displaying a ViewPager with tabs for course overview,
+ * schedule, participants and documents.
+ */
 public class CourseViewActivity extends TabbedFragmentActivity {
-	ViewPager mPager;
-	BasePagerTabsAdapter mPagerAdapter;
+    ViewPager mPager;
+    BasePagerTabsAdapter mPagerAdapter;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		// Get intent data
-		Bundle intentExtras = getIntent().getExtras();
+        // Get intent data
+        Bundle intentExtras = getIntent().getExtras();
 
-		// ViewPager, PagetAdapter setup
-		mPager = new ViewPager(this);
-		mPager.setId("VP".hashCode());
-		setContentView(mPager);
-		mPagerAdapter = new BasePagerTabsAdapter(this,
-				getSupportFragmentManager(), mPager, mActionbar);
-		mPagerAdapter.addTab(mActionbar.newTab(), R.drawable.ic_action_seminar,
-				R.string.Overview, CourseOverviewFragment.class, intentExtras);
-		mPagerAdapter.addTab(mActionbar.newTab(),
-				R.drawable.ic_action_schedule, R.string.Schedule,
-				CourseScheduleFragment.class, intentExtras);
-		mPagerAdapter.addTab(mActionbar.newTab(),
-				R.drawable.ic_action_attendees, R.string.attendees,
-				CourseAttendeesFragment.class, intentExtras);
-		mPagerAdapter
-				.addTab(mActionbar.newTab(), R.drawable.ic_action_files,
-						R.string.Documents, CourseDocumentsFragment.class,
-						intentExtras);
+        // ViewPager, PagetAdapter setup
+        mPager = new ViewPager(this);
+        mPager.setId("VP".hashCode());
+        setContentView(mPager);
+        mPagerAdapter = new BasePagerTabsAdapter(this,
+                getSupportFragmentManager(),
+                mPager,
+                mActionbar);
 
-		// Setting Activity title
-		setTitle(getIntent().getStringExtra(
-				CoursesContract.Columns.Courses.COURSE_TITLE));
+        // Add the tabs to the PagerAdapter
+        mPagerAdapter.addTab(mActionbar.newTab(),
+                R.drawable.ic_action_seminar,
+                R.string.Overview,
+                CourseOverviewFragment.class,
+                intentExtras);
+        mPagerAdapter.addTab(mActionbar.newTab(),
+                R.drawable.ic_action_schedule,
+                R.string.Schedule,
+                CourseScheduleFragment.class,
+                intentExtras);
+        mPagerAdapter.addTab(mActionbar.newTab(),
+                R.drawable.ic_action_attendees,
+                R.string.attendees,
+                CourseAttendeesFragment.class,
+                intentExtras);
+        mPagerAdapter.addTab(mActionbar.newTab(),
+                R.drawable.ic_action_files,
+                R.string.Documents,
+                CourseDocumentsFragment.class,
+                intentExtras);
 
-	}
+        // Setting Activity title
+        setTitle(getIntent()
+                .getStringExtra(CoursesContract.Columns.Courses.COURSE_TITLE));
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
-	 * (com.actionbarsherlock.view.MenuItem)
-	 */
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		// Respond to the action bar's Up/Home button
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
-		}
+    }
 
-		return super.onOptionsItemSelected(item);
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (!returnBackStackImmediate(getSupportFragmentManager())) {
+            super.onBackPressed();
+        }
+    }
+
+    // HACK: propagate back button press to child fragments.
+    // (http://android.joao.jp/2013/09/back-stack-with-nested-fragments-back.html)
+    // FIXME: Fix with either a better hack, or an official solution
+    private boolean returnBackStackImmediate(FragmentManager fm) {
+        List<Fragment> fList = fm.getFragments();
+        Fragment fActive = mPagerAdapter.getItem(mPager.getCurrentItem());
+        if (fActive instanceof CourseDocumentsFragment) {
+            if (fList != null && fList.size() > 0) {
+                for (Fragment f : fList) {
+                    if (f.getChildFragmentManager().getBackStackEntryCount() > 0) {
+                        if (f.getChildFragmentManager().popBackStackImmediate()) {
+                            return true;
+                        } else {
+                            return returnBackStackImmediate(f.getChildFragmentManager());
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }

@@ -83,7 +83,11 @@ public class CourseAttendeesFragment extends UserListFragment implements
         mListView.setAdapter(mUsersAdapter);
         // initialize CursorLoader
         getLoaderManager().initLoader(0, mArgs, this);
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
         SyncHelper.getInstance(mContext).loadUsersForCourse(mCourseId, null);
     }
 
