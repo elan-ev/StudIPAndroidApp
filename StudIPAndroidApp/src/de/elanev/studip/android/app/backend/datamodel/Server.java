@@ -55,10 +55,10 @@ public class Server implements Serializable {
         this.consumerKey = consumerKey;
         this.consumerSecret = consumerSecret;
         this.baseUrl = baseUrl;
-        this.accessUrl = this.baseUrl + "/oauth/access_token";
-        this.authorizationUrl = this.baseUrl + "/oauth/authorize";
-        this.requestUrl = this.baseUrl + "/oauth/request_token";
-        this.apiUrl = this.baseUrl + "/api";
+        this.accessUrl = baseUrl + "/oauth/access_token";
+        this.authorizationUrl = baseUrl + "/oauth/authorize";
+        this.requestUrl = baseUrl + "/oauth/request_token";
+        this.apiUrl = baseUrl + "/api";
         this.contactEmail = contactEmail;
     }
 
@@ -103,13 +103,16 @@ public class Server implements Serializable {
     @JsonProperty("base_url")
     public void setBaseUrl(String base_url) {
         this.baseUrl = base_url;
+        this.accessUrl = base_url + "/oauth/access_token";
+        this.authorizationUrl = base_url + "/oauth/authorize";
+        this.requestUrl = base_url + "/oauth/request_token";
+        this.apiUrl = base_url + "/api";
     }
 
     public String getAccessUrl() {
         return accessUrl;
     }
 
-    @JsonProperty("access_url")
     public void setAccessUrl(String accessUrl) {
         this.accessUrl = accessUrl;
     }
@@ -118,7 +121,6 @@ public class Server implements Serializable {
         return requestUrl;
     }
 
-    @JsonProperty("request_url")
     public void setRequestUrl(String requestUrl) {
         this.requestUrl = requestUrl;
     }
@@ -127,7 +129,6 @@ public class Server implements Serializable {
         return authorizationUrl;
     }
 
-    @JsonProperty("authorization_url")
     public void setAuthorizationUrl(String authorizationUrl) {
         this.authorizationUrl = authorizationUrl;
     }
@@ -136,7 +137,6 @@ public class Server implements Serializable {
         return apiUrl;
     }
 
-    @JsonProperty("api_url")
     public void setApiUrl(String apiUrl) {
         this.apiUrl = apiUrl;
     }
