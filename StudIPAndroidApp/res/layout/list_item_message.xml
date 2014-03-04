@@ -75,7 +75,6 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:singleLine="true"
-        android:textAllCaps="true"
         android:textColor="@color/secondary_text_light"
         android:textSize="@dimen/text_size_small"
         font:typeface="Roboto-Regular.ttf"/>
