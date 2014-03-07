@@ -18,8 +18,8 @@ public class DocumentFolder {
 	public String folder_id;
 	public String user_id;
 	public String name;
-	public String mkdate;
-	public String chdate;
+	public Long mkdate;
+	public Long chdate;
 	public String description;
 	public Permissions permissions;
 
@@ -36,7 +36,7 @@ public class DocumentFolder {
 	 * @param permissions
 	 */
 	public DocumentFolder(String folder_id, String user_id, String name,
-			String mkdate, String chdate, String description,
+			Long mkdate, Long chdate, String description,
 			Permissions permissions) {
 		this.folder_id = folder_id;
 		this.user_id = user_id;
