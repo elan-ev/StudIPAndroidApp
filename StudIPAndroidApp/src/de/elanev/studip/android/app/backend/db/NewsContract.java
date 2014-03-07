@@ -51,7 +51,7 @@ public final class NewsContract extends AbstractContract {
 
 	public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.studip.news";
 	public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.studip.news";
-	public static final String DEFAULT_SORT_ORDER = Qualified.NEWS_NEWS_DATE
+	public static final String DEFAULT_SORT_ORDER = Qualified.NEWS_NEWS_MKDATE
 			+ " DESC";
 
 	// Table Columns
