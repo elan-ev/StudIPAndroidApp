@@ -7,52 +7,66 @@
   http://www.gnu.org/licenses/gpl.html
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content" >
+                android:layout_width="fill_parent"
+                android:layout_height="?android:attr/listPreferredItemHeight"
+    >
 
     <ImageView
         android:id="@+id/icon"
+
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginRight="8dp"
+
         android:background="@color/studip_mobile_dark"
         android:padding="16dp"
         android:scaleType="fitCenter"
-        android:contentDescription="@string/icon" />
-
-    <de.elanev.studip.android.app.widget.TypefacedTextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
-        android:id="@+id/text1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/list_item_vert_margin"
-        android:layout_toRightOf="@+id/icon"
-        android:ellipsize="end"
-        android:fontFamily="sans-serif-condensed"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:singleLine="true"
-        android:textColor="@color/primary_text_light"
-        android:textSize="@dimen/text_size_medium"
-        font:typeface="Roboto-Bold.ttf" />
+        android:contentDescription="@string/icon"
+        />
 
     <de.elanev.studip.android.app.widget.TypefacedTextView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
         android:id="@+id/text2"
-        android:layout_width="wrap_content"
+
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/text1"
-        android:layout_marginBottom="@dimen/list_item_vert_margin"
-        android:layout_toRightOf="@id/icon"
-        android:ellipsize="end"
-        android:maxLines="1"
+        android:layout_marginBottom="6dip"
+        android:layout_toRightOf="@+id/icon"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+
+
         android:singleLine="true"
+        android:ellipsize="marquee"
+        android:maxLines="1"
         android:textColor="@color/secondary_text_light"
         android:textSize="@dimen/text_size_small"
-        font:typeface="Roboto-Regular.ttf" />
+        font:typeface="Roboto-Regular.ttf"
+        />
+
+    <de.elanev.studip.android.app.widget.TypefacedTextView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+        android:id="@+id/text1"
+
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dip"
+        android:layout_above="@+id/text2"
+        android:layout_toRightOf="@id/icon"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="true"
+
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:gravity="center_vertical"
+        android:textColor="@color/primary_text_light"
+        android:textSize="@dimen/text_size_medium"
+        font:typeface="Roboto-Regular.ttf"
+        />
 
 </RelativeLayout>
