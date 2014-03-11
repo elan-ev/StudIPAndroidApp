@@ -53,6 +53,7 @@ import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
+import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -332,8 +333,9 @@ public class CourseDocumentsFragment extends Fragment {
                                     apiUrl,
                                     fileId);
 
-
-                    downloadUrl = downloadUrl.replace("https://", "http://");
+                    if (!ApiUtils.isOverApi14()) {
+                        downloadUrl = downloadUrl.replace("https://", "http://");
+                    }
 
                     // Sign the download URL with the OAuth credentials and parse the URI
                     Server server = Prefs.getInstance(mContext).getServer();
@@ -355,7 +357,8 @@ public class CourseDocumentsFragment extends Fragment {
 
                     //Allowing the scanning by MediaScanner
                     request.allowScanningByMediaScanner();
-                    request.setNotificationVisibility(DownloadManager.Request
+                    request.setNotificationVisibility(DownloadManager
+                            .Request
                             .VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
                     downloadManager.enqueue(request);
@@ -383,7 +386,8 @@ public class CourseDocumentsFragment extends Fragment {
             ft.addToBackStack(null);
 
             new WarningDialog(R.string.not_supported,
-                    R.string.version_not_supported_message).show(ft, "warning_dialog");
+                    R.string.version_not_supported_message)
+                    .show(ft, "warning_dialog");
         }
 
         private void downloadDocumentsForFolder(String courseId,
@@ -503,10 +507,12 @@ public class CourseDocumentsFragment extends Fragment {
                 Object entry = mObjects.get(position);
 
                 if (row == null) {
-                    row = mInflater.inflate(R.layout.list_item_single_text_icon, parent, false);
+                    row = mInflater.inflate(R.layout.list_item_two_text_icon, parent,
+                            false);
                     DocumentHolder holder = new DocumentHolder();
                     holder.title = (TextView) row.findViewById(R.id.text1);
-                    holder.icon = (ImageView) row.findViewById(R.id.icon1);
+                    holder.subtitle = (TextView) row.findViewById(R.id.text2);
+                    holder.icon = (ImageView) row.findViewById(R.id.icon);
                     row.setTag(holder);
                 }
 
@@ -516,12 +522,19 @@ public class CourseDocumentsFragment extends Fragment {
                     holder.icon.setImageResource(R.drawable.ic_arrow_left_blue);
                     holder.icon.setBackgroundColor(getResources()
                             .getColor(android.R.color.transparent));
+                    holder.subtitle.setVisibility(View.GONE);
                 } else if (entry instanceof DocumentFolder) {
                     DocumentFolder f = (DocumentFolder) entry;
                     holder.icon.setImageResource(R.drawable.ic_folder);
                     holder.icon.setBackgroundColor(getResources()
                             .getColor(R.color.studip_mobile_dark));
                     holder.title.setText(f.name);
+                    String subText = String
+                            .format(getString(R.string.last_updated),
+                                    TextTools.getTimeAgo(f.chdate,
+                                            mContext));
+                    holder.subtitle.setText(subText);
+                    holder.subtitle.setVisibility(View.VISIBLE);
                 } else {
                     Document doc = (Document) entry;
                     String docName = "Unnamed";
@@ -530,6 +543,13 @@ public class CourseDocumentsFragment extends Fragment {
                     holder.icon.setBackgroundColor(getResources()
                             .getColor(R.color.studip_mobile_dark));
                     holder.title.setText(docName);
+                    String subText = String
+                            .format(getString(R.string.downloads), doc.downloads);
+                    holder.subtitle
+                            .setText(subText
+                                    + "\t\t\t"
+                                    + TextTools.readableFileSize(doc.filesize));
+                    holder.subtitle.setVisibility(View.VISIBLE);
                 }
 
                 return row;
@@ -570,7 +590,7 @@ public class CourseDocumentsFragment extends Fragment {
 
             private class DocumentHolder {
                 ImageView icon;
-                TextView title;
+                TextView title, subtitle;
             }
 
             private class HeaderHolder {
