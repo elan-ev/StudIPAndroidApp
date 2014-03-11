@@ -9,6 +9,7 @@
     <!-- General -->
     <string name="not_supported">Nicht unterstützt</string>
     <string name="back">Zurück</string>
+    <string name="last_updated">Letzte Änderung %1$s</string>
 
     <!-- Content descriptions -->
     <string name="user_image">Benutzerbild</string>
@@ -108,6 +109,7 @@
     <string name="version_not_supported_message">
         Leider unterstützt Ihre Android Version zur Zeit keine Downloads von Stud.IP.
     </string>
+    <string name="downloads">%1$d Downloads</string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Datenschutzerklärung</string>

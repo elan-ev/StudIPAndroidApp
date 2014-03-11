@@ -9,6 +9,7 @@
     <!-- General -->
     <string name="not_supported">Not supported</string>
     <string name="back">Back</string>
+    <string name="last_updated">Last updated %1$s</string>
 
     <!-- Content descriptions -->
     <string name="studip_logo" translatable="false">StudIP Logo</string>
@@ -111,6 +112,7 @@
     <string name="version_not_supported_message">
         Unfortunately your Android version is currently not supporting downloads from Stud.IP.
     </string>
+    <string name="downloads">%1$d downloads</string>
 
     <!-- About app Activity -->
     <string name="version_and_copyright" translatable="false">Version: %1$s (%2$s) \n &#169; 2013 ELAN e.V. Oldenburg</string>
