@@ -63,3 +63,4 @@
 -dontwarn com.actionbarsherlock.internal.**
 -dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
 -dontwarn com.google.common.**
+-dontwarn com.squareup.okhttp.**
