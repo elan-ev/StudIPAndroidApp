@@ -10,6 +10,8 @@ import com.crashlytics.android.Crashlytics;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import de.elanev.studip.android.app.backend.net.util.OkHttpStack;
+
 /*******************************************************************************
  * Copyright (c) 2013 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
@@ -64,7 +66,8 @@ public class StudIPApplication extends Application {
     public RequestQueue getRequestQueue() {
         // Create new if no queue is null
         if (mRequestQueue == null)
-            mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+            mRequestQueue = Volley.newRequestQueue(getApplicationContext(),
+                    new OkHttpStack());
 
         return mRequestQueue;
     }
