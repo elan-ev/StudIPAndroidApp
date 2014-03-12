@@ -104,25 +104,27 @@ public class SignInActivity extends SherlockFragmentActivity {
      */
     @Override
     public void onBackPressed() {
-        finish();
+        if (!ApiUtils.isOverApi11()) {
+            return;
+        }
+        super.onBackPressed();
     }
 
     /**
      * Starts the next activity after prefetching
      */
     public void startNewsActivity() {
-
         Intent intent = new Intent(this, MainActivity.class);
 
-        if (ApiUtils.isOverApi11()) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        } else {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        Log.i(TAG, "Starting news Activity...");
+        if (!ApiUtils.isOverApi11()) {
             finish();
         }
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        startActivity(intent);
     }
 
     /**
