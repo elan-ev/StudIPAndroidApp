@@ -57,7 +57,7 @@ public final class StuffUtil {
         } catch (Exception e) {
             if (BuildConfig.USE_CRASHLYTICS)
                 Crashlytics.logException(e);
-            
+
             return;
         }
 
@@ -86,9 +86,11 @@ public final class StuffUtil {
     public static void startSignInActivity(Context context) {
         // Start an intent so show the sign in screen
         Intent intent = new Intent(context, SignInActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                | Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
+
     }
 }

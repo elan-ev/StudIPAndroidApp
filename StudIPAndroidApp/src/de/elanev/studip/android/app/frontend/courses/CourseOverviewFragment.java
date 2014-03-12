@@ -49,6 +49,8 @@ public class CourseOverviewFragment extends SherlockFragment implements
     private static final int COURSE_LOADER = 101;
     private static final int COURSE_EVENTS_LOADER = 102;
     private static final int COURSE_NEWS_LOADER = 103;
+    private static final int COURSE_TEACHERS_LOADER = 104;
+
     protected final ContentObserver mObserverCourse = new ContentObserver(
             new Handler()) {
 
@@ -97,16 +99,12 @@ public class CourseOverviewFragment extends SherlockFragment implements
         }
     };
     private TextView mTitleTextView, mTeacherNameTextView, mDescriptionTextView, mNewsTitleTextView,
-            mNewsAuthorTextView, mNewsTextTextView, mNewsShowMoreTextView;
+            mNewsAuthorTextView, mNewsTextTextView, mNewsShowMoreTextView,
+            mTeacherCountTextView;
     private ImageView mUserImageView;
     private Context mContext;
     private Bundle mArgs;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,13 +112,6 @@ public class CourseOverviewFragment extends SherlockFragment implements
         mContext = getActivity();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
-     * android.view.ViewGroup, android.os.Bundle)
-     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -132,6 +123,8 @@ public class CourseOverviewFragment extends SherlockFragment implements
                 .findViewById(R.id.course_description);
         mTeacherNameTextView = (TextView) view
                 .findViewById(R.id.course_teacher_name);
+        mTeacherCountTextView = (TextView) view.findViewById(R.id
+                .course_teacher_count);
         mNewsTitleTextView = (TextView) view.findViewById(R.id.news_title);
         mNewsAuthorTextView = (TextView) view.findViewById(R.id.news_author);
         mNewsTextTextView = (TextView) view.findViewById(R.id.news_text);
@@ -141,11 +134,6 @@ public class CourseOverviewFragment extends SherlockFragment implements
         return view;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -155,6 +143,7 @@ public class CourseOverviewFragment extends SherlockFragment implements
         lm.initLoader(COURSE_LOADER, mArgs, this);
         lm.initLoader(COURSE_EVENTS_LOADER, mArgs, this);
         lm.initLoader(COURSE_NEWS_LOADER, mArgs, this);
+        lm.initLoader(COURSE_TEACHERS_LOADER, mArgs, this);
 
         mNewsShowMoreTextView.setOnClickListener(new OnClickListener() {
 
@@ -165,13 +154,6 @@ public class CourseOverviewFragment extends SherlockFragment implements
         });
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-     * (android.app.Activity)
-     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -183,15 +165,10 @@ public class CourseOverviewFragment extends SherlockFragment implements
         contentResolver.registerContentObserver(EventsContract.CONTENT_URI,
                 true, mObserverEvents);
 
-        contentResolver.registerContentObserver(CoursesContract.CONTENT_URI,
+        contentResolver.registerContentObserver(NewsContract.CONTENT_URI,
                 true, mObserverNews);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.actionbarsherlock.app.SherlockFragment#onDetach()
-     */
     @Override
     public void onDetach() {
         super.onDetach();
@@ -202,17 +179,10 @@ public class CourseOverviewFragment extends SherlockFragment implements
         contentResolver.unregisterContentObserver(mObserverNews);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-     * android.os.Bundle)
-     */
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 
         String cid = data.getString(CoursesContract.Columns.Courses.COURSE_ID);
-        long dbid = data.getLong(CoursesContract.Columns.Courses._ID);
+        long dbId = data.getLong(CoursesContract.Columns.Courses._ID);
         // Create loaders based on id
         switch (id) {
             case COURSE_LOADER:
@@ -220,7 +190,7 @@ public class CourseOverviewFragment extends SherlockFragment implements
                         mContext,
                         CoursesContract.CONTENT_URI
                                 .buildUpon()
-                                .appendPath(Long.toString(dbid))
+                                .appendPath(Long.toString(dbId))
                                 .build(), CourseItemQuery.projection, null, null,
                         CoursesContract.DEFAULT_SORT_ORDER);
 
@@ -242,8 +212,20 @@ public class CourseOverviewFragment extends SherlockFragment implements
                         NewsContract.CONTENT_URI
                                 .buildUpon()
                                 .appendPath(cid)
-                                .build(), CourseNewsQuery.PROJECTION, null, null,
+                                .build(), CourseNewsQuery.projection, null, null,
                         NewsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
+            case COURSE_TEACHERS_LOADER:
+                return new CursorLoader(
+                        mContext,
+                        UsersContract.CONTENT_URI
+                                .buildUpon()
+                                .appendPath("course")
+                                .appendPath(cid)
+                                .build(),
+                        CourseUsersQuery.projection,
+                        CourseUsersQuery.selection,
+                        CourseUsersQuery.selectionArgs,
+                        CoursesContract.COURSE_USERS_DEFAULT_SORT);
         }
         return null;
 
@@ -351,8 +333,25 @@ public class CourseOverviewFragment extends SherlockFragment implements
 
                 }
                 break;
+            case COURSE_TEACHERS_LOADER:
+                int teacherCount = cursor.getCount();
+                if (teacherCount > 1) {
+                    mTeacherCountTextView
+                            .setText(
+                                    String.format(
+                                            getString(R.string.and_more_teachers,
+                                                    teacherCount-1)
+                                    )
+                            );
+                    mTeacherCountTextView.setVisibility(View.VISIBLE);
+                }
+                break;
         }
 
+    }
+
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // nothing to do
     }
 
     public void toggleLatestNewsView() {
@@ -369,16 +368,6 @@ public class CourseOverviewFragment extends SherlockFragment implements
                     break;
             }
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-     * .support.v4.content.Loader)
-     */
-    public void onLoaderReset(Loader<Cursor> loader) {
     }
 
     private interface CourseItemQuery {
@@ -401,12 +390,30 @@ public class CourseOverviewFragment extends SherlockFragment implements
 
     public interface CourseNewsQuery {
 
-        String[] PROJECTION = {NewsContract.Qualified.NEWS_NEWS_TOPIC,
+        String[] projection = {NewsContract.Qualified.NEWS_NEWS_TOPIC,
                 NewsContract.Qualified.NEWS_NEWS_BODY,
                 NewsContract.Qualified.NEWS_NEWS_MKDATE,
                 UsersContract.Qualified.USERS_USER_FORENAME,
                 UsersContract.Qualified.USERS_USER_LASTNAME};
 
+    }
+
+    public interface CourseUsersQuery {
+        String[] projection = {
+                CoursesContract
+                        .Qualified
+                        .CourseUsers
+                        .COURSES_USERS_TABLE_COURSE_USER_USER_ID
+        };
+
+        String selection = CoursesContract
+                .Qualified
+                .CourseUsers
+                .COURSES_USERS_TABLE_COURSE_USER_USER_ROLE + "= ?";
+
+        String[] selectionArgs = {
+                Integer.toString(CoursesContract.USER_ROLE_TEACHER)
+        };
     }
 
 }

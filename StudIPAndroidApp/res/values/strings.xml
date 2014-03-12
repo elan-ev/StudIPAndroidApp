@@ -98,6 +98,7 @@
     <string name="show_less">Show less</string>
     <string name="Details">Details</string>
     <string name="latest_news">Latest news</string>
+    <string name="and_more_teachers">With %1$d teachers more</string>
 
     <!-- Course Downloads -->
     <string name="download_completed">Download complete</string>
