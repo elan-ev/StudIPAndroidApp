@@ -16,7 +16,7 @@ import java.io.File;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
 
     private static final String DATABASE_NAME = "studip_encrypted.db";
     private static final String LEGACY_DATABASE_NAME = "studip.db";
@@ -54,12 +54,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // Courses
         db.execSQL(CoursesContract.CREATE_TABLE_COURSES_STRING);
-        // FIXME meh..
         db.execSQL("INSERT INTO courses (course_id, title) VALUES ('studip', 'Global')");
         db.execSQL(CoursesContract.CREATE_TABLE_COURSE_USERS_STRING);
 
         // Users
         db.execSQL(UsersContract.CREATE_STRING);
+        db.execSQL("INSERT INTO users (user_id, title_pre, forename, lastname, title_post) "
+                +"VALUES ('____%system%____', '', 'Stud.IP', '', '')");
 
         // Documents
         db.execSQL(DocumentsContract.CREATE_STRING);

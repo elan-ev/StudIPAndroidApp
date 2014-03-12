@@ -61,6 +61,7 @@ public class Prefs {
      */
     public void clearPrefs() {
         mPrefs.edit().clear().commit();
+        this.mCachedServer = null;
     }
 
     /*
@@ -123,21 +124,23 @@ public class Prefs {
     }
 
     /*
-     * Returns true if the app was previously set as authorized with the api
+     * Returns true if the app was previously authorized with an API and the
+     * credentials are correctly set in the secured database.
      *
      * @return True if the app is authorized, false if the app is not authorized
      */
     public boolean isAppAuthorized() {
-        return mPrefs.getBoolean(APP_IS_AUTHORIZED, false);
-    }
-
-    /**
-     * Sets the app authorized with the api
-     *
-     * @param value True if the app is authorized, false if not
-     */
-    public void setAppAuthorized(boolean value) {
-        mPrefs.edit().putBoolean(APP_IS_AUTHORIZED, value).commit();
+        Server server = getServer();
+        if (server != null) {
+            if (server.getAccessToken() == null
+                    || server.getAccessTokenSecret() == null) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -157,23 +160,57 @@ public class Prefs {
         mPrefs.edit().putBoolean(APP_FIRST_START, false).commit();
     }
 
-    /**
-     * Temporary method to check if the app credentials have been secured. If the update to a
-     * secured version of the app just happened this method will return false. If it returns true
-     * the app credentials were secured before.
-     *
-     * @return false if the app credentials where not secured before, else true
-     */
-    public boolean isSecureStarted() {
-        return mPrefs.getBoolean(APP_SECURE_START, false);
-    }
 
     /**
-     * Sets this app to secure indicating that the app credentials have been secured. This will cause
-     * the isSecureStarted() method to return true.
+     * Checks if insecure credentials from earlier versions of the app exist.
+     *
+     * @return true if there are insecure credentials form earlier versions,
+     * otherwise false
      */
-    public void setSecureStarted() {
-        mPrefs.edit().putBoolean(APP_SECURE_START, true).commit();
+    public boolean legacyDataExists() {
+        String accessToken = mPrefs.getString("accessToken", null);
+        String accessTokenSecret = mPrefs.getString("accessTokenSecret", null);
+        String serverName = mPrefs.getString("serverName", null);
+        String serverUrl = mPrefs.getString("serverUrl", null);
+        String serverKey = mPrefs.getString("serverKey", null);
+        String serverSecret = mPrefs.getString("serverSecret", null);
+
+        if (accessToken != null
+                || accessTokenSecret != null
+                || serverName != null
+                || serverUrl != null
+                || serverKey != null
+                || serverSecret != null) {
+
+            return true;
+
+        } else {
+
+            return false;
+
+        }
+    }
+
+    //DEBUG Only for credential migration testing
+    public void simulateOldPrefs(Server server) {
+        mPrefs.edit()
+                .putString("accessToken", server.getAccessToken())
+                .commit();
+        mPrefs.edit()
+                .putString("accessTokenSecret", server.getAccessTokenSecret())
+                .commit();
+        mPrefs.edit()
+                .putString("serverName", server.getName())
+                .commit();
+        mPrefs.edit()
+                .putString("serverUrl", server.getBaseUrl())
+                .commit();
+        mPrefs.edit()
+                .putString("serverKey", server.getConsumerKey())
+                .commit();
+        mPrefs.edit()
+                .putString("serverSecret", server.getConsumerSecret())
+                .commit();
     }
 
 }

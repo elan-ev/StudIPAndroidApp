@@ -64,34 +64,21 @@ public class SignInActivity extends SherlockFragmentActivity {
     private static boolean mContactsSynced = false;
     private static boolean mNewsSynced = false;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * de.elanev.studip.android.app.frontend.util.BaseSlidingFragmentActivity
-     * #onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.content_frame);
 
-        if (Prefs.getInstance(this).isAppAuthorized()) {
-            // Check if unsecured data needs to be cleared
-            if (!Prefs.getInstance(this).isSecureStarted()) {
-                // Encrypt legacy database
-                DatabaseHandler.deleteLegacyDatabase(this);
-                // Delete the app database
-                getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
-                // Clear the app preferences
-                Prefs.getInstance(this).clearPrefs();
-                Prefs.getInstance(this).setSecureStarted();
-
-            } else {
-                startNewsActivity();
-            }
+        // Check if unsecured server credentials exist
+        if (Prefs.getInstance(this).legacyDataExists()) {
+            destroyInsecureCredentials();
+        } else if (Prefs.getInstance(this).isAppAuthorized()) {
+            Log.i(TAG, "Valid secured credentials found, starting app...");
+            startNewsActivity();
+            return;
         }
 
+        Log.i(TAG, "No valid credentials found, starting authentication...");
         if (savedInstanceState == null) {
             SignInFragment signInFragment = SignInFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
@@ -99,6 +86,17 @@ public class SignInActivity extends SherlockFragmentActivity {
                     .commit();
         }
 
+
+    }
+
+    private void destroyInsecureCredentials() {
+        Log.i(TAG, "Insecure credentials found, deleting...");
+        // Encrypt legacy database
+        DatabaseHandler.deleteLegacyDatabase(this);
+        // Delete the app database
+        getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
+        // Clear the app preferences
+        Prefs.getInstance(this).clearPrefs();
     }
 
     /*
@@ -106,7 +104,7 @@ public class SignInActivity extends SherlockFragmentActivity {
      */
     @Override
     public void onBackPressed() {
-        return;
+        finish();
     }
 
     /**
@@ -456,10 +454,14 @@ public class SignInActivity extends SherlockFragmentActivity {
 
         @Override
         public void onAccessTokenReceived(String token, String tokenSecret) {
+            //DEBUG Testing old credential migration behavior
+            //Prefs.getInstance(mContext).simulateOldPrefs(mSelectedServer);
+            //getActivity().finish();
+
             mSelectedServer.setAccessToken(token);
             mSelectedServer.setAccessTokenSecret(tokenSecret);
             Prefs.getInstance(mContext).setServer(mSelectedServer);
-            Prefs.getInstance(mContext).setAppAuthorized(true);
+
             performPrefetchSync();
         }
 
