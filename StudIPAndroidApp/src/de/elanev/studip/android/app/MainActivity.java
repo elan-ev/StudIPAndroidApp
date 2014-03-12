@@ -28,15 +28,14 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
 
-import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
 import de.elanev.studip.android.app.frontend.contacts.ContactsGroupsFragment;
 import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
 import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
 import de.elanev.studip.android.app.frontend.news.NewsListFragment;
+import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 
@@ -149,6 +148,14 @@ public class MainActivity extends SherlockFragmentActivity {
         getSupportMenuInflater().inflate(R.menu.main, menu);
 
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!ApiUtils.isOverApi11()) {
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override
