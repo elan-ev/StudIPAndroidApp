@@ -662,8 +662,9 @@ public class SyncHelper {
                             @Override
                             public void onResponse(User response) {
                                 mUserDbOp.add(parseUser(response));
-                                if (finalI == mUserSyncQueue.size()) {
-
+                                if (finalI >= mUserSyncQueue.size() * (0.75)) {
+                                    // Allow starting the news activity after
+                                    // loading 75% of the users
                                     Log.i(TAG, "FINISHED SYNCING PENDING USERS");
                                     try {
                                         mContext.getContentResolver().applyBatch
