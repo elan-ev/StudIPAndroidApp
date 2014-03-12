@@ -694,7 +694,7 @@ public class RestIpProvider extends ContentProvider {
                 break;
             case COURSE_USER_ID: {
                 if (TextUtils.isEmpty(sortOrder)) {
-                    orderBy = CoursesContract.DEFAULT_SORT_ORDER;
+                    orderBy = CoursesContract.COURSE_USERS_DEFAULT_SORT;
                 } else {
                     orderBy = sortOrder;
                 }
@@ -708,10 +708,11 @@ public class RestIpProvider extends ContentProvider {
                                 + cid
                                 + "'"
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
-                                + selection + ")" : ""), selectionArgs,
-                        null, null,
-                        CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID
-                                + " ASC");
+                                + selection + ")" : ""),
+                        selectionArgs,
+                        null,
+                        null,
+                        orderBy);
                 c.setNotificationUri(getContext().getContentResolver(),
                         CoursesContract.CONTENT_URI);
                 break;
@@ -793,8 +794,11 @@ public class RestIpProvider extends ContentProvider {
                                 + usersCourseId
                                 + '"'
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
-                                + selection + ")" : ""), selectionArgs,
-                        UsersContract.Qualified.USERS_USER_ID, null, orderBy);
+                                + selection + ")" : ""),
+                        selectionArgs,
+                        UsersContract.Qualified.USERS_USER_ID,
+                        null,
+                        orderBy);
 
                 c.setNotificationUri(getContext().getContentResolver(),
                         UsersContract.CONTENT_URI);
