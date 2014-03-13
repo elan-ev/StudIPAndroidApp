@@ -61,6 +61,7 @@ public class RestIpProvider extends ContentProvider {
     private static final int COURSES_USERS = 203;
     private static final int COURSE_USER_ID = 204;
     private static final int COURSES_IDS = 205;
+    private static final int COURSE_ID = 206;
     private static final int USERS = 300;
     private static final int USERS_ID = 301;
     private static final int USERS_COURSE_ID = 302;
@@ -121,6 +122,7 @@ public class RestIpProvider extends ContentProvider {
         matcher.addURI(authority, "courses/events/*", COURSES_ID_EVENTS);
         matcher.addURI(authority, "courses/userids/*", COURSE_USER_ID);
         matcher.addURI(authority, "courses/#", COURSES_ID);
+        matcher.addURI(authority, "course/#", COURSE_ID);
 
         // matches for users
         matcher.addURI(authority, "users", USERS);
@@ -664,7 +666,25 @@ public class RestIpProvider extends ContentProvider {
                         CoursesContract.CONTENT_URI);
                 break;
             }
-            case COURSES_ID:
+            case COURSE_ID: {
+                if (TextUtils.isEmpty(sortOrder)) {
+                    orderBy = CoursesContract.DEFAULT_SORT_ORDER;
+                } else {
+                    orderBy = sortOrder;
+                }
+                long courseId = ContentUris.parseId(uri);
+                c = db.query(CoursesContract.TABLE_COURSES,
+                        projection, CoursesContract.Qualified.Courses.COURSES_ID
+                        + " = "
+                        + courseId
+                        + (!TextUtils.isEmpty(selection) ? " AND ("
+                        + selection + ")" : ""), selectionArgs,
+                        null, null, orderBy);
+                c.setNotificationUri(getContext().getContentResolver(),
+                        CoursesContract.CONTENT_URI);
+                break;
+            }
+            case COURSES_ID: {
                 if (TextUtils.isEmpty(sortOrder)) {
                     orderBy = CoursesContract.DEFAULT_SORT_ORDER;
                 } else {
@@ -681,6 +701,7 @@ public class RestIpProvider extends ContentProvider {
                 c.setNotificationUri(getContext().getContentResolver(),
                         CoursesContract.CONTENT_URI);
                 break;
+            }
             case COURSES_IDS:
                 if (TextUtils.isEmpty(sortOrder)) {
                     orderBy = CoursesContract.DEFAULT_SORT_ORDER;
