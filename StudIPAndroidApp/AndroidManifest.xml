@@ -28,8 +28,7 @@
         <activity
             android:name=".backend.net.oauth.SignInActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
