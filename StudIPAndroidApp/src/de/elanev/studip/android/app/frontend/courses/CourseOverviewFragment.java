@@ -141,9 +141,9 @@ public class CourseOverviewFragment extends SherlockFragment implements
         // initialize CursorLoaders with IDs
         LoaderManager lm = getLoaderManager();
         lm.initLoader(COURSE_LOADER, mArgs, this);
+        lm.initLoader(COURSE_TEACHERS_LOADER, mArgs, this);
         lm.initLoader(COURSE_EVENTS_LOADER, mArgs, this);
         lm.initLoader(COURSE_NEWS_LOADER, mArgs, this);
-        lm.initLoader(COURSE_TEACHERS_LOADER, mArgs, this);
 
         mNewsShowMoreTextView.setOnClickListener(new OnClickListener() {
 
@@ -225,19 +225,12 @@ public class CourseOverviewFragment extends SherlockFragment implements
                         CourseUsersQuery.projection,
                         CourseUsersQuery.selection,
                         CourseUsersQuery.selectionArgs,
-                        CoursesContract.COURSE_USERS_DEFAULT_SORT);
+                        UsersContract.Qualified.USERS_USER_FORENAME);
         }
         return null;
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-     * .support.v4.content.Loader, java.lang.Object)
-     */
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 
         if (getActivity() == null) {
@@ -256,41 +249,14 @@ public class CourseOverviewFragment extends SherlockFragment implements
                     String courseDescription = cursor
                             .getString(cursor
                                     .getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
-                    String teacherAvatarUrl = cursor
-                            .getString(cursor
-                                    .getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-                    getSherlockActivity().setTitle(courseTitle);
                     mTitleTextView.setText(courseTitle);
-                    mTeacherNameTextView
-                            .setText(cursor.getString(cursor
-                                    .getColumnIndex(UsersContract.Columns.USER_TITLE_PRE))
-                                    + " "
-                                    + cursor.getString(cursor
-                                    .getColumnIndex(UsersContract.Columns.USER_FORENAME))
-                                    + " "
-                                    + cursor.getString(cursor
-                                    .getColumnIndex(UsersContract.Columns.USER_LASTNAME))
-                                    + " "
-                                    + cursor.getString(cursor
-                                    .getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
+                    getSherlockActivity().setTitle(courseTitle);
 
                     if (!TextUtils.isEmpty(courseDescription)) {
                         mDescriptionTextView.setText(courseDescription);
                         mDescriptionTextView
                                 .setMovementMethod(new ScrollingMovementMethod());
                     }
-
-                    Picasso picasso = Picasso.with(mContext);
-
-                    if (BuildConfig.DEBUG) {
-                        picasso.setDebugging(true);
-                    }
-
-                    picasso.load(teacherAvatarUrl)
-                            .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
-                            .centerCrop()
-                            .placeholder(R.drawable.nobody_normal)
-                            .into(mUserImageView);
 
                 }
                 break;
@@ -334,16 +300,44 @@ public class CourseOverviewFragment extends SherlockFragment implements
                 }
                 break;
             case COURSE_TEACHERS_LOADER:
-                int teacherCount = cursor.getCount();
-                if (teacherCount > 1) {
-                    mTeacherCountTextView
-                            .setText(
-                                    String.format(
-                                            getString(R.string.and_more_teachers,
-                                                    teacherCount-1)
-                                    )
-                            );
-                    mTeacherCountTextView.setVisibility(View.VISIBLE);
+                if (!cursor.isAfterLast()) {
+                    String teacherAvatarUrl = cursor
+                            .getString(cursor
+                                    .getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
+                    mTeacherNameTextView
+                            .setText(cursor.getString(cursor
+                                    .getColumnIndex(UsersContract.Columns.USER_TITLE_PRE))
+                                    + " "
+                                    + cursor.getString(cursor
+                                    .getColumnIndex(UsersContract.Columns.USER_FORENAME))
+                                    + " "
+                                    + cursor.getString(cursor
+                                    .getColumnIndex(UsersContract.Columns.USER_LASTNAME))
+                                    + " "
+                                    + cursor.getString(cursor
+                                    .getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
+                    int teacherCount = cursor.getCount();
+                    if (teacherCount > 1) {
+                        mTeacherCountTextView
+                                .setText(
+                                        String.format(
+                                                getString(R.string.and_more_teachers,
+                                                        teacherCount - 1)
+                                        )
+                                );
+                        mTeacherCountTextView.setVisibility(View.VISIBLE);
+                    }
+                    Picasso picasso = Picasso.with(mContext);
+
+                    if (BuildConfig.DEBUG) {
+                        picasso.setDebugging(true);
+                    }
+
+                    picasso.load(teacherAvatarUrl)
+                            .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+                            .centerCrop()
+                            .placeholder(R.drawable.nobody_normal)
+                            .into(mUserImageView);
                 }
                 break;
         }
@@ -373,12 +367,8 @@ public class CourseOverviewFragment extends SherlockFragment implements
     private interface CourseItemQuery {
         String[] projection = {
                 CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
-                CoursesContract.Qualified.Courses.COURSES_COURSE_DESCIPTION,
-                UsersContract.Qualified.USERS_USER_TITLE_PRE,
-                UsersContract.Qualified.USERS_USER_FORENAME,
-                UsersContract.Qualified.USERS_USER_LASTNAME,
-                UsersContract.Qualified.USERS_USER_TITLE_POST,
-                UsersContract.Qualified.USERS_USER_AVATAR_NORMAL};
+                CoursesContract.Qualified.Courses.COURSES_COURSE_DESCIPTION
+        };
     }
 
     private interface CourseEventQuery {
@@ -400,10 +390,11 @@ public class CourseOverviewFragment extends SherlockFragment implements
 
     public interface CourseUsersQuery {
         String[] projection = {
-                CoursesContract
-                        .Qualified
-                        .CourseUsers
-                        .COURSES_USERS_TABLE_COURSE_USER_USER_ID
+                UsersContract.Qualified.USERS_USER_TITLE_PRE,
+                UsersContract.Qualified.USERS_USER_FORENAME,
+                UsersContract.Qualified.USERS_USER_LASTNAME,
+                UsersContract.Qualified.USERS_USER_TITLE_POST,
+                UsersContract.Qualified.USERS_USER_AVATAR_NORMAL
         };
 
         String selection = CoursesContract
