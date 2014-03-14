@@ -101,11 +101,6 @@ public class MessageDetailFragment extends SherlockFragment implements
         return fragment;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,13 +110,6 @@ public class MessageDetailFragment extends SherlockFragment implements
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
-     * android.view.ViewGroup, android.os.Bundle)
-     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -136,11 +124,6 @@ public class MessageDetailFragment extends SherlockFragment implements
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -152,13 +135,6 @@ public class MessageDetailFragment extends SherlockFragment implements
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-     * (android.app.Activity)
-     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -176,13 +152,6 @@ public class MessageDetailFragment extends SherlockFragment implements
      * loader callbacks
 	 */
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-     * android.os.Bundle)
-     */
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 
         return new CursorLoader(
@@ -195,15 +164,8 @@ public class MessageDetailFragment extends SherlockFragment implements
                 MessagesContract.DEFAULT_SORT_ORDER_MESSAGES);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-     * .support.v4.content.Loader, java.lang.Object)
-     */
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (getActivity() == null) {
+        if (getActivity() == null || cursor.getCount() < 1) {
             return;
         }
 
@@ -295,11 +257,6 @@ public class MessageDetailFragment extends SherlockFragment implements
                         new Listener<String>() {
                             public void onResponse(String response) {
 
-                                getLoaderManager().getLoader(0).abandon();
-                                mContext.getContentResolver().delete(
-                                        MessagesContract.CONTENT_URI_MESSAGES
-                                                .buildUpon().appendPath(mMessageId)
-                                                .build(), null, null);
                                 if (getActivity() != null && isAdded()) {
                                     getActivity().finish();
                                     Toast.makeText(mContext,
@@ -307,6 +264,11 @@ public class MessageDetailFragment extends SherlockFragment implements
                                             Toast.LENGTH_SHORT)
                                             .show();
                                 }
+                                
+                                mContext.getContentResolver().delete(
+                                        MessagesContract.CONTENT_URI_MESSAGES
+                                                .buildUpon().appendPath(mMessageId)
+                                                .build(), null, null);
                             }
                         },
                         new ErrorListener() {
