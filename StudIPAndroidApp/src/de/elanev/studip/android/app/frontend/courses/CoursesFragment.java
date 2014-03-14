@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -301,12 +302,12 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
 
         @Override
         public long getHeaderId(int position) {
-            if (mSections.isEmpty())
+            if (mSections.isEmpty() || position == ListView.INVALID_POSITION)
                 return 0;
 
             for (int i = 0; i < mSections.size(); i++) {
-                if (position < mSections.get(i).index) {
-                    return i - 1;
+                if (position > mSections.get(i).index) {
+                    return i;
                 }
             }
             return mSections.size() - 1;
