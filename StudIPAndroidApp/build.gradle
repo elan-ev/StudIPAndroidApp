@@ -122,6 +122,7 @@ android {
 
         debug {
             buildConfigField "boolean", "USE_CRASHLYTICS", "false"
+            buildConfigField "String", "DATABASE", "\"studip_debug.db\""
             ext.enableCrashlytics = false;
             versionNameSuffix '-DEBUG'
             debuggable = true;
@@ -129,6 +130,7 @@ android {
 
         release {
             buildConfigField "boolean", "USE_CRASHLYTICS", "true"
+            buildConfigField "String", "DATABASE", "\"studip_encrypted.db\""
             ext.enableCrashlytics = true;
             versionNameSuffix '-RELEASE'
             debuggable = false;

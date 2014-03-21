@@ -14,11 +14,13 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 
 import java.io.File;
 
+import de.elanev.studip.android.app.BuildConfig;
+
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 5;
 
-    private static final String DATABASE_NAME = "studip_encrypted.db";
+    private static final String DATABASE_NAME = BuildConfig.DATABASE;
     private static final String LEGACY_DATABASE_NAME = "studip.db";
 
     private static DatabaseHandler sInstance;
