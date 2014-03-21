@@ -344,7 +344,7 @@ public class RestIpProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case NEWS: {
-                break;
+                return db.delete(NewsContract.TABLE, null, null);
             }
             case USERS: {
                 break;
@@ -353,6 +353,7 @@ public class RestIpProvider extends ContentProvider {
                 break;
             }
             case COURSES: {
+                retVal = db.delete(CoursesContract.TABLE_COURSES, null, null);
                 break;
             }
             case SEMESTERS: {
