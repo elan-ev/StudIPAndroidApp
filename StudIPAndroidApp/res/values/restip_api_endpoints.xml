@@ -32,7 +32,7 @@
     <string name="restip_messages_readall" translatable="false">%1$s/messages/read</string>
     <string name="restip_messages_read_messageid" translatable="false">%1$s/messages/%2$s/read</string>
 
-    <string-array name="restip_messages_box_identifiers">
+    <string-array name="restip_messages_box_identifiers" translatable="false">
         <item>in</item>
         <item>out</item>
     </string-array>
