@@ -27,8 +27,7 @@ public class Prefs {
     // TODO do DB operations in AsyncTask
     private static final String APP_PREFS_NAME = "prefs";
     private static final String APP_FIRST_START = "appFirstStart";
-    private static final String APP_SECURE_START = "appDBCrypted";
-    private static final String APP_IS_AUTHORIZED = "appIsAuthorized";
+    private static final String APP_SYMC_COMPLETE = "appSyncComplete";
     private static final String TAG = Prefs.class.getSimpleName();
     private static Prefs sInstance;
     private Context mContext;
@@ -211,6 +210,16 @@ public class Prefs {
         mPrefs.edit()
                 .putString("serverSecret", server.getConsumerSecret())
                 .commit();
+    }
+
+    public void setAppSynced() {
+        mPrefs.edit()
+                .putBoolean(APP_SYMC_COMPLETE, true)
+                .commit();
+    }
+
+    public boolean isAppSynced() {
+        return mPrefs.getBoolean(APP_SYMC_COMPLETE, false);
     }
 
 }

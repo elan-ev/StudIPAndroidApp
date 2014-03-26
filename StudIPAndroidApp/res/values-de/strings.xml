@@ -136,6 +136,10 @@
     <string name="missing_studip_message">
        <![CDATA[<u>Fehlt Ihr Stud.IP? <br />Kontaktieren Sie uns!</u>]]>
     </string>
+    <string name="sync_network_error">
+        Es trat ein Fehler beim laden Ihrer Daten auf, bitte versuchen Sie es
+        später erneut.
+    </string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Erfolgreich gelöscht</string>
