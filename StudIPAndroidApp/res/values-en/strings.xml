@@ -138,6 +138,9 @@
     <string name="missing_studip_message">
         <![CDATA[<u>Your Stud.IP is missing? <br />Contact us!</u>]]>
     </string>
+    <string name="sync_network_error">
+        Something went wrong while syncing your data. Please try again later.
+    </string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Successfully deleted</string>

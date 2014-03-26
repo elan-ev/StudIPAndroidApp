@@ -38,6 +38,7 @@ import java.io.IOException;
 
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.Servers;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
@@ -63,19 +64,22 @@ public class SignInActivity extends SherlockFragmentActivity {
     private static boolean mMessagesSynced = false;
     private static boolean mContactsSynced = false;
     private static boolean mNewsSynced = false;
+    private static boolean mUsersSynced = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.content_frame);
-
+        Prefs prefs = Prefs.getInstance(this);
         // Check if unsecured server credentials exist
-        if (Prefs.getInstance(this).legacyDataExists()) {
+        if (prefs.legacyDataExists()) {
             destroyInsecureCredentials();
-        } else if (Prefs.getInstance(this).isAppAuthorized()) {
-            Log.i(TAG, "Valid secured credentials found, starting app...");
-            startNewsActivity();
-            return;
+        } else if (prefs.isAppAuthorized()) {
+            if (prefs.isAppSynced()) {
+                Log.i(TAG, "Valid secured credentials found, starting app...");
+                startNewsActivity();
+                return;
+            }
         }
 
         Log.i(TAG, "No valid credentials found, starting authentication...");
@@ -388,7 +392,7 @@ public class SignInActivity extends SherlockFragmentActivity {
                     break;
                 case SyncHelper.SyncHelperCallbacks.FINISHED_COURSES_SYNC:
                     mCoursesSynced = true;
-                    SyncHelper.getInstance(mContext).performContactsSync(this, null);
+                    SyncHelper.getInstance(mContext).performNewsSync(this);
                     break;
                 case SyncHelper.SyncHelperCallbacks.FINISHED_NEWS_SYNC:
                     mNewsSynced = true;
@@ -396,58 +400,74 @@ public class SignInActivity extends SherlockFragmentActivity {
                     break;
                 case SyncHelper.SyncHelperCallbacks.FINISHED_MESSAGES_SYNC:
                     mMessagesSynced = true;
+                    SyncHelper.getInstance(mContext).performContactsSync(this, null);
                     break;
                 case SyncHelper.SyncHelperCallbacks.FINISHED_CONTACTS_SYNC:
                     mContactsSynced = true;
+                    SyncHelper.getInstance(mContext).performPendingUserSync(this);
                     break;
                 case SyncHelper.SyncHelperCallbacks.FINISHED_USER_SYNC:
-                    mCoursesSynced = false;
-                    mContactsSynced = false;
-                    mMessagesSynced = false;
-                    mNewsSynced = false;
-                    if (getActivity() != null) {
-                        ((SignInActivity) getActivity()).startNewsActivity();
-                    }
-                    return;
+                    mUsersSynced = true;
+                    break;
             }
 
-            if (mContactsSynced && mMessagesSynced && mCoursesSynced && mNewsSynced)
-                SyncHelper.getInstance(mContext).performPendingUserSync(this);
+            if (mContactsSynced
+                    && mMessagesSynced
+                    && mCoursesSynced
+                    && mNewsSynced
+                    && mUsersSynced
+                    && mSemestersSynced) {
+
+                mCoursesSynced = false;
+                mContactsSynced = false;
+                mMessagesSynced = false;
+                mNewsSynced = false;
+                mUsersSynced = false;
+                mSemestersSynced = false;
+
+                Prefs.getInstance(mContext).setAppSynced();
+                if (getActivity() != null) {
+                    ((SignInActivity) getActivity()).startNewsActivity();
+                }
+                return;
+            }
+
 
         }
 
         @Override
         public void onSyncError(int status, VolleyError error) {
-            switch (status) {
-                case SyncHelper.SyncHelperCallbacks.ERROR_SEMESTER_SYNC:
-                    SyncHelper.getInstance(mContext).performCoursesSync(this);
-                    break;
-                case SyncHelper.SyncHelperCallbacks.ERROR_COURSES_SYNC:
-                    SyncHelper.getInstance(mContext).performContactsSync(this, null);
-                    break;
-                case SyncHelper.SyncHelperCallbacks.ERROR_NEWS_SYNC:
-                    SyncHelper.getInstance(mContext).performMessagesSync(this);
-                    break;
-                case SyncHelper.SyncHelperCallbacks.ERROR_MESSAGES_SYNC:
-                case SyncHelper.SyncHelperCallbacks.ERROR_CONTACTS_SYNC:
-                    SyncHelper.getInstance(mContext).performPendingUserSync(this);
-                    break;
-                default:
-                    mCoursesSynced = false;
-                    mContactsSynced = false;
-                    mMessagesSynced = false;
-                    mNewsSynced = false;
-                    if (getActivity() != null) {
-                        ((SignInActivity) getActivity()).startNewsActivity();
-                    }
-                    return;
+            Log.wtf(TAG, "Sync error" + error.getLocalizedMessage());
+            //Cancel all pending network requests
+            StudIPApplication.getInstance().cancelAllPendingRequests(SyncHelper.TAG);
+
+            // Resetting the SyncHelper
+            SyncHelper.getInstance(mContext).resetSyncHelper();
+
+            // Clear the app preferences
+            Prefs.getInstance(mContext)
+                    .clearPrefs();
+
+            // Delete the app database
+            mContext.getContentResolver()
+                    .delete(AbstractContract.BASE_CONTENT_URI, null, null);
+
+            mCoursesSynced = false;
+            mContactsSynced = false;
+            mMessagesSynced = false;
+            mNewsSynced = false;
+
+            if (getActivity() != null) {
+                Toast.makeText(mContext,
+                        mContext.getString(R.string.sync_network_error),
+                        Toast.LENGTH_LONG
+                ).show();
             }
+            showLoginForm();
         }
 
         @Override
         public void onRequestTokenReceived(String authUrl) {
-            Log.d("Verbinung", "request Token geholt");
-            Log.d("sAuthUrl", authUrl);
             int requestCode = 0;
             Intent intent = new Intent(mContext, WebViewActivity.class);
             intent.putExtra("sAuthUrl", authUrl);
