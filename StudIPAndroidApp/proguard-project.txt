@@ -29,7 +29,6 @@
 
 -libraryjars libs/armeabi.jar
 -libraryjars libs/x86.jar
--libraryjars libs/guava-r09.jar
 -libraryjars libs/sqlcipher.jar
 
 -keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature
