@@ -95,7 +95,12 @@ public class AboutFragment extends SherlockFragment {
         ft.addToBackStack(null);
 
 //        new WebViewDialog("http://mlearning.elan-ev.de/?page_id=27&print=1", R.string.legal_notice).show(ft, "webview_dialog");
-        new WebViewDialog("file:///android_asset/legal_notice.html", R.string.legal_notice)
+        Bundle args = new Bundle();
+        args.putString(WebViewDialog.DIALOG_URL,
+                "file:///android_asset/legal_notice.html");
+        args.putInt(WebViewDialog.DIALOG_TITLE_RES, R.string.legal_notice);
+
+        WebViewDialog.newInstance(args)
                 .show(ft, "webview_dialog");
     }
 
@@ -111,7 +116,12 @@ public class AboutFragment extends SherlockFragment {
         }
         ft.addToBackStack(null);
 
-        new WebViewDialog("file:///android_asset/license.html", R.string.licenses)
+        Bundle args = new Bundle();
+        args.putString(WebViewDialog.DIALOG_URL,
+                "file:///android_asset/license.html");
+        args.putInt(WebViewDialog.DIALOG_TITLE_RES, R.string.licenses);
+
+        WebViewDialog.newInstance(args)
                 .show(ft, "webview_dialog");
     }
 
@@ -129,7 +139,13 @@ public class AboutFragment extends SherlockFragment {
 
 //        new WebViewDialog("http://mlearning.elan-ev.de/?page_id=140&print=1",
 //                R.string.privacy_policy).show(ft, "webview_dialog");
-        new WebViewDialog("file:///android_asset/privacy_policy.html", R.string.privacy_policy)
+
+        Bundle args = new Bundle();
+        args.putString(WebViewDialog.DIALOG_URL,
+                "file:///android_asset/privacy_policy.html");
+        args.putInt(WebViewDialog.DIALOG_TITLE_RES, R.string.privacy_policy);
+
+        WebViewDialog.newInstance(args)
                 .show(ft, "webview_dialog");
     }
 
@@ -138,27 +154,38 @@ public class AboutFragment extends SherlockFragment {
      */
     public static class WebViewDialog extends DialogFragment {
 
-        private String url;
-        private int title;
+        public static final String DIALOG_URL = "dialogUrl";
+        public static final String DIALOG_TITLE_RES = "dialogTitleRes";
+        private String mUrl;
+        private int mDialogTitleRes;
 
         /**
-         * Creates a new WebViewDialog with the specified URL and title
+         * Returns an new instance of a WebViewDialog fragment. The passed
+         * arguments will be set for this instance.
          *
-         * @param loadUrl  the URL to load into the webview
-         * @param titleRes the title String resource
+         * @param arguments Arguments to set for this particular instance
+         * @return An WebViewDialog fragment instance
          */
-        public WebViewDialog(String loadUrl, int titleRes) {
-            url = loadUrl;
-            title = titleRes;
+        public static WebViewDialog newInstance(Bundle arguments) {
+            WebViewDialog fragment = new WebViewDialog();
+
+            fragment.setArguments(arguments);
+
+            return fragment;
         }
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            // Get url and title res from arguments
+            mUrl = getArguments().getString(DIALOG_URL);
+            mDialogTitleRes = getArguments().getInt(DIALOG_TITLE_RES);
+
             WebView webView = new WebView(getActivity());
-            webView.loadUrl(url);
+            webView.loadUrl(mUrl);
 
             return new AlertDialog.Builder(getActivity())
-                    .setTitle(title)
+                    .setTitle(mDialogTitleRes)
                     .setView(webView)
                     .setPositiveButton(android.R.string.ok,
                             new DialogInterface.OnClickListener() {
