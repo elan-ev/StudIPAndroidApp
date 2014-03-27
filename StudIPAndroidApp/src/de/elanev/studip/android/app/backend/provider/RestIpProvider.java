@@ -354,6 +354,7 @@ public class RestIpProvider extends ContentProvider {
             }
             case COURSES: {
                 retVal = db.delete(CoursesContract.TABLE_COURSES, null, null);
+                db.execSQL("INSERT INTO courses (course_id, title) VALUES ('studip', 'Global')");
                 break;
             }
             case SEMESTERS: {
