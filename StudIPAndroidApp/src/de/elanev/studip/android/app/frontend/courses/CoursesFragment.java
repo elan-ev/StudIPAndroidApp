@@ -306,7 +306,7 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
                 return 0;
 
             for (int i = 0; i < mSections.size(); i++) {
-                if (position > mSections.get(i).index) {
+                if (position <= mSections.get(i).index) {
                     return i;
                 }
             }
