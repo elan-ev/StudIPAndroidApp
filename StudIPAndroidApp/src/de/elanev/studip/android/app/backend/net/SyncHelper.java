@@ -671,7 +671,7 @@ public class SyncHelper {
                                 ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
                                 for (NewsItem n : response.news) {
 //                                    mUserSyncQueue.add(n.user_id);
-                                    requestUser(n.user_id, null);
+                                    requestUser(n.user_id, callbacks);
                                     operations.add(parseNewsItem(n, id));
                                 }
                                 if (!operations.isEmpty()) {
@@ -692,7 +692,7 @@ public class SyncHelper {
 
                         }
                     },
-                    null
+                    callbacks
             );
             i++;
         }

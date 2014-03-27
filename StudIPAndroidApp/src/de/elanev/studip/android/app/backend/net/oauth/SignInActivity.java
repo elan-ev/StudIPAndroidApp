@@ -291,12 +291,14 @@ public class SignInActivity extends SherlockFragmentActivity {
          * Hides the progess indicator and sets the login form as visible
          */
         private void showLoginForm() {
-            if (!mSignInFormVisible) {
-                mSignInForm.setVisibility(View.VISIBLE);
-                mProgressInfo.setVisibility(View.GONE);
-                mSignInFormVisible = true;
-                mInfoBoxTextView.setText(Html.fromHtml(getString(R.string.missing_studip_message)));
-                mInfoBoxView.setOnClickListener(mMissingServerOnClickListener);
+            if (getActivity() != null && isAdded()) {
+                if (!mSignInFormVisible) {
+                    mSignInForm.setVisibility(View.VISIBLE);
+                    mProgressInfo.setVisibility(View.GONE);
+                    mSignInFormVisible = true;
+                    mInfoBoxTextView.setText(Html.fromHtml(getString(R.string.missing_studip_message)));
+                    mInfoBoxView.setOnClickListener(mMissingServerOnClickListener);
+                }
             }
         }
 
@@ -304,12 +306,14 @@ public class SignInActivity extends SherlockFragmentActivity {
          * Hides the login form and sets the progress indicator as visible
          */
         private void hideLoginForm() {
-            if (mSignInFormVisible) {
-                mSignInForm.setVisibility(View.GONE);
-                mProgressInfo.setVisibility(View.VISIBLE);
-                mSignInFormVisible = false;
-                mInfoBoxTextView.setText(Html.fromHtml(getString(R.string.sync_notice)));
-                mInfoBoxView.setOnClickListener(null);
+            if (getActivity() != null && isAdded()) {
+                if (mSignInFormVisible) {
+                    mSignInForm.setVisibility(View.GONE);
+                    mProgressInfo.setVisibility(View.VISIBLE);
+                    mSignInFormVisible = false;
+                    mInfoBoxTextView.setText(Html.fromHtml(getString(R.string.sync_notice)));
+                    mInfoBoxView.setOnClickListener(null);
+                }
             }
         }
 
@@ -456,6 +460,8 @@ public class SignInActivity extends SherlockFragmentActivity {
             mContactsSynced = false;
             mMessagesSynced = false;
             mNewsSynced = false;
+            mUsersSynced = false;
+            mSemestersSynced = false;
 
             if (getActivity() != null) {
                 Toast.makeText(mContext,
