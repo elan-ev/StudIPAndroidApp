@@ -23,12 +23,18 @@ import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.ContactGroups;
@@ -73,23 +79,20 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
  */
 public class SyncHelper {
     public static final String TAG = SyncHelper.class.getSimpleName();
-    private static final long COURSES_SYNC_THRESHOLD = 3600000; // 1h
-    private static final long NEWS_SYNC_THRESHOLD = 60000; // 1min
-    private static final long CONTACTS_SYNC_THRESHOLD = 60000; // 1min
-
-//DEBUG: Only for testing
-//    private static final long COURSES_SYNC_THRESHOLD = 5000; // 5sec
-//    private static final long NEWS_SYNC_THRESHOLD = 5000; // 5sec
-//    private static final long CONTACTS_SYNC_THRESHOLD = 5000; // 5sec
     private static long mLastNewsSync = 0;
     private static long mLastContactsSync = 0;
     private static long mLastCoursesSync = 0;
     private static SyncHelper mInstance;
     private static Server mServer;
     private static Context mContext;
-    private static Set<String> mUserSyncQueue = Collections.synchronizedSet(new HashSet<String>());
+
+    private static LoadingCache<String, User> sUsersCache;
+
+    private static Set<String> mUserSyncQueue = Collections
+            .synchronizedSet(new HashSet<String>());
     private static ArrayList<ContentProviderOperation> mUserDbOp = new
             ArrayList<ContentProviderOperation>();
+
     // TODO Make dependent on device connection type
     DefaultRetryPolicy mRetryPolicy = new DefaultRetryPolicy(30000,
             DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -105,13 +108,47 @@ public class SyncHelper {
      * @return an instance of the SyncHelper
      */
     public static SyncHelper getInstance(Context context) {
-        if (mInstance == null)
+        if (mInstance == null) {
             mInstance = new SyncHelper();
 
+            mServer = Prefs.getInstance(context).getServer();
+            sUsersCache = CacheBuilder.newBuilder()
+                    .maximumSize(1000)
+                    .expireAfterWrite(5, TimeUnit.MINUTES)
+                    .build(new CacheLoader<String, User>() {
+                        @Override
+                        public User load(String key) throws Exception {
+                            return dbQueryForUser(key);
+                        }
+                    });
+        }
         mContext = context;
-        mServer = Prefs.getInstance(context).getServer();
 
         return mInstance;
+    }
+
+    private static User dbQueryForUser(String userId) {
+        Cursor c = mContext.getContentResolver()
+                .query(UsersContract.CONTENT_URI,
+                        new String[]{UsersContract.Columns.USER_ID},
+                        UsersContract.Columns.USER_ID + " = ?",
+                        new String[]{userId},
+                        UsersContract.Columns.USER_ID
+                );
+
+        if (c.getCount() > 0) {
+            User user = new User();
+
+            c.moveToFirst();
+            user.user_id = c.getString(0);
+            c.close();
+            return user;
+        } else {
+            c.close();
+            return null;
+        }
+
+
     }
 
     private static ContentProviderOperation parseNewsItem(NewsItem news, String mCourseId) {
@@ -203,14 +240,16 @@ public class SyncHelper {
                         try {
                             if (response != null &&
                                     !TextUtils.equals("____%system%____", response.user_id)) {
+                                sUsersCache.put(response.user_id, response);
 
-                                // FIXME meh modus on...
+                                //FIXME: Add to userDbOp cache and execute
+                                // the whole bunch at once
                                 mUserDbOp.add(parseUser(response));
                                 mContext.getContentResolver()
                                         .applyBatch(AbstractContract.CONTENT_AUTHORITY,
                                                 mUserDbOp);
                                 mUserDbOp.clear();
-                                // meh modus off....
+
 
                                 if (callbacks != null)
                                     callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_USER_SYNC);
@@ -356,6 +395,7 @@ public class SyncHelper {
         mLastContactsSync = 0;
         mUserDbOp.clear();
         mUserSyncQueue.clear();
+        sUsersCache.invalidateAll();
     }
 
     public void forcePerformContactsSync(SyncHelperCallbacks callbacks) {
@@ -370,7 +410,8 @@ public class SyncHelper {
      */
     public void performContactsSync(final SyncHelperCallbacks callbacks, Request.Priority priority) {
         long currTime = System.currentTimeMillis();
-        if ((currTime - mLastContactsSync) > CONTACTS_SYNC_THRESHOLD) {
+        if ((currTime - mLastContactsSync) > BuildConfig
+                .CONTACTS_SYNC_THRESHOLD) {
             mLastContactsSync = currTime;
             Log.i(TAG, "SYNCING CONTACTS");
 
@@ -392,13 +433,10 @@ public class SyncHelper {
                                         AbstractContract.CONTENT_AUTHORITY,
                                         parseContacts(response));
 
+                                mUserSyncQueue.addAll(response.contacts);
+
                                 if (callbacks != null) {
-                                    mUserSyncQueue.addAll(response.contacts);
                                     callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
-                                } else {
-                                    for (String userId : response.contacts) {
-                                        requestUser(userId, null);
-                                    }
                                 }
 
                                 Log.i(TAG, "FINISHED SYNCING CONTACTS");
@@ -497,7 +535,8 @@ public class SyncHelper {
      */
     public void performCoursesSync(final SyncHelperCallbacks callbacks) {
         long currTime = System.currentTimeMillis();
-        if ((currTime - mLastCoursesSync) > COURSES_SYNC_THRESHOLD) {
+        if ((currTime - mLastCoursesSync) > BuildConfig
+                .COURSES_SYNC_THRESHOLD) {
             mLastCoursesSync = currTime;
             Log.i(TAG, "SYNCING COURSES");
             final String coursesUrl = String.format(
@@ -522,17 +561,10 @@ public class SyncHelper {
                                 e.printStackTrace();
                             }
 
-                            HashSet<String> courseIdSet = new HashSet<String>();
                             for (Course c : response.courses) {
                                 mUserSyncQueue.addAll(c.teachers);
-                                mUserSyncQueue.addAll(c.tutors);
-                                courseIdSet.add(c.course_id);
                             }
 
-                            // add global news to sync queue
-                            courseIdSet.add(mContext.getString(R.string
-                                    .restip_news_global_identifier));
-                            performNewsSyncForIds(courseIdSet, callbacks);
                             if (callbacks != null)
                                 callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_COURSES_SYNC);
                             Log.i(TAG, "FINISHED SYNCING COURSES");
@@ -582,8 +614,8 @@ public class SyncHelper {
      */
     public void performNewsSync(final SyncHelperCallbacks callbacks) {
         long currTime = System.currentTimeMillis();
-        if ((currTime - mLastCoursesSync) > NEWS_SYNC_THRESHOLD) {
-            mLastCoursesSync = currTime;
+        if ((currTime - mLastNewsSync) > BuildConfig.NEWS_SYNC_THRESHOLD) {
+            mLastNewsSync = currTime;
             final ContentResolver resolver = mContext.getContentResolver();
             Cursor c = resolver.query(CoursesContract.CONTENT_URI,
                     new String[]{CoursesContract.Columns.Courses.COURSE_ID},
@@ -593,8 +625,12 @@ public class SyncHelper {
             HashSet<String> courseIds = new HashSet<String>();
             c.moveToFirst();
             while (!c.isAfterLast()) {
-                courseIds.add(c.getString(c.getColumnIndex(CoursesContract.Columns.Courses.COURSE_ID)
-                ));
+                courseIds.add(
+                        c.getString(
+                                c.getColumnIndex(
+                                        CoursesContract.Columns.Courses.COURSE_ID)
+                        )
+                );
 
                 c.moveToNext();
             }
@@ -602,9 +638,9 @@ public class SyncHelper {
 
             // Adding the global news range
             courseIds.add(mContext.getString(R.string.restip_news_global_identifier));
-            // Delete old news from database
-            mContext.getContentResolver()
-                    .delete(NewsContract.CONTENT_URI, null, null);
+            //TODO: Delete old news from database
+//            mContext.getContentResolver()
+//                    .delete(NewsContract.CONTENT_URI, null, null);
             // Start sync
             performNewsSyncForIds(courseIds, callbacks);
         }
@@ -619,52 +655,46 @@ public class SyncHelper {
      */
     public void performNewsSyncForIds(final HashSet<String> newsRangeIds,
                                       final SyncHelperCallbacks callbacks) {
-        long currTime = System.currentTimeMillis();
-        if ((currTime - mLastNewsSync) > NEWS_SYNC_THRESHOLD) {
-            mLastNewsSync = currTime;
+        Log.i(TAG, "SYNCING NEWS");
 
-            Log.i(TAG, "SYNCING NEWS");
+        if (callbacks != null)
+            callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
 
-            if (callbacks != null)
-                callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
+        int i = 0;
+        for (final String id : newsRangeIds) {
+            final int finalI = i;
 
-            int i = 0;
-            for (final String id : newsRangeIds) {
-                final int finalI = i;
-
-                requestNewsForRange(id,
-                        new Listener<News>() {
-                            public void onResponse(News response) {
-                                try {
-                                    ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-                                    for (NewsItem n : response.news) {
-                                        if (callbacks != null) {
-                                            mUserSyncQueue.add(n.user_id);
-                                        } else {
-                                            requestUser(n.user_id, null);
-                                        }
-                                        operations.add(parseNewsItem(n, id));
-                                    }
+            requestNewsForRange(id,
+                    new Listener<News>() {
+                        public void onResponse(News response) {
+                            try {
+                                ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+                                for (NewsItem n : response.news) {
+//                                    mUserSyncQueue.add(n.user_id);
+                                    requestUser(n.user_id, callbacks);
+                                    operations.add(parseNewsItem(n, id));
+                                }
+                                if (!operations.isEmpty()) {
                                     mContext.getContentResolver().applyBatch(
                                             AbstractContract.CONTENT_AUTHORITY, operations);
-
-                                    if (finalI == (newsRangeIds.size() - 1)) {
-                                        if (callbacks != null)
-                                            callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
-                                        Log.i(TAG, "FINISHED SYNCING NEWS");
-                                    }
-                                } catch (RemoteException e) {
-                                    e.printStackTrace();
-                                } catch (OperationApplicationException e) {
-                                    e.printStackTrace();
                                 }
 
+                                if (finalI == (newsRangeIds.size() - 1)) {
+                                    if (callbacks != null)
+                                        callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
+                                    Log.i(TAG, "FINISHED SYNCING NEWS");
+                                }
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            } catch (OperationApplicationException e) {
+                                e.printStackTrace();
                             }
-                        },
-                        null
-                );
-                i++;
-            }
+
+                        }
+                    },
+                    callbacks
+            );
+            i++;
         }
     }
 
@@ -688,9 +718,7 @@ public class SyncHelper {
                             @Override
                             public void onResponse(User response) {
                                 mUserDbOp.add(parseUser(response));
-                                if (finalI >= mUserSyncQueue.size() * (0.75)) {
-                                    // Allow starting the news activity after
-                                    // loading 75% of the users
+                                if (finalI >= mUserSyncQueue.size() - 1) {
                                     Log.i(TAG, "FINISHED SYNCING PENDING USERS");
                                     try {
                                         mContext.getContentResolver().applyBatch
@@ -712,6 +740,10 @@ public class SyncHelper {
                         null
                 );
                 i++;
+            }
+        } else {
+            if (callbacks != null) {
+                callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_USER_SYNC);
             }
         }
     }
@@ -735,21 +767,15 @@ public class SyncHelper {
      * @param callbacks SyncHelperCallbacks for calling back, can be null
      */
     public void requestUser(String userId, SyncHelperCallbacks callbacks) {
-        Log.i(TAG, "SYNCING USER: " + userId);
+//        Log.i(TAG, "SYNCING USER: " + userId);
 
         if (!TextUtils.equals("", userId)
                 && !TextUtils.equals("____%system%____", userId)) {
+            try {
+                sUsersCache.get(userId);
+//                    Log.i(TAG, "!!!!!USER CACHE HIT!!!!!");
+            } catch (CacheLoader.InvalidCacheLoadException exception) {
 
-            final ContentResolver resolver = mContext.getContentResolver();
-            Cursor c = resolver.query(UsersContract.CONTENT_URI.buildUpon().appendPath(userId).build(),
-                    new String[]{UsersContract.Columns.USER_ID},
-                    null,
-                    null,
-                    UsersContract.DEFAULT_SORT_ORDER);
-            int count = c.getCount();
-            c.close();
-
-            if (count < 1) {
                 try {
                     JacksonRequest<User> userJacksonRequest = createUserRequest(userId, callbacks);
                     userJacksonRequest.setRetryPolicy(mRetryPolicy);
@@ -758,7 +784,6 @@ public class SyncHelper {
 
                     if (callbacks != null)
                         callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
-
                 } catch (OAuthCommunicationException e) {
                     e.printStackTrace();
                 } catch (OAuthExpectationFailedException e) {
@@ -768,6 +793,9 @@ public class SyncHelper {
                 } catch (OAuthNotAuthorizedException e) {
                     StuffUtil.startSignInActivity(mContext);
                 }
+
+            } catch (ExecutionException exception) {
+                exception.printStackTrace();
             }
         }
     }
@@ -784,42 +812,37 @@ public class SyncHelper {
                             final SyncHelperCallbacks callbacks) {
 
         if (!TextUtils.equals("", userId) && !TextUtils.equals("____%system%____", userId)) {
-            final ContentResolver resolver = mContext.getContentResolver();
-            Cursor c = resolver.query(UsersContract
-                            .CONTENT_URI
-                            .buildUpon()
-                            .appendPath(userId)
-                            .build(),
-                    new String[]{UsersContract.Columns.USER_ID},
-                    null,
-                    null,
-                    UsersContract.DEFAULT_SORT_ORDER
-            );
-            int count = c.getCount();
-            c.close();
-
-            if (count < 1) {
-                final String usersUrl = String.format(
-                        mContext.getString(R.string.restip_users) + ".json",
-                        mServer.getApiUrl(),
-                        userId);
-
-                JacksonRequest<User> userJacksonRequest = new JacksonRequest<User>(usersUrl,
-                        User.class,
-                        null,
-                        listener,
-                        new ErrorListener() {
-                            public void onErrorResponse(
-                                    VolleyError error) {
-                                Log.wtf(TAG, error.getMessage());
-                            }
-                        },
-                        Method.GET
-                );
-                userJacksonRequest.setRetryPolicy(mRetryPolicy);
-                userJacksonRequest.setPriority(Request.Priority.LOW);
+            try {
+                sUsersCache.get(userId);
+//                    Log.i(TAG, "!!!!!USER CACHE HIT!!!!!");
+            } catch (CacheLoader.InvalidCacheLoadException exception) {
 
                 try {
+                    final String usersUrl = String.format(
+                            mContext.getString(R.string.restip_users) + ".json",
+                            mServer.getApiUrl(),
+                            userId);
+
+                    JacksonRequest<User> userJacksonRequest = new JacksonRequest<User>(usersUrl,
+                            User.class,
+                            null,
+                            listener,
+                            new ErrorListener() {
+                                public void onErrorResponse(
+                                        VolleyError error) {
+                                    Log.wtf(TAG, error.getMessage());
+                                    if (callbacks != null) {
+                                        callbacks.onSyncError(SyncHelperCallbacks
+                                                .ERROR_USER_SYNC, error);
+                                    }
+                                }
+                            },
+                            Method.GET
+                    );
+                    userJacksonRequest.setRetryPolicy(mRetryPolicy);
+                    userJacksonRequest.setPriority(Request.Priority.LOW);
+
+
                     OAuthConnector.with(mServer).sign(userJacksonRequest);
                     StudIPApplication.getInstance().addToRequestQueue(userJacksonRequest, TAG);
 
@@ -835,9 +858,11 @@ public class SyncHelper {
                 } catch (OAuthNotAuthorizedException e) {
                     StuffUtil.startSignInActivity(mContext);
                 }
-            } else {
-                Log.d(TAG, "USER ALREADY EXISTS");
+
+            } catch (ExecutionException exception) {
+                exception.printStackTrace();
             }
+
         }
     }
 
@@ -1371,71 +1396,3 @@ public class SyncHelper {
     }
 
 }
-
-
-/*
- * The favorite group feature needs some more refinement
- */
-//    private boolean favoritesGroupExisting(ContactGroups groups) {
-//        String favGroupName = mContext
-//                .getString(R.string.studip_app_contacts_favorites);
-//        for (ContactGroup group : groups.groups) {
-//            if (TextUtils.equals(group.name, favGroupName))
-//                return true;
-//        }
-//        return false;
-//    }
-//
-//    private void createFavoritesGroup() {
-//        final String contactGroupsURL = String.format(
-//                mContext.getString(R.string.restip_contacts_groups) + ".json",
-//                mServer.API_URL);
-//        // Create Jackson HTTP post request
-//        JacksonRequest<ContactGroups> request = new JacksonRequest<ContactGroups>(
-//                contactGroupsURL, ContactGroups.class, null,
-//                new Listener<ContactGroups>() {
-//
-//                    public void onResponse(ContactGroups response) {
-//                        try {
-//                            mContext.getContentResolver().applyBatch(
-//                                    AbstractContract.CONTENT_AUTHORITY,
-//                                    new ContactGroupsHandler(response).parse());
-//                        } catch (RemoteException e) {
-//                            e.printStackTrace();
-//                        } catch (OperationApplicationException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }, new ErrorListener() {
-//            /*
-//             * (non-Javadoc)
-//             *
-//             * @see com.android.volley.Response. ErrorListener
-//             * #onErrorResponse(com .android.volley. VolleyError)
-//             */
-//            public void onErrorResponse(VolleyError error) {
-//                Toast.makeText(mContext,
-//                        "Fehler: " + error.getMessage(),
-//                        Toast.LENGTH_SHORT).show();
-//            }
-//        }, Method.POST
-//        );
-//
-//        // Set parameters
-//        request.addParam("name",
-//                mContext.getString(R.string.studip_app_contacts_favorites));
-//
-//        // Sign request
-//        try {
-//            mConsumer.sign(request);
-//        } catch (OAuthMessageSignerException e) {
-//            e.printStackTrace();
-//        } catch (OAuthExpectationFailedException e) {
-//            e.printStackTrace();
-//        } catch (OAuthCommunicationException e) {
-//            e.printStackTrace();
-//        }
-//
-//        // Add request to HTTP request queue
-//        VolleyHttp.getVolleyHttp(mContext).getRequestQueue().add(request);
-//    }

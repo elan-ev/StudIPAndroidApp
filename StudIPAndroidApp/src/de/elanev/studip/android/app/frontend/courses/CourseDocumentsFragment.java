@@ -101,6 +101,38 @@ public class CourseDocumentsFragment extends Fragment {
 
     };
 
+    private static int getDownloadFailedReason(int queryReason) {
+        switch (queryReason) {
+            case DownloadManager.ERROR_CANNOT_RESUME:
+                return R.string.error_cannot_resume;
+
+            case DownloadManager.ERROR_DEVICE_NOT_FOUND:
+                return R.string.error_device_not_found;
+
+            case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
+                return R.string.error_file_already_exists;
+
+            case DownloadManager.ERROR_FILE_ERROR:
+                return R.string.error_file_error;
+
+            case DownloadManager.ERROR_HTTP_DATA_ERROR:
+                return R.string.error_http_data_error;
+
+            case DownloadManager.ERROR_INSUFFICIENT_SPACE:
+                return R.string.error_insufficient_space;
+
+            case DownloadManager.ERROR_TOO_MANY_REDIRECTS:
+                return R.string.error_to_many_redirects;
+
+            case DownloadManager.ERROR_UNHANDLED_HTTP_CODE:
+                return R.string.error_unhandled_error_code;
+
+            default:
+                return R.string.unknown_error;
+        }
+
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
@@ -167,38 +199,6 @@ public class CourseDocumentsFragment extends Fragment {
 
     }
 
-    private static int getDownloadFailedReason(int queryReason) {
-        switch (queryReason) {
-            case DownloadManager.ERROR_CANNOT_RESUME:
-                return R.string.error_cannot_resume;
-
-            case DownloadManager.ERROR_DEVICE_NOT_FOUND:
-                return R.string.error_device_not_found;
-
-            case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
-                return R.string.error_file_already_exists;
-
-            case DownloadManager.ERROR_FILE_ERROR:
-                return R.string.error_file_error;
-
-            case DownloadManager.ERROR_HTTP_DATA_ERROR:
-                return R.string.error_http_data_error;
-
-            case DownloadManager.ERROR_INSUFFICIENT_SPACE:
-                return R.string.error_insufficient_space;
-
-            case DownloadManager.ERROR_TOO_MANY_REDIRECTS:
-                return R.string.error_to_many_redirects;
-
-            case DownloadManager.ERROR_UNHANDLED_HTTP_CODE:
-                return R.string.error_unhandled_error_code;
-
-            default:
-                return R.string.unknown_error;
-        }
-
-    }
-
     private void showToastMessage(int stringRes) {
         if (isAdded())
             Toast.makeText(getActivity(), stringRes, Toast.LENGTH_SHORT).show();
@@ -209,9 +209,6 @@ public class CourseDocumentsFragment extends Fragment {
             StickyListHeadersListView.OnHeaderClickListener {
 
 
-        private Server mServer;
-        private DocumentsAdapter mAdapter;
-        private String mCourseId;
         private static final String FOLDER_NAME = "folder_name";
         private static final String[] PROJECTION = new String[]
 
@@ -221,9 +218,11 @@ public class CourseDocumentsFragment extends Fragment {
                         UsersContract.Columns.USER_LASTNAME,
                         UsersContract.Columns.USER_TITLE_POST
                 };
-
         private static final String SELECTION = UsersContract.Columns
                 .USER_ID + " = ?";
+        private Server mServer;
+        private DocumentsAdapter mAdapter;
+        private String mCourseId;
 
         /**
          * Returns a new instance of DocumentsListFragment and sets its arguments with the passed
@@ -385,8 +384,13 @@ public class CourseDocumentsFragment extends Fragment {
             }
             ft.addToBackStack(null);
 
-            new WarningDialog(R.string.not_supported,
-                    R.string.version_not_supported_message)
+            Bundle args = new Bundle();
+            args.putInt(WarningDialog.DIALOG_TITLE_RES,
+                    R.string.not_supported);
+            args.putInt(WarningDialog.DIALOG_MESSAGE_RES,
+                    R.string.version_not_supported_message);
+
+            WarningDialog.newInstance(args)
                     .show(ft, "warning_dialog");
         }
 
@@ -468,6 +472,53 @@ public class CourseDocumentsFragment extends Fragment {
             getActivity().onBackPressed();
         }
 
+        public static class WarningDialog extends DialogFragment {
+
+
+            public static final String DIALOG_TITLE_RES = "dialogTitleRes";
+            public static final String DIALOG_MESSAGE_RES = "dialogMessageRes";
+            private int mDialogTitleRes;
+            private int mDialogMessageRes;
+
+            /**
+             * Returns an new instance of a WarningDialog fragment. The passed
+             * arguments will be set for this instance.
+             *
+             * @param arguments Arguments to set for this particular instance
+             * @return An WarningDialog fragment instance
+             */
+            public static WarningDialog newInstance(Bundle arguments) {
+                WarningDialog fragment = new WarningDialog();
+
+                fragment.setArguments(arguments);
+
+                return fragment;
+            }
+
+            @Override
+            public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+                // Get url and title res from arguments
+                mDialogTitleRes = getArguments().getInt(DIALOG_TITLE_RES);
+                mDialogMessageRes = getArguments().getInt(DIALOG_MESSAGE_RES);
+
+                return new AlertDialog.Builder(getActivity())
+                        .setTitle(mDialogTitleRes)
+                        .setMessage(mDialogMessageRes)
+                        .setPositiveButton(android.R.string.ok,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        dialog.dismiss();
+                                    }
+                                }
+                        )
+                        .create();
+            }
+        }
+
+        private static class BackButtonListEntry {
+        }
+
         private class DocumentsAdapter extends BaseAdapter implements StickyListHeadersAdapter {
             private LayoutInflater mInflater;
             private List<Object> mObjects;
@@ -532,7 +583,8 @@ public class CourseDocumentsFragment extends Fragment {
                     String subText = String
                             .format(getString(R.string.last_updated),
                                     TextTools.getTimeAgo(f.chdate,
-                                            mContext));
+                                            mContext)
+                            );
                     holder.subtitle.setText(subText);
                     holder.subtitle.setVisibility(View.VISIBLE);
                 } else {
@@ -596,42 +648,6 @@ public class CourseDocumentsFragment extends Fragment {
             private class HeaderHolder {
                 TextView title;
             }
-        }
-
-        public class WarningDialog extends DialogFragment {
-
-            private int title;
-            private int message;
-
-            /**
-             * Returns a new WarningDialog instance containing the supplied title and message to show.
-             *
-             * @param title   the resource id for the dialog title
-             * @param message the resource id for the dialog message
-             */
-            public WarningDialog(int title, int message) {
-                this.title = title;
-                this.message = message;
-            }
-
-            @Override
-            public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-                return new AlertDialog.Builder(getActivity())
-                        .setTitle(title)
-                        .setMessage(message)
-                        .setPositiveButton(android.R.string.ok,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        dialog.dismiss();
-                                    }
-                                }
-                        )
-                        .create();
-            }
-        }
-
-        private static class BackButtonListEntry {
         }
     }
 }
