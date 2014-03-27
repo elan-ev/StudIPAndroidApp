@@ -143,12 +143,14 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                                 .delete(ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS,
                                         ContactsContract.Columns.ContactGroupMembers.USER_ID
                                                 + "= ?",
-                                        new String[]{"'" + userId + "'"});
+                                        new String[]{"'" + userId + "'"}
+                                );
 
                         context.getContentResolver()
                                 .delete(ContactsContract.CONTENT_URI_CONTACTS
-                                        .buildUpon().appendPath(userId).build(),
-                                        null, null);
+                                                .buildUpon().appendPath(userId).build(),
+                                        null, null
+                                );
                         SyncHelper.getInstance(context).forcePerformContactsSync(null);
 
 
@@ -186,22 +188,24 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
     private static void deleteUserFromGroup(final String userId,
                                             final String groupId, final int groupIntId, final int userIntId, final Context context) {
         String contactsUrl = String.format(context
-                .getString(R.string.restip_contacts_groups_groupid_userid),
-                mApiUrl, groupId, userId);
+                        .getString(R.string.restip_contacts_groups_groupid_userid),
+                mApiUrl, groupId, userId
+        );
         StringRequest request = new StringRequest(Method.DELETE,
                 contactsUrl,
                 new Listener<String>() {
                     public void onResponse(String response) {
                         context.getContentResolver()
                                 .delete(ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS
-                                        .buildUpon()
-                                        .appendPath(
-                                                String.format("%d", groupIntId))
-                                        .build(),
+                                                .buildUpon()
+                                                .appendPath(
+                                                        String.format("%d", groupIntId))
+                                                .build(),
                                         ContactsContract.Columns.Contacts.USER_ID
                                                 + "= ?",
                                         new String[]{String.format("%d",
-                                                userIntId)});
+                                                userIntId)}
+                                );
                         SyncHelper.getInstance(context).forcePerformContactsSync(null);
 
                         Toast.makeText(context, R.string.successfully_deleted, Toast.LENGTH_SHORT)
@@ -237,8 +241,9 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
 
     private static void addUserToGroup(final String userId, final String groupId, final Context context) {
         String contactsUrl = String.format(context
-                .getString(R.string.restip_contacts_groups_groupid_userid),
-                mApiUrl, groupId, userId);
+                        .getString(R.string.restip_contacts_groups_groupid_userid),
+                mApiUrl, groupId, userId
+        );
         JacksonRequest<ContactGroups> userAddRequest = new JacksonRequest<ContactGroups>(
                 contactsUrl,
                 ContactGroups.class,
@@ -249,7 +254,8 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                             mResolver.applyBatch(
                                     AbstractContract.CONTENT_AUTHORITY,
                                     new ContactGroupHandler(response.group)
-                                            .parse());
+                                            .parse()
+                            );
                             SyncHelper.getInstance(context).forcePerformContactsSync(null);
                         } catch (RemoteException e) {
                             e.printStackTrace();
@@ -338,7 +344,8 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
         CursorLoader loader = new CursorLoader(getActivity(),
                 ContactsContract.CONTENT_URI_CONTACTS.buildUpon()
                         .appendPath(contactId).build(), projection, null, null,
-                ContactsContract.Columns.ContactGroups.GROUP_NAME + " ASC");
+                ContactsContract.Columns.ContactGroups.GROUP_NAME + " ASC"
+        );
 
         final Cursor c = loader.loadInBackground();
 
@@ -392,7 +399,8 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                                             + "= ?",
                                     new String[]{mContext
                                             .getString(R.string.studip_app_contacts_favorites)},
-                                    ContactsContract.DEFAULT_SORT_ORDER_CONTACT_GROUPS);
+                                    ContactsContract.DEFAULT_SORT_ORDER_CONTACT_GROUPS
+                            );
                     if (favCursor1.getCount() > 0) {
                         favCursor1.moveToFirst();
                         favGroupId = favCursor1
@@ -417,7 +425,8 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                                             + "= ?",
                                     new String[]{mContext
                                             .getString(R.string.studip_app_contacts_favorites)},
-                                    ContactsContract.DEFAULT_SORT_ORDER_CONTACT_GROUPS);
+                                    ContactsContract.DEFAULT_SORT_ORDER_CONTACT_GROUPS
+                            );
                     if (favCursor2.getCount() > 0) {
                         favCursor2.moveToFirst();
                         favGroupId = favCursor2
@@ -513,9 +522,12 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
 
             // load all groups
             CursorLoader allGroupsloader = new CursorLoader(getActivity(),
-                    ContactsContract.CONTENT_URI_CONTACT_GROUPS, projection,
-                    null, null,
+                    ContactsContract.CONTENT_URI_CONTACT_GROUPS,
+                    projection,
+                    ContactsContract.Columns.ContactGroups.GROUP_ID + " != ?",
+                    new String[]{getString(R.string.restip_contacts_groups_unassigned_id)},
                     ContactsContract.Columns.ContactGroups.GROUP_NAME + " ASC");
+
             final Cursor cursorAllGroups = allGroupsloader.loadInBackground();
             cursorAllGroups.moveToFirst();
             while (!cursorAllGroups.isAfterLast()) {
@@ -531,7 +543,8 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                 multimap.put(groupName,
                         new Pair<Pair<String, Integer>, Boolean>(
                                 new Pair<String, Integer>(groupId, groupIntId),
-                                false));
+                                false)
+                );
                 cursorAllGroups.moveToNext();
             }
             cursorAllGroups.close();
@@ -541,7 +554,8 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                     ContactsContract.CONTENT_URI_CONTACTS.buildUpon()
                             .appendPath(mUserId).build(), projection, null,
                     null, ContactsContract.Columns.ContactGroups.GROUP_NAME
-                    + " ASC");
+                    + " ASC"
+            );
             final Cursor userGroupsCursor = selectedGroupsLoader
                     .loadInBackground();
             userGroupsCursor.moveToFirst();
@@ -555,7 +569,8 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                     Pair<String, Integer> groupIdPair = multimap.get(userGroup).first;
                     multimap.put(userGroup,
                             new Pair<Pair<String, Integer>, Boolean>(
-                                    groupIdPair, true));
+                                    groupIdPair, true)
+                    );
                 }
                 userGroupsCursor.moveToNext();
             }
@@ -580,23 +595,24 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.manage_groups);
             builder.setMultiChoiceItems(allGroupNames
-                    .toArray(new CharSequence[allGroupNames.size()]),
+                            .toArray(new CharSequence[allGroupNames.size()]),
                     primitivValuesArr, new OnMultiChoiceClickListener() {
 
-                public void onClick(DialogInterface dialog, int which,
-                                    boolean isChecked) {
-                    if (isChecked) {
-                        addUserToGroup(mUserId,
-                                allGroupIds.get(which).first, getActivity());
-                    } else {
-                        deleteUserFromGroup(mUserId,
-                                allGroupIds.get(which).first,
-                                allGroupIds.get(which).second,
-                                mIntUserId, getActivity());
-                    }
+                        public void onClick(DialogInterface dialog, int which,
+                                            boolean isChecked) {
+                            if (isChecked) {
+                                addUserToGroup(mUserId,
+                                        allGroupIds.get(which).first, getActivity());
+                            } else {
+                                deleteUserFromGroup(mUserId,
+                                        allGroupIds.get(which).first,
+                                        allGroupIds.get(which).second,
+                                        mIntUserId, getActivity());
+                            }
 
-                }
-            });
+                        }
+                    }
+            );
             builder.setPositiveButton(android.R.string.ok,
                     new DialogInterface.OnClickListener() {
                         /*
@@ -609,7 +625,8 @@ public abstract class UserListFragment extends ProgressSherlockListFragment impl
                         public void onClick(DialogInterface dialog, int which) {
                             getDialog().cancel();
                         }
-                    });
+                    }
+            );
 
             return builder.create();
         }
