@@ -190,4 +190,10 @@
     <string name="Logout">Logout</string>
     <string name="Feedback">Feedback</string>
 
+    <!-- Planner -->
+    <string name="Planner">Planner</string>
+    <string name="no_schedule">
+        You have no schedule for the next two weeks.
+    </string>
+
 </resources>

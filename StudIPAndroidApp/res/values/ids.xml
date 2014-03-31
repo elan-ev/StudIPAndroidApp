@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Main Menu -->
     <item name="navigation_news" type="id" />
     <item name="navigation_courses" type="id" />
     <item name="navigation_messages" type="id" />
     <item name="navigation_contacts" type="id" />
+    <item name="navigation_planner" type="id" />
 
     <!-- CourseDocuments -->
     <item name="document_list_wrapper" type="id" />
