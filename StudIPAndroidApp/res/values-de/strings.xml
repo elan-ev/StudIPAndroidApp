@@ -182,4 +182,11 @@
     <string name="Logout">Abmelden</string>
     <string name="Feedback">Feedback</string>
 
+
+    <!-- Planner -->
+    <string name="Planner">Planer</string>
+    <string name="no_schedule">
+        Sie haben für die nächsten zwei Wochen keine Termine.
+    </string>
+
 </resources>
