@@ -9,7 +9,10 @@
 package de.elanev.studip.android.app.frontend.planer;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,16 +28,19 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Locale;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.datamodel.Events;
 import de.elanev.studip.android.app.backend.datamodel.Server;
+import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
+import de.elanev.studip.android.app.frontend.courses.CourseViewActivity;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
@@ -44,7 +50,6 @@ import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * @author joern
@@ -52,24 +57,44 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  *         Fragment for showing data related to the /events route of the api.
  *         In Stud.IP known as Planner.
  */
-public class PlannerFragment extends ProgressSherlockListFragment implements AdapterView.OnItemClickListener,
-        StickyListHeadersListView.OnHeaderClickListener {
+public class PlannerFragment extends ProgressSherlockListFragment
+        implements AdapterView.OnItemClickListener {
 
     private static final String TAG = PlannerFragment.class.getSimpleName();
+    private static String[] PROJECTION = {CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE};
+    private static String SELECTION = CoursesContract.Qualified.Courses.COURSES_COURSE_ID + " = ?";
+    private static String SORT_ORDER = CoursesContract.Qualified.Courses.COURSES_COURSE_ID + " ASC";
+    private String mEventsRoute;
     private Server mServer;
     private EventsAdapter mAdapter;
+
+    private static String getTitleForCourseId(String courseId,
+                                              Context context) {
+        String title = null;
+        Cursor c = context
+                .getContentResolver().query
+                        (CoursesContract.CONTENT_URI,
+                                PROJECTION,
+                                SELECTION,
+                                new String[]{courseId}, // SelectionArgs
+                                SORT_ORDER
+                        );
+        if (!c.isAfterLast()) {
+            c.moveToNext();
+            title = c.getString(0);
+        }
+        c.close();
+        return title;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mServer = Prefs.getInstance(getActivity()).getServer();
-        mAdapter = new EventsAdapter(getActivity());
+        mContext = getSherlockActivity();
+        mServer = Prefs.getInstance(mContext).getServer();
+        mEventsRoute = String.format(getString(R.string.restip_planner) + ".json",
+                mServer.getApiUrl());
 
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -78,6 +103,7 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
         getActivity().setTitle(R.string.Planner);
         setEmptyMessage(R.string.no_schedule);
 
+        mAdapter = new EventsAdapter(mContext);
         mListView.setOnItemClickListener(this);
         mListView.setAdapter(mAdapter);
     }
@@ -89,49 +115,52 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
     }
 
     @Override
-    public void onHeaderClick(StickyListHeadersListView stickyListHeadersListView, View view, int i, long l, boolean b) {
-        return;
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        return;
+        Event e = (Event) mAdapter.getItem(position);
+        String cid = e.course_id;
+        String title = e.courseTitle;
+
+        Bundle args = new Bundle();
+        Intent intent = new Intent(getActivity(), CourseViewActivity.class);
+        intent.putExtra(CoursesContract.Columns.Courses.COURSE_ID, cid);
+        intent.putExtra(CoursesContract.Columns.Courses.COURSE_TITLE, title);
+        startActivity(intent);
     }
 
     private void requestEvents() {
         setLoadingViewVisible(true);
-        String eventsUrl;
-
-        eventsUrl = String.format(
-                getString(R.string.restip_planner) + ".json",
-                mServer.getApiUrl()
-        );
 
         JacksonRequest<Events> eventsJacksonRequest = new
                 JacksonRequest<Events>(
-                eventsUrl,
+                mEventsRoute,
                 Events.class,
                 null,
                 new Response.Listener<Events>() {
                     public void onResponse(Events response) {
 
-                        Collections.reverse(response.events);
-
                         ArrayList<EventsAdapter.Section> sections = new
                                 ArrayList<EventsAdapter.Section>();
-                        long currentDay = -1;
+                        long currentDay;
                         long prevDay = -1;
+                        String currentCourseId;
+                        String prevCourseId = null;
 
                         for (int i = 0; i < response.events.size(); i++) {
-                            currentDay = response.events
-                                    .get(i)
-                                    .start * 1000L;
+                            Event e = response.events
+                                    .get(i);
+                            currentDay = e.start * 1000L;
+                            currentCourseId = e.course_id;
 
                             if (!TextTools.isSameDay(currentDay, prevDay)) {
                                 String title = TextTools.getLocalizedTime
                                         (currentDay, getActivity());
                                 sections.add(
                                         new EventsAdapter.Section(i, title));
+                            }
+
+                            if (!TextUtils.equals(currentCourseId, prevCourseId)) {
+                                e.courseTitle = getTitleForCourseId
+                                        (currentCourseId, getActivity());
                             }
 
                             prevDay = currentDay;
@@ -187,6 +216,7 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
         private LayoutInflater mInflater;
         private Context mContext;
         private ArrayList<Section> mSections;
+        private SimpleDateFormat mDateTimeFormat;
 
         public EventsAdapter(Context context) {
 
@@ -194,6 +224,8 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
             mInflater = LayoutInflater.from(context);
             mData = new ArrayList<Event>();
             mSections = new ArrayList<Section>();
+            mDateTimeFormat = new SimpleDateFormat("HH:mm",
+                    Locale.getDefault());
 
         }
 
@@ -261,22 +293,28 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
         public View getView(int position, View convertView, ViewGroup parent) {
             View row = convertView;
             if (row == null) {
-                row = mInflater.inflate(R.layout.list_item_two_text_icon, parent,
+                row = mInflater.inflate(R.layout.list_item_planner, parent,
                         false);
                 EventHolder holder = new EventHolder();
-                holder.title = (TextView) row.findViewById(R.id.text1);
-                holder.time = (TextView) row.findViewById(R.id.text2);
+                holder.course_title = (TextView) row.findViewById(R.id.event_title);
+                holder.room = (TextView) row.findViewById(R.id.event_room);
+                holder.title = (TextView) row.findViewById(R.id
+                        .event_description);
                 row.setTag(holder);
             }
 
             EventHolder holder = (EventHolder) row.getTag();
 
             Event event = mData.get(position);
-            holder.title
-                    .setText(event.title + " " + event.room);
-            holder.time
-                    .setText(TextTools.getLocalizedTime(event.start * 1000L,
-                            mContext));
+
+            holder.course_title.setText(event.courseTitle);
+            String roomStr = mDateTimeFormat.format(event.start * 1000L)
+                    + " - " + mDateTimeFormat.format(event.end * 1000L);
+            if (!TextUtils.isEmpty(event.room))
+                roomStr = roomStr + " (" + event.room + ")";
+
+            holder.room.setText(roomStr);
+            holder.title.setText(event.title);
 
             return row;
         }
@@ -318,7 +356,7 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
         }
 
         private class EventHolder {
-            TextView title, time, name;
+            TextView course_title, title, room;
 
         }
     }
