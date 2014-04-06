@@ -18,7 +18,7 @@ import de.elanev.studip.android.app.BuildConfig;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     private static final String DATABASE_NAME = BuildConfig.DATABASE;
     private static final String LEGACY_DATABASE_NAME = "studip.db";
@@ -45,6 +45,22 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return sInstance;
     }
 
+    /**
+     * Deletes the old unencrypted database files to prevent leaking of unencrypted values
+     *
+     * @param context the context to execute the operation in
+     */
+    public static void deleteLegacyDatabase(Context context) {
+        if (context.getApplicationContext().deleteDatabase(LEGACY_DATABASE_NAME))
+            return;
+        else {
+            File legacyDb = context.getApplicationContext().getDatabasePath(LEGACY_DATABASE_NAME);
+            if (legacyDb.exists())
+                legacyDb.delete();
+        }
+
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
 
@@ -62,7 +78,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Users
         db.execSQL(UsersContract.CREATE_STRING);
         db.execSQL("INSERT INTO users (user_id, title_pre, forename, lastname, title_post) "
-                +"VALUES ('____%system%____', '', 'Stud.IP', '', '')");
+                + "VALUES ('____%system%____', '', 'Stud.IP', '', '')");
 
         // Documents
         db.execSQL(DocumentsContract.CREATE_STRING);
@@ -82,6 +98,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         //Authentication
         db.execSQL(AuthenticationContract.CREATE_TABLE_AUTHENTICATION);
+
+        // Institutes
+        db.execSQL(InstitutesContract.CREATE_STRING);
 
     }
 
@@ -137,21 +156,5 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onOpen(SQLiteDatabase db) {
         db.execSQL("PRAGMA foreign_keys = ON;");
         super.onOpen(db);
-    }
-
-    /**
-     * Deletes the old unencrypted database files to prevent leaking of unencrypted values
-     *
-     * @param context the context to execute the operation in
-     */
-    public static void deleteLegacyDatabase(Context context) {
-        if (context.getApplicationContext().deleteDatabase(LEGACY_DATABASE_NAME))
-            return;
-        else {
-            File legacyDb = context.getApplicationContext().getDatabasePath(LEGACY_DATABASE_NAME);
-            if (legacyDb.exists())
-                legacyDb.delete();
-        }
-
     }
 }
