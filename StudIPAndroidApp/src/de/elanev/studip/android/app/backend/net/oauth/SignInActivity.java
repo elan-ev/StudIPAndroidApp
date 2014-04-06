@@ -30,6 +30,8 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,14 +43,20 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.Servers;
+import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.DatabaseHandler;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
+import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.ServerData;
 import de.elanev.studip.android.app.util.StuffUtil;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * Activity for handling the full sign in and authorization process. It triggers
@@ -65,6 +73,7 @@ public class SignInActivity extends SherlockFragmentActivity {
     private static boolean mContactsSynced = false;
     private static boolean mNewsSynced = false;
     private static boolean mUsersSynced = false;
+    private static boolean mInstitutesSynced = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -321,8 +330,14 @@ public class SignInActivity extends SherlockFragmentActivity {
          * Simply triggers the prefetching at the SyncHelper
          */
         private void performPrefetchSync() {
-            SyncHelper.getInstance(mContext).performSemestersSync(this);
-            Prefs.getInstance(mContext).setAppStarted();
+            SyncHelper.getInstance(mContext)
+                    .requestInstitutesForUserID(
+                            Prefs.getInstance(getActivity()).getUserId(),
+                            this
+                    );
+
+            Prefs.getInstance(mContext)
+                    .setAppStarted();
         }
 
         private void authorize() {
@@ -384,6 +399,9 @@ public class SignInActivity extends SherlockFragmentActivity {
                 case SyncHelper.SyncHelperCallbacks.STARTED_USER_SYNC:
                     mSyncStatusTextView.setText(R.string.syncing_users);
                     break;
+                case SyncHelper.SyncHelperCallbacks.STARTED_INSTITUTES_SYNC:
+                    mSyncStatusTextView.setText(R.string.syncing_institutes);
+                    break;
             }
         }
 
@@ -413,6 +431,10 @@ public class SignInActivity extends SherlockFragmentActivity {
                 case SyncHelper.SyncHelperCallbacks.FINISHED_USER_SYNC:
                     mUsersSynced = true;
                     break;
+                case SyncHelper.SyncHelperCallbacks.FINISHED_INSTITUTES_SYNC:
+                    mInstitutesSynced = true;
+                    SyncHelper.getInstance(mContext).performCoursesSync(this);
+                    break;
             }
 
             if (mContactsSynced
@@ -420,7 +442,8 @@ public class SignInActivity extends SherlockFragmentActivity {
                     && mCoursesSynced
                     && mNewsSynced
                     && mUsersSynced
-                    && mSemestersSynced) {
+                    && mSemestersSynced
+                    && mInstitutesSynced) {
 
                 mCoursesSynced = false;
                 mContactsSynced = false;
@@ -428,6 +451,7 @@ public class SignInActivity extends SherlockFragmentActivity {
                 mNewsSynced = false;
                 mUsersSynced = false;
                 mSemestersSynced = false;
+                mInstitutesSynced = false;
 
                 Prefs.getInstance(mContext).setAppSynced();
                 if (getActivity() != null) {
@@ -462,6 +486,7 @@ public class SignInActivity extends SherlockFragmentActivity {
             mNewsSynced = false;
             mUsersSynced = false;
             mSemestersSynced = false;
+            mInstitutesSynced = false;
 
             if (getActivity() != null) {
                 Toast.makeText(mContext,
@@ -490,7 +515,44 @@ public class SignInActivity extends SherlockFragmentActivity {
             mSelectedServer.setAccessTokenSecret(tokenSecret);
             Prefs.getInstance(mContext).setServer(mSelectedServer);
 
-            performPrefetchSync();
+            String url = String.format(
+                    getString(R.string.restip_user),
+                    mSelectedServer.getApiUrl()
+            );
+
+            JacksonRequest<User> request = new JacksonRequest<User>(
+                    url,
+                    User.class,
+                    null,
+                    new Response.Listener<User>() {
+                        @Override
+                        public void onResponse(User response) {
+                            Prefs.getInstance(getActivity())
+                                    .setUserId(response.user_id);
+                            performPrefetchSync();
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.wtf(TAG, "Error requesting user details");
+                        }
+                    },
+                    Request.Method.GET
+            );
+
+            try {
+                OAuthConnector.with(mSelectedServer).sign(request);
+                StudIPApplication.getInstance().addToRequestQueue(request, TAG);
+            } catch (OAuthCommunicationException e) {
+                e.printStackTrace();
+            } catch (OAuthExpectationFailedException e) {
+                e.printStackTrace();
+            } catch (OAuthMessageSignerException e) {
+                e.printStackTrace();
+            } catch (OAuthNotAuthorizedException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
