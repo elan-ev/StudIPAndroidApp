@@ -37,6 +37,7 @@ import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DatabaseHandler;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
+import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
@@ -95,6 +96,7 @@ public class RestIpProvider extends ContentProvider {
     private static final int CONTACTS_GROUP_MEMBERS = 804;
     private static final int CONTACTS_GROUP_MEMBERS_GROUPID = 805;
     private static final int AUTHENTICATION = 900;
+    private static final int INSTITUTES = 1000;
     private long mLastDocumentsSync = -1;
     private long mLastCoursesSync = -1;
     private long mLastNewsSync = -1;
@@ -176,6 +178,9 @@ public class RestIpProvider extends ContentProvider {
 
         // matchers for authentication
         matcher.addURI(authority, "authentication", AUTHENTICATION);
+
+        // matchers for institutes
+        matcher.addURI(authority, "institutes", INSTITUTES);
 
         return matcher;
     }
@@ -370,7 +375,8 @@ public class RestIpProvider extends ContentProvider {
                                 + " = "
                                 + messageId
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
-                                + selection + ")" : ""), selectionArgs);
+                                + selection + ")" : ""), selectionArgs
+                );
                 break;
             }
             case MESSAGES_STRING_ID: {
@@ -382,7 +388,8 @@ public class RestIpProvider extends ContentProvider {
                                 + messageId
                                 + '"'
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
-                                + selection + ")" : ""), selectionArgs);
+                                + selection + ")" : ""), selectionArgs
+                );
                 break;
             }
             case CONTACTS_ID: {
@@ -394,7 +401,8 @@ public class RestIpProvider extends ContentProvider {
                                 + userId
                                 + '"'
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
-                                + selection + ")" : ""), selectionArgs);
+                                + selection + ")" : ""), selectionArgs
+                );
                 break;
             }
 
@@ -408,19 +416,22 @@ public class RestIpProvider extends ContentProvider {
                                 + groupId
                                 + '"'
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
-                                + selection + ")" : ""), selectionArgs);
+                                + selection + ")" : ""), selectionArgs
+                );
                 break;
             }
             case CONTACTS: {
                 retVal = db.delete(ContactsContract.TABLE_CONTACTS, (!TextUtils
-                        .isEmpty(selection) ? " AND (" + selection + ")" : ""),
-                        selectionArgs);
+                                .isEmpty(selection) ? " AND (" + selection + ")" : ""),
+                        selectionArgs
+                );
                 return retVal;
             }
             case CONTACTS_GROUPS: {
                 retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUPS,
                         (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")"
-                                : ""), selectionArgs);
+                                : ""), selectionArgs
+                );
                 return retVal;
             }
             case CONTACTS_GROUP_MEMBERS: {
@@ -438,13 +449,21 @@ public class RestIpProvider extends ContentProvider {
                                 + groupId
                                 + '"'
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
-                                + selection + ")" : ""), selectionArgs);
+                                + selection + ")" : ""), selectionArgs
+                );
                 return retVal;
             }
             case AUTHENTICATION: {
                 return db.delete(AuthenticationContract.TABLE_AUTHENTICATION,
                         selection,
                         selectionArgs);
+            }
+            case INSTITUTES: {
+                return db.delete(
+                        InstitutesContract.TABLE,
+                        selection,
+                        selectionArgs
+                );
             }
 
             default: {
@@ -586,6 +605,20 @@ public class RestIpProvider extends ContentProvider {
                 return ContentUris.withAppendedId(
                         AuthenticationContract.CONTENT_URI, rowId);
             }
+            case INSTITUTES: {
+                delete(uri, null, null);
+                long rowId = db.insertWithOnConflict(
+                        InstitutesContract.TABLE,
+                        null,
+                        values,
+                        SQLiteDatabase.CONFLICT_REPLACE
+                );
+                getContext().getContentResolver().notifyChange(uri, null);
+                return ContentUris.withAppendedId(
+                        InstitutesContract.CONTENT_URI,
+                        rowId
+                );
+            }
             default: {
                 throw new UnsupportedOperationException("Unsupported insert uri: "
                         + uri);
@@ -633,7 +666,8 @@ public class RestIpProvider extends ContentProvider {
                                 + "'"
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
                                 + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                        null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         NewsContract.CONTENT_URI);
                 break;
@@ -653,7 +687,8 @@ public class RestIpProvider extends ContentProvider {
                                 + newsId
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
                                 + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                        null, null, orderBy
+                );
             case COURSES: {
                 SyncHelper.getInstance(getContext()).performCoursesSync(null);
 
@@ -677,11 +712,12 @@ public class RestIpProvider extends ContentProvider {
                 long courseId = ContentUris.parseId(uri);
                 c = db.query(CoursesContract.TABLE_COURSES,
                         projection, CoursesContract.Qualified.Courses.COURSES_ID
-                        + " = "
-                        + courseId
-                        + (!TextUtils.isEmpty(selection) ? " AND ("
-                        + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                                + " = "
+                                + courseId
+                                + (!TextUtils.isEmpty(selection) ? " AND ("
+                                + selection + ")" : ""), selectionArgs,
+                        null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         CoursesContract.CONTENT_URI);
                 break;
@@ -695,11 +731,12 @@ public class RestIpProvider extends ContentProvider {
                 long courseId = ContentUris.parseId(uri);
                 c = db.query(CoursesContract.COURSES_JOIN_USERS_SEMESTERS,
                         projection, CoursesContract.Qualified.Courses.COURSES_ID
-                        + " = "
-                        + courseId
-                        + (!TextUtils.isEmpty(selection) ? " AND ("
-                        + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                                + " = "
+                                + courseId
+                                + (!TextUtils.isEmpty(selection) ? " AND ("
+                                + selection + ")" : ""), selectionArgs,
+                        null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         CoursesContract.CONTENT_URI);
                 break;
@@ -735,7 +772,8 @@ public class RestIpProvider extends ContentProvider {
                         selectionArgs,
                         null,
                         null,
-                        orderBy);
+                        orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         CoursesContract.CONTENT_URI);
                 break;
@@ -795,7 +833,8 @@ public class RestIpProvider extends ContentProvider {
                                 + '"'
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
                                 + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                        null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         UsersContract.CONTENT_URI);
                 break;
@@ -821,7 +860,8 @@ public class RestIpProvider extends ContentProvider {
                         selectionArgs,
                         UsersContract.Qualified.USERS_USER_ID,
                         null,
-                        orderBy);
+                        orderBy
+                );
 
                 c.setNotificationUri(getContext().getContentResolver(),
                         UsersContract.CONTENT_URI);
@@ -851,7 +891,8 @@ public class RestIpProvider extends ContentProvider {
                                 + '"'
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
                                 + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                        null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         DocumentsContract.CONTENT_URI);
                 break;
@@ -869,7 +910,8 @@ public class RestIpProvider extends ContentProvider {
                                 + messageId
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
                                 + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                        null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         MessagesContract.CONTENT_URI_MESSAGES);
                 break;
@@ -891,7 +933,8 @@ public class RestIpProvider extends ContentProvider {
                                 + "'"
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
                                 + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                        null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         MessagesContract.CONTENT_URI_MESSAGES);
                 break;
@@ -931,7 +974,8 @@ public class RestIpProvider extends ContentProvider {
                                 + folderId
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
                                 + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                        null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         MessagesContract.CONTENT_URI_MESSAGES);
                 break;
@@ -960,7 +1004,8 @@ public class RestIpProvider extends ContentProvider {
                                 + "'"
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
                                 + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                        null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         MessagesContract.CONTENT_URI_MESSAGES);
                 break;
@@ -975,8 +1020,9 @@ public class RestIpProvider extends ContentProvider {
                 }
 
                 c = db.query(ContactsContract.TABLE_CONTACTS + " "
-                        + ContactsContract.CONTACTS_JOIN_USERS, projection,
-                        selection, selectionArgs, null, null, orderBy);
+                                + ContactsContract.CONTACTS_JOIN_USERS, projection,
+                        selection, selectionArgs, null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         ContactsContract.CONTENT_URI_CONTACTS);
                 break;
@@ -1000,7 +1046,8 @@ public class RestIpProvider extends ContentProvider {
                                 + "'"
                                 + (!TextUtils.isEmpty(selection) ? " AND ("
                                 + selection + ")" : ""), selectionArgs,
-                        null, null, orderBy);
+                        null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS);
                 break;
@@ -1031,8 +1078,9 @@ public class RestIpProvider extends ContentProvider {
                 }
 
                 c = db.query(ContactsContract.TABLE_CONTACTS + " "
-                        + ContactsContract.CONTATCS_JOIN_USERS_JOIN_GROUPS,
-                        projection, selection, selectionArgs, null, null, orderBy);
+                                + ContactsContract.CONTATCS_JOIN_USERS_JOIN_GROUPS,
+                        projection, selection, selectionArgs, null, null, orderBy
+                );
                 c.setNotificationUri(getContext().getContentResolver(),
                         ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS);
                 break;
