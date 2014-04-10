@@ -4,6 +4,6 @@
   ignore = dirty
 [submodule "libprojects/volley"]
 	path = libprojects/volley
-	url = https://android.googlesource.com/platform/frameworks/volley
+	url = https://github.com/elan-ev/volley.git
   branch = master
   ignore = dirty
