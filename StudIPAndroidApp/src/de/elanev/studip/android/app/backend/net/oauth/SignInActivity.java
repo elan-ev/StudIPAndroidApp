@@ -433,7 +433,7 @@ public class SignInActivity extends SherlockFragmentActivity {
                     break;
                 case SyncHelper.SyncHelperCallbacks.FINISHED_INSTITUTES_SYNC:
                     mInstitutesSynced = true;
-                    SyncHelper.getInstance(mContext).performCoursesSync(this);
+                    SyncHelper.getInstance(mContext).performSemestersSync(this);
                     break;
             }
 
