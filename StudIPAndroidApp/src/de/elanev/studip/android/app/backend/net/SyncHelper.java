@@ -170,7 +170,7 @@ public class SyncHelper {
         builder.withValue(NewsContract.Columns.NEWS_CHDATE_UID, news.chdate_uid);
         builder.withValue(NewsContract.Columns.NEWS_BODY_ORIGINAL,
                 news.body_original);
-        builder.withValue(NewsContract.Columns.NEWS_COURSE_ID, mCourseId);
+        builder.withValue(NewsContract.Columns.NEWS_RANGE_ID, mCourseId);
 
         return builder.build();
     }
@@ -763,32 +763,45 @@ public class SyncHelper {
         if ((currTime - mLastNewsSync) > BuildConfig.NEWS_SYNC_THRESHOLD) {
             mLastNewsSync = currTime;
             final ContentResolver resolver = mContext.getContentResolver();
-            Cursor c = resolver.query(CoursesContract.CONTENT_URI,
+
+            Cursor c = resolver.query(
+                    CoursesContract.CONTENT_URI,
                     new String[]{CoursesContract.Columns.Courses.COURSE_ID},
                     null,
                     null,
-                    null);
-            HashSet<String> courseIds = new HashSet<String>();
+                    null
+            );
+
+            HashSet<String> rangeIds = new HashSet<String>();
             c.moveToFirst();
+
             while (!c.isAfterLast()) {
-                courseIds.add(
-                        c.getString(
-                                c.getColumnIndex(
-                                        CoursesContract.Columns.Courses.COURSE_ID)
-                        )
-                );
+                rangeIds.add(c.getString(0));
 
                 c.moveToNext();
             }
             c.close();
 
-            // Adding the global news range
-            courseIds.add(mContext.getString(R.string.restip_news_global_identifier));
+            c = resolver.query(
+                    InstitutesContract.CONTENT_URI,
+                    new String[]{InstitutesContract.Columns.INSTITUTE_ID},
+                    null,
+                    null,
+                    null
+            );
+
+            c.moveToFirst();
+            while (!c.isAfterLast()) {
+                rangeIds.add(c.getString(0));
+
+                c.moveToNext();
+            }
+            c.close();
+
+            rangeIds.add(mContext.getString(R.string.restip_news_global_identifier));
+            performNewsSyncForIds(rangeIds, callbacks);
+
             //TODO: Delete old news from database
-//            mContext.getContentResolver()
-//                    .delete(NewsContract.CONTENT_URI, null, null);
-            // Start sync
-            performNewsSyncForIds(courseIds, callbacks);
         }
     }
 
@@ -864,7 +877,7 @@ public class SyncHelper {
                             @Override
                             public void onResponse(User response) {
                                 mUserDbOp.add(parseUser(response));
-                                if (finalI >= mUserSyncQueue.size() - 1) {
+                                if (finalI == mUserSyncQueue.size()) {
                                     Log.i(TAG, "FINISHED SYNCING PENDING USERS");
                                     try {
                                         mContext.getContentResolver().applyBatch
