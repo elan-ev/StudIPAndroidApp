@@ -659,7 +659,7 @@ public class RestIpProvider extends ContentProvider {
                     orderBy = sortOrder;
                 }
                 c = db.query(NewsContract.NEWS_JOIN_USER, projection,
-                        NewsContract.Columns.NEWS_COURSE_ID
+                        NewsContract.Columns.NEWS_RANGE_ID
                                 + " = "
                                 + "'"
                                 + rangeId

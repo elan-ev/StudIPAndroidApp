@@ -186,7 +186,7 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
                 NewsContract.Qualified.NEWS_NEWS_TOPIC,
                 NewsContract.Qualified.NEWS_NEWS_BODY,
                 NewsContract.Qualified.NEWS_NEWS_MKDATE,
-                NewsContract.Qualified.NEWS_NEWS_COURSE_ID,
+                NewsContract.Qualified.NEWS_NEWS_RANGE_ID,
                 UsersContract.Qualified.USERS_USER_TITLE_PRE,
                 UsersContract.Qualified.USERS_USER_TITLE_POST,
                 UsersContract.Qualified.USERS_USER_FORENAME,
@@ -214,7 +214,7 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
             final String userLastname = cursor.getString(cursor
                     .getColumnIndex(UsersContract.Columns.USER_LASTNAME));
             final String courseId = cursor.getString(cursor
-                    .getColumnIndex(NewsContract.Columns.NEWS_COURSE_ID));
+                    .getColumnIndex(NewsContract.Columns.NEWS_RANGE_ID));
 
             final TextView newsTopicView = (TextView) view
                     .findViewById(R.id.text1);

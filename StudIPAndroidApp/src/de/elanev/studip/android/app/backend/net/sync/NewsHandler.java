@@ -59,7 +59,7 @@ public class NewsHandler implements ResultHandler {
 		builder.withValue(NewsContract.Columns.NEWS_CHDATE_UID, news.chdate_uid);
 		builder.withValue(NewsContract.Columns.NEWS_BODY_ORIGINAL,
 				news.body_original);
-		builder.withValue(NewsContract.Columns.NEWS_COURSE_ID, mCourseId);
+		builder.withValue(NewsContract.Columns.NEWS_RANGE_ID, mCourseId);
 
 		return builder.build();
 	}
