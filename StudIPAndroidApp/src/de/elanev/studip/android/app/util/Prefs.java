@@ -28,6 +28,7 @@ public class Prefs {
     private static final String APP_PREFS_NAME = "prefs";
     private static final String APP_FIRST_START = "appFirstStart";
     private static final String APP_SYMC_COMPLETE = "appSyncComplete";
+    private static final String USER_ID = "userId";
     private static final String TAG = Prefs.class.getSimpleName();
     private static Prefs sInstance;
     private Context mContext;
@@ -220,6 +221,16 @@ public class Prefs {
 
     public boolean isAppSynced() {
         return mPrefs.getBoolean(APP_SYMC_COMPLETE, false);
+    }
+
+    public String getUserId() {
+        return mPrefs.getString(USER_ID, null);
+    }
+
+    public void setUserId(String userId) {
+        mPrefs.edit()
+                .putString(USER_ID, userId)
+                .commit();
     }
 
 }

@@ -127,6 +127,7 @@
     <string name="syncing_contacts">Synchronisiere Kontakte</string>
     <string name="syncing_messages">Synchronisiere Nachrichten</string>
     <string name="syncing_users">Synchronisiere Benutzerdaten</string>
+    <string name="syncing_institutes">Synchronisiere Institute</string>
     <string name="no_servers">Keine Server vorhanden</string>
      <string name="sync_notice">
          Abhängig von Ihrer Internetverbindung und der Stud.IP Auslastung
@@ -188,5 +189,8 @@
     <string name="no_schedule">
         Sie haben für die nächsten zwei Wochen keine Termine.
     </string>
+
+    <!-- Institutes -->
+    <string name="Institutes">Institute</string>
 
 </resources>
