@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
   ~ Copyright (c) 2014 ELAN e.V.
   ~ All rights reserved. This program and the accompanying materials
@@ -12,4 +11,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/pager"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_height="match_parent">
+
+    <android.support.v4.view.PagerTitleStrip
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="@color/studip_mobile_dark"
+        android:textColor="@color/primary_text_dark"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"/>
+
+</android.support.v4.view.ViewPager>

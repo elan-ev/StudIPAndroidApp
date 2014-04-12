@@ -12,8 +12,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -29,6 +31,7 @@ import java.util.List;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
+import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.util.TextTools;
@@ -42,6 +45,8 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
         LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
     public static final String TAG = NewsListFragment.class.getSimpleName();
+    public static final String NEWS_SELECTOR = "news_selector";
+
     protected final ContentObserver mObserver = new ContentObserver(
             new Handler()) {
         @Override
@@ -58,18 +63,32 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
     };
     private NewsAdapter mNewsAdapter;
 
+    public static Fragment newInstance(int newsSelector) {
+        NewsListFragment fragment = new NewsListFragment();
+
+        Bundle args = new Bundle();
+        args.putInt(NEWS_SELECTOR, newsSelector);
+
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getActivity().setTitle(R.string.News);
+        int newsSelector = getArguments().getInt(NEWS_SELECTOR);
 
         setEmptyMessage(R.string.no_news);
+
         mListView.setOnItemClickListener(this);
 
         mNewsAdapter = new NewsAdapter(mContext);
         mListView.setAdapter(mNewsAdapter);
+
         // initialize CursorLoader
-        getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(newsSelector, null, this);
     }
 
     @Override
@@ -85,49 +104,100 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
         getActivity().getContentResolver().unregisterContentObserver(mObserver);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#
-     * onCreateLoader (int, android.os.Bundle)
-     */
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
         setLoadingViewVisible(true);
-        return new CursorLoader(getActivity(), NewsContract.CONTENT_URI,
-                NewsQuery.PROJECTION, null, null,
-                NewsContract.DEFAULT_SORT_ORDER);
+        Uri uri = NewsContract.CONTENT_URI;
+        String[] projection = null;
+
+        switch (id) {
+            case NewsTabsAdapter.NEWS_COURSES:
+                uri = uri.buildUpon()
+                        .appendPath("courses")
+                        .build();
+                projection = NewsQuery.PROJECTION_COURSES;
+                break;
+            case NewsTabsAdapter.NEWS_INSTITUTES:
+                uri = uri.buildUpon()
+                        .appendPath("institutes")
+                        .build();
+                projection = NewsQuery.PROJECTION_INSTITUTES;
+                break;
+            case NewsTabsAdapter.NEWS_GLOBAL:
+                uri = uri.buildUpon()
+                        .appendPath("global")
+                        .build();
+                projection = NewsQuery.PROJECTION_GLOBAL;
+                break;
+        }
+
+        return new CursorLoader(
+                getActivity(),
+                uri,
+                projection,
+                null,
+                null,
+                NewsContract.DEFAULT_SORT_ORDER
+        );
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#
-     * onLoadFinished (android.support.v4.content.Loader,
-     * android.database.Cursor)
-     */
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (getActivity() == null) {
             return;
         }
 
-        List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
-        cursor.moveToFirst();
-        String prevCourseId = null;
-        String currentCourseId = null;
-        while (!cursor.isAfterLast()) {
-            currentCourseId = cursor
-                    .getString(cursor
-                            .getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
-            if (!TextUtils.equals(prevCourseId, currentCourseId)) {
-                SectionedCursorAdapter.Section section = new SectionedCursorAdapter.Section(
-                        cursor.getPosition(),
-                        cursor.getString(cursor
-                                .getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE)));
+        int idColumnIdx = 0;
+        int titleColumnIdx = 0;
 
-                sections.add(section);
+        int newsSelector = loader.getId();
+
+        switch (newsSelector) {
+            case NewsTabsAdapter.NEWS_COURSES:
+                idColumnIdx = cursor.getColumnIndex(
+                        CoursesContract.Columns.Courses.COURSE_ID
+                );
+
+                titleColumnIdx = cursor.getColumnIndex(
+                        CoursesContract.Columns.Courses.COURSE_TITLE
+                );
+
+                break;
+            case NewsTabsAdapter.NEWS_INSTITUTES:
+                idColumnIdx = cursor.getColumnIndex(
+                        InstitutesContract.Columns.INSTITUTE_ID
+                );
+
+                titleColumnIdx = cursor.getColumnIndex(
+                        InstitutesContract.Columns.INSTITUTE_NAME
+                );
+
+                break;
+            case NewsTabsAdapter.NEWS_GLOBAL:
+                idColumnIdx = -1;
+                titleColumnIdx = -1;
+                break;
+        }
+
+        List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
+        if (idColumnIdx != -1 || titleColumnIdx != -1) {
+            cursor.moveToFirst();
+            String previousId = null;
+            String currentId;
+            while (!cursor.isAfterLast()) {
+
+                currentId = cursor.getString(idColumnIdx);
+
+                if (!TextUtils.equals(previousId, currentId)) {
+
+                    SectionedCursorAdapter.Section section = new SectionedCursorAdapter.Section(
+                            cursor.getPosition(),
+                            cursor.getString(titleColumnIdx)
+                    );
+
+                    sections.add(section);
+                }
+                previousId = currentId;
+                cursor.moveToNext();
             }
-            prevCourseId = currentCourseId;
-            cursor.moveToNext();
         }
 
         mNewsAdapter.setSections(sections);
@@ -136,12 +206,6 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
         setLoadingViewVisible(false);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset
-     * (android .support.v4.content.Loader)
-     */
     public void onLoaderReset(Loader<Cursor> loader) {
         mNewsAdapter.swapCursor(null);
     }
@@ -162,7 +226,8 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
                         c.getString(c
                                 .getColumnIndex(UsersContract.Columns.USER_LASTNAME)),
                         c.getString(c
-                                .getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
+                                .getColumnIndex(UsersContract.Columns.USER_TITLE_POST))
+                );
         String userImageUrl = c.getString(c
                 .getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
         long date = c.getLong(c.getColumnIndex(NewsContract.Columns.NEWS_MKDATE));
@@ -182,17 +247,48 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
 
     private interface NewsQuery {
 
-        String[] PROJECTION = {NewsContract.Qualified.NEWS_ID,
+        String[] PROJECTION_COURSES = {
+                NewsContract.Qualified.NEWS_ID,
                 NewsContract.Qualified.NEWS_NEWS_TOPIC,
                 NewsContract.Qualified.NEWS_NEWS_BODY,
                 NewsContract.Qualified.NEWS_NEWS_MKDATE,
-                NewsContract.Qualified.NEWS_NEWS_COURSE_ID,
+                NewsContract.Qualified.NEWS_NEWS_RANGE_ID,
                 UsersContract.Qualified.USERS_USER_TITLE_PRE,
                 UsersContract.Qualified.USERS_USER_TITLE_POST,
                 UsersContract.Qualified.USERS_USER_FORENAME,
                 UsersContract.Qualified.USERS_USER_LASTNAME,
                 UsersContract.Qualified.USERS_USER_AVATAR_NORMAL,
-                CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE};
+                CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
+                CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE
+        };
+
+        String[] PROJECTION_INSTITUTES = {
+                NewsContract.Qualified.NEWS_ID,
+                NewsContract.Qualified.NEWS_NEWS_TOPIC,
+                NewsContract.Qualified.NEWS_NEWS_BODY,
+                NewsContract.Qualified.NEWS_NEWS_MKDATE,
+                NewsContract.Qualified.NEWS_NEWS_RANGE_ID,
+                UsersContract.Qualified.USERS_USER_TITLE_PRE,
+                UsersContract.Qualified.USERS_USER_TITLE_POST,
+                UsersContract.Qualified.USERS_USER_FORENAME,
+                UsersContract.Qualified.USERS_USER_LASTNAME,
+                UsersContract.Qualified.USERS_USER_AVATAR_NORMAL,
+                InstitutesContract.Qualified.INSTITUTES_INSTITUTE_ID,
+                InstitutesContract.Qualified.INSTITUTES_INSTITUTE_NAME
+        };
+
+        String[] PROJECTION_GLOBAL = {
+                NewsContract.Qualified.NEWS_ID,
+                NewsContract.Qualified.NEWS_NEWS_TOPIC,
+                NewsContract.Qualified.NEWS_NEWS_BODY,
+                NewsContract.Qualified.NEWS_NEWS_MKDATE,
+                NewsContract.Qualified.NEWS_NEWS_RANGE_ID,
+                UsersContract.Qualified.USERS_USER_TITLE_PRE,
+                UsersContract.Qualified.USERS_USER_TITLE_POST,
+                UsersContract.Qualified.USERS_USER_FORENAME,
+                UsersContract.Qualified.USERS_USER_LASTNAME,
+                UsersContract.Qualified.USERS_USER_AVATAR_NORMAL
+        };
 
     }
 
@@ -214,7 +310,7 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
             final String userLastname = cursor.getString(cursor
                     .getColumnIndex(UsersContract.Columns.USER_LASTNAME));
             final String courseId = cursor.getString(cursor
-                    .getColumnIndex(NewsContract.Columns.NEWS_COURSE_ID));
+                    .getColumnIndex(NewsContract.Columns.NEWS_RANGE_ID));
 
             final TextView newsTopicView = (TextView) view
                     .findViewById(R.id.text1);
@@ -222,11 +318,18 @@ public class NewsListFragment extends ProgressSherlockListFragment implements
                     .findViewById(R.id.text2);
             final ImageView icon = (ImageView) view.findViewById(R.id.icon);
 
-            if (TextUtils.equals(courseId,
-                    getString(R.string.restip_news_global_identifier))) {
-                icon.setImageResource(R.drawable.ic_action_global);
-            } else {
-                icon.setImageResource(R.drawable.ic_seminar);
+            switch (getArguments().getInt(NEWS_SELECTOR)) {
+                //TODO: Separate icons for different course types and global
+                // Seminar icon if switch fails oder entry is seminar type
+                default:
+                case NewsTabsAdapter.NEWS_COURSES:
+                    icon.setImageResource(R.drawable.ic_seminar);
+                    break;
+                // Institute icon if institute or global entry type
+                case NewsTabsAdapter.NEWS_INSTITUTES:
+                case NewsTabsAdapter.NEWS_GLOBAL:
+                    icon.setImageResource(R.drawable.ic_action_global);
+                    break;
             }
 
             newsTopicView.setText(newsTopic);

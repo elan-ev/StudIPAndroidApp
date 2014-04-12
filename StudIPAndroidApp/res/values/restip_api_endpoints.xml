@@ -48,7 +48,9 @@
     </string>
 
     <!-- Users -->
-    <string name="restip_users" translatable="false">%1$s/user/%2$s</string>
+    <string name="restip_user" translatable="false">%1$s/user</string>
+    <string name="restip_user_id" translatable="false">%1$s/user/%2$s</string>
+    <string name="restip_user_institutes" translatable="false">%1$s/user/%2$s/institutes</string>
     
     <!-- Planer -->
     <string name="restip_planner" translatable="false">%1$s/events</string>

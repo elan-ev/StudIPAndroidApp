@@ -24,6 +24,13 @@ public abstract class SectionedCursorAdapter extends CursorAdapter implements St
     protected List<Section> mSections;
     protected Context mContext;
 
+    public SectionedCursorAdapter(Context context) {
+        super(context, null, false);
+        mInflater = LayoutInflater.from(context);
+        mSections = new ArrayList<Section>();
+        mContext = context;
+    }
+
     /**
      * Returns a List with all defined sections for the adapter
      *
@@ -44,14 +51,6 @@ public abstract class SectionedCursorAdapter extends CursorAdapter implements St
         notifyDataSetChanged();
     }
 
-
-    public SectionedCursorAdapter(Context context) {
-        super(context, null, false);
-        mInflater = LayoutInflater.from(context);
-        mSections = new ArrayList<Section>();
-        mContext = context;
-    }
-
     @Override
     public View getHeaderView(int position, View view, ViewGroup viewGroup) {
         HeaderViewHolder holder;
@@ -69,6 +68,9 @@ public abstract class SectionedCursorAdapter extends CursorAdapter implements St
             int headerPos = (int) getHeaderId(position);
             String headerText = mSections.get(headerPos).title;
             holder.text.setText(headerText);
+            holder.text.setVisibility(View.VISIBLE);
+        } else {
+            holder.text.setVisibility(View.GONE);
         }
 
         return view;
@@ -88,10 +90,6 @@ public abstract class SectionedCursorAdapter extends CursorAdapter implements St
         return mSections.size() - 1;
     }
 
-    class HeaderViewHolder {
-        TextView text;
-    }
-
     /**
      * A section for the adapter, has to have a title and a section starting index
      */
@@ -103,6 +101,10 @@ public abstract class SectionedCursorAdapter extends CursorAdapter implements St
             this.index = index;
             this.title = title;
         }
+    }
+
+    class HeaderViewHolder {
+        TextView text;
     }
 
 }

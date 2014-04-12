@@ -44,6 +44,8 @@ import de.elanev.studip.android.app.backend.datamodel.Courses;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.backend.datamodel.Events;
+import de.elanev.studip.android.app.backend.datamodel.Institutes;
+import de.elanev.studip.android.app.backend.datamodel.InstitutesContainer;
 import de.elanev.studip.android.app.backend.datamodel.Message;
 import de.elanev.studip.android.app.backend.datamodel.MessageFolders;
 import de.elanev.studip.android.app.backend.datamodel.Messages;
@@ -56,6 +58,7 @@ import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
+import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -167,7 +170,7 @@ public class SyncHelper {
         builder.withValue(NewsContract.Columns.NEWS_CHDATE_UID, news.chdate_uid);
         builder.withValue(NewsContract.Columns.NEWS_BODY_ORIGINAL,
                 news.body_original);
-        builder.withValue(NewsContract.Columns.NEWS_COURSE_ID, mCourseId);
+        builder.withValue(NewsContract.Columns.NEWS_RANGE_ID, mCourseId);
 
         return builder.build();
     }
@@ -223,11 +226,84 @@ public class SyncHelper {
         return ops;
     }
 
+    private static ArrayList<ContentProviderOperation> parseInstitutes
+            (Institutes institutes) {
+        ArrayList<ContentProviderOperation> ops = new
+                ArrayList<ContentProviderOperation>();
+        for (Institutes.Institute i : institutes.getStudy()) {
+            ContentProviderOperation.Builder instituteBuilder =
+                    ContentProviderOperation.newInsert(InstitutesContract
+                            .CONTENT_URI)
+                            .withValue(InstitutesContract.Columns.INSTITUTE_ID,
+                                    i.getInstituteId())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_NAME,
+                                    i.getName())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_PERMS,
+                                    i.getPerms())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_CONSULTATION,
+                                    i.getConsultation())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_ROOM,
+                                    i.getRoom())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_PHONE,
+                                    i.getPhone())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_FAX,
+                                    i.getFax())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_STREET,
+                                    i.getStreet())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_CITY,
+                                    i.getCity())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_NAME,
+                                    i.getFacultyName())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_STREET,
+                                    i.getFacultyStreet())
+                            .withValue(InstitutesContract.Columns
+                                            .INSTITUTE_FACULTY_CITY,
+                                    i.getFacultyCity()
+                            );
+            ops.add(instituteBuilder.build());
+        }
+
+        for (Institutes.Institute i : institutes.getWork()) {
+            ContentProviderOperation.Builder instituteBuilder =
+                    ContentProviderOperation.newInsert(InstitutesContract
+                            .CONTENT_URI)
+                            .withValue(InstitutesContract.Columns.INSTITUTE_ID,
+                                    i.getInstituteId())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_NAME,
+                                    i.getName())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_PERMS,
+                                    i.getPerms())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_CONSULTATION,
+                                    i.getConsultation())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_ROOM,
+                                    i.getRoom())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_PHONE,
+                                    i.getPhone())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_FAX,
+                                    i.getFax())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_STREET,
+                                    i.getStreet())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_CITY,
+                                    i.getCity())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_NAME,
+                                    i.getFacultyName())
+                            .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_STREET,
+                                    i.getFacultyStreet())
+                            .withValue(InstitutesContract.Columns
+                                            .INSTITUTE_FACULTY_CITY,
+                                    i.getFacultyCity()
+                            );
+            ops.add(instituteBuilder.build());
+        }
+
+        return ops;
+    }
+
     private static JacksonRequest<User> createUserRequest(String id, final SyncHelperCallbacks
             callbacks)
             throws OAuthCommunicationException, OAuthExpectationFailedException, OAuthMessageSignerException, OAuthNotAuthorizedException {
         final String usersUrl = String.format(
-                mContext.getString(R.string.restip_users) + ".json",
+                mContext.getString(R.string.restip_user_id) + ".json",
                 mServer.getApiUrl(),
                 id);
 
@@ -281,10 +357,6 @@ public class SyncHelper {
         return userJacksonRequest;
     }
 
-    /*
-     * @param courses
-     * @return
-     */
     private static ArrayList<ContentProviderOperation> parseCourses(Courses courses) {
         ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 
@@ -396,6 +468,80 @@ public class SyncHelper {
         mUserDbOp.clear();
         mUserSyncQueue.clear();
         sUsersCache.invalidateAll();
+    }
+
+    public void requestInstitutesForUserID(String userId, final SyncHelperCallbacks
+            callbacks) {
+        String institutesUrl = String.format(
+                mContext.getString(R.string.restip_user_institutes),
+                mServer.getApiUrl(),
+                userId
+        );
+
+        JacksonRequest<InstitutesContainer> institutesRequest = new JacksonRequest<InstitutesContainer>(
+                institutesUrl,
+                InstitutesContainer.class,
+                null,
+                new Listener<InstitutesContainer>() {
+                    @Override
+                    public void onResponse(InstitutesContainer response) {
+                        try {
+                            mContext.getContentResolver()
+                                    .applyBatch(
+                                            AbstractContract.CONTENT_AUTHORITY,
+                                            parseInstitutes(response.getInstitutes())
+                                    );
+
+                            if (callbacks != null) {
+                                callbacks.onSyncFinished(
+                                        SyncHelperCallbacks.FINISHED_INSTITUTES_SYNC
+                                );
+                            }
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        } catch (OperationApplicationException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (callbacks != null) {
+                            callbacks.onSyncError(
+                                    SyncHelperCallbacks.ERROR_INSTITUTES_SYNC,
+                                    error
+                            );
+                        }
+                    }
+                },
+                Method.GET
+        );
+
+        institutesRequest.setRetryPolicy(mRetryPolicy);
+        institutesRequest.setPriority(Request.Priority.NORMAL);
+
+        try {
+
+            OAuthConnector.with(mServer)
+                    .sign(institutesRequest);
+            StudIPApplication.getInstance()
+                    .addToRequestQueue(institutesRequest, TAG);
+
+            if (callbacks != null) {
+                callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_INSTITUTES_SYNC);
+            }
+
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            StuffUtil.startSignInActivity(mContext);
+        }
+
     }
 
     public void forcePerformContactsSync(SyncHelperCallbacks callbacks) {
@@ -617,32 +763,45 @@ public class SyncHelper {
         if ((currTime - mLastNewsSync) > BuildConfig.NEWS_SYNC_THRESHOLD) {
             mLastNewsSync = currTime;
             final ContentResolver resolver = mContext.getContentResolver();
-            Cursor c = resolver.query(CoursesContract.CONTENT_URI,
+
+            Cursor c = resolver.query(
+                    CoursesContract.CONTENT_URI,
                     new String[]{CoursesContract.Columns.Courses.COURSE_ID},
                     null,
                     null,
-                    null);
-            HashSet<String> courseIds = new HashSet<String>();
+                    null
+            );
+
+            HashSet<String> rangeIds = new HashSet<String>();
             c.moveToFirst();
+
             while (!c.isAfterLast()) {
-                courseIds.add(
-                        c.getString(
-                                c.getColumnIndex(
-                                        CoursesContract.Columns.Courses.COURSE_ID)
-                        )
-                );
+                rangeIds.add(c.getString(0));
 
                 c.moveToNext();
             }
             c.close();
 
-            // Adding the global news range
-            courseIds.add(mContext.getString(R.string.restip_news_global_identifier));
+            c = resolver.query(
+                    InstitutesContract.CONTENT_URI,
+                    new String[]{InstitutesContract.Columns.INSTITUTE_ID},
+                    null,
+                    null,
+                    null
+            );
+
+            c.moveToFirst();
+            while (!c.isAfterLast()) {
+                rangeIds.add(c.getString(0));
+
+                c.moveToNext();
+            }
+            c.close();
+
+            rangeIds.add(mContext.getString(R.string.restip_news_global_identifier));
+            performNewsSyncForIds(rangeIds, callbacks);
+
             //TODO: Delete old news from database
-//            mContext.getContentResolver()
-//                    .delete(NewsContract.CONTENT_URI, null, null);
-            // Start sync
-            performNewsSyncForIds(courseIds, callbacks);
         }
     }
 
@@ -718,7 +877,7 @@ public class SyncHelper {
                             @Override
                             public void onResponse(User response) {
                                 mUserDbOp.add(parseUser(response));
-                                if (finalI >= mUserSyncQueue.size() - 1) {
+                                if (finalI == mUserSyncQueue.size()) {
                                     Log.i(TAG, "FINISHED SYNCING PENDING USERS");
                                     try {
                                         mContext.getContentResolver().applyBatch
@@ -819,7 +978,7 @@ public class SyncHelper {
 
                 try {
                     final String usersUrl = String.format(
-                            mContext.getString(R.string.restip_users) + ".json",
+                            mContext.getString(R.string.restip_user_id) + ".json",
                             mServer.getApiUrl(),
                             userId);
 
@@ -1333,18 +1492,21 @@ public class SyncHelper {
         public static final int STARTED_CONTACTS_SYNC = 104;
         public static final int STARTED_MESSAGES_SYNC = 105;
         public static final int STARTED_USER_SYNC = 106;
+        public static final int STARTED_INSTITUTES_SYNC = 107;
         public static final int FINISHED_COURSES_SYNC = 201;
         public static final int FINISHED_NEWS_SYNC = 202;
         public static final int FINISHED_SEMESTER_SYNC = 203;
         public static final int FINISHED_CONTACTS_SYNC = 204;
         public static final int FINISHED_MESSAGES_SYNC = 205;
         public static final int FINISHED_USER_SYNC = 206;
+        public static final int FINISHED_INSTITUTES_SYNC = 207;
         public static final int ERROR_COURSES_SYNC = 301;
         public static final int ERROR_NEWS_SYNC = 302;
         public static final int ERROR_SEMESTER_SYNC = 303;
         public static final int ERROR_CONTACTS_SYNC = 304;
         public static final int ERROR_MESSAGES_SYNC = 305;
         public static final int ERROR_USER_SYNC = 306;
+        public static final int ERROR_INSTITUTES_SYNC = 307;
 
         public void onSyncStarted();
 
