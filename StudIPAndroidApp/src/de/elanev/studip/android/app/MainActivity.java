@@ -35,6 +35,7 @@ import de.elanev.studip.android.app.frontend.contacts.ContactsGroupsFragment;
 import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
 import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
 import de.elanev.studip.android.app.frontend.news.NewsListFragment;
+import de.elanev.studip.android.app.frontend.news.NewsTabsFragment;
 import de.elanev.studip.android.app.frontend.planer.PlannerFragment;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
@@ -206,10 +207,10 @@ public class MainActivity extends SherlockFragmentActivity {
             if (item != null) {
                 switch (item.id) {
                     case R.id.navigation_news:
-                        fragTag = NewsListFragment.class.getName();
+                        fragTag = NewsTabsFragment.class.getName();
                         frag = findFragment(fragTag);
                         if (frag == null) {
-                            frag = new NewsListFragment();
+                            frag = new NewsTabsFragment();
                         }
                         break;
                     case R.id.navigation_courses:
