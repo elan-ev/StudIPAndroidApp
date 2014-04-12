@@ -56,6 +56,9 @@ public class RestIpProvider extends ContentProvider {
     private static final int NEWS = 100;
     private static final int NEWS_ID = 101;
     private static final int NEWS_RANGE_ID = 102;
+    private static final int NEWS_COURSES = 103;
+    private static final int NEWS_INSTITUTES = 104;
+    private static final int NEWS_GLOBAL = 105;
     private static final int COURSES = 200;
     private static final int COURSES_ID = 201;
     private static final int COURSES_ID_EVENTS = 202;
@@ -114,6 +117,9 @@ public class RestIpProvider extends ContentProvider {
 
         // matches for news
         matcher.addURI(authority, "news", NEWS);
+        matcher.addURI(authority, "news/courses", NEWS_COURSES);
+        matcher.addURI(authority, "news/institutes", NEWS_INSTITUTES);
+        matcher.addURI(authority, "news/global", NEWS_GLOBAL);
         matcher.addURI(authority, "news/*", NEWS_RANGE_ID);
         matcher.addURI(authority, "news/#", NEWS_ID);
 
@@ -639,17 +645,111 @@ public class RestIpProvider extends ContentProvider {
         switch (match) {
             case NEWS:
                 SyncHelper.getInstance(getContext()).performNewsSync(null);
+
                 if (TextUtils.isEmpty(sortOrder)) {
                     orderBy = NewsContract.DEFAULT_SORT_ORDER;
                 } else {
                     orderBy = sortOrder;
                 }
-                c = db.query(NewsContract.NEWS_JOIN_USER_COURSES, projection,
-                        selection, selectionArgs, null, null, orderBy);
-                c.setNotificationUri(getContext().getContentResolver(),
-                        NewsContract.CONTENT_URI);
+
+                c = db.query(
+                        NewsContract.NEWS_JOIN_USER_COURSES,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        orderBy
+                );
+
+                c.setNotificationUri(
+                        getContext().getContentResolver(),
+                        NewsContract.CONTENT_URI
+                );
 
                 break;
+
+            case NEWS_COURSES:
+                SyncHelper.getInstance(getContext()).performNewsSync(null);
+
+                if (TextUtils.isEmpty(sortOrder)) {
+                    orderBy = NewsContract.DEFAULT_SORT_ORDER;
+                } else {
+                    orderBy = sortOrder;
+                }
+
+                c = db.query(
+                        NewsContract.NEWS_JOIN_USER_COURSES,
+                        projection,
+                        NewsContract.Columns.NEWS_RANGE_ID
+                                + " != 'studip'"
+                                + (!TextUtils.isEmpty(selection) ?
+                                " AND (" + selection + ")" : ""),
+                        selectionArgs,
+                        null,
+                        null,
+                        orderBy
+                );
+
+                c.setNotificationUri(
+                        getContext().getContentResolver(),
+                        NewsContract.CONTENT_URI
+                );
+
+                break;
+
+            case NEWS_INSTITUTES:
+                SyncHelper.getInstance(getContext()).performNewsSync(null);
+
+                if (TextUtils.isEmpty(sortOrder)) {
+                    orderBy = NewsContract.DEFAULT_SORT_ORDER;
+                } else {
+                    orderBy = sortOrder;
+                }
+
+                c = db.query(
+                        NewsContract.NEWS_JOIN_USER_INSTITUTES,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        orderBy
+                );
+
+                c.setNotificationUri(
+                        getContext().getContentResolver(),
+                        NewsContract.CONTENT_URI
+                );
+
+                break;
+
+            case NEWS_GLOBAL:
+                SyncHelper.getInstance(getContext()).performNewsSync(null);
+
+                if (TextUtils.isEmpty(sortOrder)) {
+                    orderBy = NewsContract.DEFAULT_SORT_ORDER;
+                } else {
+                    orderBy = sortOrder;
+                }
+
+                c = db.query(
+                        NewsContract.NEWS_JOIN_USER_COURSES,
+                        projection,
+                        NewsContract.Columns.NEWS_RANGE_ID + " = ?",
+                        new String[]{"studip"},
+                        null,
+                        null,
+                        orderBy
+                );
+
+                c.setNotificationUri(
+                        getContext().getContentResolver(),
+                        NewsContract.CONTENT_URI
+                );
+
+                break;
+
             case NEWS_RANGE_ID: {
                 String rangeId = uri.getLastPathSegment();
 
@@ -1086,15 +1186,41 @@ public class RestIpProvider extends ContentProvider {
                 break;
             }
             case AUTHENTICATION: {
-                c = db.query(AuthenticationContract.TABLE_AUTHENTICATION,
+
+                c = db.query(
+                        AuthenticationContract.TABLE_AUTHENTICATION,
                         projection,
                         selection,
                         selectionArgs,
                         null,
                         null,
-                        null);
-                c.setNotificationUri(getContext().getContentResolver(),
-                        AuthenticationContract.CONTENT_URI);
+                        null
+                );
+
+                c.setNotificationUri(
+                        getContext().getContentResolver(),
+                        AuthenticationContract.CONTENT_URI
+                );
+
+                break;
+            }
+            case INSTITUTES: {
+
+                c = db.query(
+                        InstitutesContract.TABLE,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        null
+                );
+
+                c.setNotificationUri(
+                        getContext().getContentResolver(),
+                        AuthenticationContract.CONTENT_URI
+                );
+
                 break;
             }
             default:
