@@ -192,4 +192,7 @@
         You have no schedule for the next two weeks.
     </string>
 
+    <!-- Institutes -->
+    <string name="Institutes">Institutes</string>
+
 </resources>

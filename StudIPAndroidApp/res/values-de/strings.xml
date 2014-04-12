@@ -190,4 +190,7 @@
         Sie haben für die nächsten zwei Wochen keine Termine.
     </string>
 
+    <!-- Institutes -->
+    <string name="Institutes">Institute</string>
+
 </resources>
