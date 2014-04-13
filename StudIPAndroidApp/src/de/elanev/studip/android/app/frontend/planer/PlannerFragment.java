@@ -71,19 +71,24 @@ public class PlannerFragment extends ProgressSherlockListFragment
     private static String getTitleForCourseId(String courseId,
                                               Context context) {
         String title = null;
-        Cursor c = context
-                .getContentResolver().query
-                        (CoursesContract.CONTENT_URI,
-                                PROJECTION,
-                                SELECTION,
-                                new String[]{courseId}, // SelectionArgs
-                                SORT_ORDER
-                        );
-        if (!c.isAfterLast()) {
-            c.moveToNext();
-            title = c.getString(0);
+
+        if (context != null) {
+            Cursor c = context.getContentResolver()
+                    .query(
+                            CoursesContract.CONTENT_URI,
+                            PROJECTION,
+                            SELECTION,
+                            new String[]{courseId}, // SelectionArgs
+                            SORT_ORDER
+                    );
+
+            if (!c.isAfterLast()) {
+                c.moveToNext();
+                title = c.getString(0);
+            }
+            c.close();
         }
-        c.close();
+
         return title;
     }
 
