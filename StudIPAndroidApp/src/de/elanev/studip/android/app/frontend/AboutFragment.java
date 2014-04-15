@@ -33,7 +33,7 @@ import de.elanev.studip.android.app.R;
 public class AboutFragment extends SherlockFragment {
 
     TextView mVersionTextView, mHomepageTextView, mLicensesTextView, mPrivacyTextView,
-            mLegalTextView;
+            mLegalTextView, mFaqTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -46,6 +46,7 @@ public class AboutFragment extends SherlockFragment {
         mLicensesTextView = (TextView) v.findViewById(R.id.licenses);
         mPrivacyTextView = (TextView) v.findViewById(R.id.privacy_policy);
         mLegalTextView = (TextView) v.findViewById(R.id.legal_notice);
+        mFaqTextView = (TextView) v.findViewById(R.id.faq);
 
         return v;
     }
@@ -60,54 +61,48 @@ public class AboutFragment extends SherlockFragment {
                 BuildConfig.VERSION_NAME,
                 BuildConfig.VERSION_CODE));
 
-        // Make links clickable
+        // Make TextView links clickable
         mHomepageTextView.setMovementMethod(LinkMovementMethod.getInstance());
         mLicensesTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showOpenSourceLicenses();
+                popUpDialog(
+                        "file:///android_res/raw/license.html",
+                        R.string.licenses
+                );
             }
         });
         mPrivacyTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showPrivacyPolicy();
+                popUpDialog(
+                        "file:///android_res/raw/privacy_policy.html",
+                        R.string.privacy_policy
+                );
             }
         });
         mLegalTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showLegalNotice();
+                popUpDialog(
+                        "file:///android_res/raw/legal_notice.html",
+                        R.string.legal_notice
+                );
             }
         });
+        mFaqTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popUpDialog(
+                        "file:///android_res/raw/faq.html",
+                        R.string.faq
+                );
+            }
+        });
+
     }
 
-    /*
-     * Build and show the legal notice dialog fragment
-     */
-    private void showLegalNotice() {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        Fragment prev = fm.findFragmentByTag("webview_dialog");
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
-
-//        new WebViewDialog("http://mlearning.elan-ev.de/?page_id=27&print=1", R.string.legal_notice).show(ft, "webview_dialog");
-        Bundle args = new Bundle();
-        args.putString(WebViewDialog.DIALOG_URL,
-                "file:///android_asset/legal_notice.html");
-        args.putInt(WebViewDialog.DIALOG_TITLE_RES, R.string.legal_notice);
-
-        WebViewDialog.newInstance(args)
-                .show(ft, "webview_dialog");
-    }
-
-    /*
-     * Build and show the open source licenses fragment
-     */
-    private void showOpenSourceLicenses() {
+    private void popUpDialog(String dialogUrl, int dialogTitleRes) {
         FragmentManager fm = getActivity().getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         Fragment prev = fm.findFragmentByTag("webview_dialog");
@@ -117,33 +112,9 @@ public class AboutFragment extends SherlockFragment {
         ft.addToBackStack(null);
 
         Bundle args = new Bundle();
-        args.putString(WebViewDialog.DIALOG_URL,
-                "file:///android_asset/license.html");
-        args.putInt(WebViewDialog.DIALOG_TITLE_RES, R.string.licenses);
+        args.putString(WebViewDialog.DIALOG_URL, dialogUrl);
+        args.putInt(WebViewDialog.DIALOG_TITLE_RES, dialogTitleRes);
 
-        WebViewDialog.newInstance(args)
-                .show(ft, "webview_dialog");
-    }
-
-    /*
-     * build and show the privacy policy dialog fragment
-     */
-    private void showPrivacyPolicy() {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        Fragment prev = fm.findFragmentByTag("webview_dialog");
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
-
-//        new WebViewDialog("http://mlearning.elan-ev.de/?page_id=140&print=1",
-//                R.string.privacy_policy).show(ft, "webview_dialog");
-
-        Bundle args = new Bundle();
-        args.putString(WebViewDialog.DIALOG_URL,
-                "file:///android_asset/privacy_policy.html");
-        args.putInt(WebViewDialog.DIALOG_TITLE_RES, R.string.privacy_policy);
 
         WebViewDialog.newInstance(args)
                 .show(ft, "webview_dialog");
