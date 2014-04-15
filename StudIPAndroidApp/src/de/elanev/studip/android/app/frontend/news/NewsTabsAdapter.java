@@ -28,9 +28,9 @@ public class NewsTabsAdapter extends FragmentPagerAdapter {
      * Defines available viewpager pages
      */
     private static final int[] NEWS_PAGE_SELECTORS = {
+            NEWS_GLOBAL,
             NEWS_COURSES,
-            NEWS_INSTITUTES,
-            NEWS_GLOBAL
+            NEWS_INSTITUTES
     };
 
     private Context mContext;

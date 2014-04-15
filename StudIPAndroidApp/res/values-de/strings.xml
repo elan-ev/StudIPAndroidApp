@@ -119,6 +119,7 @@
     <string name="about_text">Stud.IP mobil erlaubt es Ihnen schnell und einfach auf das Stud.IP Ihrer Hochschule zuzugreifen ohne die Seite in einem Browser aufrufen zu müssen.</string>
     <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">Besuchen Sie unsere Homepage</a></string>
     <string name="legal_notice">Impressum</string>
+    <string name="faq">Häufig gestellte Fragen</string>
 
     <!-- SignIn Activity -->
     <string name="syncing_semesters">Synchronisiere Semester</string>
@@ -191,6 +192,6 @@
     </string>
 
     <!-- Institutes -->
-    <string name="Institutes">Institute</string>
+    <string name="Institutes">Einrichtungen</string>
 
 </resources>
