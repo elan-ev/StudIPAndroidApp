@@ -7,7 +7,9 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.util;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -21,10 +23,12 @@ import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
 import de.elanev.studip.android.app.frontend.AboutActivity;
+import de.elanev.studip.android.app.widget.WebViewActivity;
 
 /**
- * Utiliy class which hold methodes for various different uscases
+ * Utility class which hold methods for various different use cases
  * Created by joern on 02.11.13.
+ * TODO: Split up and move stuff to more sensible classes
  */
 public final class StuffUtil {
 
@@ -33,12 +37,56 @@ public final class StuffUtil {
         context.startActivity(intent);
     }
 
-    public static void startFeedback(Context context, String contact_mail) {
+    public static void startFeedback(final Context context,
+                                     final String email) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        builder.setTitle(R.string.faq_alert_dialog_title)
+                .setMessage(R.string.faq_alert_dialog_message)
+                .setPositiveButton(
+                        android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(
+                                        context,
+                                        WebViewActivity.class
+                                );
+                                intent.putExtra(
+                                        WebViewActivity.URL,
+                                        "file:///android_res/raw/faq.html"
+                                );
+                                intent.putExtra(
+                                        WebViewActivity.TITLE_RES,
+                                        R.string.faq
+                                );
+                                context.startActivity(intent);
+
+                            }
+                        }
+                )
+                .setNegativeButton(
+                        R.string.faq_alert_dialog_negativ_button,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startFeedbackIntent(context, email);
+                            }
+                        }
+                )
+                .create()
+                .show();
+
+    }
+
+    private static void startFeedbackIntent(Context context,
+                                            String contactMail) {
         try {
-            Intent intent = new Intent(Intent.ACTION_SENDTO,
-                    Uri.fromParts("mailto",
-                            contact_mail,
-                            null));
+            Intent intent = new Intent(
+                    Intent.ACTION_SENDTO,
+                    Uri.fromParts("mailto", contactMail, null)
+            );
 
             intent.putExtra(Intent.EXTRA_SUBJECT,
                     context.getString(R.string.feedback_form_subject));
@@ -50,7 +98,8 @@ public final class StuffUtil {
                             Build.VERSION.SDK_INT,
                             BuildConfig.VERSION_NAME,
                             BuildConfig.VERSION_CODE,
-                            BuildConfig.BUILD_TIME));
+                            BuildConfig.BUILD_TIME)
+            );
 
             context.startActivity(Intent.createChooser(intent,
                     context.getString(R.string.feedback_form_action)));
@@ -60,8 +109,6 @@ public final class StuffUtil {
 
             return;
         }
-
-
     }
 
     public static void signOut(Context context) {
