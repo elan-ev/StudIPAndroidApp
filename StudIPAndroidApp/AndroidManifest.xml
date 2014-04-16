@@ -57,7 +57,7 @@
         <activity
             android:name=".frontend.news.NewsItemViewActivity"
             android:parentActivityName=".MainActivity">
-            <category android:name="android.intent.category.MONKEY" />
+            <category android:name="android.intent.category.MONKEY"/>
 
             <!-- Support 4.0 and lower -->
             <meta-data
@@ -69,7 +69,7 @@
         <activity
             android:name=".frontend.courses.CourseViewActivity"
             android:parentActivityName=".MainActivity">
-            <category android:name="android.intent.category.MONKEY" />
+            <category android:name="android.intent.category.MONKEY"/>
 
             <!-- Support 4.0 and lower -->
             <meta-data
@@ -82,7 +82,7 @@
             android:name=".frontend.messages.MessageDetailActivity"
             android:parentActivityName=".MainActivity"
             android:uiOptions="splitActionBarWhenNarrow">
-            <category android:name="android.intent.category.MONKEY" />
+            <category android:name="android.intent.category.MONKEY"/>
 
             <!-- Support 4.0 and lower -->
             <meta-data
@@ -98,9 +98,13 @@
             android:name=".widget.UserDetailsActivity"/>
 
 
-        <!-- about thte app activity -->
+        <!-- about the app activity -->
         <activity
             android:name=".frontend.AboutActivity"/>
+
+        <!-- generic WebView activity -->
+        <activity
+            android:name=".widget.WebViewActivity"/>
 
         <!-- RestIpProvider for rest API calls -->
         <provider
