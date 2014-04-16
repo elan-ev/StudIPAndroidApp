@@ -56,6 +56,8 @@
 -keepclassmembers class de.elanev.studip.android.app.backend.datamodel.** {
    public *;
 }
+-keepclassmembers class **.R$* {public static <fields>;}
+-keep class **.R$*
 
 -dontwarn android.support.v4.**
 -dontwarn org.apache.**
