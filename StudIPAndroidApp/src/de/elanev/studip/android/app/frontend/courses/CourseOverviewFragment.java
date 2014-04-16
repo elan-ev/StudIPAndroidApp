@@ -1,10 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2013 ELAN e.V.
+/*
+ * Copyright (c) 2014 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
- ******************************************************************************/
+ */
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.app.Activity;
@@ -201,9 +201,11 @@ public class CourseOverviewFragment extends SherlockFragment implements
                                 .buildUpon()
                                 .appendPath("events")
                                 .appendPath(cid)
-                                .build(), CourseEventQuery.projection,
-                        EventsContract.Columns.EVENT_START
-                                + " >= strftime('%s','now')", null,
+                                .build(),
+                        CourseEventQuery.projection,
+                        EventsContract.Columns.EVENT_START + " >= strftime" +
+                                "('%s','now')",
+                        null,
                         EventsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
 
             case COURSE_NEWS_LOADER:
@@ -212,7 +214,10 @@ public class CourseOverviewFragment extends SherlockFragment implements
                         NewsContract.CONTENT_URI
                                 .buildUpon()
                                 .appendPath(cid)
-                                .build(), CourseNewsQuery.projection, null, null,
+                                .build(),
+                        CourseNewsQuery.projection,
+                        null,
+                        null,
                         NewsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
             case COURSE_TEACHERS_LOADER:
                 return new CursorLoader(
@@ -225,7 +230,10 @@ public class CourseOverviewFragment extends SherlockFragment implements
                         CourseUsersQuery.projection,
                         CourseUsersQuery.selection,
                         CourseUsersQuery.selectionArgs,
-                        UsersContract.Qualified.USERS_USER_FORENAME);
+                        CoursesContract.Qualified
+                                .CourseUsers
+                                .COURSES_USERS_TABLE_ID + " ASC"
+                );
         }
         return null;
 
@@ -394,7 +402,8 @@ public class CourseOverviewFragment extends SherlockFragment implements
                 UsersContract.Qualified.USERS_USER_FORENAME,
                 UsersContract.Qualified.USERS_USER_LASTNAME,
                 UsersContract.Qualified.USERS_USER_TITLE_POST,
-                UsersContract.Qualified.USERS_USER_AVATAR_NORMAL
+                UsersContract.Qualified.USERS_USER_AVATAR_NORMAL,
+                CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_ID
         };
 
         String selection = CoursesContract
