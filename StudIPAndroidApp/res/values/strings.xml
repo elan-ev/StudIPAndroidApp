@@ -201,4 +201,10 @@
     <!-- Institutes -->
     <string name="Institutes">Institutes</string>
 
+    <!-- Feedback -->
+    <string name="faq_alert_dialog_title">Show FAQ first?</string>
+    <string name="faq_alert_dialog_message">We set up a list with
+        frequently asked questions. Do you want to see it first?</string>
+    <string name="faq_alert_dialog_negativ_button">No, send feedback.</string>
+
 </resources>
