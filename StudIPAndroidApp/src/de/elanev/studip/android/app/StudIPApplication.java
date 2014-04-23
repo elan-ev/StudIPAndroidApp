@@ -1,6 +1,9 @@
 package de.elanev.studip.android.app;
 
+import android.annotation.TargetApi;
 import android.app.Application;
+import android.os.Build;
+import android.os.StrictMode;
 import android.text.TextUtils;
 
 import com.android.volley.Request;
@@ -38,6 +41,7 @@ public class StudIPApplication extends Application {
         return mInstance;
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onCreate() {
         super.onCreate();
@@ -56,6 +60,22 @@ public class StudIPApplication extends Application {
          * Clear shared prefs for debugging
 		 */
         //Prefs.getInstance(getApplicationContext()).clearPrefs();
+
+        if(BuildConfig.DEBUG) {
+                StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                        .detectDiskReads()
+                        .detectDiskWrites()
+                        .detectNetwork()   // or .detectAll() for all detectable problems
+                        .penaltyLog()
+                        .build());
+                StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                        .detectLeakedSqlLiteObjects()
+                        .detectLeakedClosableObjects()
+                        .penaltyLog()
+                        .penaltyDeath()
+                        .build());
+
+        }
     }
 
     /**
