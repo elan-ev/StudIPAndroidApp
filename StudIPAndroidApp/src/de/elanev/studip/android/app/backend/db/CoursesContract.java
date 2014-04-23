@@ -127,7 +127,7 @@ public class CoursesContract extends AbstractContract {
 
     public static final String COURSE_USERS_DEFAULT_SORT = CoursesContract.Qualified
             .CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE + " ASC, " +
-            CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_ID +"ASC";
+            CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_ID +" ASC";
 
     /*
      * user course roles
