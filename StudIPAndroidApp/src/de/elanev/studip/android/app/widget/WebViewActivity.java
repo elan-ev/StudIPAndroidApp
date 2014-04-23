@@ -25,11 +25,8 @@ import de.elanev.studip.android.app.R;
 public class WebViewActivity extends SherlockActivity {
 
   public static final String TAG = WebViewActivity.class.getSimpleName();
-  public static final String URL = "url";
-  public static final String TITLE_RES = "title_res";
-  private WebView mWebview;
-  private String mUrl;
-  private int mTitleRes;
+  public static final String URL = "de.elanev.studip.android.app.URL";
+  public static final String TITLE_RES = "de.elanev.studip.android.app.TITLE_RES";
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -41,13 +38,13 @@ public class WebViewActivity extends SherlockActivity {
     // Get Intent data
     Intent intent = getIntent();
     Bundle extras = intent.getExtras();
-    mUrl = extras.getString(URL);
-    mTitleRes = extras.getInt(TITLE_RES);
-    setTitle(mTitleRes);
 
-    // Do the loading
-    mWebview = (WebView) this.findViewById(R.id.webView);
-    mWebview.loadUrl(mUrl);
+    int titleRes = extras.getInt(TITLE_RES);
+    String url = extras.getString(URL);
+    setTitle(titleRes);
+
+    WebView webView = (WebView) this.findViewById(R.id.webView);
+    webView.loadUrl(url);
 
   }
 
@@ -58,6 +55,7 @@ public class WebViewActivity extends SherlockActivity {
       case android.R.id.home:
         onBackPressed();
         return true;
+      default:
     }
     return super.onOptionsItemSelected(item);
   }
