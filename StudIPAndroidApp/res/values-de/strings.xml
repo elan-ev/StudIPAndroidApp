@@ -127,7 +127,7 @@
     <string name="syncing_news">Synchronisiere Ankündigungen</string>
     <string name="syncing_contacts">Synchronisiere Kontakte</string>
     <string name="syncing_messages">Synchronisiere Nachrichten</string>
-    <string name="syncing_users">Synchronisiere Benutzerdaten</string>
+    <string name="syncing_users">Synchronisiere Benutzerprofile</string>
     <string name="syncing_institutes">Synchronisiere Einrichtungen</string>
     <string name="no_servers">Keine Server vorhanden</string>
      <string name="sync_notice">
@@ -135,13 +135,22 @@
         kann dieser Vorgang mehrere Minuten in Anspruch nehmen.
      </string>
     <string name="authentication">Authentifizierung</string>
-    <string name="missing_studip_message">
-       <![CDATA[<u>Fehlt Ihr Stud.IP? <br />Kontaktieren Sie uns!</u>]]>
-    </string>
-    <string name="sync_network_error">
-        Es trat ein Fehler beim laden Ihrer Daten auf, bitte versuchen Sie es
+    <string name="missing_studip_message"><u>Fehlt Ihr Stud.IP?\nErfahren Sie hier mehr
+        darüber.</u></string>
+    <string name="sync_error_default">
+        Es trat ein Fehler beim synchronisieren Ihrer Daten auf, bitte versuchen Sie es
         später erneut.
     </string>
+    <string name="sync_error_generic">Es trat ein Fehler beim Synchronisieren %1$s
+        auf: \n </string>
+    <string name="semesters">der Semesterdaten</string>
+    <string name="courses">der Kurse</string>
+    <string name="news">der Ankündigungen</string>
+    <string name="contacts">Ihrer Kontakte</string>
+    <string name="messages">Ihrer Nachrichten</string>
+    <string name="user_profile_data">der Benutzerprofile</string>
+    <string name="institutes">Ihrere Institute</string>
+    <string name="your_user_data">Ihrer Benutzerdaten</string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Erfolgreich gelöscht</string>
