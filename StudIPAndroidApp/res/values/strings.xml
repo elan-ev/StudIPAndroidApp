@@ -135,7 +135,7 @@
     <string name="syncing_news">Synchronizing news</string>
     <string name="syncing_contacts">Synchronizing contacts</string>
     <string name="syncing_messages">Synchronizing messages</string>
-    <string name="syncing_users">Synchronizing userdata</string>
+    <string name="syncing_users">Synchronizing user profile data</string>
     <string name="syncing_institutes">Synchronizing institutes</string>
     <string name="no_servers">No servers available</string>
     <string name="sync_notice">
@@ -143,12 +143,20 @@
         utilization this process may take several minutes to complete.
     </string>
     <string name="authentication">Authentication</string>
-    <string name="missing_studip_message">
-        <![CDATA[<u>Your Stud.IP is missing? <br />Contact us!</u>]]>
+    <string name="missing_studip_message"><u>Your Stud.IP is missing?\nLearn more about it
+        here.</u></string>
+    <string name="sync_error_default">
+        Something went wrong while synchronizing your data. Please try again later.
     </string>
-    <string name="sync_network_error">
-        Something went wrong while syncing your data. Please try again later.
-    </string>
+    <string name="sync_error_generic">Something went wrong while synchronizing %1$s:\n </string>
+    <string name="semesters">semesters</string>
+    <string name="courses">courses</string>
+    <string name="news">news</string>
+    <string name="contacts">contacts</string>
+    <string name="messages">messages</string>
+    <string name="user_profile_data">user profile data</string>
+    <string name="institutes">institutes</string>
+    <string name="your_user_data">your user data</string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Successfully deleted</string>

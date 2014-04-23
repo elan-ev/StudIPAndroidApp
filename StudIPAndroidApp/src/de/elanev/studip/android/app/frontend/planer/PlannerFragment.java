@@ -182,7 +182,7 @@ public class PlannerFragment extends ProgressSherlockListFragment
                         }
                         setLoadingViewVisible(false);
                         Toast.makeText(getActivity(),
-                                R.string.sync_network_error,
+                                R.string.sync_error_default,
                                 Toast.LENGTH_LONG)
                                 .show();
                     }
