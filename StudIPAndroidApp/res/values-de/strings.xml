@@ -128,7 +128,7 @@
     <string name="syncing_contacts">Synchronisiere Kontakte</string>
     <string name="syncing_messages">Synchronisiere Nachrichten</string>
     <string name="syncing_users">Synchronisiere Benutzerdaten</string>
-    <string name="syncing_institutes">Synchronisiere Institute</string>
+    <string name="syncing_institutes">Synchronisiere Einrichtungen</string>
     <string name="no_servers">Keine Server vorhanden</string>
      <string name="sync_notice">
          Abhängig von Ihrer Internetverbindung und der Stud.IP Auslastung
@@ -193,5 +193,13 @@
 
     <!-- Institutes -->
     <string name="Institutes">Einrichtungen</string>
+
+    <!-- Feedback -->
+    <string name="faq_alert_dialog_title">Häufig gestellte Fragen
+        zeige?</string>
+    <string name="faq_alert_dialog_message">Wir haben eine Liste mit
+        oft gestellten Fragen erstellt. Möchten Sie die Liste sehen?</string>
+    <string name="faq_alert_dialog_negativ_button">Nein, Feedback
+        senden.</string>
 
 </resources>
