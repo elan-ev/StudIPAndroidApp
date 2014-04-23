@@ -37,7 +37,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * @param context a context to get the application context for the database to live in
      * @return an DatabaseHandler instance
      */
-    public static synchronized DatabaseHandler getInstance(Context context) {
+    public static DatabaseHandler getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new DatabaseHandler(context.getApplicationContext());
         }
