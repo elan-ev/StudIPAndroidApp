@@ -30,6 +30,7 @@ import net.sqlcipher.database.SQLiteStatement;
 import java.util.ArrayList;
 import java.util.Map;
 
+import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.AuthenticationContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
@@ -139,7 +140,7 @@ public class RestIpProvider extends ContentProvider {
 
     // matches for events
     matcher.addURI(authority, "events", EVENTS);
-    matcher.addURI(authority, "events/#", EVENTS_ID);
+    matcher.addURI(authority, "events/*", EVENTS_ID);
 
     // matches for semesters
     matcher.addURI(authority, "semesters", SEMESTERS);
@@ -1215,6 +1216,80 @@ public class RestIpProvider extends ContentProvider {
         }
         break;
       }
+      case EVENTS_ID:
+        try {
+          // save column references locally to prevent lookup
+          final String eventIdCol = EventsContract.Columns.EVENT_ID;
+          final String eventCourseIdCol =EventsContract.Columns.EVENT_COURSE_ID;
+          final String eventTitleCol = EventsContract.Columns.EVENT_TITLE;
+          final String eventStartCol = EventsContract.Columns.EVENT_START;
+          final String eventEndCol = EventsContract.Columns.EVENT_END;
+          final String eventDescriptionCol = EventsContract.Columns.EVENT_DESCRIPTION;
+          final String eventRoomCol = EventsContract.Columns.EVENT_ROOM;
+          final String eventCategoriesCol = EventsContract.Columns.EVENT_CATEGORIES;
+
+          // build delete string
+          StringBuilder deleteSql = new StringBuilder();
+          deleteSql
+              .append("DELETE FROM ")
+              .append(EventsContract.TABLE)
+              .append(" WHERE ")
+              .append(eventCourseIdCol)
+              .append(" = ?");
+
+          // build insert string
+          StringBuilder insertSql = new StringBuilder();
+          insertSql
+              .append("INSERT OR IGNORE INTO ")
+              .append(EventsContract.TABLE)
+              .append(" ( ")
+              .append(eventIdCol)
+              .append(", ")
+              .append(eventCourseIdCol)
+              .append(", ")
+              .append(eventTitleCol)
+              .append(", ")
+              .append(eventStartCol)
+              .append(", ")
+              .append(eventEndCol)
+              .append(", ")
+              .append(eventDescriptionCol)
+              .append(", ")
+              .append(eventRoomCol)
+              .append(", ")
+              .append(eventCategoriesCol)
+              .append(") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?) ");
+
+          db.beginTransaction();
+          // compile to reusable sql statement
+          SQLiteStatement deleteEvents = db.compileStatement(deleteSql.toString());
+          String courseId = uri.getLastPathSegment();
+          deleteEvents.bindString(1, courseId);
+          deleteEvents.execute();
+          deleteEvents.close();
+
+          SQLiteStatement insertEvent = db.compileStatement(insertSql.toString());
+          // set values and execute
+          for (ContentValues value : values) {
+            insertEvent.bindString(1, value.getAsString(eventIdCol));
+            insertEvent.bindString(2, value.getAsString(eventCourseIdCol));
+            insertEvent.bindString(3, value.getAsString(eventTitleCol));
+            insertEvent.bindLong(4, value.getAsLong(eventStartCol));
+            insertEvent.bindLong(5, value.getAsLong(eventEndCol));
+            insertEvent.bindString(6, value.getAsString(eventDescriptionCol));
+            insertEvent.bindString(7, value.getAsString(eventRoomCol));
+            insertEvent.bindString(8, value.getAsString(eventCategoriesCol));
+            insertEvent.execute();
+          }
+          insertEvent.close();
+
+          db.setTransactionSuccessful();
+          rowsInserted = values.length;
+
+        } finally {
+          db.endTransaction();
+        }
+        break;
       default:
         throw new UnsupportedOperationException(
             "Unsupported bulk insert uri: " + uri);
