@@ -45,6 +45,7 @@ import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Courses;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
+import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.datamodel.Events;
 import de.elanev.studip.android.app.backend.datamodel.Institutes;
 import de.elanev.studip.android.app.backend.datamodel.InstitutesContainer;
@@ -60,6 +61,7 @@ import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
+import de.elanev.studip.android.app.backend.db.EventsContract;
 import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
@@ -67,7 +69,6 @@ import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.DocumentsHandler;
-import de.elanev.studip.android.app.backend.net.sync.EventsHandler;
 import de.elanev.studip.android.app.backend.net.sync.MessagesHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
@@ -163,6 +164,37 @@ public class SyncHelper {
     mUserDbOp.clear();
     mUserSyncQueue.clear();
     sUsersCache.invalidateAll();
+  }
+
+  private static ContentValues[] parseEvents(Events events) {
+    // Save column references local to prevent lookup
+    final String eventIdCol = EventsContract.Columns.EVENT_ID;
+    final String eventCourseIdCol = EventsContract.Columns.EVENT_COURSE_ID;
+    final String eventStartCol = EventsContract.Columns.EVENT_START;
+    final String eventEndCol = EventsContract.Columns.EVENT_END;
+    final String eventTitleCol = EventsContract.Columns.EVENT_TITLE;
+    final String eventDescriptionCol = EventsContract.Columns.EVENT_DESCRIPTION;
+    final String eventCategoriesCol = EventsContract.Columns.EVENT_CATEGORIES;
+    final String eventRoomCol = EventsContract.Columns.EVENT_ROOM;
+
+    final int eventsCount = events.events.size();
+
+    ContentValues[] contentValues = new ContentValues[eventsCount];
+    for (int i = 0; i < eventsCount; ++i) {
+      ContentValues cv = new ContentValues();
+      Event event = events.events.get(i);
+      cv.put(eventIdCol, event.event_id);
+      cv.put(eventCourseIdCol, event.course_id);
+      cv.put(eventStartCol, event.start);
+      cv.put(eventEndCol, event.end);
+      cv.put(eventTitleCol, event.title);
+      cv.put(eventDescriptionCol, event.description);
+      cv.put(eventCategoriesCol, event.categories);
+      cv.put(eventRoomCol, event.room);
+      contentValues[i] = cv;
+    }
+
+    return contentValues;
   }
 
   public void requestInstitutesForUserID(String userId, final SyncHelperCallbacks callbacks) {
@@ -903,7 +935,7 @@ public class SyncHelper {
    *
    * @param courseId the course id for which the events should be requested
    */
-  public void performEventsSyncForCourseId(String courseId) {
+  public void performEventsSyncForCourseId(final String courseId) {
     Log.i(TAG, "SYNCING COURSE EVENTS: " + courseId);
     final String eventsUrl = String.format(
         mContext.getString(R.string.restip_courses_courseid_events) + ".json",
@@ -915,15 +947,7 @@ public class SyncHelper {
         null,
         new Listener<Events>() {
           public void onResponse(Events response) {
-            try {
-              mContext.getContentResolver()
-                  .applyBatch(AbstractContract.CONTENT_AUTHORITY,
-                      new EventsHandler(response).parse());
-            } catch (RemoteException e) {
-              e.printStackTrace();
-            } catch (OperationApplicationException e) {
-              e.printStackTrace();
-            }
+            new EventsInsertTask(response).execute(courseId);
           }
 
         },
@@ -1412,6 +1436,26 @@ public class SyncHelper {
 
       mContext.getContentResolver() //
           .bulkInsert(CoursesContract.COURSES_USERS_CONTENT_URI, values);
+
+      return null;
+    }
+  }
+
+  private class EventsInsertTask extends AsyncTask<String, Void, Void> {
+    private Events mEvents;
+
+    public EventsInsertTask(Events events) {
+      this.mEvents = events;
+    }
+
+    @Override protected Void doInBackground(String... params) {
+      String courseId = params[0];
+      ContentValues[] values = parseEvents(mEvents);
+      Uri eventsCourseIdUri = EventsContract.CONTENT_URI //
+          .buildUpon() //
+          .appendPath(courseId) //
+          .build();
+      mContext.getContentResolver().bulkInsert(eventsCourseIdUri, values);
 
       return null;
     }
