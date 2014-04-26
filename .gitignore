@@ -110,12 +110,6 @@ gradle.properties
 *.trace
 
 # Project specific ignores
-StudIPAndroidApp/res/values/com_crashlytics_api_key.xml
-StudIPAndroidApp/res/values/com_crashlytics_export_strings.xml
-TempServerDeclares.java
-StudIPAndroidApp/AndroidManifestRelease.xml
-StudIPAndroidApp/assets/servers.json
-assetsDebug/
-assetsBeta/
-StudIPAndroidApp/src/de/elanev/studip/android/app/util/ServerData.java
-StudIPAndroidApp/src/de/elanev/studip/android/app/util/Config.java
+StudIPAndroidApp/src/main/java/de/elanev/studip/android/app/util/ServerData.java
+StudIPAndroidApp/src/main/java/de/elanev/studip/android/app/util/Config.java
+StudIPAndroidApp/src/release/AndroidManifest.xml
