@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2014 ELAN e.V.
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the GNU Public License v3.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.gnu.org/licenses/gpl.html
+  -->
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/layout_margin_normal">
 
-    <de.elanev.studip.android.app.widget.TypefacedTextView
+    <TextView
         android:id="@+id/event_title"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
@@ -17,13 +23,10 @@
         android:textColor="@color/primary_text_light"
         android:textIsSelectable="true"
         android:textSize="@dimen/text_size_medium"
-        font:typeface="Roboto-Regular.ttf"
         tools:text="Sample Event Title"/>
 
-    <de.elanev.studip.android.app.widget.TypefacedTextView
+    <TextView
         android:id="@+id/event_room"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/event_title"
@@ -34,13 +37,10 @@
         android:textColor="@color/secondary_text_light"
         android:textIsSelectable="true"
         android:textSize="@dimen/text_size_small"
-        font:typeface="Roboto-Regular.ttf"
         tools:text="Sample Event Room Info 1234"/>
 
-    <de.elanev.studip.android.app.widget.TypefacedTextView
+    <TextView
         android:id="@+id/event_description"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/event_room"
@@ -50,7 +50,6 @@
         android:textColor="@android:color/black"
         android:textIsSelectable="true"
         android:textSize="@dimen/text_size_small"
-        font:typeface="Roboto-Regular.ttf"
         tools:text="Look, just because I don't be givin' no man a foot massage don't make it right for Marsellus to throw Antwone into a glass motherfuckin' house, fuckin' up the way the nigger talks. Motherfucker do that shit to me, he better paralyze my ass, 'cause I'll kill the motherfucker, know what I'm sayin'?"/>
 
 </RelativeLayout>
