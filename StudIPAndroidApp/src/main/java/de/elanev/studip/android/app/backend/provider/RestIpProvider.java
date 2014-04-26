@@ -185,13 +185,11 @@ public class RestIpProvider extends ContentProvider {
     return matcher;
   }
 
-  @Override
-  public boolean onCreate() {
+  @Override public boolean onCreate() {
     return true;
   }
 
-  @Override
-  public Cursor query(Uri uri,
+  @Override public Cursor query(Uri uri,
       String[] projection,
       String selection,
       String[] selectionArgs,
@@ -650,8 +648,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(),
             ContactsContract.CONTENT_URI_CONTACTS);
         break;
@@ -755,8 +752,7 @@ public class RestIpProvider extends ContentProvider {
     return c;
   }
 
-  @Override
-  public String getType(Uri uri) {
+  @Override public String getType(Uri uri) {
     final int match = sUriMatcher.match(uri);
     switch (match) {
       case NEWS:
@@ -832,8 +828,7 @@ public class RestIpProvider extends ContentProvider {
     }
   }
 
-  @Override
-  public Uri insert(Uri uri, ContentValues values) {
+  @Override public Uri insert(Uri uri, ContentValues values) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getWritableDatabase(Config.PRIVATE_KEY);
     final int match = sUriMatcher.match(uri);
@@ -1027,8 +1022,7 @@ public class RestIpProvider extends ContentProvider {
     DatabaseHandler.getInstance(context).deleteDatabase();
   }
 
-  @Override
-  public int bulkInsert(Uri uri, ContentValues[] values) {
+  @Override public int bulkInsert(Uri uri, ContentValues[] values) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getWritableDatabase(Config.PRIVATE_KEY);
     final int match = sUriMatcher.match(uri);
@@ -1226,8 +1220,7 @@ public class RestIpProvider extends ContentProvider {
 
   }
 
-  @Override
-  public int delete(Uri uri, String selection, String[] selectionArgs) {
+  @Override public int delete(Uri uri, String selection, String[] selectionArgs) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getWritableDatabase(Config.PRIVATE_KEY);
     int retVal = -1;
@@ -1300,15 +1293,13 @@ public class RestIpProvider extends ContentProvider {
       case CONTACTS: {
         retVal = db.delete(ContactsContract.TABLE_CONTACTS,
             (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
-            selectionArgs
-        );
+            selectionArgs);
         return retVal;
       }
       case CONTACTS_GROUPS: {
         retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUPS,
             (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
-            selectionArgs
-        );
+            selectionArgs);
         return retVal;
       }
       case CONTACTS_GROUP_MEMBERS: {
@@ -1340,8 +1331,10 @@ public class RestIpProvider extends ContentProvider {
     return retVal;
   }
 
-  @Override
-  public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+  @Override public int update(Uri uri,
+      ContentValues values,
+      String selection,
+      String[] selectionArgs) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getReadableDatabase(Config.PRIVATE_KEY);
     int affectedRows = 0;
