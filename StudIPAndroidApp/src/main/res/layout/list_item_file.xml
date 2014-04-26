@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2013 ELAN e.V.
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the GNU Public License v3.0
-  which accompanies this distribution, and is available at
-  http://www.gnu.org/licenses/gpl.html
--->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  ~ Copyright (c) 2014 ELAN e.V.
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the GNU Public License v3.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.gnu.org/licenses/gpl.html
+  -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/file_icon"
@@ -17,11 +19,9 @@
         android:background="@color/studip_mobile_dark"
         android:contentDescription="@string/file_icon"
         android:padding="16dp"
-        android:src="@drawable/ic_file_text" />
+        android:src="@drawable/ic_file_text"/>
 
-    <de.elanev.studip.android.app.widget.TypefacedTextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+    <TextView
         android:id="@+id/file_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,11 +36,9 @@
         android:singleLine="true"
         android:textAppearance="@android:style/TextAppearance.Medium"
         android:textIsSelectable="true"
-        font:typeface="Roboto-Regular.ttf" />
+        tools:text="Test file name"/>
 
-    <de.elanev.studip.android.app.widget.TypefacedTextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+    <TextView
         android:id="@+id/file_size"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -53,6 +51,6 @@
         android:paddingRight="8dp"
         android:textAppearance="@android:style/TextAppearance.Small"
         android:textIsSelectable="true"
-        font:typeface="Roboto-Regular.ttf" />
+        tools:text="200MB"/>
 
 </RelativeLayout>

@@ -8,9 +8,9 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="fill_parent"
-                android:layout_height="?android:attr/listPreferredItemHeight"
-    >
+                android:layout_height="?android:attr/listPreferredItemHeight">
 
     <ImageView
         android:id="@+id/icon"
@@ -27,9 +27,7 @@
         android:contentDescription="@string/icon"
         />
 
-    <de.elanev.studip.android.app.widget.TypefacedTextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+    <TextView
         android:id="@+id/text2"
 
         android:layout_width="fill_parent"
@@ -45,12 +43,10 @@
         android:maxLines="1"
         android:textColor="@color/secondary_text_light"
         android:textSize="@dimen/text_size_small"
-        font:typeface="Roboto-Regular.ttf"
+        tools:text="Sample text so see how the layout behaves with content."
         />
 
-    <de.elanev.studip.android.app.widget.TypefacedTextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:font="http://schemas.android.com/apk/res/de.elanev.studip.android.app"
+    <TextView
         android:id="@+id/text1"
 
         android:layout_width="fill_parent"
@@ -67,7 +63,7 @@
         android:gravity="center_vertical"
         android:textColor="@color/primary_text_light"
         android:textSize="@dimen/text_size_medium"
-        font:typeface="Roboto-Regular.ttf"
+        tools:text="Sample text for the main section."
         />
 
 </RelativeLayout>
