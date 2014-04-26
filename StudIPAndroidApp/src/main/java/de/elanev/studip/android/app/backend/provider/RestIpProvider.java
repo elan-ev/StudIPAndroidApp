@@ -185,11 +185,6 @@ public class RestIpProvider extends ContentProvider {
     return matcher;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.content.ContentProvider#onCreate()
-   */
   @Override
   public boolean onCreate() {
     return true;
@@ -760,11 +755,6 @@ public class RestIpProvider extends ContentProvider {
     return c;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.content.ContentProvider#getType(android.net.Uri)
-   */
   @Override
   public String getType(Uri uri) {
     final int match = sUriMatcher.match(uri);
@@ -842,12 +832,6 @@ public class RestIpProvider extends ContentProvider {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.content.ContentProvider#insert(android.net.Uri,
-   * android.content.ContentValues)
-   */
   @Override
   public Uri insert(Uri uri, ContentValues values) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
@@ -1242,12 +1226,6 @@ public class RestIpProvider extends ContentProvider {
 
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.content.ContentProvider#delete(android.net.Uri,
-   * java.lang.String, java.lang.String[])
-   */
   @Override
   public int delete(Uri uri, String selection, String[] selectionArgs) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
@@ -1362,12 +1340,6 @@ public class RestIpProvider extends ContentProvider {
     return retVal;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.content.ContentProvider#update(android.net.Uri,
-   * android.content.ContentValues, java.lang.String, java.lang.String[])
-   */
   @Override
   public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
