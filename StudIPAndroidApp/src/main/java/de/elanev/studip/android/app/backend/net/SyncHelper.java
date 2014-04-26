@@ -45,6 +45,7 @@ import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Courses;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
+import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.datamodel.Events;
 import de.elanev.studip.android.app.backend.datamodel.Institutes;
 import de.elanev.studip.android.app.backend.datamodel.InstitutesContainer;
@@ -60,6 +61,7 @@ import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
+import de.elanev.studip.android.app.backend.db.EventsContract;
 import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
@@ -67,7 +69,6 @@ import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.DocumentsHandler;
-import de.elanev.studip.android.app.backend.net.sync.EventsHandler;
 import de.elanev.studip.android.app.backend.net.sync.MessagesHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
@@ -93,10 +94,8 @@ public class SyncHelper {
 
   private static LoadingCache<String, User> sUsersCache;
 
-  private static Set<String> mUserSyncQueue = Collections
-      .synchronizedSet(new HashSet<String>());
-  private static ArrayList<ContentProviderOperation> mUserDbOp = new
-      ArrayList<ContentProviderOperation>();
+  private static Set<String> mUserSyncQueue = Collections.synchronizedSet(new HashSet<String>());
+  private static ArrayList<ContentProviderOperation> mUserDbOp = new ArrayList<ContentProviderOperation>();
 
   // TODO Make dependent on device connection type
   DefaultRetryPolicy mRetryPolicy = new DefaultRetryPolicy(30000,
@@ -138,8 +137,7 @@ public class SyncHelper {
             new String[]{UsersContract.Columns.USER_ID},
             UsersContract.Columns.USER_ID + " = ?",
             new String[]{userId},
-            UsersContract.Columns.USER_ID
-        );
+            UsersContract.Columns.USER_ID);
 
     if (c.getCount() > 0) {
       User user = new User();
@@ -168,13 +166,41 @@ public class SyncHelper {
     sUsersCache.invalidateAll();
   }
 
-  public void requestInstitutesForUserID(String userId, final SyncHelperCallbacks
-      callbacks) {
-    String institutesUrl = String.format(
-        mContext.getString(R.string.restip_user_institutes),
+  private static ContentValues[] parseEvents(Events events) {
+    // Save column references local to prevent lookup
+    final String eventIdCol = EventsContract.Columns.EVENT_ID;
+    final String eventCourseIdCol = EventsContract.Columns.EVENT_COURSE_ID;
+    final String eventStartCol = EventsContract.Columns.EVENT_START;
+    final String eventEndCol = EventsContract.Columns.EVENT_END;
+    final String eventTitleCol = EventsContract.Columns.EVENT_TITLE;
+    final String eventDescriptionCol = EventsContract.Columns.EVENT_DESCRIPTION;
+    final String eventCategoriesCol = EventsContract.Columns.EVENT_CATEGORIES;
+    final String eventRoomCol = EventsContract.Columns.EVENT_ROOM;
+
+    final int eventsCount = events.events.size();
+
+    ContentValues[] contentValues = new ContentValues[eventsCount];
+    for (int i = 0; i < eventsCount; ++i) {
+      ContentValues cv = new ContentValues();
+      Event event = events.events.get(i);
+      cv.put(eventIdCol, event.event_id);
+      cv.put(eventCourseIdCol, event.course_id);
+      cv.put(eventStartCol, event.start);
+      cv.put(eventEndCol, event.end);
+      cv.put(eventTitleCol, event.title);
+      cv.put(eventDescriptionCol, event.description);
+      cv.put(eventCategoriesCol, event.categories);
+      cv.put(eventRoomCol, event.room);
+      contentValues[i] = cv;
+    }
+
+    return contentValues;
+  }
+
+  public void requestInstitutesForUserID(String userId, final SyncHelperCallbacks callbacks) {
+    String institutesUrl = String.format(mContext.getString(R.string.restip_user_institutes),
         mServer.getApiUrl(),
-        userId
-    );
+        userId);
 
     JacksonRequest<InstitutesContainer> institutesRequest = new JacksonRequest<InstitutesContainer>(
         institutesUrl,
@@ -185,15 +211,11 @@ public class SyncHelper {
           public void onResponse(InstitutesContainer response) {
             try {
               mContext.getContentResolver()
-                  .applyBatch(
-                      AbstractContract.CONTENT_AUTHORITY,
-                      parseInstitutes(response.getInstitutes())
-                  );
+                  .applyBatch(AbstractContract.CONTENT_AUTHORITY,
+                      parseInstitutes(response.getInstitutes()));
 
               if (callbacks != null) {
-                callbacks.onSyncFinished(
-                    SyncHelperCallbacks.FINISHED_INSTITUTES_SYNC
-                );
+                callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_INSTITUTES_SYNC);
               }
             } catch (RemoteException e) {
               e.printStackTrace();
@@ -206,10 +228,7 @@ public class SyncHelper {
           @Override
           public void onErrorResponse(VolleyError error) {
             if (callbacks != null) {
-              callbacks.onSyncError(
-                  SyncHelperCallbacks.ERROR_INSTITUTES_SYNC,
-                  error
-              );
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_INSTITUTES_SYNC, error);
             }
           }
         },
@@ -221,10 +240,8 @@ public class SyncHelper {
 
     try {
 
-      OAuthConnector.with(mServer)
-          .sign(institutesRequest);
-      StudIPApplication.getInstance()
-          .addToRequestQueue(institutesRequest, TAG);
+      OAuthConnector.with(mServer).sign(institutesRequest);
+      StudIPApplication.getInstance().addToRequestQueue(institutesRequest, TAG);
 
       if (callbacks != null) {
         callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_INSTITUTES_SYNC);
@@ -242,73 +259,41 @@ public class SyncHelper {
 
   }
 
-  private static ArrayList<ContentProviderOperation> parseInstitutes
-      (Institutes institutes) {
-    ArrayList<ContentProviderOperation> ops = new
-        ArrayList<ContentProviderOperation>();
+  private static ArrayList<ContentProviderOperation> parseInstitutes(Institutes institutes) {
+    ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
     for (Institutes.Institute i : institutes.getStudy()) {
-      ContentProviderOperation.Builder instituteBuilder =
-          ContentProviderOperation.newInsert(InstitutesContract
-              .CONTENT_URI)
-              .withValue(InstitutesContract.Columns.INSTITUTE_ID,
-                  i.getInstituteId())
-              .withValue(InstitutesContract.Columns.INSTITUTE_NAME,
-                  i.getName())
-              .withValue(InstitutesContract.Columns.INSTITUTE_PERMS,
-                  i.getPerms())
-              .withValue(InstitutesContract.Columns.INSTITUTE_CONSULTATION,
-                  i.getConsultation())
-              .withValue(InstitutesContract.Columns.INSTITUTE_ROOM,
-                  i.getRoom())
-              .withValue(InstitutesContract.Columns.INSTITUTE_PHONE,
-                  i.getPhone())
-              .withValue(InstitutesContract.Columns.INSTITUTE_FAX,
-                  i.getFax())
-              .withValue(InstitutesContract.Columns.INSTITUTE_STREET,
-                  i.getStreet())
-              .withValue(InstitutesContract.Columns.INSTITUTE_CITY,
-                  i.getCity())
-              .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_NAME,
-                  i.getFacultyName())
-              .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_STREET,
-                  i.getFacultyStreet())
-              .withValue(InstitutesContract.Columns
-                      .INSTITUTE_FACULTY_CITY,
-                  i.getFacultyCity()
-              );
+      ContentProviderOperation.Builder instituteBuilder = ContentProviderOperation.newInsert(
+          InstitutesContract.CONTENT_URI)
+          .withValue(InstitutesContract.Columns.INSTITUTE_ID, i.getInstituteId())
+          .withValue(InstitutesContract.Columns.INSTITUTE_NAME, i.getName())
+          .withValue(InstitutesContract.Columns.INSTITUTE_PERMS, i.getPerms())
+          .withValue(InstitutesContract.Columns.INSTITUTE_CONSULTATION, i.getConsultation())
+          .withValue(InstitutesContract.Columns.INSTITUTE_ROOM, i.getRoom())
+          .withValue(InstitutesContract.Columns.INSTITUTE_PHONE, i.getPhone())
+          .withValue(InstitutesContract.Columns.INSTITUTE_FAX, i.getFax())
+          .withValue(InstitutesContract.Columns.INSTITUTE_STREET, i.getStreet())
+          .withValue(InstitutesContract.Columns.INSTITUTE_CITY, i.getCity())
+          .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_NAME, i.getFacultyName())
+          .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_STREET, i.getFacultyStreet())
+          .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_CITY, i.getFacultyCity());
       ops.add(instituteBuilder.build());
     }
 
     for (Institutes.Institute i : institutes.getWork()) {
-      ContentProviderOperation.Builder instituteBuilder =
-          ContentProviderOperation.newInsert(InstitutesContract
-              .CONTENT_URI)
-              .withValue(InstitutesContract.Columns.INSTITUTE_ID,
-                  i.getInstituteId())
-              .withValue(InstitutesContract.Columns.INSTITUTE_NAME,
-                  i.getName())
-              .withValue(InstitutesContract.Columns.INSTITUTE_PERMS,
-                  i.getPerms())
-              .withValue(InstitutesContract.Columns.INSTITUTE_CONSULTATION,
-                  i.getConsultation())
-              .withValue(InstitutesContract.Columns.INSTITUTE_ROOM,
-                  i.getRoom())
-              .withValue(InstitutesContract.Columns.INSTITUTE_PHONE,
-                  i.getPhone())
-              .withValue(InstitutesContract.Columns.INSTITUTE_FAX,
-                  i.getFax())
-              .withValue(InstitutesContract.Columns.INSTITUTE_STREET,
-                  i.getStreet())
-              .withValue(InstitutesContract.Columns.INSTITUTE_CITY,
-                  i.getCity())
-              .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_NAME,
-                  i.getFacultyName())
-              .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_STREET,
-                  i.getFacultyStreet())
-              .withValue(InstitutesContract.Columns
-                      .INSTITUTE_FACULTY_CITY,
-                  i.getFacultyCity()
-              );
+      ContentProviderOperation.Builder instituteBuilder = ContentProviderOperation.newInsert(
+          InstitutesContract.CONTENT_URI)
+          .withValue(InstitutesContract.Columns.INSTITUTE_ID, i.getInstituteId())
+          .withValue(InstitutesContract.Columns.INSTITUTE_NAME, i.getName())
+          .withValue(InstitutesContract.Columns.INSTITUTE_PERMS, i.getPerms())
+          .withValue(InstitutesContract.Columns.INSTITUTE_CONSULTATION, i.getConsultation())
+          .withValue(InstitutesContract.Columns.INSTITUTE_ROOM, i.getRoom())
+          .withValue(InstitutesContract.Columns.INSTITUTE_PHONE, i.getPhone())
+          .withValue(InstitutesContract.Columns.INSTITUTE_FAX, i.getFax())
+          .withValue(InstitutesContract.Columns.INSTITUTE_STREET, i.getStreet())
+          .withValue(InstitutesContract.Columns.INSTITUTE_CITY, i.getCity())
+          .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_NAME, i.getFacultyName())
+          .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_STREET, i.getFacultyStreet())
+          .withValue(InstitutesContract.Columns.INSTITUTE_FACULTY_CITY, i.getFacultyCity());
       ops.add(instituteBuilder.build());
     }
 
@@ -327,28 +312,24 @@ public class SyncHelper {
    */
   public void performContactsSync(final SyncHelperCallbacks callbacks, Request.Priority priority) {
     long currTime = System.currentTimeMillis();
-    if ((currTime - mLastContactsSync) > BuildConfig
-        .CONTACTS_SYNC_THRESHOLD) {
+    if ((currTime - mLastContactsSync) > BuildConfig.CONTACTS_SYNC_THRESHOLD) {
       mLastContactsSync = currTime;
       Log.i(TAG, "SYNCING CONTACTS");
 
       final ContentResolver resolver = mContext.getContentResolver();
-      final String contactsURL = String.format(mContext.getString(R.string.restip_contacts)
-          + ".json", mServer.getApiUrl());
-      final String contactGroupsURL = String.format(mContext.getString(R.string.restip_contacts_groups)
-          + ".json", mServer.getApiUrl());
+      final String contactsURL = String.format(
+          mContext.getString(R.string.restip_contacts) + ".json", mServer.getApiUrl());
+      final String contactGroupsURL = String.format(
+          mContext.getString(R.string.restip_contacts_groups) + ".json", mServer.getApiUrl());
 
       // Request Contacts
-      final JacksonRequest<Contacts> contactsRequest = new JacksonRequest<Contacts>(
-          contactsURL,
+      final JacksonRequest<Contacts> contactsRequest = new JacksonRequest<Contacts>(contactsURL,
           Contacts.class,
           null,
           new Listener<Contacts>() {
             public void onResponse(Contacts response) {
               try {
-                resolver.applyBatch(
-                    AbstractContract.CONTENT_AUTHORITY,
-                    parseContacts(response));
+                resolver.applyBatch(AbstractContract.CONTENT_AUTHORITY, parseContacts(response));
 
                 mUserSyncQueue.addAll(response.contacts);
 
@@ -368,11 +349,9 @@ public class SyncHelper {
           new ErrorListener() {
             public void onErrorResponse(VolleyError error) {
               if (callbacks != null)
-                callbacks.onSyncError(SyncHelperCallbacks
-                    .ERROR_CONTACTS_SYNC, error);
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC, error);
 
-              if (error.getMessage() != null)
-                Log.wtf(TAG, error.getMessage());
+              if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
             }
           },
           Method.GET
@@ -387,15 +366,11 @@ public class SyncHelper {
             public void onResponse(ContactGroups response) {
 
               try {
-                resolver.applyBatch(
-                    AbstractContract.CONTENT_AUTHORITY,
-                    new ContactGroupsHandler(response)
-                        .parse()
-                );
+                resolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
+                    new ContactGroupsHandler(response).parse());
 
 
-                StudIPApplication.getInstance()
-                    .addToRequestQueue(contactsRequest, TAG);
+                StudIPApplication.getInstance().addToRequestQueue(contactsRequest, TAG);
 
               } catch (RemoteException e) {
                 e.printStackTrace();
@@ -407,11 +382,9 @@ public class SyncHelper {
           new ErrorListener() {
             public void onErrorResponse(VolleyError error) {
               if (callbacks != null)
-                callbacks.onSyncError(SyncHelperCallbacks
-                    .ERROR_CONTACTS_SYNC, error);
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC, error);
 
-              if (error.getMessage() != null)
-                Log.wtf(TAG, error.getMessage());
+              if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
             }
           },
           Method.GET
@@ -449,8 +422,7 @@ public class SyncHelper {
     ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 
     for (String contact : contacts.contacts) {
-      ContentProviderOperation.Builder builder = ContentProviderOperation
-          .newInsert(ContactsContract.CONTENT_URI_CONTACTS);
+      ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(ContactsContract.CONTENT_URI_CONTACTS);
       builder.withValue(ContactsContract.Columns.Contacts.USER_ID, contact);
       operations.add(builder.build());
     }
@@ -465,12 +437,10 @@ public class SyncHelper {
    */
   public void performCoursesSync(final SyncHelperCallbacks callbacks) {
     long currTime = System.currentTimeMillis();
-    if ((currTime - mLastCoursesSync) > BuildConfig
-        .COURSES_SYNC_THRESHOLD) {
+    if ((currTime - mLastCoursesSync) > BuildConfig.COURSES_SYNC_THRESHOLD) {
       mLastCoursesSync = currTime;
       Log.i(TAG, "SYNCING COURSES");
-      final String coursesUrl = String.format(
-          mContext.getString(R.string.restip_courses) + ".json",
+      final String coursesUrl = String.format(mContext.getString(R.string.restip_courses) + ".json",
           mServer.getApiUrl());
 
       JacksonRequest<Courses> coursesRequest;
@@ -511,8 +481,7 @@ public class SyncHelper {
               if (callbacks != null)
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_COURSES_SYNC, error);
 
-              if (error.getMessage() != null)
-                Log.wtf(TAG, error.getMessage());
+              if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
             }
           },
           Method.GET
@@ -544,38 +513,25 @@ public class SyncHelper {
   private static ArrayList<ContentProviderOperation> parseCourses(Courses courses) {
     ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 
-    operations.add(ContentProviderOperation
-        .newDelete(CoursesContract.CONTENT_URI)
-        .build());
+    operations.add(ContentProviderOperation.newDelete(CoursesContract.CONTENT_URI).build());
 
     // FIXME meh^2 on....
     for (Course c : courses.courses) {
-      ContentProviderOperation.Builder builder = ContentProviderOperation
-          .newInsert(CoursesContract.CONTENT_URI)
-          .withValue(CoursesContract.Columns.Courses.COURSE_ID,
-              c.course_id)
-          .withValue(CoursesContract.Columns.Courses.COURSE_TITLE,
-              c.title)
-          .withValue(CoursesContract.Columns.Courses.COURSE_DESCIPTION,
-              c.description)
-          .withValue(CoursesContract.Columns.Courses.COURSE_SUBTITLE,
-              c.subtitle)
-          .withValue(CoursesContract.Columns.Courses.COURSE_LOCATION,
-              c.location)
-          .withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
-              c.semester_id)
-          .withValue(
-              CoursesContract.Columns.Courses.COURSE_DURATION_TIME,
-              c.duration_time)
-          .withValue(CoursesContract.Columns.Courses.COURSE_COLOR,
-              c.color)
+      ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(CoursesContract.CONTENT_URI)
+          .withValue(CoursesContract.Columns.Courses.COURSE_ID, c.course_id)
+          .withValue(CoursesContract.Columns.Courses.COURSE_TITLE, c.title)
+          .withValue(CoursesContract.Columns.Courses.COURSE_DESCIPTION, c.description)
+          .withValue(CoursesContract.Columns.Courses.COURSE_SUBTITLE, c.subtitle)
+          .withValue(CoursesContract.Columns.Courses.COURSE_LOCATION, c.location)
+          .withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, c.semester_id)
+          .withValue(CoursesContract.Columns.Courses.COURSE_DURATION_TIME,
+              c.duration_time).withValue(CoursesContract.Columns.Courses.COURSE_COLOR, c.color)
               // .withValue(CoursesContract.Columns.Courses.COURSE_NUMBER,
               // c.number)
           .withValue(CoursesContract.Columns.Courses.COURSE_TYPE, c.type)
               // .withValue(CoursesContract.Columns.Courses.COURSE_MODULES,
               // JSONWriter.writeValueAsString(c.modules))
-          .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME,
-              c.start_time);
+          .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME, c.start_time);
       operations.add(builder.build());
 
     }
@@ -596,13 +552,11 @@ public class SyncHelper {
       mLastNewsSync = currTime;
       final ContentResolver resolver = mContext.getContentResolver();
 
-      Cursor c = resolver.query(
-          CoursesContract.CONTENT_URI,
+      Cursor c = resolver.query(CoursesContract.CONTENT_URI,
           new String[]{CoursesContract.Columns.Courses.COURSE_ID},
           null,
           null,
-          null
-      );
+          null);
 
       HashSet<String> rangeIds = new HashSet<String>();
       c.moveToFirst();
@@ -614,13 +568,11 @@ public class SyncHelper {
       }
       c.close();
 
-      c = resolver.query(
-          InstitutesContract.CONTENT_URI,
+      c = resolver.query(InstitutesContract.CONTENT_URI,
           new String[]{InstitutesContract.Columns.INSTITUTE_ID},
           null,
           null,
-          null
-      );
+          null);
 
       c.moveToFirst();
       while (!c.isAfterLast()) {
@@ -645,29 +597,27 @@ public class SyncHelper {
    * @param callbacks    SyncHelperCallbacks for calling back, can be null
    */
   public void performNewsSyncForIds(final HashSet<String> newsRangeIds,
-                                    final SyncHelperCallbacks callbacks) {
+      final SyncHelperCallbacks callbacks) {
     Log.i(TAG, "SYNCING NEWS");
 
-    if (callbacks != null)
-      callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
+    if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
 
     int i = 0;
     for (final String id : newsRangeIds) {
       final int finalI = i;
 
-      requestNewsForRange(id,
-          new Listener<News>() {
+      requestNewsForRange(id, new Listener<News>() {
             public void onResponse(News response) {
               try {
                 ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
                 for (NewsItem n : response.news) {
                   mUserSyncQueue.add(n.user_id);
-//                                    requestUser(n.user_id, null);
+                  //                                    requestUser(n.user_id, null);
                   operations.add(parseNewsItem(n, id));
                 }
                 if (!operations.isEmpty()) {
-                  mContext.getContentResolver().applyBatch(
-                      AbstractContract.CONTENT_AUTHORITY, operations);
+                  mContext.getContentResolver()
+                      .applyBatch(AbstractContract.CONTENT_AUTHORITY, operations);
                 }
 
                 if (finalI == (newsRangeIds.size() - 1)) {
@@ -682,8 +632,7 @@ public class SyncHelper {
               }
 
             }
-          },
-          callbacks
+          }, callbacks
       );
       i++;
     }
@@ -697,12 +646,12 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void requestNewsForRange(final String range,
-                                  final Listener<News> listener,
-                                  final SyncHelperCallbacks callbacks) {
+      final Listener<News> listener,
+      final SyncHelperCallbacks callbacks) {
     Log.i(TAG, "Performing Sync for range: " + range);
-    final String newsUrl = String.format(
-        mContext.getString(R.string.restip_news_rangeid) + ".json",
-        mServer.getApiUrl(), range);
+    final String newsUrl = String.format(mContext.getString(R.string.restip_news_rangeid) + ".json",
+        mServer.getApiUrl(),
+        range);
 
     JacksonRequest<News> newsRequest;
 
@@ -715,8 +664,7 @@ public class SyncHelper {
             if (callbacks != null)
               callbacks.onSyncError(SyncHelperCallbacks.ERROR_NEWS_SYNC, error);
 
-            if (error.getMessage() != null)
-              Log.wtf(TAG, error.getMessage());
+            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
         },
         Method.GET
@@ -727,8 +675,7 @@ public class SyncHelper {
       OAuthConnector.with(mServer).sign(newsRequest);
       StudIPApplication.getInstance().addToRequestQueue(newsRequest, TAG);
 
-      if (callbacks != null)
-        callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
+      if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
 
     } catch (OAuthMessageSignerException e) {
       e.printStackTrace();
@@ -744,8 +691,7 @@ public class SyncHelper {
   }
 
   private static ContentProviderOperation parseNewsItem(NewsItem news, String mCourseId) {
-    ContentProviderOperation.Builder builder = ContentProviderOperation
-        .newInsert(NewsContract.CONTENT_URI);
+    ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(NewsContract.CONTENT_URI);
     builder.withValue(NewsContract.Columns.NEWS_ID, news.news_id);
     builder.withValue(NewsContract.Columns.NEWS_TOPIC, news.topic);
     builder.withValue(NewsContract.Columns.NEWS_BODY, news.body);
@@ -754,11 +700,9 @@ public class SyncHelper {
     builder.withValue(NewsContract.Columns.NEWS_CHDATE, news.chdate);
     builder.withValue(NewsContract.Columns.NEWS_MKDATE, news.mkdate);
     builder.withValue(NewsContract.Columns.NEWS_EXPIRE, news.expire);
-    builder.withValue(NewsContract.Columns.NEWS_ALLOW_COMMENTS,
-        news.allow_comments);
+    builder.withValue(NewsContract.Columns.NEWS_ALLOW_COMMENTS, news.allow_comments);
     builder.withValue(NewsContract.Columns.NEWS_CHDATE_UID, news.chdate_uid);
-    builder.withValue(NewsContract.Columns.NEWS_BODY_ORIGINAL,
-        news.body_original);
+    builder.withValue(NewsContract.Columns.NEWS_BODY_ORIGINAL, news.body_original);
     builder.withValue(NewsContract.Columns.NEWS_RANGE_ID, mCourseId);
 
     return builder.build();
@@ -771,24 +715,22 @@ public class SyncHelper {
    */
   public void performPendingUserSync(final SyncHelperCallbacks callbacks) {
     if (!mUserSyncQueue.isEmpty()) {
-      if (callbacks != null)
-        callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
+      if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
 
       Log.i(TAG, "SYNCING PENDING USERS");
 
       int i = 1;
       for (String id : mUserSyncQueue) {
         final int finalI = i;
-        requestUser(id,
-            new Listener<User>() {
+        requestUser(id, new Listener<User>() {
               @Override
               public void onResponse(User response) {
                 mUserDbOp.add(parseUser(response));
                 if (finalI == mUserSyncQueue.size()) {
                   Log.i(TAG, "FINISHED SYNCING PENDING USERS");
                   try {
-                    mContext.getContentResolver().applyBatch
-                        (AbstractContract.CONTENT_AUTHORITY, mUserDbOp);
+                    mContext.getContentResolver()
+                        .applyBatch(AbstractContract.CONTENT_AUTHORITY, mUserDbOp);
                   } catch (RemoteException e) {
                     e.printStackTrace();
                   } catch (OperationApplicationException e) {
@@ -802,8 +744,7 @@ public class SyncHelper {
 
                 }
               }
-            },
-            null
+            }, null
         );
         i++;
       }
@@ -822,32 +763,28 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void requestUser(String userId,
-                          final Listener<User> listener,
-                          final SyncHelperCallbacks callbacks) {
+      final Listener<User> listener,
+      final SyncHelperCallbacks callbacks) {
 
     if (!TextUtils.equals("", userId) && !TextUtils.equals("____%system%____", userId)) {
       try {
         sUsersCache.get(userId);
-//                    Log.i(TAG, "!!!!!USER CACHE HIT!!!!!");
+        //                    Log.i(TAG, "!!!!!USER CACHE HIT!!!!!");
       } catch (CacheLoader.InvalidCacheLoadException exception) {
 
         try {
           final String usersUrl = String.format(
-              mContext.getString(R.string.restip_user_id) + ".json",
-              mServer.getApiUrl(),
-              userId);
+              mContext.getString(R.string.restip_user_id) + ".json", mServer.getApiUrl(), userId);
 
           JacksonRequest<User> userJacksonRequest = new JacksonRequest<User>(usersUrl,
               User.class,
               null,
               listener,
               new ErrorListener() {
-                public void onErrorResponse(
-                    VolleyError error) {
+                public void onErrorResponse(VolleyError error) {
                   Log.wtf(TAG, error.getMessage());
                   if (callbacks != null) {
-                    callbacks.onSyncError(SyncHelperCallbacks
-                        .ERROR_USER_SYNC, error);
+                    callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, error);
                   }
                 }
               },
@@ -860,8 +797,7 @@ public class SyncHelper {
           OAuthConnector.with(mServer).sign(userJacksonRequest);
           StudIPApplication.getInstance().addToRequestQueue(userJacksonRequest, TAG);
 
-          if (callbacks != null)
-            callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
+          if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
 
         } catch (OAuthCommunicationException e) {
           e.printStackTrace();
@@ -881,23 +817,18 @@ public class SyncHelper {
   }
 
   private static ContentProviderOperation parseUser(User user) {
-    ContentProviderOperation.Builder builder = ContentProviderOperation
-        .newInsert(UsersContract.CONTENT_URI);
+    ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(UsersContract.CONTENT_URI);
     builder.withValue(UsersContract.Columns.USER_ID, user.user_id);
     builder.withValue(UsersContract.Columns.USER_USERNAME, user.username);
     builder.withValue(UsersContract.Columns.USER_PERMS, user.perms);
     builder.withValue(UsersContract.Columns.USER_TITLE_PRE, user.title_pre);
     builder.withValue(UsersContract.Columns.USER_FORENAME, user.forename);
     builder.withValue(UsersContract.Columns.USER_LASTNAME, user.lastname);
-    builder.withValue(UsersContract.Columns.USER_TITLE_POST,
-        user.title_post);
+    builder.withValue(UsersContract.Columns.USER_TITLE_POST, user.title_post);
     builder.withValue(UsersContract.Columns.USER_EMAIL, user.email);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_SMALL,
-        user.avatar_small);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_MEDIUM,
-        user.avatar_medium);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_NORMAL,
-        user.avatar_normal);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_SMALL, user.avatar_small);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_MEDIUM, user.avatar_medium);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_NORMAL, user.avatar_normal);
     builder.withValue(UsersContract.Columns.USER_PHONE, user.phone);
     builder.withValue(UsersContract.Columns.USER_HOMEPAGE, user.homepage);
     builder.withValue(UsersContract.Columns.USER_PRIVADR, user.privadr);
@@ -926,20 +857,17 @@ public class SyncHelper {
 
     Log.i(TAG, "SYNCING SEMESTERS");
     final String semestersUrl = String.format(
-        mContext.getString(R.string.restip_semesters) + ".json",
-        mServer.getApiUrl());
+        mContext.getString(R.string.restip_semesters) + ".json", mServer.getApiUrl());
 
-    JacksonRequest<Semesters> semestersRequest = new JacksonRequest<Semesters>(
-        semestersUrl,
+    JacksonRequest<Semesters> semestersRequest = new JacksonRequest<Semesters>(semestersUrl,
         Semesters.class,
         null,
         new Listener<Semesters>() {
           public void onResponse(Semesters response) {
 
             try {
-              mContext.getContentResolver().applyBatch(
-                  AbstractContract.CONTENT_AUTHORITY,
-                  parseSemesters(response));
+              mContext.getContentResolver()
+                  .applyBatch(AbstractContract.CONTENT_AUTHORITY, parseSemesters(response));
 
               if (callbacks != null)
                 callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_SEMESTER_SYNC);
@@ -957,8 +885,7 @@ public class SyncHelper {
             if (callbacks != null)
               callbacks.onSyncError(SyncHelperCallbacks.ERROR_SEMESTER_SYNC, error);
 
-            if (error.getMessage() != null)
-              Log.wtf(TAG, error.getMessage());
+            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
         },
         Method.GET
@@ -969,8 +896,7 @@ public class SyncHelper {
       OAuthConnector.with(mServer).sign(semestersRequest);
       StudIPApplication.getInstance().addToRequestQueue(semestersRequest, TAG);
 
-      if (callbacks != null)
-        callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_SEMESTER_SYNC);
+      if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_SEMESTER_SYNC);
 
     } catch (OAuthMessageSignerException e) {
       e.printStackTrace();
@@ -989,21 +915,15 @@ public class SyncHelper {
 
     for (Semester semester : semesterList.semesters) {
 
-      ContentProviderOperation.Builder semesterBuilder = ContentProviderOperation
-          .newInsert(SemestersContract.CONTENT_URI)
-          .withValue(SemestersContract.Columns.SEMESTER_ID,
-              semester.semester_id)
-          .withValue(SemestersContract.Columns.SEMESTER_TITLE,
-              semester.title)
-          .withValue(SemestersContract.Columns.SEMESTER_DESCRIPTION,
-              semester.description)
-          .withValue(SemestersContract.Columns.SEMESTER_BEGIN,
-              semester.begin)
+      ContentProviderOperation.Builder semesterBuilder = ContentProviderOperation.newInsert(
+          SemestersContract.CONTENT_URI)
+          .withValue(SemestersContract.Columns.SEMESTER_ID, semester.semester_id)
+          .withValue(SemestersContract.Columns.SEMESTER_TITLE, semester.title)
+          .withValue(SemestersContract.Columns.SEMESTER_DESCRIPTION, semester.description)
+          .withValue(SemestersContract.Columns.SEMESTER_BEGIN, semester.begin)
           .withValue(SemestersContract.Columns.SEMESTER_END, semester.end)
-          .withValue(SemestersContract.Columns.SEMESTER_SEMINARS_BEGIN,
-              semester.seminars_begin)
-          .withValue(SemestersContract.Columns.SEMESTER_SEMINARS_END,
-              semester.seminars_end);
+          .withValue(SemestersContract.Columns.SEMESTER_SEMINARS_BEGIN, semester.seminars_begin)
+          .withValue(SemestersContract.Columns.SEMESTER_SEMINARS_END, semester.seminars_end);
       ops.add(semesterBuilder.build());
     }
 
@@ -1015,33 +935,28 @@ public class SyncHelper {
    *
    * @param courseId the course id for which the events should be requested
    */
-  public void performEventsSyncForCourseId(String courseId) {
+  public void performEventsSyncForCourseId(final String courseId) {
     Log.i(TAG, "SYNCING COURSE EVENTS: " + courseId);
     final String eventsUrl = String.format(
-        mContext.getString(R.string.restip_courses_courseid_events)
-            + ".json", mServer.getApiUrl(), courseId
-    );
+        mContext.getString(R.string.restip_courses_courseid_events) + ".json",
+        mServer.getApiUrl(),
+        courseId);
     JacksonRequest<Events> eventsRequest;
-    eventsRequest = new JacksonRequest<Events>(
-        eventsUrl, Events.class, null,
+    eventsRequest = new JacksonRequest<Events>(eventsUrl,
+        Events.class,
+        null,
         new Listener<Events>() {
           public void onResponse(Events response) {
-            try {
-              mContext.getContentResolver().applyBatch(
-                  AbstractContract.CONTENT_AUTHORITY,
-                  new EventsHandler(response).parse());
-            } catch (RemoteException e) {
-              e.printStackTrace();
-            } catch (OperationApplicationException e) {
-              e.printStackTrace();
-            }
+            new EventsInsertTask(response).execute(courseId);
           }
 
-        }, new ErrorListener() {
-      public void onErrorResponse(VolleyError error) {
-        Log.wtf(TAG, error.getMessage());
-      }
-    }, Method.GET
+        },
+        new ErrorListener() {
+          public void onErrorResponse(VolleyError error) {
+            Log.wtf(TAG, error.getMessage());
+          }
+        },
+        Method.GET
     );
     eventsRequest.setRetryPolicy(mRetryPolicy);
     eventsRequest.setPriority(Request.Priority.IMMEDIATE);
@@ -1067,23 +982,20 @@ public class SyncHelper {
   public void performMessagesSync(final SyncHelperCallbacks callbacks) {
     Log.i(TAG, "SYNCING MESSAGES");
 
-    final String[] boxes = mContext.getResources().getStringArray(
-        R.array.restip_messages_box_identifiers);
+    final String[] boxes = mContext.getResources()
+        .getStringArray(R.array.restip_messages_box_identifiers);
 
-    if (callbacks != null)
-      callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_MESSAGES_SYNC);
-// TODO: Sync in- and outbox when the messages system is complete
-//        for (final String box : boxes) {
+    if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_MESSAGES_SYNC);
+    // TODO: Sync in- and outbox when the messages system is complete
+    //        for (final String box : boxes) {
     final String box = boxes[0];
     Log.i(TAG, "PERFORMING MESSAGES SYNC FOR BOX " + box);
 
-    String boxUrl = String.format(
-        mContext.getString(R.string.restip_messages_box),
+    String boxUrl = String.format(mContext.getString(R.string.restip_messages_box),
         mServer.getApiUrl(),
         box);
 
-    JacksonRequest<MessageFolders> messageFoldersRequest = new JacksonRequest<MessageFolders>(
-        boxUrl,
+    JacksonRequest<MessageFolders> messageFoldersRequest = new JacksonRequest<MessageFolders>(boxUrl,
         MessageFolders.class,
         null,
         new Listener<MessageFolders>() {
@@ -1092,10 +1004,7 @@ public class SyncHelper {
             for (int i = 0; i < foldersResponse.folders.size(); i++) {
 
               final int finalI = i;
-              requestMessagesForFolder(i,
-                  box,
-                  callbacks,
-                  new Listener<Messages>() {
+              requestMessagesForFolder(i, box, callbacks, new Listener<Messages>() {
                     public void onResponse(Messages response) {
                       try {
 
@@ -1104,26 +1013,19 @@ public class SyncHelper {
                             mUserSyncQueue.add(m.sender_id);
                             mUserSyncQueue.add(m.receiver_id);
                           } else {
-                            requestUser(m
-                                    .sender_id,
-                                null
-                            );
-                            requestUser(m
-                                    .receiver_id,
-                                null
-                            );
+                            requestUser(m.sender_id, null);
+                            requestUser(m.receiver_id, null);
                           }
                         }
 
-                        mContext.getContentResolver().applyBatch(
-                            AbstractContract.CONTENT_AUTHORITY,
-                            new MessagesHandler(response,
-                                foldersResponse.folders.get(finalI),
-                                box).parse()
-                        );
+                        mContext.getContentResolver()
+                            .applyBatch(AbstractContract.CONTENT_AUTHORITY,
+                                new MessagesHandler(response,
+                                    foldersResponse.folders.get(finalI),
+                                    box).parse()
+                            );
 
-                        if (callbacks != null
-                            && finalI == foldersResponse.folders.size() - 1) {
+                        if (callbacks != null && finalI == foldersResponse.folders.size() - 1) {
                           callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_MESSAGES_SYNC);
                           Log.i(TAG, "FINISHED SYNCING MESSAGES");
                           return;
@@ -1145,8 +1047,7 @@ public class SyncHelper {
             if (callbacks != null)
               callbacks.onSyncError(SyncHelperCallbacks.ERROR_MESSAGES_SYNC, error);
 
-            if (error.getMessage() != null)
-              Log.wtf(TAG, error.getMessage());
+            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
         },
         Method.GET
@@ -1167,7 +1068,7 @@ public class SyncHelper {
     } catch (OAuthNotAuthorizedException e) {
       StuffUtil.startSignInActivity(mContext);
     }
-//        }
+    //        }
   }
 
   /*
@@ -1175,32 +1076,29 @@ public class SyncHelper {
    * provider
    */
   private void requestMessagesForFolder(final int folder,
-                                        final String box,
-                                        final SyncHelperCallbacks callbacks,
-                                        Listener<Messages> listener) {
+      final String box,
+      final SyncHelperCallbacks callbacks,
+      Listener<Messages> listener) {
 
     Log.i(TAG, "SYNCING MESSAGES FOR FOLDER " + folder);
-    String folderUrl = String.format(
-        mContext.getString(R.string.restip_messages_box_folderid),
+    String folderUrl = String.format(mContext.getString(R.string.restip_messages_box_folderid),
         mServer.getApiUrl(),
         box,
         folder);
 
-    JacksonRequest<Messages> messagesRequest = new JacksonRequest<Messages>(
-        folderUrl,
+    JacksonRequest<Messages> messagesRequest = new JacksonRequest<Messages>(folderUrl,
         Messages.class,
         null,
         listener,
         new ErrorListener() {
           public void onErrorResponse(VolleyError error) {
             if (callbacks != null)
-              callbacks.onSyncError(SyncHelperCallbacks
-                  .ERROR_MESSAGES_SYNC, error);
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_MESSAGES_SYNC, error);
 
-            if (error.getMessage() != null)
-              Log.wtf(TAG, error.getMessage());
+            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
-        }, Method.GET
+        },
+        Method.GET
     );
 
     try {
@@ -1228,13 +1126,12 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void requestUser(String userId, SyncHelperCallbacks callbacks) {
-//        Log.i(TAG, "SYNCING USER: " + userId);
+    //        Log.i(TAG, "SYNCING USER: " + userId);
 
-    if (!TextUtils.equals("", userId)
-        && !TextUtils.equals("____%system%____", userId)) {
+    if (!TextUtils.equals("", userId) && !TextUtils.equals("____%system%____", userId)) {
       try {
         sUsersCache.get(userId);
-//                    Log.i(TAG, "!!!!!USER CACHE HIT!!!!!");
+        //                    Log.i(TAG, "!!!!!USER CACHE HIT!!!!!");
       } catch (CacheLoader.InvalidCacheLoadException exception) {
 
         try {
@@ -1243,8 +1140,7 @@ public class SyncHelper {
           StudIPApplication.getInstance()
               .addToRequestQueue(createUserRequest(userId, callbacks), TAG);
 
-          if (callbacks != null)
-            callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
+          if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
         } catch (OAuthCommunicationException e) {
           e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
@@ -1261,11 +1157,9 @@ public class SyncHelper {
     }
   }
 
-  private static JacksonRequest<User> createUserRequest(String id, final SyncHelperCallbacks
-      callbacks)
-      throws OAuthCommunicationException, OAuthExpectationFailedException, OAuthMessageSignerException, OAuthNotAuthorizedException {
-    final String usersUrl = String.format(
-        mContext.getString(R.string.restip_user_id) + ".json",
+  private static JacksonRequest<User> createUserRequest(String id,
+      final SyncHelperCallbacks callbacks) throws OAuthCommunicationException, OAuthExpectationFailedException, OAuthMessageSignerException, OAuthNotAuthorizedException {
+    final String usersUrl = String.format(mContext.getString(R.string.restip_user_id) + ".json",
         mServer.getApiUrl(),
         id);
 
@@ -1276,16 +1170,14 @@ public class SyncHelper {
 
           public void onResponse(User response) {
             try {
-              if (response != null &&
-                  !TextUtils.equals("____%system%____", response.user_id)) {
+              if (response != null && !TextUtils.equals("____%system%____", response.user_id)) {
                 sUsersCache.put(response.user_id, response);
 
                 //FIXME: Add to userDbOp cache and execute
                 // the whole bunch at once
                 mUserDbOp.add(parseUser(response));
                 mContext.getContentResolver()
-                    .applyBatch(AbstractContract.CONTENT_AUTHORITY,
-                        mUserDbOp);
+                    .applyBatch(AbstractContract.CONTENT_AUTHORITY, mUserDbOp);
                 mUserDbOp.clear();
 
 
@@ -1306,8 +1198,7 @@ public class SyncHelper {
             if (callbacks != null)
               callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, error);
 
-            if (error.getMessage() != null)
-              Log.wtf(TAG, error.getMessage());
+            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
 
         },
@@ -1327,29 +1218,25 @@ public class SyncHelper {
   public void performDocumentsSyncForCourse(final String courseId) {
     Log.i(TAG, "PERFORMING DOCUMENTS SYNC FOR COURSE " + courseId);
 
-    String foldersUrl = String.format(mContext
-            .getString(R.string.restip_documents_rangeid_folder),
-        mServer.getApiUrl(), courseId
-    )
-        + ".json";
+    String foldersUrl = String.format(mContext.getString(R.string.restip_documents_rangeid_folder),
+        mServer.getApiUrl(),
+        courseId) + ".json";
 
     JacksonRequest<DocumentFolders> documentFoldersRequest = new JacksonRequest<DocumentFolders>(
-        foldersUrl, DocumentFolders.class, null,
+        foldersUrl,
+        DocumentFolders.class,
+        null,
         new Listener<DocumentFolders>() {
           public void onResponse(DocumentFolders response) {
-            if (!response.documents.isEmpty())
-              try {
-                mContext.getContentResolver().applyBatch(
-                    AbstractContract.CONTENT_AUTHORITY,
-                    new DocumentsHandler(
-                        response.documents,
-                        courseId).parse()
-                );
-              } catch (RemoteException e) {
-                e.printStackTrace();
-              } catch (OperationApplicationException e) {
-                e.printStackTrace();
-              }
+            if (!response.documents.isEmpty()) try {
+              mContext.getContentResolver()
+                  .applyBatch(AbstractContract.CONTENT_AUTHORITY,
+                      new DocumentsHandler(response.documents, courseId).parse());
+            } catch (RemoteException e) {
+              e.printStackTrace();
+            } catch (OperationApplicationException e) {
+              e.printStackTrace();
+            }
 
             for (DocumentFolder folder : response.folders) {
               requestDocumentsForFolder(folder, courseId);
@@ -1357,12 +1244,13 @@ public class SyncHelper {
 
           }
 
-        }, new ErrorListener() {
-      public void onErrorResponse(VolleyError error) {
-        if (error.getMessage() != null)
-          Log.wtf(TAG, error.getMessage());
-      }
-    }, Method.GET
+        },
+        new ErrorListener() {
+          public void onErrorResponse(VolleyError error) {
+            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+          }
+        },
+        Method.GET
     );
 
     documentFoldersRequest.setRetryPolicy(mRetryPolicy);
@@ -1385,32 +1273,28 @@ public class SyncHelper {
   /*
    * Requests a folder and recursive the subfolders
    */
-  private void requestDocumentsForFolder(final DocumentFolder folder,
-                                         final String courseId) {
-    Log.i(TAG, "PERFORMING DOCUMENTS SYNC FOR COURSE " + courseId
-        + " Folder: " + folder.folder_id);
+  private void requestDocumentsForFolder(final DocumentFolder folder, final String courseId) {
+    Log.i(TAG, "PERFORMING DOCUMENTS SYNC FOR COURSE " + courseId + " Folder: " + folder.folder_id);
 
-    String foldersUrl = String.format(
-        mContext.getString(R.string.restip_documents_rangeid_folder_folderid),
-        mServer.getApiUrl(), courseId, folder.folder_id)
-        + ".json";
-    JacksonRequest<DocumentFolders> documentRequest = new JacksonRequest<DocumentFolders>(
-        foldersUrl, DocumentFolders.class, null,
+    String foldersUrl =
+        String.format(mContext.getString(R.string.restip_documents_rangeid_folder_folderid),
+            mServer.getApiUrl(),
+            courseId,
+            folder.folder_id) + ".json";
+    JacksonRequest<DocumentFolders> documentRequest = new JacksonRequest<DocumentFolders>(foldersUrl,
+        DocumentFolders.class,
+        null,
         new Listener<DocumentFolders>() {
           public void onResponse(DocumentFolders response) {
-            if (!response.documents.isEmpty())
-              try {
-                mContext.getContentResolver().applyBatch(
-                    AbstractContract.CONTENT_AUTHORITY,
-                    new DocumentsHandler(
-                        response.documents,
-                        courseId, folder).parse()
-                );
-              } catch (RemoteException e) {
-                e.printStackTrace();
-              } catch (OperationApplicationException e) {
-                e.printStackTrace();
-              }
+            if (!response.documents.isEmpty()) try {
+              mContext.getContentResolver()
+                  .applyBatch(AbstractContract.CONTENT_AUTHORITY,
+                      new DocumentsHandler(response.documents, courseId, folder).parse());
+            } catch (RemoteException e) {
+              e.printStackTrace();
+            } catch (OperationApplicationException e) {
+              e.printStackTrace();
+            }
 
             for (DocumentFolder folder : response.folders) {
               // Recursive request the subfolders
@@ -1419,12 +1303,13 @@ public class SyncHelper {
 
           }
 
-        }, new ErrorListener() {
-      public void onErrorResponse(VolleyError error) {
-        if (error.getMessage() != null)
-          Log.wtf(TAG, error.getMessage());
-      }
-    }, Method.GET
+        },
+        new ErrorListener() {
+          public void onErrorResponse(VolleyError error) {
+            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+          }
+        },
+        Method.GET
     );
 
     documentRequest.setRetryPolicy(mRetryPolicy);
@@ -1491,13 +1376,12 @@ public class SyncHelper {
           .appendPath(courseId)
           .build();
 
-      Cursor c = mContext.getContentResolver().query(
-          courseUserUri,
-          new String[]{CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID},
-          null,
-          null,
-          null
-      );
+      Cursor c = mContext.getContentResolver()
+          .query(courseUserUri,
+              new String[]{CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID},
+              null,
+              null,
+              null);
       c.moveToFirst();
 
       while (!c.isAfterLast()) {
@@ -1552,6 +1436,26 @@ public class SyncHelper {
 
       mContext.getContentResolver() //
           .bulkInsert(CoursesContract.COURSES_USERS_CONTENT_URI, values);
+
+      return null;
+    }
+  }
+
+  private class EventsInsertTask extends AsyncTask<String, Void, Void> {
+    private Events mEvents;
+
+    public EventsInsertTask(Events events) {
+      this.mEvents = events;
+    }
+
+    @Override protected Void doInBackground(String... params) {
+      String courseId = params[0];
+      ContentValues[] values = parseEvents(mEvents);
+      Uri eventsCourseIdUri = EventsContract.CONTENT_URI //
+          .buildUpon() //
+          .appendPath(courseId) //
+          .build();
+      mContext.getContentResolver().bulkInsert(eventsCourseIdUri, values);
 
       return null;
     }
