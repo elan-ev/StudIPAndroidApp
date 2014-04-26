@@ -139,7 +139,7 @@ public class RestIpProvider extends ContentProvider {
 
     // matches for events
     matcher.addURI(authority, "events", EVENTS);
-    matcher.addURI(authority, "events/#", EVENTS_ID);
+    matcher.addURI(authority, "events/*", EVENTS_ID);
 
     // matches for semesters
     matcher.addURI(authority, "semesters", SEMESTERS);
@@ -156,16 +156,12 @@ public class RestIpProvider extends ContentProvider {
     matcher.addURI(authority, "messages/in", MESSAGES_IN);
     matcher.addURI(authority, "messages/out", MESSAGES_OUT);
     matcher.addURI(authority, "messages/folders", MESSAGES_FOLDERS);
-    matcher.addURI(authority, "messages/folders/#",
-        MESSAGES_FOLDER_MESSAGES);
-    matcher.addURI(authority, "messages/folders/name/*",
-        MESSAGES_FOLDER_NAME_MESSAGES);
+    matcher.addURI(authority, "messages/folders/#", MESSAGES_FOLDER_MESSAGES);
+    matcher.addURI(authority, "messages/folders/name/*", MESSAGES_FOLDER_NAME_MESSAGES);
     matcher.addURI(authority, "messages/in/folders", MESSAGES_IN_FOLDERS);
     matcher.addURI(authority, "messages/out/folders", MESSAGES_OUT_FOLDERS);
-    matcher.addURI(authority, "messages/in/folders/#",
-        MESSAGES_IN_FOLDER_MESSAGES);
-    matcher.addURI(authority, "messages/out/folders/#",
-        MESSAGES_OUT_FOLDER_MESSAGES);
+    matcher.addURI(authority, "messages/in/folders/#", MESSAGES_IN_FOLDER_MESSAGES);
+    matcher.addURI(authority, "messages/out/folders/#", MESSAGES_OUT_FOLDER_MESSAGES);
     matcher.addURI(authority, "messages/in/#", MESSAGES_IN_ID);
     matcher.addURI(authority, "messages/out/#", MESSAGES_OUT_ID);
     matcher.addURI(authority, "messages/read/*", MESSAGES_READ_ID);
@@ -175,10 +171,8 @@ public class RestIpProvider extends ContentProvider {
     // matches for contacts
     matcher.addURI(authority, "contacts", CONTACTS);
     matcher.addURI(authority, "contacts/groups", CONTACTS_GROUPS);
-    matcher.addURI(authority, "contacts/groups/members",
-        CONTACTS_GROUP_MEMBERS);
-    matcher.addURI(authority, "contacts/groups/members/*",
-        CONTACTS_GROUP_MEMBERS_GROUPID);
+    matcher.addURI(authority, "contacts/groups/members", CONTACTS_GROUP_MEMBERS);
+    matcher.addURI(authority, "contacts/groups/members/*", CONTACTS_GROUP_MEMBERS_GROUPID);
     matcher.addURI(authority, "contacts/groups/*", CONTACTS_GROUPS_ID);
     matcher.addURI(authority, "contacts/*", CONTACTS_ID);
 
@@ -191,19 +185,15 @@ public class RestIpProvider extends ContentProvider {
     return matcher;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.content.ContentProvider#onCreate()
-   */
-  @Override
-  public boolean onCreate() {
+  @Override public boolean onCreate() {
     return true;
   }
 
-  @Override
-  public Cursor query(Uri uri, String[] projection, String selection,
-                      String[] selectionArgs, String sortOrder) {
+  @Override public Cursor query(Uri uri,
+      String[] projection,
+      String selection,
+      String[] selectionArgs,
+      String sortOrder) {
     String key = Config.PRIVATE_KEY;
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getReadableDatabase(Config.PRIVATE_KEY);
@@ -221,20 +211,15 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
 
-        c = db.query(
-            NewsContract.NEWS_JOIN_USER_COURSES,
+        c = db.query(NewsContract.NEWS_JOIN_USER_COURSES,
             projection,
             selection,
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
 
-        c.setNotificationUri(
-            getContext().getContentResolver(),
-            NewsContract.CONTENT_URI
-        );
+        c.setNotificationUri(getContext().getContentResolver(), NewsContract.CONTENT_URI);
 
         break;
 
@@ -247,23 +232,17 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
 
-        c = db.query(
-            NewsContract.NEWS_JOIN_USER_COURSES,
+        c = db.query(NewsContract.NEWS_JOIN_USER_COURSES,
             projection,
-            NewsContract.Columns.NEWS_RANGE_ID
-                + " != 'studip'"
-                + (!TextUtils.isEmpty(selection) ?
-                " AND (" + selection + ")" : ""),
+            NewsContract.Columns.NEWS_RANGE_ID + " != 'studip'" +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
             selectionArgs,
             null,
             null,
             orderBy
         );
 
-        c.setNotificationUri(
-            getContext().getContentResolver(),
-            NewsContract.CONTENT_URI
-        );
+        c.setNotificationUri(getContext().getContentResolver(), NewsContract.CONTENT_URI);
 
         break;
 
@@ -276,20 +255,15 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
 
-        c = db.query(
-            NewsContract.NEWS_JOIN_USER_INSTITUTES,
+        c = db.query(NewsContract.NEWS_JOIN_USER_INSTITUTES,
             projection,
             selection,
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
 
-        c.setNotificationUri(
-            getContext().getContentResolver(),
-            NewsContract.CONTENT_URI
-        );
+        c.setNotificationUri(getContext().getContentResolver(), NewsContract.CONTENT_URI);
 
         break;
 
@@ -302,20 +276,15 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
 
-        c = db.query(
-            NewsContract.NEWS_JOIN_USER_COURSES,
+        c = db.query(NewsContract.NEWS_JOIN_USER_COURSES,
             projection,
             NewsContract.Columns.NEWS_RANGE_ID + " = ?",
             new String[]{"studip"},
             null,
             null,
-            orderBy
-        );
+            orderBy);
 
-        c.setNotificationUri(
-            getContext().getContentResolver(),
-            NewsContract.CONTENT_URI
-        );
+        c.setNotificationUri(getContext().getContentResolver(), NewsContract.CONTENT_URI);
 
         break;
 
@@ -327,18 +296,16 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-        c = db.query(NewsContract.NEWS_JOIN_USER, projection,
-            NewsContract.Columns.NEWS_RANGE_ID
-                + " = "
-                + "'"
-                + rangeId
-                + "'"
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+        c = db.query(NewsContract.NEWS_JOIN_USER,
+            projection,
+            NewsContract.Columns.NEWS_RANGE_ID + " = " + "'" + rangeId + "'" +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
-        c.setNotificationUri(getContext().getContentResolver(),
-            NewsContract.CONTENT_URI);
+        c.setNotificationUri(getContext().getContentResolver(), NewsContract.CONTENT_URI);
         break;
       }
       case NEWS_ID:
@@ -348,15 +315,14 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
         long newsId = ContentUris.parseId(uri);
-        c = db.query(
-            NewsContract.NEWS_JOIN_USER,
+        c = db.query(NewsContract.NEWS_JOIN_USER,
             projection,
-            NewsContract.Columns._ID
-                + " = "
-                + newsId
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+            NewsContract.Columns._ID + " = " + newsId +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
       case COURSES: {
         SyncHelper.getInstance(getContext()).performCoursesSync(null);
@@ -366,10 +332,14 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-        c = db.query(CoursesContract.COURSES_JOIN_SEMESTERS, projection,
-            selection, selectionArgs, null, null, orderBy);
-        c.setNotificationUri(getContext().getContentResolver(),
-            CoursesContract.CONTENT_URI);
+        c = db.query(CoursesContract.COURSES_JOIN_SEMESTERS,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            orderBy);
+        c.setNotificationUri(getContext().getContentResolver(), CoursesContract.CONTENT_URI);
         break;
       }
       case COURSE_ID: {
@@ -380,15 +350,15 @@ public class RestIpProvider extends ContentProvider {
         }
         long courseId = ContentUris.parseId(uri);
         c = db.query(CoursesContract.TABLE_COURSES,
-            projection, CoursesContract.Qualified.Courses.COURSES_ID
-                + " = "
-                + courseId
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+            projection,
+            CoursesContract.Qualified.Courses.COURSES_ID + " = " + courseId +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
-        c.setNotificationUri(getContext().getContentResolver(),
-            CoursesContract.CONTENT_URI);
+        c.setNotificationUri(getContext().getContentResolver(), CoursesContract.CONTENT_URI);
         break;
       }
       case COURSES_ID: {
@@ -399,15 +369,15 @@ public class RestIpProvider extends ContentProvider {
         }
         long courseId = ContentUris.parseId(uri);
         c = db.query(CoursesContract.COURSES_JOIN_USERS_SEMESTERS,
-            projection, CoursesContract.Qualified.Courses.COURSES_ID
-                + " = "
-                + courseId
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+            projection,
+            CoursesContract.Qualified.Courses.COURSES_ID + " = " + courseId +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
-        c.setNotificationUri(getContext().getContentResolver(),
-            CoursesContract.CONTENT_URI);
+        c.setNotificationUri(getContext().getContentResolver(), CoursesContract.CONTENT_URI);
         break;
       }
       case COURSES_IDS:
@@ -416,10 +386,14 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-        c = db.query(CoursesContract.TABLE_COURSES, projection, selection,
-            selectionArgs, null, null, orderBy);
-        c.setNotificationUri(getContext().getContentResolver(),
-            CoursesContract.CONTENT_URI);
+        c = db.query(CoursesContract.TABLE_COURSES,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            orderBy);
+        c.setNotificationUri(getContext().getContentResolver(), CoursesContract.CONTENT_URI);
         break;
       case COURSE_USER_ID: {
         if (TextUtils.isEmpty(sortOrder)) {
@@ -428,31 +402,23 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
         String cid = uri.getLastPathSegment();
-        c = db.query(
-            CoursesContract.TABLE_COURSE_USER,
+        c = db.query(CoursesContract.TABLE_COURSE_USER,
             projection,
-            CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID
-                + " = "
-                + "'"
-                + cid
-                + "'"
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""),
+            CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID + " = " + "'" + cid + "'" +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
             selectionArgs,
             null,
             null,
             orderBy
         );
-        c.setNotificationUri(getContext().getContentResolver(),
-            CoursesContract.CONTENT_URI);
+        c.setNotificationUri(getContext().getContentResolver(), CoursesContract.CONTENT_URI);
         break;
       }
       case COURSES_ID_EVENTS: {
         String cid = uri.getLastPathSegment();
         long currTime = System.currentTimeMillis();
         if ((currTime - mLastEventsSync) > SYNC_THRESHOLD) {
-          SyncHelper.getInstance(getContext())
-              .performEventsSyncForCourseId(cid);
+          SyncHelper.getInstance(getContext()).performEventsSyncForCourseId(cid);
           mLastEventsSync = currTime;
         }
         if (TextUtils.isEmpty(sortOrder)) {
@@ -461,19 +427,17 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
 
-        String whereStr = "("
-            + EventsContract.Columns.EVENT_COURSE_ID
-            + " = "
-            + "'"
-            + cid
-            + "')"
-            + (!TextUtils.isEmpty(selection) ? " AND (" + selection
-            + ")" : "");
-        c = db.query(EventsContract.TABLE, projection, whereStr,
-            selectionArgs, null, null, orderBy);
+        String whereStr = "(" + EventsContract.Columns.EVENT_COURSE_ID + " = " + "'" + cid + "')" +
+            (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : "");
+        c = db.query(EventsContract.TABLE,
+            projection,
+            whereStr,
+            selectionArgs,
+            null,
+            null,
+            orderBy);
 
-        c.setNotificationUri(getContext().getContentResolver(),
-            EventsContract.CONTENT_URI);
+        c.setNotificationUri(getContext().getContentResolver(), EventsContract.CONTENT_URI);
         break;
       }
       case USERS:
@@ -482,10 +446,14 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-        c = db.query(UsersContract.TABLE, projection, selection,
-            selectionArgs, null, null, orderBy);
-        c.setNotificationUri(getContext().getContentResolver(),
-            UsersContract.CONTENT_URI);
+        c = db.query(UsersContract.TABLE,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            orderBy);
+        c.setNotificationUri(getContext().getContentResolver(), UsersContract.CONTENT_URI);
         break;
       case USERS_ID:
         String userId = uri.getLastPathSegment();
@@ -494,18 +462,16 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-        c = db.query(UsersContract.TABLE, projection,
-            UsersContract.Columns.USER_ID
-                + " = "
-                + '"'
-                + userId
-                + '"'
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+        c = db.query(UsersContract.TABLE,
+            projection,
+            UsersContract.Columns.USER_ID + " = " + '"' + userId + '"' +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
-        c.setNotificationUri(getContext().getContentResolver(),
-            UsersContract.CONTENT_URI);
+        c.setNotificationUri(getContext().getContentResolver(), UsersContract.CONTENT_URI);
         break;
       case USERS_COURSE_ID:
         String usersCourseId = uri.getLastPathSegment();
@@ -515,32 +481,24 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-        c = db.query(
-            UsersContract.TABLE + " "
-                + UsersContract.USERS_JOIN_COURSES,
+        c = db.query(UsersContract.TABLE + " " + UsersContract.USERS_JOIN_COURSES,
             projection,
-            CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID
-                + " = "
-                + '"'
-                + usersCourseId
-                + '"'
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""),
+            CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_COURSE_ID +
+                " = " + '"' + usersCourseId + '"' +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
             selectionArgs,
             UsersContract.Qualified.USERS_USER_ID,
             null,
             orderBy
         );
 
-        c.setNotificationUri(getContext().getContentResolver(),
-            UsersContract.CONTENT_URI);
+        c.setNotificationUri(getContext().getContentResolver(), UsersContract.CONTENT_URI);
         break;
       case DOCUMENTS_COURSE_ID: {
         String cid = uri.getLastPathSegment();
         long currTime = System.currentTimeMillis();
         if ((currTime - mLastDocumentsSync) > SYNC_THRESHOLD) {
-          SyncHelper.getInstance(getContext())
-              .performDocumentsSyncForCourse(cid);
+          SyncHelper.getInstance(getContext()).performDocumentsSyncForCourse(cid);
           mLastDocumentsSync = currTime;
         }
 
@@ -549,21 +507,17 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-//                        DocumentsContract.DOCUMENTS_JOIN_USERS_JOIN_COURSES_JOIN_FOLDERS,
-        c = db.query(
-            DocumentsContract.DOCUMENTS_JOIN_COURSES_JOIN_FOLDERS,
+        //                        DocumentsContract.DOCUMENTS_JOIN_USERS_JOIN_COURSES_JOIN_FOLDERS,
+        c = db.query(DocumentsContract.DOCUMENTS_JOIN_COURSES_JOIN_FOLDERS,
             projection,
-            DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_COURSE_ID
-                + " = "
-                + '"'
-                + cid
-                + '"'
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+            DocumentsContract.Qualified.Documents.DOCUMENTS_DOCUMENT_COURSE_ID + " = " + '"' + cid +
+                '"' + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
-        c.setNotificationUri(getContext().getContentResolver(),
-            DocumentsContract.CONTENT_URI);
+        c.setNotificationUri(getContext().getContentResolver(), DocumentsContract.CONTENT_URI);
         break;
       }
       case MESSAGES_ID: {
@@ -573,13 +527,14 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-        c = db.query(MessagesContract.MESSAGES_JOIN_USERS, projection,
-            MessagesContract.Qualified.Messages.MESSAGES_ID
-                + " = "
-                + messageId
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+        c = db.query(MessagesContract.MESSAGES_JOIN_USERS,
+            projection,
+            MessagesContract.Qualified.Messages.MESSAGES_ID + " = " + messageId +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
         c.setNotificationUri(getContext().getContentResolver(),
             MessagesContract.CONTENT_URI_MESSAGES);
@@ -592,17 +547,14 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-        c = db.query(
-            MessagesContract.MESSAGES_JOIN_USERS,
+        c = db.query(MessagesContract.MESSAGES_JOIN_USERS,
             projection,
-            MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_ID
-                + " = "
-                + "'"
-                + messageId
-                + "'"
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+            MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_ID + " = " + "'" + messageId +
+                "'" + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
         c.setNotificationUri(getContext().getContentResolver(),
             MessagesContract.CONTENT_URI_MESSAGES);
@@ -615,18 +567,23 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
 
-        c = db.query(MessagesContract.TABLE_MESSAGE_FOLDERS, projection,
-            selection, selectionArgs, null, null, orderBy);
+        c = db.query(MessagesContract.TABLE_MESSAGE_FOLDERS,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            orderBy);
 
         c.setNotificationUri(getContext().getContentResolver(),
             MessagesContract.CONTENT_URI_MESSAGE_FOLDERS);
         break;
       case MESSAGES_FOLDER_MESSAGES: {
         long currTime = System.currentTimeMillis();
-//			if ((currTime - mLastMessagesSync) > SYNC_THRESHOLD) {
-//				SyncHelper.getInstance(getContext()).performMessagesSync(null);
-//				mLastMessagesSync = currTime;
-//			}
+        //			if ((currTime - mLastMessagesSync) > SYNC_THRESHOLD) {
+        //				SyncHelper.getInstance(getContext()).performMessagesSync(null);
+        //				mLastMessagesSync = currTime;
+        //			}
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = MessagesContract.DEFAULT_SORT_ORDER_MESSAGES;
         } else {
@@ -635,15 +592,14 @@ public class RestIpProvider extends ContentProvider {
 
         long folderId = ContentUris.parseId(uri);
 
-        c = db.query(
-            MessagesContract.MESSAGES_JOIN_MESSAGE_FOLDERS_JOIN_USERS,
+        c = db.query(MessagesContract.MESSAGES_JOIN_MESSAGE_FOLDERS_JOIN_USERS,
             projection,
-            MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_FOLDER_ID
-                + " = "
-                + folderId
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+            MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_FOLDER_ID + " = " + folderId +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
         c.setNotificationUri(getContext().getContentResolver(),
             MessagesContract.CONTENT_URI_MESSAGES);
@@ -651,10 +607,10 @@ public class RestIpProvider extends ContentProvider {
       }
       case MESSAGES_FOLDER_NAME_MESSAGES: {
         long currTime = System.currentTimeMillis();
-//			if ((currTime - mLastMessagesSync) > SYNC_THRESHOLD) {
-//				SyncHelper.getInstance(getContext()).performMessagesSync(null);
-//				mLastMessagesSync = currTime;
-//			}
+        //			if ((currTime - mLastMessagesSync) > SYNC_THRESHOLD) {
+        //				SyncHelper.getInstance(getContext()).performMessagesSync(null);
+        //				mLastMessagesSync = currTime;
+        //			}
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = MessagesContract.DEFAULT_SORT_ORDER_MESSAGES;
         } else {
@@ -663,17 +619,15 @@ public class RestIpProvider extends ContentProvider {
 
         String folderName = uri.getLastPathSegment();
 
-        c = db.query(
-            MessagesContract.MESSAGES_JOIN_MESSAGE_FOLDERS_JOIN_USERS,
+        c = db.query(MessagesContract.MESSAGES_JOIN_MESSAGE_FOLDERS_JOIN_USERS,
             projection,
-            MessagesContract.Qualified.MessageFolders.MESSAGES_FOLDERS_MESSAGE_FOLDER_NAME
-                + " = "
-                + "'"
-                + folderName
-                + "'"
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+            MessagesContract.Qualified.MessageFolders.MESSAGES_FOLDERS_MESSAGE_FOLDER_NAME + " = " +
+                "'" + folderName + "'" +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
         c.setNotificationUri(getContext().getContentResolver(),
             MessagesContract.CONTENT_URI_MESSAGES);
@@ -688,10 +642,13 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
 
-        c = db.query(ContactsContract.TABLE_CONTACTS + " "
-                + ContactsContract.CONTACTS_JOIN_USERS, projection,
-            selection, selectionArgs, null, null, orderBy
-        );
+        c = db.query(ContactsContract.TABLE_CONTACTS + " " + ContactsContract.CONTACTS_JOIN_USERS,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(),
             ContactsContract.CONTENT_URI_CONTACTS);
         break;
@@ -704,18 +661,14 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
 
-        c = db.query(
-            ContactsContract.TABLE_CONTACTS + " "
-                + ContactsContract.CONTATCS_JOIN_GROUPS,
+        c = db.query(ContactsContract.TABLE_CONTACTS + " " + ContactsContract.CONTATCS_JOIN_GROUPS,
             projection,
-            ContactsContract.Qualified.Contacts.CONTACTS_USER_ID
-                + " = "
-                + "'"
-                + contactId
-                + "'"
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs,
-            null, null, orderBy
+            ContactsContract.Qualified.Contacts.CONTACTS_USER_ID + " = " + "'" + contactId + "'" +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
         c.setNotificationUri(getContext().getContentResolver(),
             ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS);
@@ -728,8 +681,13 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
 
-        c = db.query(ContactsContract.TABLE_CONTACT_GROUPS, projection,
-            selection, selectionArgs, null, null, orderBy);
+        c = db.query(ContactsContract.TABLE_CONTACT_GROUPS,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(),
             ContactsContract.CONTENT_URI_CONTACT_GROUPS);
         break;
@@ -746,9 +704,14 @@ public class RestIpProvider extends ContentProvider {
           orderBy = sortOrder;
         }
 
-        c = db.query(ContactsContract.TABLE_CONTACTS + " "
-                + ContactsContract.CONTATCS_JOIN_USERS_JOIN_GROUPS,
-            projection, selection, selectionArgs, null, null, orderBy
+        c = db.query(ContactsContract.TABLE_CONTACTS + " " +
+                ContactsContract.CONTATCS_JOIN_USERS_JOIN_GROUPS,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            orderBy
         );
         c.setNotificationUri(getContext().getContentResolver(),
             ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS);
@@ -756,39 +719,29 @@ public class RestIpProvider extends ContentProvider {
       }
       case AUTHENTICATION: {
 
-        c = db.query(
-            AuthenticationContract.TABLE_AUTHENTICATION,
+        c = db.query(AuthenticationContract.TABLE_AUTHENTICATION,
             projection,
             selection,
             selectionArgs,
             null,
             null,
-            null
-        );
+            null);
 
-        c.setNotificationUri(
-            getContext().getContentResolver(),
-            AuthenticationContract.CONTENT_URI
-        );
+        c.setNotificationUri(getContext().getContentResolver(), AuthenticationContract.CONTENT_URI);
 
         break;
       }
       case INSTITUTES: {
 
-        c = db.query(
-            InstitutesContract.TABLE,
+        c = db.query(InstitutesContract.TABLE,
             projection,
             selection,
             selectionArgs,
             null,
             null,
-            null
-        );
+            null);
 
-        c.setNotificationUri(
-            getContext().getContentResolver(),
-            AuthenticationContract.CONTENT_URI
-        );
+        c.setNotificationUri(getContext().getContentResolver(), AuthenticationContract.CONTENT_URI);
 
         break;
       }
@@ -799,13 +752,7 @@ public class RestIpProvider extends ContentProvider {
     return c;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.content.ContentProvider#getType(android.net.Uri)
-   */
-  @Override
-  public String getType(Uri uri) {
+  @Override public String getType(Uri uri) {
     final int match = sUriMatcher.match(uri);
     switch (match) {
       case NEWS:
@@ -881,162 +828,161 @@ public class RestIpProvider extends ContentProvider {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.content.ContentProvider#insert(android.net.Uri,
-   * android.content.ContentValues)
-   */
-  @Override
-  public Uri insert(Uri uri, ContentValues values) {
+  @Override public Uri insert(Uri uri, ContentValues values) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getWritableDatabase(Config.PRIVATE_KEY);
     final int match = sUriMatcher.match(uri);
     switch (match) {
       case NEWS: {
-        long rowId = db.insertWithOnConflict(NewsContract.TABLE, null,
-            values, SQLiteDatabase.CONFLICT_IGNORE);
+        long rowId = db.insertWithOnConflict(NewsContract.TABLE,
+            null,
+            values,
+            SQLiteDatabase.CONFLICT_IGNORE);
         getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(NewsContract.CONTENT_URI, rowId);
       }
       case USERS: {
-        long rowId = db.insertWithOnConflict(UsersContract.TABLE, null,
-            values, SQLiteDatabase.CONFLICT_IGNORE);
+        long rowId = db.insertWithOnConflict(UsersContract.TABLE,
+            null,
+            values,
+            SQLiteDatabase.CONFLICT_IGNORE);
         getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(UsersContract.CONTENT_URI, rowId);
       }
       case COURSES_USERS: {
-        long rowId = db.insertWithOnConflict(
-            CoursesContract.TABLE_COURSE_USER, null, values,
+        long rowId = db.insertWithOnConflict(CoursesContract.TABLE_COURSE_USER,
+            null,
+            values,
             SQLiteDatabase.CONFLICT_IGNORE);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(
-            CoursesContract.COURSES_USERS_CONTENT_URI, rowId);
+        return ContentUris.withAppendedId(CoursesContract.COURSES_USERS_CONTENT_URI, rowId);
       }
       case EVENTS: {
-        long rowId = db.insertWithOnConflict(EventsContract.TABLE, null,
-            values, SQLiteDatabase.CONFLICT_IGNORE);
+        long rowId = db.insertWithOnConflict(EventsContract.TABLE,
+            null,
+            values,
+            SQLiteDatabase.CONFLICT_IGNORE);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris
-            .withAppendedId(EventsContract.CONTENT_URI, rowId);
+        return ContentUris.withAppendedId(EventsContract.CONTENT_URI, rowId);
       }
       case COURSES: {
         long rowId = db.insertWithOnConflict(CoursesContract.TABLE_COURSES,
-            null, values, SQLiteDatabase.CONFLICT_IGNORE);
+            null,
+            values,
+            SQLiteDatabase.CONFLICT_IGNORE);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(CoursesContract.CONTENT_URI,
-            rowId);
+        return ContentUris.withAppendedId(CoursesContract.CONTENT_URI, rowId);
       }
       case SEMESTERS: {
-        long rowId = db.insertWithOnConflict(SemestersContract.TABLE, null,
-            values, SQLiteDatabase.CONFLICT_IGNORE);
+        long rowId = db.insertWithOnConflict(SemestersContract.TABLE,
+            null,
+            values,
+            SQLiteDatabase.CONFLICT_IGNORE);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(SemestersContract.CONTENT_URI,
-            rowId);
+        return ContentUris.withAppendedId(SemestersContract.CONTENT_URI, rowId);
       }
       case DOCUMENTS: {
         long rowId = insertIgnoringConflict(db,
-            DocumentsContract.TABLE_DOCUMENTS, DocumentsContract.Columns.Documents._ID,
-            values, false);
+            DocumentsContract.TABLE_DOCUMENTS,
+            DocumentsContract.Columns.Documents._ID,
+            values,
+            false);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
-            rowId);
+        return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI, rowId);
       }
       case DOCUMENTS_FOLDER: {
         long rowId = insertIgnoringConflict(db,
             DocumentsContract.TABLE_DOCUMENT_FOLDERS,
-            DocumentsContract.Columns.DocumentFolders._ID, values, false);
+            DocumentsContract.Columns.DocumentFolders._ID,
+            values,
+            false);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI,
-            rowId);
+        return ContentUris.withAppendedId(DocumentsContract.CONTENT_URI, rowId);
       }
       case MESSAGES_FOLDERS: {
         long rowId = insertIgnoringConflict(db,
             MessagesContract.TABLE_MESSAGE_FOLDERS,
-            MessagesContract.Columns.MessageFolders._ID, values, false);
+            MessagesContract.Columns.MessageFolders._ID,
+            values,
+            false);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(
-            MessagesContract.CONTENT_URI_MESSAGE_FOLDERS, rowId);
+        return ContentUris.withAppendedId(MessagesContract.CONTENT_URI_MESSAGE_FOLDERS, rowId);
       }
       case MESSAGES: {
         long rowId = insertIgnoringConflict(db,
             MessagesContract.TABLE_MESSAGES,
-            MessagesContract.Columns.Messages._ID, values, false);
+            MessagesContract.Columns.Messages._ID,
+            values,
+            false);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(
-            MessagesContract.CONTENT_URI_MESSAGES, rowId);
+        return ContentUris.withAppendedId(MessagesContract.CONTENT_URI_MESSAGES, rowId);
       }
 
       case CONTACTS: {
         long rowId = insertIgnoringConflict(db,
             ContactsContract.TABLE_CONTACTS,
-            ContactsContract.Columns.Contacts._ID, values, false);
+            ContactsContract.Columns.Contacts._ID,
+            values,
+            false);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(
-            ContactsContract.CONTENT_URI_CONTACTS, rowId);
+        return ContentUris.withAppendedId(ContactsContract.CONTENT_URI_CONTACTS, rowId);
       }
       case CONTACTS_GROUPS: {
         long rowId = insertIgnoringConflict(db,
             ContactsContract.TABLE_CONTACT_GROUPS,
-            ContactsContract.Columns.ContactGroups._ID, values, false);
+            ContactsContract.Columns.ContactGroups._ID,
+            values,
+            false);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(
-            ContactsContract.CONTENT_URI_CONTACT_GROUPS, rowId);
+        return ContentUris.withAppendedId(ContactsContract.CONTENT_URI_CONTACT_GROUPS, rowId);
       }
       case CONTACTS_GROUP_MEMBERS: {
-        long rowId = db.insertWithOnConflict(
-            ContactsContract.TABLE_CONTACT_GROUP_MEMBERS, null, values,
+        long rowId = db.insertWithOnConflict(ContactsContract.TABLE_CONTACT_GROUP_MEMBERS,
+            null,
+            values,
             SQLiteDatabase.CONFLICT_IGNORE);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(
-            ContactsContract.CONTENT_URI_CONTACT_GROUPS, rowId);
+        return ContentUris.withAppendedId(ContactsContract.CONTENT_URI_CONTACT_GROUPS, rowId);
       }
       case AUTHENTICATION: {
         delete(uri, null, null);
-        long rowId = db.insertWithOnConflict(
-            AuthenticationContract.TABLE_AUTHENTICATION,
+        long rowId = db.insertWithOnConflict(AuthenticationContract.TABLE_AUTHENTICATION,
             null,
             values,
             SQLiteDatabase.CONFLICT_REPLACE);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(
-            AuthenticationContract.CONTENT_URI, rowId);
+        return ContentUris.withAppendedId(AuthenticationContract.CONTENT_URI, rowId);
       }
       case INSTITUTES: {
         delete(uri, null, null);
-        long rowId = db.insertWithOnConflict(
-            InstitutesContract.TABLE,
+        long rowId = db.insertWithOnConflict(InstitutesContract.TABLE,
             null,
             values,
-            SQLiteDatabase.CONFLICT_REPLACE
-        );
+            SQLiteDatabase.CONFLICT_REPLACE);
         getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(
-            InstitutesContract.CONTENT_URI,
-            rowId
-        );
+        return ContentUris.withAppendedId(InstitutesContract.CONTENT_URI, rowId);
       }
       default: {
-        throw new UnsupportedOperationException("Unsupported insert uri: "
-            + uri);
+        throw new UnsupportedOperationException("Unsupported insert uri: " + uri);
       }
     }
   }
 
-  public static long insertIgnoringConflict(SQLiteDatabase db, String table,
-                                            String idColumn, ContentValues values, boolean updateFlag) {
+  public static long insertIgnoringConflict(SQLiteDatabase db,
+      String table,
+      String idColumn,
+      ContentValues values,
+      boolean updateFlag) {
     try {
       return db.insertOrThrow(table, null, values);
     } catch (SQLiteConstraintException e) {
       StringBuilder sql = new StringBuilder();
-      sql.append("SELECT ").append(idColumn).append(" FROM ")
-          .append(table).append(" WHERE ");
+      sql.append("SELECT ").append(idColumn).append(" FROM ").append(table).append(" WHERE ");
 
       Object[] bindArgs = new Object[values.size()];
       int i = 0;
       for (Map.Entry<String, Object> entry : values.valueSet()) {
-        sql.append((i > 0) ? " AND " : "").append(entry.getKey())
-            .append(" = ?");
+        sql.append((i > 0) ? " AND " : "").append(entry.getKey()).append(" = ?");
         bindArgs[i++] = entry.getValue();
       }
 
@@ -1055,7 +1001,9 @@ public class RestIpProvider extends ContentProvider {
 
       if (updateFlag) {
         try {
-          int affected = db.update(table, values, idColumn + " = ?",
+          int affected = db.update(table,
+              values,
+              idColumn + " = ?",
               new String[]{String.format("%d", id)});
           Log.d(TAG, affected + " rows updated!");
         } catch (SQLException ex) {
@@ -1074,8 +1022,7 @@ public class RestIpProvider extends ContentProvider {
     DatabaseHandler.getInstance(context).deleteDatabase();
   }
 
-  @Override
-  public int bulkInsert(Uri uri, ContentValues[] values) {
+  @Override public int bulkInsert(Uri uri, ContentValues[] values) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getWritableDatabase(Config.PRIVATE_KEY);
     final int match = sUriMatcher.match(uri);
@@ -1089,8 +1036,7 @@ public class RestIpProvider extends ContentProvider {
 
           // first clear the messages table
           StringBuilder deleteSql = new StringBuilder();
-          deleteSql
-              .append("DELETE FROM ")
+          deleteSql.append("DELETE FROM ")
               .append(MessagesContract.TABLE_MESSAGES)
               .append(" WHERE ")
               .append(MessagesContract.Columns.Messages.MESSAGE_FOLDER_ID)
@@ -1098,8 +1044,7 @@ public class RestIpProvider extends ContentProvider {
 
           // build standard insert string
           StringBuilder sqlMessage = new StringBuilder();
-          sqlMessage
-              .append("INSERT OR IGNORE INTO ")
+          sqlMessage.append("INSERT OR IGNORE INTO ")
               .append(MessagesContract.TABLE_MESSAGES)
               .append(" ( ")
               .append(MessagesContract.Columns.Messages.MESSAGE_SENDER_ID)
@@ -1122,48 +1067,30 @@ public class RestIpProvider extends ContentProvider {
               .append(") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? ) ");
 
           // compile to reusable sql statement
-          SQLiteStatement deleteMessages = db.compileStatement(deleteSql
-              .toString());
+          SQLiteStatement deleteMessages = db.compileStatement(deleteSql.toString());
           deleteMessages.bindLong(1, folderId);
           deleteMessages.execute();
 
-          SQLiteStatement insertMessage = db.compileStatement(sqlMessage
-              .toString());
+          SQLiteStatement insertMessage = db.compileStatement(sqlMessage.toString());
 
           // set values and execute
           for (ContentValues value : values) {
-            insertMessage
-                .bindString(
-                    1,
-                    value.getAsString(MessagesContract.Columns.Messages.MESSAGE_SENDER_ID));
-            insertMessage
-                .bindString(
-                    2,
-                    value.getAsString(MessagesContract.Columns.Messages.MESSAGE_RECEIVER_ID));
-            insertMessage
-                .bindString(
-                    3,
-                    value.getAsString(MessagesContract.Columns.Messages.MESSAGE_SUBJECT));
-            insertMessage
-                .bindString(
-                    4,
-                    value.getAsString(MessagesContract.Columns.Messages.MESSAGE));
-            insertMessage
-                .bindLong(
-                    5,
-                    value.getAsLong(MessagesContract.Columns.Messages.MESSAGE_MKDATE));
-            insertMessage
-                .bindString(
-                    6,
-                    value.getAsString(MessagesContract.Columns.Messages.MESSAGE_PRIORITY));
-            insertMessage
-                .bindLong(
-                    7,
-                    value.getAsInteger(MessagesContract.Columns.Messages.MESSAGE_UNREAD));
-            insertMessage
-                .bindString(
-                    8,
-                    value.getAsString(MessagesContract.Columns.Messages.MESSAGE_ID));
+            insertMessage.bindString(1,
+                value.getAsString(MessagesContract.Columns.Messages.MESSAGE_SENDER_ID));
+            insertMessage.bindString(2,
+                value.getAsString(MessagesContract.Columns.Messages.MESSAGE_RECEIVER_ID));
+            insertMessage.bindString(3,
+                value.getAsString(MessagesContract.Columns.Messages.MESSAGE_SUBJECT));
+            insertMessage.bindString(4,
+                value.getAsString(MessagesContract.Columns.Messages.MESSAGE));
+            insertMessage.bindLong(5,
+                value.getAsLong(MessagesContract.Columns.Messages.MESSAGE_MKDATE));
+            insertMessage.bindString(6,
+                value.getAsString(MessagesContract.Columns.Messages.MESSAGE_PRIORITY));
+            insertMessage.bindLong(7,
+                value.getAsInteger(MessagesContract.Columns.Messages.MESSAGE_UNREAD));
+            insertMessage.bindString(8,
+                value.getAsString(MessagesContract.Columns.Messages.MESSAGE_ID));
             insertMessage.bindLong(9, folderId);
             insertMessage.execute();
           }
@@ -1178,8 +1105,7 @@ public class RestIpProvider extends ContentProvider {
 
       case COURSES_USERS: {
         StringBuilder insertSql = new StringBuilder();
-        insertSql
-            .append("INSERT OR IGNORE INTO ")
+        insertSql.append("INSERT OR IGNORE INTO ")
             .append(CoursesContract.TABLE_COURSE_USER)
             .append(" ( ")
             .append(CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID)
@@ -1192,12 +1118,9 @@ public class RestIpProvider extends ContentProvider {
         try {
           db.beginTransaction();
 
-          String courseIdCol = CoursesContract.Columns.CourseUsers
-              .COURSE_USER_COURSE_ID;
-          String userIdCol = CoursesContract.Columns.CourseUsers
-              .COURSE_USER_USER_ID;
-          String userRoleCol = CoursesContract.Columns.CourseUsers
-              .COURSE_USER_USER_ROLE;
+          String courseIdCol = CoursesContract.Columns.CourseUsers.COURSE_USER_COURSE_ID;
+          String userIdCol = CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ID;
+          String userRoleCol = CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE;
 
           for (ContentValues value : values) {
             insertMessage.bindString(1, value.getAsString(courseIdCol));
@@ -1215,9 +1138,80 @@ public class RestIpProvider extends ContentProvider {
         }
         break;
       }
+      case EVENTS_ID:
+        try {
+          // save column references locally to prevent lookup
+          final String eventIdCol = EventsContract.Columns.EVENT_ID;
+          final String eventCourseIdCol = EventsContract.Columns.EVENT_COURSE_ID;
+          final String eventTitleCol = EventsContract.Columns.EVENT_TITLE;
+          final String eventStartCol = EventsContract.Columns.EVENT_START;
+          final String eventEndCol = EventsContract.Columns.EVENT_END;
+          final String eventDescriptionCol = EventsContract.Columns.EVENT_DESCRIPTION;
+          final String eventRoomCol = EventsContract.Columns.EVENT_ROOM;
+          final String eventCategoriesCol = EventsContract.Columns.EVENT_CATEGORIES;
+
+          // build delete string
+          StringBuilder deleteSql = new StringBuilder();
+          deleteSql.append("DELETE FROM ")
+              .append(EventsContract.TABLE)
+              .append(" WHERE ")
+              .append(eventCourseIdCol)
+              .append(" = ?");
+
+          // build insert string
+          StringBuilder insertSql = new StringBuilder();
+          insertSql.append("INSERT OR IGNORE INTO ")
+              .append(EventsContract.TABLE)
+              .append(" ( ")
+              .append(eventIdCol)
+              .append(", ")
+              .append(eventCourseIdCol)
+              .append(", ")
+              .append(eventTitleCol)
+              .append(", ")
+              .append(eventStartCol)
+              .append(", ")
+              .append(eventEndCol)
+              .append(", ")
+              .append(eventDescriptionCol)
+              .append(", ")
+              .append(eventRoomCol)
+              .append(", ")
+              .append(eventCategoriesCol)
+              .append(") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?) ");
+
+          db.beginTransaction();
+          // compile to reusable sql statement
+          SQLiteStatement deleteEvents = db.compileStatement(deleteSql.toString());
+          String courseId = uri.getLastPathSegment();
+          deleteEvents.bindString(1, courseId);
+          deleteEvents.execute();
+          deleteEvents.close();
+
+          SQLiteStatement insertEvent = db.compileStatement(insertSql.toString());
+          // set values and execute
+          for (ContentValues value : values) {
+            insertEvent.bindString(1, value.getAsString(eventIdCol));
+            insertEvent.bindString(2, value.getAsString(eventCourseIdCol));
+            insertEvent.bindString(3, value.getAsString(eventTitleCol));
+            insertEvent.bindLong(4, value.getAsLong(eventStartCol));
+            insertEvent.bindLong(5, value.getAsLong(eventEndCol));
+            insertEvent.bindString(6, value.getAsString(eventDescriptionCol));
+            insertEvent.bindString(7, value.getAsString(eventRoomCol));
+            insertEvent.bindString(8, value.getAsString(eventCategoriesCol));
+            insertEvent.execute();
+          }
+          insertEvent.close();
+
+          db.setTransactionSuccessful();
+          rowsInserted = values.length;
+
+        } finally {
+          db.endTransaction();
+        }
+        break;
       default:
-        throw new UnsupportedOperationException(
-            "Unsupported bulk insert uri: " + uri);
+        throw new UnsupportedOperationException("Unsupported bulk insert uri: " + uri);
 
     }
 
@@ -1226,14 +1220,7 @@ public class RestIpProvider extends ContentProvider {
 
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.content.ContentProvider#delete(android.net.Uri,
-   * java.lang.String, java.lang.String[])
-   */
-  @Override
-  public int delete(Uri uri, String selection, String[] selectionArgs) {
+  @Override public int delete(Uri uri, String selection, String[] selectionArgs) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getWritableDatabase(Config.PRIVATE_KEY);
     int retVal = -1;
@@ -1269,104 +1256,74 @@ public class RestIpProvider extends ContentProvider {
       case MESSAGES_ID: {
         long messageId = ContentUris.parseId(uri);
         retVal = db.delete(MessagesContract.TABLE_MESSAGES,
-            MessagesContract.Columns.Messages._ID
-                + " = "
-                + messageId
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs
+            MessagesContract.Columns.Messages._ID + " = " + messageId +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs
         );
         break;
       }
       case MESSAGES_STRING_ID: {
         String messageId = uri.getLastPathSegment();
         retVal = db.delete(MessagesContract.TABLE_MESSAGES,
-            MessagesContract.Columns.Messages.MESSAGE_ID
-                + " = "
-                + '"'
-                + messageId
-                + '"'
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs
+            MessagesContract.Columns.Messages.MESSAGE_ID + " = " + '"' + messageId + '"' +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs
         );
         break;
       }
       case CONTACTS_ID: {
         String userId = uri.getLastPathSegment();
         retVal = db.delete(ContactsContract.TABLE_CONTACTS,
-            ContactsContract.Columns.Contacts.USER_ID
-                + " = "
-                + '"'
-                + userId
-                + '"'
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs
+            ContactsContract.Columns.Contacts.USER_ID + " = " + '"' + userId + '"' +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs
         );
         break;
       }
 
       case CONTACTS_GROUP_MEMBERS_GROUPID: {
         String groupId = uri.getLastPathSegment();
-        retVal = db.delete(
-            ContactsContract.TABLE_CONTACT_GROUP_MEMBERS,
-            ContactsContract.Columns.ContactGroupMembers.GROUP_ID
-                + " = "
-                + '"'
-                + groupId
-                + '"'
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs
+        retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUP_MEMBERS,
+            ContactsContract.Columns.ContactGroupMembers.GROUP_ID + " = " + '"' + groupId + '"' +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs
         );
         break;
       }
       case CONTACTS: {
-        retVal = db.delete(ContactsContract.TABLE_CONTACTS, (!TextUtils
-                .isEmpty(selection) ? " AND (" + selection + ")" : ""),
-            selectionArgs
-        );
+        retVal = db.delete(ContactsContract.TABLE_CONTACTS,
+            (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs);
         return retVal;
       }
       case CONTACTS_GROUPS: {
         retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUPS,
-            (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")"
-                : ""), selectionArgs
-        );
+            (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs);
         return retVal;
       }
       case CONTACTS_GROUP_MEMBERS: {
-        retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUP_MEMBERS,
-            selection, selectionArgs);
+        retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUP_MEMBERS, selection, selectionArgs);
         return retVal;
       }
       case CONTACTS_GROUPS_ID: {
         String groupId = uri.getLastPathSegment();
-        retVal = db.delete(
-            ContactsContract.TABLE_CONTACT_GROUPS,
-            ContactsContract.Columns.ContactGroups.GROUP_ID
-                + " = "
-                + '"'
-                + groupId
-                + '"'
-                + (!TextUtils.isEmpty(selection) ? " AND ("
-                + selection + ")" : ""), selectionArgs
+        retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUPS,
+            ContactsContract.Columns.ContactGroups.GROUP_ID + " = " + '"' + groupId + '"' +
+                (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
+            selectionArgs
         );
         return retVal;
       }
       case AUTHENTICATION: {
-        return db.delete(AuthenticationContract.TABLE_AUTHENTICATION,
-            selection,
-            selectionArgs);
+        return db.delete(AuthenticationContract.TABLE_AUTHENTICATION, selection, selectionArgs);
       }
       case INSTITUTES: {
-        return db.delete(
-            InstitutesContract.TABLE,
-            selection,
-            selectionArgs
-        );
+        return db.delete(InstitutesContract.TABLE, selection, selectionArgs);
       }
 
       default: {
-        throw new UnsupportedOperationException("Unsupported delete uri: "
-            + uri);
+        throw new UnsupportedOperationException("Unsupported delete uri: " + uri);
       }
     }
 
@@ -1374,15 +1331,10 @@ public class RestIpProvider extends ContentProvider {
     return retVal;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.content.ContentProvider#update(android.net.Uri,
-   * android.content.ContentValues, java.lang.String, java.lang.String[])
-   */
-  @Override
-  public int update(Uri uri, ContentValues values, String selection,
-                    String[] selectionArgs) {
+  @Override public int update(Uri uri,
+      ContentValues values,
+      String selection,
+      String[] selectionArgs) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getReadableDatabase(Config.PRIVATE_KEY);
     int affectedRows = 0;
@@ -1390,15 +1342,15 @@ public class RestIpProvider extends ContentProvider {
 
     switch (match) {
       case CONTACTS:
-        affectedRows = db.update(ContactsContract.TABLE_CONTACTS, values,
-            selection, selectionArgs);
+        affectedRows = db.update(ContactsContract.TABLE_CONTACTS, values, selection, selectionArgs);
         getContext().getContentResolver().notifyChange(uri, null);
         break;
       case MESSAGES_READ_ID:
         long messageId = ContentUris.parseId(uri);
         ContentValues val = new ContentValues();
         val.put(MessagesContract.Columns.Messages.MESSAGE_UNREAD, "0");
-        affectedRows = db.update(MessagesContract.TABLE_MESSAGES, val,
+        affectedRows = db.update(MessagesContract.TABLE_MESSAGES,
+            val,
             MessagesContract.Columns.Messages._ID + " = ?",
             new String[]{String.valueOf(messageId)});
         getContext().getContentResolver().notifyChange(uri, null);
@@ -1411,9 +1363,7 @@ public class RestIpProvider extends ContentProvider {
   }
 
   @Override
-  public ContentProviderResult[] applyBatch(
-      ArrayList<ContentProviderOperation> operations)
-      throws OperationApplicationException {
+  public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
     final SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getWritableDatabase(Config.PRIVATE_KEY);
     db.beginTransaction();
