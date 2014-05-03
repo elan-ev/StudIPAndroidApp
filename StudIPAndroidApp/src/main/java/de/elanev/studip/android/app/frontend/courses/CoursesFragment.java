@@ -5,6 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.app.Activity;
@@ -13,6 +14,7 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -56,7 +58,7 @@ public class CoursesFragment extends ProgressSherlockListFragment implements Loa
       }
     }
   };
-  private CoursesAdapter mAdapter;
+  protected CoursesAdapter mAdapter;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -106,6 +108,7 @@ public class CoursesFragment extends ProgressSherlockListFragment implements Loa
 
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     setLoadingViewVisible(true);
+    Context c = getActivity();
     return new CursorLoader(getActivity(),
         CoursesContract.CONTENT_URI,
         CourseQuery.PROJECTION,
@@ -122,58 +125,26 @@ public class CoursesFragment extends ProgressSherlockListFragment implements Loa
       return;
     }
 
-    ArrayList<CourseItem> items = new ArrayList<CourseItem>();
-    ArrayList<CourseItem> longRunningCourses = new ArrayList<CourseItem>();
-    ArrayList<Section> sections = new ArrayList<Section>();
-    String prevSemesterId = "";
-    String currSemesterId = "";
+    new CourseSortingTask().execute(cursor);
 
-    cursor.moveToFirst();
-    while (!cursor.isAfterLast()) {
-      String title = cursor.getString(1);
-      int type = cursor.getInt(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TYPE));
-      long duration = cursor.getLong(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DURATION_TIME));
-      String color = cursor.getString(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_COLOR));
-      long id = cursor.getLong(cursor.getColumnIndex(CoursesContract.Columns.Courses._ID));
-      String courseId = cursor.getString(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_ID));
-      currSemesterId = cursor.getString(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID));
-
-
-      if (duration != 0) {
-        longRunningCourses.add(new CourseItem(id, courseId, title, type, color));
-      } else {
-        if (!TextUtils.equals(prevSemesterId, currSemesterId)) {
-          sections.add(new Section(items.size(),
-              cursor.getString(cursor.getColumnIndex(SemestersContract.Columns.SEMESTER_TITLE)
-              )
-          ));
-        }
-
-        items.add(new CourseItem(id, courseId, title, type, color));
-      }
-      prevSemesterId = currSemesterId;
-      cursor.moveToNext();
-    }
-
-    if (!longRunningCourses.isEmpty()) {
-      sections.add(new Section(items.size(), getString(R.string.course_without_duration_limit)));
-      items.addAll(longRunningCourses);
-    }
-
-    mAdapter.updateData(items, sections);
-
-    setLoadingViewVisible(false);
   }
 
-  public void onLoaderReset(Loader<Cursor> loader) {
-  }
+  @Override public void onLoaderReset(Loader<Cursor> loader) {}
 
   /*
    * Interface which encapsulates the content provider query projection array
    */
   private interface CourseQuery {
 
-    String[] PROJECTION = {CoursesContract.Qualified.Courses.COURSES_ID, CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE, CoursesContract.Qualified.Courses.COURSES_COURSE_ID, CoursesContract.Qualified.Courses.COURSES_COURSE_TYPE, CoursesContract.Qualified.Courses.COURSES_COURSE_COLOR, CoursesContract.Qualified.Courses.COURSES_COURSE_DURATION_TIME, SemestersContract.Qualified.SEMESTERS_SEMESTER_ID, SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE, SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN};
+    String[] PROJECTION = {
+        CoursesContract.Qualified.Courses.COURSES_ID,
+        CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
+        CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
+        CoursesContract.Qualified.Courses.COURSES_COURSE_TYPE,
+        CoursesContract.Qualified.Courses.COURSES_COURSE_COLOR,
+        SemestersContract.Qualified.SEMESTERS_SEMESTER_ID,
+        SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE
+    };
 
   }
 
@@ -205,6 +176,73 @@ public class CoursesFragment extends ProgressSherlockListFragment implements Loa
     public Section(int index, String title) {
       this.index = index;
       this.title = title;
+    }
+  }
+
+  private class CourseSortingTask extends AsyncTask<Cursor, Void, CourseSortingTask.SectionedResultSet> {
+    private static final String ID = CoursesContract.Columns.Courses._ID;
+    private static final String COURSE_ID = CoursesContract.Columns.Courses.COURSE_ID;
+    private static final String COLOR = CoursesContract.Columns.Courses.COURSE_COLOR;
+    private static final String TYPE = CoursesContract.Columns.Courses.COURSE_TYPE;
+    private static final String SEMESTER_ID = CoursesContract.Columns.Courses.COURSE_SEMESERT_ID;
+    private static final String SEMESTER_TITLE = SemestersContract.Columns.SEMESTER_TITLE;
+
+    @Override protected SectionedResultSet doInBackground(Cursor... params) {
+      Cursor cursor = params[0];
+
+      cursor.moveToFirst();
+      if (!cursor.isAfterLast()) {
+        ArrayList<CourseItem> items = new ArrayList<CourseItem>();
+        ArrayList<Section> sections = new ArrayList<Section>();
+        String prevSemesterId = "";
+        String currSemesterId = "";
+
+        int courseTitleCol = 1;
+        int courseTypeColIdx = cursor.getColumnIndex(TYPE);
+        int courseColorColIdx = cursor.getColumnIndex(COLOR);
+        int courseIdColIdx = cursor.getColumnIndex(ID);
+        int courseCidIdx = cursor.getColumnIndex(COURSE_ID);
+        int semesterIdIdx = cursor.getColumnIndex(SEMESTER_ID);
+        int semesterTitleIdx = cursor.getColumnIndex(SEMESTER_TITLE);
+
+        while (!cursor.isAfterLast()) {
+          long id = cursor.getLong(courseIdColIdx);
+          String courseId = cursor.getString(courseCidIdx);
+          String title = cursor.getString(courseTitleCol);
+          int type = cursor.getInt(courseTypeColIdx);
+          String color = cursor.getString(courseColorColIdx);
+          currSemesterId = cursor.getString(semesterIdIdx);
+
+          if (!TextUtils.equals(prevSemesterId, currSemesterId)) {
+            sections.add(new Section(items.size(), cursor.getString(semesterTitleIdx)));
+          }
+
+          items.add(new CourseItem(id, courseId, title, type, color));
+          prevSemesterId = currSemesterId;
+          cursor.moveToNext();
+        }
+
+        return new SectionedResultSet(items, sections);
+      } else {
+        return null;
+      }
+    }
+
+    @Override protected void onPostExecute(SectionedResultSet set) {
+      if (mContext != null && set != null) {
+        mAdapter.updateData(set.items, set.sections);
+        setLoadingViewVisible(false);
+      }
+    }
+
+    class SectionedResultSet {
+      List<CourseItem> items;
+      List<Section> sections;
+
+      public SectionedResultSet(ArrayList<CourseItem> items, ArrayList<Section> sections) {
+        this.items = items;
+        this.sections = sections;
+      }
     }
   }
 
