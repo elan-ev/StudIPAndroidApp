@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Application;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -43,6 +44,19 @@ public class StudIPApplication extends Application {
   @TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override
   public void onCreate() {
     super.onCreate();
+
+    if (BuildConfig.DEBUG) {
+      final Thread.UncaughtExceptionHandler subclass = Thread.currentThread()
+          .getUncaughtExceptionHandler();
+      Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+        @Override
+        public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+          Log.getStackTraceString(paramThrowable);
+
+          subclass.uncaughtException(paramThread, paramThrowable);
+        }
+      });
+    }
 
     // create instance
     mInstance = this;
@@ -115,5 +129,6 @@ public class StudIPApplication extends Application {
   public void cancelAllPendingRequests(Object tag) {
     if (mRequestQueue != null) mRequestQueue.cancelAll(tag == null ? TAG : tag);
   }
+
 
 }

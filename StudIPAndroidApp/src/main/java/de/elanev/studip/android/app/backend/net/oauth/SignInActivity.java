@@ -90,22 +90,20 @@ public class SignInActivity extends SherlockFragmentActivity {
     if (prefs.legacyDataExists()) {
       destroyInsecureCredentials();
     } else if (prefs.isAppAuthorized()) {
+      Log.i(TAG, "Valid secured credentials found");
       if (prefs.isAppSynced()) {
-        Log.i(TAG, "Valid secured credentials found, starting app...");
+        Log.i(TAG, "App synced starting..");
         startNewsActivity();
         return;
       }
     }
 
-    Log.i(TAG, "No valid credentials found, starting authentication...");
     if (savedInstanceState == null) {
       SignInFragment signInFragment = SignInFragment.newInstance();
       getSupportFragmentManager().beginTransaction()
           .add(R.id.content_frame, signInFragment, SignInFragment.class.getName())
           .commit();
     }
-
-
   }
 
   private void destroyInsecureCredentials() {
@@ -390,10 +388,10 @@ public class SignInActivity extends SherlockFragmentActivity {
           break;
         case SyncHelper.SyncHelperCallbacks.FINISHED_CONTACTS_SYNC:
           mContactsSynced = true;
-          SyncHelper.getInstance(mContext).performPendingUserSync(this);
+          mUsersSynced = true;
+          //          SyncHelper.getInstance(mContext).performPendingUserSync(this);
           break;
         case SyncHelper.SyncHelperCallbacks.FINISHED_USER_SYNC:
-          mUsersSynced = true;
           break;
         case SyncHelper.SyncHelperCallbacks.FINISHED_INSTITUTES_SYNC:
           mInstitutesSynced = true;
@@ -421,9 +419,9 @@ public class SignInActivity extends SherlockFragmentActivity {
     }
 
     @Override public void onSyncError(int status, VolleyError error) {
-      Log.wtf(TAG, "Sync error" + error.getLocalizedMessage());
+      Log.wtf(TAG, "Sync error " + error.getLocalizedMessage());
 
-      if (getActivity() == null) return;
+      if (getActivity() == null || error.networkResponse.statusCode == 404) return;
 
       String genericErrorMessage = getString(R.string.sync_error_generic);
       String finalErrorMessage;
@@ -455,7 +453,14 @@ public class SignInActivity extends SherlockFragmentActivity {
       }
 
       StringBuilder builder = new StringBuilder(finalErrorMessage);
-      builder.append(error.getLocalizedMessage());
+
+      String errMesg = error.getLocalizedMessage();
+      if (errMesg != null) {
+        builder.append(errMesg);
+      } else {
+        builder.append("HTTP-Code: ").append(error.networkResponse.statusCode);
+      }
+
       Toast.makeText(mContext, builder.toString(), Toast.LENGTH_LONG).show();
 
       resetSignInActivityState();
@@ -497,41 +502,45 @@ public class SignInActivity extends SherlockFragmentActivity {
       //Prefs.getInstance(mContext).simulateOldPrefs(mSelectedServer);
       //getActivity().finish();
 
+      Prefs.getInstance(mContext).setServer(mSelectedServer);
       mSelectedServer.setAccessToken(token);
       mSelectedServer.setAccessTokenSecret(tokenSecret);
-      Prefs.getInstance(mContext).setServer(mSelectedServer);
 
       String url = String.format(getString(R.string.restip_user), mSelectedServer.getApiUrl());
 
-      JacksonRequest<User> request = new JacksonRequest<User>(url, User.class, null,
+      JacksonRequest<User> request = new JacksonRequest<User>(url,
+          User.class,
+          null,
           new Response.Listener<User>() {
             @Override public void onResponse(User response) {
               Prefs.getInstance(getActivity()).setUserId(response.user_id);
               performPrefetchSync();
             }
-          }, new Response.ErrorListener() {
-        @Override public void onErrorResponse(VolleyError error) {
-          Log.wtf(TAG, "Error requesting user details: " + error.getLocalizedMessage() +
-              "ErrorCode: " + error.networkResponse.statusCode);
+          },
+          new Response.ErrorListener() {
+            @Override public void onErrorResponse(VolleyError error) {
+              Log.wtf(TAG, "Error requesting user details: " + error.getLocalizedMessage() +
+                  "ErrorCode: " + error.networkResponse.statusCode);
 
-          // Build error message
-          String genericMessage = getString(R.string.sync_error_generic);
-          String errorPosition = getString(R.string.your_user_data);
-          StringBuilder sb = new StringBuilder(String.format(genericMessage, errorPosition));
-          String err = error.getLocalizedMessage();
-          if (err != null) {
-            sb.append(err);
-          } else {
-            sb.append("ErrorCode: ").append(error.networkResponse.statusCode);
-          }
+              // Build error message
+              String genericMessage = getString(R.string.sync_error_generic);
+              String errorPosition = getString(R.string.your_user_data);
+              StringBuilder sb = new StringBuilder(String.format(genericMessage, errorPosition));
+              String err = error.getLocalizedMessage();
+              if (err != null) {
+                sb.append(err);
+              } else {
+                sb.append("ErrorCode: ").append(error.networkResponse.statusCode);
+              }
 
 
-          // Toast error and display login form
-          Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
-          resetSignInActivityState();
-          showLoginForm();
-        }
-      }, Request.Method.GET
+              // Toast error and display login form
+              Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
+              resetSignInActivityState();
+              showLoginForm();
+            }
+          },
+          Request.Method.GET
       );
 
       try {
@@ -546,6 +555,7 @@ public class SignInActivity extends SherlockFragmentActivity {
       } catch (OAuthNotAuthorizedException e) {
         e.printStackTrace();
       }
+
     }
 
     /* Simply triggers the prefetching at the SyncHelper */

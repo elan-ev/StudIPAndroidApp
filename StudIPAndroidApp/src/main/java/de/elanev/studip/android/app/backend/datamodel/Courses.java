@@ -6,23 +6,28 @@
  * http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
 /**
- * 
+ *
  */
 package de.elanev.studip.android.app.backend.datamodel;
 
-import java.util.ArrayList;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.ArrayList;
+
 /**
+ * POJO class that stores a list of Course objects.
+ *
  * @author joern
- * 
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Courses {
-	public ArrayList<Course> courses;
+  public ArrayList<Course> courses;
 
-	public Courses() {
-		courses = new ArrayList<Course>();
-	}
+  /**
+   * Default constructor that creates an empty courses ArrayList
+   */
+  public Courses() {
+    courses = new ArrayList<Course>();
+  }
+
 }
