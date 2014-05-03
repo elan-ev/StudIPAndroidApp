@@ -30,9 +30,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -94,11 +92,9 @@ public class SyncHelper {
 
   private static LoadingCache<String, User> sUsersCache;
 
-  private static Set<String> mUserSyncQueue = Collections.synchronizedSet(new HashSet<String>());
   private static ArrayList<ContentProviderOperation> mUserDbOp = new ArrayList<ContentProviderOperation>();
-
   // TODO Make dependent on device connection type
-  DefaultRetryPolicy mRetryPolicy = new DefaultRetryPolicy(30000,
+  private final DefaultRetryPolicy mRetryPolicy = new DefaultRetryPolicy(30000,
       DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
       DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
 
@@ -162,7 +158,6 @@ public class SyncHelper {
     mLastNewsSync = 0;
     mLastContactsSync = 0;
     mUserDbOp.clear();
-    mUserSyncQueue.clear();
     sUsersCache.invalidateAll();
   }
 
@@ -330,9 +325,8 @@ public class SyncHelper {
             public void onResponse(Contacts response) {
               try {
                 resolver.applyBatch(AbstractContract.CONTENT_AUTHORITY, parseContacts(response));
-
-                mUserSyncQueue.addAll(response.contacts);
-
+                new UsersRequestTask().execute(response.contacts.toArray(new String[response.contacts
+                    .size()]));
                 if (callbacks != null) {
                   callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
                 }
@@ -466,7 +460,7 @@ public class SyncHelper {
                 new CourseUsersInsertTask(c.teachers).execute(c.course_id, teacherRole);
                 new CourseUsersInsertTask(c.tutors).execute(c.course_id, tutorRole);
                 new CourseUsersInsertTask(c.students).execute(c.course_id, studentRole);
-                mUserSyncQueue.addAll(c.teachers);
+                new UsersRequestTask().execute(c.teachers.toArray(new String[c.teachers.size()]));
               }
 
               if (callbacks != null)
@@ -514,6 +508,7 @@ public class SyncHelper {
     ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 
     operations.add(ContentProviderOperation.newDelete(CoursesContract.CONTENT_URI).build());
+    String currentSemesterId = Prefs.getInstance(mContext).getCurrentSemesterId();
 
     // FIXME meh^2 on....
     for (Course c : courses.courses) {
@@ -523,7 +518,6 @@ public class SyncHelper {
           .withValue(CoursesContract.Columns.Courses.COURSE_DESCIPTION, c.description)
           .withValue(CoursesContract.Columns.Courses.COURSE_SUBTITLE, c.subtitle)
           .withValue(CoursesContract.Columns.Courses.COURSE_LOCATION, c.location)
-          .withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, c.semester_id)
           .withValue(CoursesContract.Columns.Courses.COURSE_DURATION_TIME,
               c.duration_time).withValue(CoursesContract.Columns.Courses.COURSE_COLOR, c.color)
               // .withValue(CoursesContract.Columns.Courses.COURSE_NUMBER,
@@ -532,8 +526,13 @@ public class SyncHelper {
               // .withValue(CoursesContract.Columns.Courses.COURSE_MODULES,
               // JSONWriter.writeValueAsString(c.modules))
           .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME, c.start_time);
-      operations.add(builder.build());
 
+      if (c.duration_time == -1L || c.duration_time > 0) {
+        builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, currentSemesterId);
+      } else {
+        builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, c.semester_id);
+      }
+      operations.add(builder.build());
     }
     // meh^2 off...
 
@@ -611,8 +610,7 @@ public class SyncHelper {
               try {
                 ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
                 for (NewsItem n : response.news) {
-                  mUserSyncQueue.add(n.user_id);
-                  //                                    requestUser(n.user_id, null);
+                  new UsersRequestTask().execute(n.user_id);
                   operations.add(parseNewsItem(n, id));
                 }
                 if (!operations.isEmpty()) {
@@ -709,134 +707,6 @@ public class SyncHelper {
   }
 
   /**
-   * Performs a request for the internal stored user IDs and refreshes the DB values
-   *
-   * @param callbacks SyncHelperCallbacks for calling back, can be null
-   */
-  public void performPendingUserSync(final SyncHelperCallbacks callbacks) {
-    if (!mUserSyncQueue.isEmpty()) {
-      if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
-
-      Log.i(TAG, "SYNCING PENDING USERS");
-
-      int i = 1;
-      for (String id : mUserSyncQueue) {
-        final int finalI = i;
-        requestUser(id, new Listener<User>() {
-              @Override
-              public void onResponse(User response) {
-                mUserDbOp.add(parseUser(response));
-                if (finalI == mUserSyncQueue.size()) {
-                  Log.i(TAG, "FINISHED SYNCING PENDING USERS");
-                  try {
-                    mContext.getContentResolver()
-                        .applyBatch(AbstractContract.CONTENT_AUTHORITY, mUserDbOp);
-                  } catch (RemoteException e) {
-                    e.printStackTrace();
-                  } catch (OperationApplicationException e) {
-                    e.printStackTrace();
-                  } finally {
-                    mUserDbOp.clear();
-                    mUserSyncQueue.clear();
-                    if (callbacks != null)
-                      callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_USER_SYNC);
-                  }
-
-                }
-              }
-            }, null
-        );
-        i++;
-      }
-    } else {
-      if (callbacks != null) {
-        callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_USER_SYNC);
-      }
-    }
-  }
-
-  /**
-   * Requests a specific user from the API if no in DB
-   *
-   * @param userId    the ID of the user to request from the API
-   * @param listener  the VolleyListener to call when the request is finished
-   * @param callbacks SyncHelperCallbacks for calling back, can be null
-   */
-  public void requestUser(String userId,
-      final Listener<User> listener,
-      final SyncHelperCallbacks callbacks) {
-
-    if (!TextUtils.equals("", userId) && !TextUtils.equals("____%system%____", userId)) {
-      try {
-        sUsersCache.get(userId);
-        //                    Log.i(TAG, "!!!!!USER CACHE HIT!!!!!");
-      } catch (CacheLoader.InvalidCacheLoadException exception) {
-
-        try {
-          final String usersUrl = String.format(
-              mContext.getString(R.string.restip_user_id) + ".json", mServer.getApiUrl(), userId);
-
-          JacksonRequest<User> userJacksonRequest = new JacksonRequest<User>(usersUrl,
-              User.class,
-              null,
-              listener,
-              new ErrorListener() {
-                public void onErrorResponse(VolleyError error) {
-                  Log.wtf(TAG, error.getMessage());
-                  if (callbacks != null) {
-                    callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, error);
-                  }
-                }
-              },
-              Method.GET
-          );
-          userJacksonRequest.setRetryPolicy(mRetryPolicy);
-          userJacksonRequest.setPriority(Request.Priority.LOW);
-
-
-          OAuthConnector.with(mServer).sign(userJacksonRequest);
-          StudIPApplication.getInstance().addToRequestQueue(userJacksonRequest, TAG);
-
-          if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
-
-        } catch (OAuthCommunicationException e) {
-          e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-          e.printStackTrace();
-        } catch (OAuthMessageSignerException e) {
-          e.printStackTrace();
-        } catch (OAuthNotAuthorizedException e) {
-          StuffUtil.startSignInActivity(mContext);
-        }
-
-      } catch (ExecutionException exception) {
-        exception.printStackTrace();
-      }
-
-    }
-  }
-
-  private static ContentProviderOperation parseUser(User user) {
-    ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(UsersContract.CONTENT_URI);
-    builder.withValue(UsersContract.Columns.USER_ID, user.user_id);
-    builder.withValue(UsersContract.Columns.USER_USERNAME, user.username);
-    builder.withValue(UsersContract.Columns.USER_PERMS, user.perms);
-    builder.withValue(UsersContract.Columns.USER_TITLE_PRE, user.title_pre);
-    builder.withValue(UsersContract.Columns.USER_FORENAME, user.forename);
-    builder.withValue(UsersContract.Columns.USER_LASTNAME, user.lastname);
-    builder.withValue(UsersContract.Columns.USER_TITLE_POST, user.title_post);
-    builder.withValue(UsersContract.Columns.USER_EMAIL, user.email);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_SMALL, user.avatar_small);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_MEDIUM, user.avatar_medium);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_NORMAL, user.avatar_normal);
-    builder.withValue(UsersContract.Columns.USER_PHONE, user.phone);
-    builder.withValue(UsersContract.Columns.USER_HOMEPAGE, user.homepage);
-    builder.withValue(UsersContract.Columns.USER_PRIVADR, user.privadr);
-
-    return builder.build();
-  }
-
-  /**
    * Requests all users from a specfic course
    *
    * @param courseId  the ID of the course to request the users for
@@ -912,9 +782,14 @@ public class SyncHelper {
 
   private static ArrayList<ContentProviderOperation> parseSemesters(Semesters semesterList) {
     ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+    long currentTime = System.currentTimeMillis();
 
     for (Semester semester : semesterList.semesters) {
-
+      long semesterBegin = semester.begin * 1000L;
+      long semesterEnd = semester.end * 1000L;
+      if (currentTime > semesterBegin && currentTime < semesterEnd) {
+        Prefs.getInstance(mContext).setCurrentSemesterId(semester.semester_id);
+      }
       ContentProviderOperation.Builder semesterBuilder = ContentProviderOperation.newInsert(
           SemestersContract.CONTENT_URI)
           .withValue(SemestersContract.Columns.SEMESTER_ID, semester.semester_id)
@@ -1010,8 +885,7 @@ public class SyncHelper {
 
                         for (Message m : response.messages) {
                           if (callbacks != null) {
-                            mUserSyncQueue.add(m.sender_id);
-                            mUserSyncQueue.add(m.receiver_id);
+                            new UsersRequestTask().execute(m.sender_id, m.receiver_id);
                           } else {
                             requestUser(m.sender_id, null);
                             requestUser(m.receiver_id, null);
@@ -1173,8 +1047,7 @@ public class SyncHelper {
               if (response != null && !TextUtils.equals("____%system%____", response.user_id)) {
                 sUsersCache.put(response.user_id, response);
 
-                //FIXME: Add to userDbOp cache and execute
-                // the whole bunch at once
+                //FIXME: Add to userDbOp cache and execute the whole bunch at once
                 mUserDbOp.add(parseUser(response));
                 mContext.getContentResolver()
                     .applyBatch(AbstractContract.CONTENT_AUTHORITY, mUserDbOp);
@@ -1208,6 +1081,26 @@ public class SyncHelper {
     OAuthConnector.with(mServer).sign(userJacksonRequest);
 
     return userJacksonRequest;
+  }
+
+  private static ContentProviderOperation parseUser(User user) {
+    ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(UsersContract.CONTENT_URI);
+    builder.withValue(UsersContract.Columns.USER_ID, user.user_id);
+    builder.withValue(UsersContract.Columns.USER_USERNAME, user.username);
+    builder.withValue(UsersContract.Columns.USER_PERMS, user.perms);
+    builder.withValue(UsersContract.Columns.USER_TITLE_PRE, user.title_pre);
+    builder.withValue(UsersContract.Columns.USER_FORENAME, user.forename);
+    builder.withValue(UsersContract.Columns.USER_LASTNAME, user.lastname);
+    builder.withValue(UsersContract.Columns.USER_TITLE_POST, user.title_post);
+    builder.withValue(UsersContract.Columns.USER_EMAIL, user.email);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_SMALL, user.avatar_small);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_MEDIUM, user.avatar_medium);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_NORMAL, user.avatar_normal);
+    builder.withValue(UsersContract.Columns.USER_PHONE, user.phone);
+    builder.withValue(UsersContract.Columns.USER_HOMEPAGE, user.homepage);
+    builder.withValue(UsersContract.Columns.USER_PRIVADR, user.privadr);
+
+    return builder.build();
   }
 
   /**
@@ -1396,6 +1289,16 @@ public class SyncHelper {
       }
       c.close();
 
+      return null;
+    }
+  }
+
+  private class UsersRequestTask extends AsyncTask<String, Void, Void> {
+
+    @Override protected Void doInBackground(String... params) {
+      for (String userId : params) {
+        requestUser(userId, null);
+      }
       return null;
     }
   }
