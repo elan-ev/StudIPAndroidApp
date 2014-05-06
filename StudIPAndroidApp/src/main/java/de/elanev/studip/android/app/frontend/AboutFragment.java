@@ -26,92 +26,75 @@ import de.elanev.studip.android.app.widget.WebViewActivity;
  */
 public class AboutFragment extends SherlockFragment {
 
-    TextView mVersionTextView, mHomepageTextView, mLicensesTextView, mPrivacyTextView,
-            mLegalTextView, mFaqTextView;
+  TextView mVersionTextView, mHomepageTextView, mLicensesTextView, mPrivacyTextView, mLegalTextView, mFaqTextView;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (container == null) {
-            return null;
-        }
+  public AboutFragment() {}
 
-        View v = inflater.inflate(R.layout.fragment_about_app, null);
 
-        mVersionTextView = (TextView) v.findViewById(R.id.version_text);
-        mHomepageTextView = (TextView) v.findViewById(R.id.homepage_text);
-        mLicensesTextView = (TextView) v.findViewById(R.id.licenses);
-        mPrivacyTextView = (TextView) v.findViewById(R.id.privacy_policy);
-        mLegalTextView = (TextView) v.findViewById(R.id.legal_notice);
-        mFaqTextView = (TextView) v.findViewById(R.id.faq);
-
-        return v;
+  @Override
+  public View onCreateView(LayoutInflater inflater,
+      ViewGroup container,
+      Bundle savedInstanceState) {
+    if (container == null) {
+      return null;
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getActivity().setTitle(R.string.about_studip_mobile);
+    View v = inflater.inflate(R.layout.fragment_about_app, null);
 
-        // Set current app build code and version name
-        mVersionTextView.setText(String.format(getString(R.string.version_and_copyright),
-                BuildConfig.VERSION_NAME,
-                BuildConfig.VERSION_CODE));
+    mVersionTextView = (TextView) v.findViewById(R.id.version_text);
+    mHomepageTextView = (TextView) v.findViewById(R.id.homepage_text);
+    mLicensesTextView = (TextView) v.findViewById(R.id.licenses);
+    mPrivacyTextView = (TextView) v.findViewById(R.id.privacy_policy);
+    mLegalTextView = (TextView) v.findViewById(R.id.legal_notice);
+    mFaqTextView = (TextView) v.findViewById(R.id.faq);
 
-        // Make TextView links clickable
-        mHomepageTextView.setMovementMethod(LinkMovementMethod.getInstance());
-        mLicensesTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startNewIntent(
-                        "file:///android_res/raw/license.html",
-                        R.string.licenses
-                );
-            }
-        });
-        mPrivacyTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startNewIntent(
-                        "file:///android_res/raw/privacy_policy.html",
-                        R.string.privacy_policy
-                );
-            }
-        });
-        mLegalTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startNewIntent(
-                        "file:///android_res/raw/legal_notice.html",
-                        R.string.legal_notice
-                );
-            }
-        });
-        mFaqTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startNewIntent(
-                        "file:///android_res/raw/faq.html",
-                        R.string.faq
-                );
-            }
-        });
+    return v;
+  }
 
-    }
+  @Override
+  public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    getActivity().setTitle(R.string.about_studip_mobile);
 
-    private void startNewIntent(String dialogUrl, int dialogTitleRes) {
-        Intent intent = new Intent(
-                getActivity(),
-                WebViewActivity.class
-        );
-        intent.putExtra(
-                WebViewActivity.URL,
-                dialogUrl
-        );
-        intent.putExtra(
-                WebViewActivity.TITLE_RES,
-                dialogTitleRes
-        );
-        getActivity().startActivity(intent);
-    }
+    // Set current app build code and version name
+    mVersionTextView.setText(String.format(getString(R.string.version_and_copyright),
+        BuildConfig.VERSION_NAME,
+        BuildConfig.VERSION_CODE));
+
+    // Make TextView links clickable
+    mHomepageTextView.setMovementMethod(LinkMovementMethod.getInstance());
+    mLicensesTextView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        startNewIntent("file:///android_res/raw/license.html", R.string.licenses);
+      }
+    });
+    mPrivacyTextView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        startNewIntent("file:///android_res/raw/privacy_policy.html", R.string.privacy_policy);
+      }
+    });
+    mLegalTextView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        startNewIntent("file:///android_res/raw/legal_notice.html", R.string.legal_notice);
+      }
+    });
+    mFaqTextView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        startNewIntent("file:///android_res/raw/faq.html", R.string.faq);
+      }
+    });
+
+  }
+
+  private void startNewIntent(String dialogUrl, int dialogTitleRes) {
+    Intent intent = new Intent(getActivity(), WebViewActivity.class);
+    intent.putExtra(WebViewActivity.URL, dialogUrl);
+    intent.putExtra(WebViewActivity.TITLE_RES, dialogTitleRes);
+    getActivity().startActivity(intent);
+  }
 
 }
