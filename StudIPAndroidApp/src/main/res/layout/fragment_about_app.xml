@@ -5,9 +5,11 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.gnu.org/licenses/gpl.html
   -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,7 +38,8 @@
             android:textColor="@color/primary_text_dark"
             android:textIsSelectable="true"
             android:textSize="@dimen/text_size_small"
-            android:fontFamily="sans-serif-thin"/>
+            android:fontFamily="sans-serif-light"
+            tools:text="Version 1.0.0. Build 122312"/>
 
         <TextView
             android:id="@+id/homepage_text"
@@ -51,7 +54,7 @@
             android:textColor="@color/primary_text_dark"
             android:textColorLink="@color/sutdip_mobile_light"
             android:textSize="@dimen/text_size_small"
-            android:fontFamily="sans-serif-thin"/>
+            android:fontFamily="sans-serif-light"/>
 
         <TextView
             android:id="@+id/about_text"
