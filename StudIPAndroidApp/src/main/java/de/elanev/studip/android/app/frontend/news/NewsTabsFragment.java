@@ -24,24 +24,24 @@ import de.elanev.studip.android.app.R;
  */
 public class NewsTabsFragment extends SherlockFragment {
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(
-                R.layout.title_strip_viewpager,
-                container,
-                false
-        );
+  public NewsTabsFragment() {}
 
-        ViewPager pager = (ViewPager) layout.findViewById(R.id.pager);
-        pager.setAdapter(buildAdapter());
+  @Override
+  public View onCreateView(LayoutInflater inflater,
+      ViewGroup container,
+      Bundle savedInstanceState) {
+    View layout = inflater.inflate(R.layout.title_strip_viewpager, container, false);
 
-        return layout;
-    }
+    ViewPager pager = (ViewPager) layout.findViewById(R.id.pager);
+    pager.setAdapter(buildAdapter());
 
-    /*
-     * Creates a new NewsTabsAdapter
-     */
-    private PagerAdapter buildAdapter() {
-        return new NewsTabsAdapter(getActivity(), getChildFragmentManager());
-    }
+    return layout;
+  }
+
+  /*
+   * Creates a new NewsTabsAdapter
+   */
+  private PagerAdapter buildAdapter() {
+    return new NewsTabsAdapter(getActivity(), getChildFragmentManager());
+  }
 }
