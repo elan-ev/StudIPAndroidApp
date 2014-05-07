@@ -83,48 +83,29 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
  */
 public class SyncHelper {
   public static final String TAG = SyncHelper.class.getSimpleName();
+  private static SyncHelper mInstance;
+  private static volatile Server mServer;
+  private static volatile Context mContext;
+  private static LoadingCache<String, User> mUsersCache;
+  private static ArrayList<ContentProviderOperation> mUserDbOp = new ArrayList<ContentProviderOperation>();
   private static long mLastNewsSync = 0;
   private static long mLastContactsSync = 0;
   private static long mLastCoursesSync = 0;
-  private static SyncHelper mInstance;
-  private static Server mServer;
-  private static Context mContext;
-
-  private static LoadingCache<String, User> sUsersCache;
-
-  private static ArrayList<ContentProviderOperation> mUserDbOp = new ArrayList<ContentProviderOperation>();
   // TODO Make dependent on device connection type
   private final DefaultRetryPolicy mRetryPolicy = new DefaultRetryPolicy(30000,
       DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
       DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
 
   private SyncHelper() {
-  }
-
-  /**
-   * Returns an instance of the SyncHelper class
-   *
-   * @param context the execution context
-   * @return an instance of the SyncHelper
-   */
-  public static SyncHelper getInstance(Context context) {
-    if (mInstance == null) {
-      mInstance = new SyncHelper();
-
-      mServer = Prefs.getInstance(context).getServer();
-      sUsersCache = CacheBuilder.newBuilder()
-          .maximumSize(1000)
-          .expireAfterWrite(5, TimeUnit.MINUTES)
-          .build(new CacheLoader<String, User>() {
-            @Override
-            public User load(String key) throws Exception {
-              return dbQueryForUser(key);
-            }
-          });
-    }
-    mContext = context;
-
-    return mInstance;
+    this.mUsersCache = CacheBuilder.newBuilder()
+        .maximumSize(1000)
+        .expireAfterWrite(5, TimeUnit.MINUTES)
+        .build(new CacheLoader<String, User>() {
+          @Override
+          public User load(String key) throws Exception {
+            return dbQueryForUser(key);
+          }
+        });
   }
 
   private static User dbQueryForUser(String userId) {
@@ -151,6 +132,22 @@ public class SyncHelper {
   }
 
   /**
+   * Returns an instance of the SyncHelper class
+   *
+   * @param context the execution context
+   * @return an instance of the SyncHelper
+   */
+  public static SyncHelper getInstance(Context context) {
+    if (mInstance == null) {
+      mInstance = new SyncHelper();
+    }
+    mContext = context.getApplicationContext();
+    mServer = Prefs.getInstance(context).getServer();
+
+    return mInstance;
+  }
+
+  /**
    * Resets the internal SyncHelper state
    */
   public static void resetSyncHelper() {
@@ -158,7 +155,7 @@ public class SyncHelper {
     mLastNewsSync = 0;
     mLastContactsSync = 0;
     mUserDbOp.clear();
-    sUsersCache.invalidateAll();
+    mUsersCache.invalidateAll();
   }
 
   private static ContentValues[] parseEvents(Events events) {
@@ -1004,7 +1001,7 @@ public class SyncHelper {
 
     if (!TextUtils.equals("", userId) && !TextUtils.equals("____%system%____", userId)) {
       try {
-        sUsersCache.get(userId);
+        mUsersCache.get(userId);
         //                    Log.i(TAG, "!!!!!USER CACHE HIT!!!!!");
       } catch (CacheLoader.InvalidCacheLoadException exception) {
 
@@ -1045,7 +1042,7 @@ public class SyncHelper {
           public void onResponse(User response) {
             try {
               if (response != null && !TextUtils.equals("____%system%____", response.user_id)) {
-                sUsersCache.put(response.user_id, response);
+                mUsersCache.put(response.user_id, response);
 
                 //FIXME: Add to userDbOp cache and execute the whole bunch at once
                 mUserDbOp.add(parseUser(response));

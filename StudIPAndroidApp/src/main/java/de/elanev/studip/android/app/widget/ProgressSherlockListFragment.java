@@ -27,66 +27,69 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  */
 public class ProgressSherlockListFragment extends SherlockFragment implements StickyListHeadersListView.OnStickyHeaderOffsetChangedListener {
 
-    private View mListContainerView, mProgressView;
-    private TextView mEmptyMessageTextView;
-    protected Context mContext;
-    protected StickyListHeadersListView mListView;
+  protected Context mContext;
+  protected StickyListHeadersListView mListView;
+  private View mListContainerView, mProgressView;
+  private TextView mEmptyMessageTextView;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mContext = getSherlockActivity();
+  public ProgressSherlockListFragment() {}
 
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    mContext = getSherlockActivity();
+
+  }
+
+  @Override
+  public View onCreateView(LayoutInflater inflater,
+      ViewGroup container,
+      Bundle savedInstanceState) {
+
+    View v = inflater.inflate(R.layout.list, null);
+    mEmptyMessageTextView = (TextView) v.findViewById(R.id.empty_message);
+    mListContainerView = v.findViewById(R.id.list_container);
+    mProgressView = v.findViewById(R.id.progressbar);
+    mListView = (StickyListHeadersListView) v.findViewById(android.R.id.list);
+    mListView.setEmptyView(v.findViewById(android.R.id.empty));
+
+    return v;
+  }
+
+  @Override
+  public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+
+    mListView.setDrawingListUnderStickyHeader(true);
+    mListView.setAreHeadersSticky(true);
+    mListView.setOnStickyHeaderOffsetChangedListener(this);
+  }
+
+  /**
+   * Sets the message resource to be displayed when the ListView is empty
+   *
+   * @param messageRes string resource for the empty message
+   */
+  protected void setEmptyMessage(int messageRes) {
+    mEmptyMessageTextView.setText(messageRes);
+  }
+
+  /**
+   * Toggles the visibility of the list container and progress bar
+   *
+   * @param visible progress bar visibility
+   */
+  protected void setLoadingViewVisible(boolean visible) {
+    if (mProgressView != null && mListContainerView != null) {
+      mListContainerView.setVisibility(visible ? View.GONE : View.VISIBLE);
+      mProgressView.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
+  }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        View v = inflater.inflate(R.layout.list, null);
-        mEmptyMessageTextView = (TextView) v.findViewById(R.id.empty_message);
-        mListContainerView = v.findViewById(R.id.list_container);
-        mProgressView = v.findViewById(R.id.progressbar);
-        mListView = (StickyListHeadersListView) v.findViewById(android.R.id.list);
-        mListView.setEmptyView(v.findViewById(android.R.id.empty));
-
-        return v;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        mListView.setDrawingListUnderStickyHeader(true);
-        mListView.setAreHeadersSticky(true);
-        mListView.setOnStickyHeaderOffsetChangedListener(this);
-    }
-
-    /**
-     * Sets the message resource to be displayed when the ListView is empty
-     *
-     * @param messageRes string resource for the empty message
-     */
-    protected void setEmptyMessage(int messageRes) {
-        mEmptyMessageTextView.setText(messageRes);
-    }
-
-    /**
-     * Toggles the visibility of the list container and progress bar
-     *
-     * @param visible progress bar visibility
-     */
-    protected void setLoadingViewVisible(boolean visible) {
-        if (mProgressView != null && mListContainerView != null) {
-            mListContainerView.setVisibility(visible ? View.GONE : View.VISIBLE);
-            mProgressView.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    @Override
-    public void onStickyHeaderOffsetChanged(StickyListHeadersListView stickyListHeadersListView, View view, int offset) {
-        if (ApiUtils.isOverApi11())
-            view.setAlpha(1 - (offset / (float) view.getMeasuredHeight()));
-    }
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override
+  public void onStickyHeaderOffsetChanged(StickyListHeadersListView stickyListHeadersListView,
+      View view,
+      int offset) {
+    if (ApiUtils.isOverApi11()) view.setAlpha(1 - (offset / (float) view.getMeasuredHeight()));
+  }
 }

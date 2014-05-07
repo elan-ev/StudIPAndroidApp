@@ -38,13 +38,13 @@ public class Prefs {
   private static Prefs sInstance;
   private Context mContext;
   private SharedPreferences mPrefs;
-  private Server mCachedServer;
+  private volatile Server mCachedServer;
 
   private Prefs() {
   }
 
   private Prefs(Context context) {
-    this.mContext = context;
+    this.mContext = context.getApplicationContext();
     this.mPrefs = context.getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE);
   }
 
@@ -152,7 +152,11 @@ public class Prefs {
     Uri returnUri = mContext.getContentResolver()
         .insert(AuthenticationContract.CONTENT_URI, values);
 
-    if (Long.parseLong(returnUri.getLastPathSegment()) != -1) mCachedServer = server;
+    if (Long.parseLong(returnUri.getLastPathSegment()) != -1) {
+      mCachedServer = server;
+    } else {
+      mCachedServer = null;
+    }
   }
 
   /**
