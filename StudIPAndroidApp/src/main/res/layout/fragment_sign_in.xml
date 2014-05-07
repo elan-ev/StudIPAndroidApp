@@ -101,7 +101,7 @@
             android:text="@string/authentication"
             android:textColor="@color/primary_text_dark"
             android:textSize="@dimen/text_size_medium"
-            android:fontFamily="sans-serif-thin"/>
+            android:fontFamily="sans-serif-light"/>
     </LinearLayout>
 
     <LinearLayout
