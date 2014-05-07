@@ -113,3 +113,5 @@ gradle.properties
 StudIPAndroidApp/src/main/java/de/elanev/studip/android/app/util/ServerData.java
 StudIPAndroidApp/src/main/java/de/elanev/studip/android/app/util/Config.java
 StudIPAndroidApp/src/release/AndroidManifest.xml
+
+StudIPAndroidApp/src/main/res/values/com_crashlytics_export_strings.xml
