@@ -98,6 +98,8 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
   };
   private OnRequestTokenReceived mCallbacks;
 
+  public SignInFragment() {}
+
   /**
    * Instantiates a new SignInFragment
    *
@@ -267,10 +269,10 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
    */
   public void startMainActivity() {
     Intent intent = new Intent(getActivity(), MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     startActivity(intent);
 
     Log.i(TAG, "Starting news Activity...");
