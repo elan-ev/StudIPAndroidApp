@@ -54,6 +54,7 @@ Contributing
 	* Fork it, make your changes, commit them and open a Pull Request. We will take care of the rest.
 * Create issues for bugs, feature requests and other ideas
 * Contribute to the wiki
+* Help translating the app into other languages [here][12].
 
 Libs
 ---------
@@ -88,3 +89,4 @@ License
 [9]: http://developer.android.com/sdk/installing/studio.html
 [10]: http://square.github.io/picasso/
 [11]: http://sqlcipher.net/
+[12]: https://www.transifex.com/organization/elan-ev/dashboard/studip-mobil
