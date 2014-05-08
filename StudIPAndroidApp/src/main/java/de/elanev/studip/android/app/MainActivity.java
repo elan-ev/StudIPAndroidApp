@@ -52,10 +52,16 @@ public class MainActivity extends SherlockFragmentActivity {
   public ListView mDrawerListView;
   public SherlockActionBarDrawerToggle mDrawerToggle;
   private MenuAdapter mAdapter;
+  private boolean isPaused;
 
   @Override public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     mDrawerToggle.onConfigurationChanged(newConfig);
+  }
+
+  @Override protected void onPause() {
+    super.onPause();
+    isPaused = true;
   }
 
   @Override protected void onPostCreate(Bundle savedInstanceState) {
@@ -284,17 +290,25 @@ public class MainActivity extends SherlockFragmentActivity {
     return getSupportFragmentManager().findFragmentByTag(tag);
   }
 
-  /* Implementation of a ListVoew OnItemClickListener for the Navigation Drawer items */
+  @Override protected void onStart() {
+    super.onStart();
+    isPaused = false;
+  }
+
+  /* Implementation of a ListView OnItemClickListener for the Navigation Drawer items */
   private class DrawerItemClickListener implements ListView.OnItemClickListener {
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+      if (isPaused) {
+        // to prevent state loss do nothing when the activity is paused
+        return;
+      }
       mPosition = position;
       changeFragment(position);
     }
   }
 
-  /* Represents a menu item and encapsulates the needed informations */
+  /* Represents a menu item and encapsulates the needed information */
   private class MenuItem {
     public int id;
     public String tag;

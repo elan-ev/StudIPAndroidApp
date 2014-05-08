@@ -25,6 +25,7 @@ import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
+import com.crashlytics.android.Crashlytics;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -431,6 +432,23 @@ public class SyncHelper {
     if ((currTime - mLastCoursesSync) > BuildConfig.COURSES_SYNC_THRESHOLD) {
       mLastCoursesSync = currTime;
       Log.i(TAG, "SYNCING COURSES");
+
+      // Log some information for Crashlytics to pinpoint an issue.
+      if (!BuildConfig.DEBUG) {
+        if (mContext == null) {
+          Crashlytics.setString("caller", callbacks.getClass().getSimpleName());
+          Crashlytics.log(Log.ERROR, TAG, "Context is null!");
+        } else if (mServer == null) {
+          Crashlytics.setBool("isAuthorized", Prefs.getInstance(mContext).isAppAuthorized());
+          Crashlytics.setString("caller", callbacks.getClass().getSimpleName());
+          Crashlytics.log(Log.ERROR, TAG, "Server is null!");
+          if(Prefs.getInstance(mContext).getServer() != null) {
+            Server s = Prefs.getInstance(mContext).getServer();
+            Crashlytics.setString("university", s.getName());
+          }
+        }
+      }
+
       final String coursesUrl = String.format(mContext.getString(R.string.restip_courses) + ".json",
           mServer.getApiUrl());
 
