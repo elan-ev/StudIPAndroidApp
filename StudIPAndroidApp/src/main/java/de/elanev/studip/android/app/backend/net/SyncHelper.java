@@ -442,7 +442,7 @@ public class SyncHelper {
           Crashlytics.setBool("isAuthorized", Prefs.getInstance(mContext).isAppAuthorized());
           Crashlytics.setString("caller", callbacks.getClass().getSimpleName());
           Crashlytics.log(Log.ERROR, TAG, "Server is null!");
-          if(Prefs.getInstance(mContext).getServer() != null) {
+          if (Prefs.getInstance(mContext).getServer() != null) {
             Server s = Prefs.getInstance(mContext).getServer();
             Crashlytics.setString("university", s.getName());
           }
@@ -542,8 +542,13 @@ public class SyncHelper {
               // JSONWriter.writeValueAsString(c.modules))
           .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME, c.start_time);
 
-      if (c.duration_time == -1L || c.duration_time > 0) {
-        builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, currentSemesterId);
+      if (c.duration_time == -1L) {
+        builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
+            SemestersContract.UNLIMITED_COURSES_SEMESTER_ID);
+      } else if (c.duration_time > 0L) {
+        //TODO: Add these courses to the correct semester (c.start + duration between s.start, end)
+        builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
+            SemestersContract.UNLIMITED_COURSES_SEMESTER_ID);
       } else {
         builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, c.semester_id);
       }
