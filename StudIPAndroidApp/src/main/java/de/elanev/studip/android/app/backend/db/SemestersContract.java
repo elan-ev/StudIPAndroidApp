@@ -38,6 +38,12 @@ public class SemestersContract extends AbstractContract {
   public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.studip.seminars";
   public static final String DEFAULT_SORT_ORDER = Qualified.SEMESTERS_SEMESTER_BEGIN + " ASC";
 
+  /**
+   * Semester id for courses without duration limit. In order to display dem easier those courses
+   * are added to this static semester.
+   */
+  public static final String UNLIMITED_COURSES_SEMESTER_ID = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
+
   private SemestersContract() {
   }
 

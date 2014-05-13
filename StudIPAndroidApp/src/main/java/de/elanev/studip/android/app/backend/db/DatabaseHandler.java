@@ -15,6 +15,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 import java.io.File;
 
 import de.elanev.studip.android.app.BuildConfig;
+import de.elanev.studip.android.app.R;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
@@ -71,6 +72,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // Semesters
     db.execSQL(SemestersContract.CREATE_STRING);
+    db.execSQL("INSERT INTO semesters (semester_id, title) VALUES ('" +
+            SemestersContract.UNLIMITED_COURSES_SEMESTER_ID +
+            "', " + "'" + mContext.getString(R.string.course_without_duration_limit) + "')"
+    );
 
     // News
     db.execSQL(NewsContract.CREATE_STRING);
