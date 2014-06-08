@@ -34,6 +34,7 @@ import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
 import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
 import de.elanev.studip.android.app.frontend.news.NewsTabsFragment;
 import de.elanev.studip.android.app.frontend.planer.PlannerFragment;
+import de.elanev.studip.android.app.frontend.profile.ProfileFragment;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
@@ -214,6 +215,11 @@ public class MainActivity extends SherlockFragmentActivity {
               R.drawable.ic_menu_planner,
               getString(R.string.Planner))
       );
+      adapter.add(new MenuItem(R.id.navigation_profile,
+              R.drawable.ic_action_profile,
+              getString(R.string.Profile))
+      );
+
     }
     return adapter;
   }
@@ -264,6 +270,13 @@ public class MainActivity extends SherlockFragmentActivity {
             frag = findFragment(fragTag);
             if (frag == null) {
               frag = new PlannerFragment();
+            }
+            break;
+          case R.id.navigation_profile:
+            fragTag = ProfileFragment.class.getName();
+            frag = findFragment(fragTag);
+            if (frag == null) {
+              frag = new ProfileFragment();
             }
             break;
         }
