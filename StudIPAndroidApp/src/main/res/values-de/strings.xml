@@ -201,6 +201,9 @@
         Sie haben für die nächsten zwei Wochen keine Termine.
     </string>
 
+    <!-- Profile -->
+    <string name="Profile">Profil</string>
+
     <!-- Institutes -->
     <string name="Institutes">Einrichtungen</string>
 
