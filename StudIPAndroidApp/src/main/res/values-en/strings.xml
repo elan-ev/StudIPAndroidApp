@@ -202,6 +202,10 @@
         You have no schedule for the next two weeks.
     </string>
 
+    <!-- Profile -->
+    <string name="Profile">Profile</string>
+
+
     <!-- Institutes -->
     <string name="Institutes">Institutes</string>
 
