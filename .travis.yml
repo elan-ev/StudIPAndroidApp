@@ -13,7 +13,8 @@ before_install:
   - "android-update-sdk --components='platform-tools,tools' --accept-licenses='.+'"
   - "android-update-sdk --components='build-tools-20.0.0' --accept-licenses='.+'"
   - "android-update-sdk --components='android-20' --accept-licenses='.+'"
-  - "android-update-sdk --components='extra-android-m2repository,extra-google-m2repository,extra-android-support'--accept-licenses='.+'"
+  - "android-update-sdk --components='extra-android-m2repository,extra-google-m2repository,extra-android-support' --accept-licenses='.+'"
+
 
 #android:
 #  components:
