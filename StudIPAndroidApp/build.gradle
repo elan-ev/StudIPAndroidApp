@@ -17,156 +17,141 @@ def versionMinorBeta = 8
 def versionPatchBeta = 7
 def versionBuildBeta = 19
 
-final Console console = System.console();
-
 buildscript {
 
-    repositories {
-        maven { url 'http://download.crashlytics.com/maven' }
-    }
-    dependencies {
-        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
-    }
+  repositories {
+    maven { url 'http://download.crashlytics.com/maven' }
+  }
+  dependencies {
+    classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+  }
 
 }
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 apply plugin: 'crashlytics'
 
 repositories {
-    maven { url 'http://download.crashlytics.com/maven' }
+  maven { url 'http://download.crashlytics.com/maven' }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
-    compile 'com.android.support:support-v4:19.1.+'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.3'
-    compile 'oauth.signpost:signpost-commonshttp4:1.2.1.2'
-    compile 'oauth.signpost:oauth-signpost:1.2.1.2'
-    compile 'oauth.signpost:signpost-core:1.2.1.2'
-    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
-    compile 'com.crashlytics.android:crashlytics:1.+'
-    compile 'com.squareup.picasso:picasso:2.2.0'
-    compile 'com.squareup.okhttp:okhttp:1.5.4'
-    compile 'se.emilsjolander:stickylistheaders:2.3.0'
-    compile 'com.google.guava:guava:17.+'
-    compile project(':libprojects:volley')
-    compile project(':libprojects:SherlockNavigationDrawer:AndroidStudio:SherlockNavigationDrawerProject:SherlockNavigationDrawer')
+  compile fileTree(dir: 'libs', include: '*.jar')
+  compile 'com.android.support:support-v4:20.+'
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.4.+'
+  compile 'com.fasterxml.jackson.core:jackson-annotations:2.4.+'
+  compile 'oauth.signpost:signpost-commonshttp4:1.2.1.2'
+  compile 'oauth.signpost:oauth-signpost:1.2.1.2'
+  compile 'oauth.signpost:signpost-core:1.2.1.2'
+  compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+  compile 'com.crashlytics.android:crashlytics:1.+'
+  compile 'com.squareup.picasso:picasso:2.2.0'
+  compile 'com.squareup.okhttp:okhttp:1.5.4'
+  compile 'se.emilsjolander:stickylistheaders:2.4.+'
+  compile 'com.google.guava:guava:17.+'
+  compile project(':libprojects:volley')
+  compile project(':libprojects:SherlockNavigationDrawer:AndroidStudio:SherlockNavigationDrawerProject:SherlockNavigationDrawer')
 }
 
 def buildTime() {
-    def df = new SimpleDateFormat("yyyy-MM-dd HH:mm")
-    df.setTimeZone(TimeZone.getTimeZone("CET"))
-    return df.format(new Date())
+  def df = new SimpleDateFormat("yyyy-MM-dd HH:mm")
+  df.setTimeZone(TimeZone.getTimeZone("CET"))
+  return df.format(new Date())
 }
 
 android {
 
-    lintOptions {
-        abortOnError false
+  lintOptions {
+    abortOnError false
+  }
+
+  compileSdkVersion 19
+  buildToolsVersion "20.0.0"
+
+  signingConfigs {
+    release
+  }
+
+  //Read signing config from release.properties in root
+
+  if (rootProject.file("release.properties").exists()) {
+    def props = new Properties()
+    props.load(new FileInputStream(rootProject.file("release.properties")))
+
+    android.signingConfigs.release.storeFile rootProject.file(props.getProperty("keyStore"))
+    android.signingConfigs.release.storePassword props.getProperty("keyStorePassword")
+    android.signingConfigs.release.keyAlias props.getProperty("keyAlias")
+    android.signingConfigs.release.keyPassword props.getProperty("keyAliasPassword")
+  }
+
+  defaultConfig {
+    minSdkVersion 10
+    targetSdkVersion 19
+
+    versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+    versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+    buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
+  }
+
+  productFlavors {
+    beta {
+      versionCode versionMajorBeta * 10000 + versionMinorBeta * 1000 + versionPatchBeta * 100 + versionBuildBeta
+      versionName "${versionMajorBeta}.${versionMinorBeta}.${versionPatchBeta}-beta"
     }
 
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    production {
+      versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+      versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+    }
+  }
 
-    // Building from console
-    signingConfigs {
-        release {
+  buildTypes {
 
-            if (System.getenv("KEYSTORE") != null)
-                storeFile file(System.getenv("KEYSTORE"))
-            else if (console != null)
-                storeFile file(console.readLine("Enter keystore path: "))
+    debug {
+      buildConfigField "boolean", "USE_CRASHLYTICS", "false"
 
-            if (System.getenv("KEYSTORE_PASSWORD") != null)
-                storePassword System.getenv("KEYSTORE_PASSWORD")
-            else if (console != null)
-                storePassword console.readLine("Enter keystore password: ")
+      // Database name configuration
+      buildConfigField "String", "DATABASE", "\"studip_debug.db\""
 
-            if (System.getenv("KEY_ALIAS"))
-                keyAlias System.getenv("KEY_ALIAS")
-            else if (console != null)
-                keyAlias console.readLine("Enter alias key: ")
-
-            if (System.getenv("KEY_PASSWORD") != null)
-                keyPassword System.getenv("KEY_PASSWORD")
-            else if (console != null)
-                keyPassword console.readLine("Enter key password: ")
-
-        }
+      // SyncHelper threshold values
+      buildConfigField "int", "COURSES_SYNC_THRESHOLD", "5000"; // 1h
+      buildConfigField "int", "NEWS_SYNC_THRESHOLD", "5000"; // 1min
+      buildConfigField "int", "CONTACTS_SYNC_THRESHOLD", "5000"; // 1min
+      ext.enableCrashlytics = false;
+      versionNameSuffix '-DEBUG'
+      debuggable = true;
     }
 
+    release {
+      buildConfigField "boolean", "USE_CRASHLYTICS", "true"
 
+      // Database name configuration
+      buildConfigField "String", "DATABASE", "\"studip_encrypted.db\""
 
-    defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 19
+      // SyncHelper threshold values
+      buildConfigField "int", "COURSES_SYNC_THRESHOLD", "3600000"; // 1h
+      buildConfigField "int", "NEWS_SYNC_THRESHOLD", "60000"; // 1min
+      buildConfigField "int", "CONTACTS_SYNC_THRESHOLD", "60000"; // 1min
 
-        versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
-        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-        buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
+      ext.enableCrashlytics = true;
+      versionNameSuffix '-RELEASE'
+      debuggable = false;
+      signingConfig signingConfigs.release
+      runProguard = true
+      proguardFile 'proguard-project.txt'
+      proguardFile getDefaultProguardFile('proguard-android.txt')
     }
 
-    productFlavors {
-        beta {
-            versionCode versionMajorBeta * 10000 + versionMinorBeta * 1000 + versionPatchBeta * 100 + versionBuildBeta
-            versionName "${versionMajorBeta}.${versionMinorBeta}.${versionPatchBeta}-beta"
-        }
-
-        production {
-            versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
-            versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-        }
+    applicationVariants.all { variant ->
+      def file = variant.outputFile
+      variant.outputFile = new File(file.parent, file.name.replace(".apk",
+          "-" + variant.productFlavors.versionCode + "-" + variant.name + ".apk"))
     }
 
-    buildTypes {
+  }
 
-        debug {
-            buildConfigField "boolean", "USE_CRASHLYTICS", "false"
-
-            // Database name configuration
-            buildConfigField "String", "DATABASE", "\"studip_debug.db\""
-
-            // SyncHelper threshold values
-            buildConfigField "int", "COURSES_SYNC_THRESHOLD", "5000"; // 1h
-            buildConfigField "int", "NEWS_SYNC_THRESHOLD", "5000"; // 1min
-            buildConfigField "int", "CONTACTS_SYNC_THRESHOLD", "5000"; // 1min
-            ext.enableCrashlytics = false;
-            versionNameSuffix '-DEBUG'
-            debuggable = true;
-        }
-
-        release {
-            buildConfigField "boolean", "USE_CRASHLYTICS", "true"
-
-            // Database name configuration
-            buildConfigField "String", "DATABASE", "\"studip_encrypted.db\""
-
-            // SyncHelper threshold values
-            buildConfigField "int", "COURSES_SYNC_THRESHOLD", "3600000"; // 1h
-            buildConfigField "int", "NEWS_SYNC_THRESHOLD", "60000"; // 1min
-            buildConfigField "int", "CONTACTS_SYNC_THRESHOLD", "60000"; // 1min
-
-            ext.enableCrashlytics = true;
-            versionNameSuffix '-RELEASE'
-            debuggable = false;
-            signingConfig signingConfigs.release
-            runProguard = true
-            proguardFile 'proguard-project.txt'
-            proguardFile getDefaultProguardFile('proguard-android.txt')
-        }
-
-        applicationVariants.all { variant ->
-            def file = variant.outputFile
-            variant.outputFile = new File(file.parent, file.name.replace(".apk",
-                    "-" + variant.productFlavors.versionCode + "-" + variant.name + ".apk"))
-        }
-
-    }
-
-    packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/NOTICE'
-    }
+  packagingOptions {
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/NOTICE'
+  }
 
 }
