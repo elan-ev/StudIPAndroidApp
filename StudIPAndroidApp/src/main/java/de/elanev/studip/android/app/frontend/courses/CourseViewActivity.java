@@ -18,6 +18,7 @@ import com.actionbarsherlock.view.MenuItem;
 import java.util.List;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.frontend.util.TabbedFragmentActivity;
 
@@ -40,33 +41,44 @@ public class CourseViewActivity extends TabbedFragmentActivity {
     // Get intent data
     Bundle intentExtras = getIntent().getExtras();
 
-    // ViewPager, PagetAdapter setup
+    // Get activated modules for course
+    String modulesJson = intentExtras.getString(CoursesContract.Columns.Courses.COURSE_MODULES);
+    Course.Modules modules = Course.Modules.fromJson(modulesJson);
+
+    // ViewPager, PageAdapter setup
     mPager = new ViewPager(this);
     mPager.setId("VP".hashCode());
     setContentView(mPager);
     mPagerAdapter = new BasePagerTabsAdapter(this, getSupportFragmentManager(), mPager, mActionbar);
 
-    // Add the tabs to the PagerAdapter
+    // Add the tabs to the PagerAdapter, if activated.
     mPagerAdapter.addTab(mActionbar.newTab(),
-                         R.drawable.ic_action_seminar,
-                         R.string.Overview,
-                         CourseOverviewFragment.class,
-                         intentExtras);
-    mPagerAdapter.addTab(mActionbar.newTab(),
-                         R.drawable.ic_action_schedule,
-                         R.string.Schedule,
-                         CourseScheduleFragment.class,
-                         intentExtras);
-    mPagerAdapter.addTab(mActionbar.newTab(),
-                         R.drawable.ic_action_attendees,
-                         R.string.attendees,
-                         CourseAttendeesFragment.class,
-                         intentExtras);
-    mPagerAdapter.addTab(mActionbar.newTab(),
-                         R.drawable.ic_action_files,
-                         R.string.Documents,
-                         CourseDocumentsFragment.class,
-                         intentExtras);
+        R.drawable.ic_action_seminar,
+        R.string.Overview,
+        CourseOverviewFragment.class,
+        intentExtras);
+
+    if (modules.schedule) {
+      mPagerAdapter.addTab(mActionbar.newTab(),
+          R.drawable.ic_action_schedule,
+          R.string.Schedule,
+          CourseScheduleFragment.class,
+          intentExtras);
+    }
+    if (modules.participants) {
+      mPagerAdapter.addTab(mActionbar.newTab(),
+          R.drawable.ic_action_attendees,
+          R.string.attendees,
+          CourseAttendeesFragment.class,
+          intentExtras);
+    }
+    if (modules.documents) {
+      mPagerAdapter.addTab(mActionbar.newTab(),
+          R.drawable.ic_action_files,
+          R.string.Documents,
+          CourseDocumentsFragment.class,
+          intentExtras);
+    }
 
     // Setting Activity title
     setTitle(getIntent().getStringExtra(CoursesContract.Columns.Courses.COURSE_TITLE));
@@ -103,11 +115,8 @@ public class CourseViewActivity extends TabbedFragmentActivity {
       if (fList != null && fList.size() > 0) {
         for (Fragment f : fList) {
           if (f.getChildFragmentManager().getBackStackEntryCount() > 0) {
-            if (f.getChildFragmentManager().popBackStackImmediate()) {
-              return true;
-            } else {
-              return returnBackStackImmediate(f.getChildFragmentManager());
-            }
+            return f.getChildFragmentManager().popBackStackImmediate() || returnBackStackImmediate(f
+                .getChildFragmentManager());
           }
         }
       }
