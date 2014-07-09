@@ -151,7 +151,7 @@ public class SyncHelper {
   /**
    * Resets the internal SyncHelper state
    */
-  public static void resetSyncHelper() {
+  public void resetSyncHelper() {
     mLastCoursesSync = 0;
     mLastNewsSync = 0;
     mLastContactsSync = 0;
