@@ -472,9 +472,9 @@ public class SyncHelper {
               int studentRole = CoursesContract.USER_ROLE_STUDENT;
 
               for (Course c : response.courses) {
-                new CourseUsersInsertTask(c.teachers).execute(c.course_id, teacherRole);
-                new CourseUsersInsertTask(c.tutors).execute(c.course_id, tutorRole);
-                new CourseUsersInsertTask(c.students).execute(c.course_id, studentRole);
+                new CourseUsersInsertTask(c.teachers).execute(c.courseId, teacherRole);
+                new CourseUsersInsertTask(c.tutors).execute(c.courseId, tutorRole);
+                new CourseUsersInsertTask(c.students).execute(c.courseId, studentRole);
                 new UsersRequestTask().execute(c.teachers.toArray(new String[c.teachers.size()]));
               }
 
@@ -528,29 +528,29 @@ public class SyncHelper {
     // FIXME meh^2 on....
     for (Course c : courses.courses) {
       ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(CoursesContract.CONTENT_URI)
-          .withValue(CoursesContract.Columns.Courses.COURSE_ID, c.course_id)
+          .withValue(CoursesContract.Columns.Courses.COURSE_ID, c.courseId)
           .withValue(CoursesContract.Columns.Courses.COURSE_TITLE, c.title)
           .withValue(CoursesContract.Columns.Courses.COURSE_DESCIPTION, c.description)
           .withValue(CoursesContract.Columns.Courses.COURSE_SUBTITLE, c.subtitle)
           .withValue(CoursesContract.Columns.Courses.COURSE_LOCATION, c.location)
           .withValue(CoursesContract.Columns.Courses.COURSE_DURATION_TIME,
-              c.duration_time).withValue(CoursesContract.Columns.Courses.COURSE_COLOR, c.color)
+              c.durationTime).withValue(CoursesContract.Columns.Courses.COURSE_COLOR, c.color)
               // .withValue(CoursesContract.Columns.Courses.COURSE_NUMBER,
               // c.number)
           .withValue(CoursesContract.Columns.Courses.COURSE_TYPE, c.type)
               // .withValue(CoursesContract.Columns.Courses.COURSE_MODULES,
               // JSONWriter.writeValueAsString(c.modules))
-          .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME, c.start_time);
+          .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME, c.startTime);
 
-      if (c.duration_time == -1L) {
+      if (c.durationTime == -1L) {
         builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
             SemestersContract.UNLIMITED_COURSES_SEMESTER_ID);
-      } else if (c.duration_time > 0L) {
+      } else if (c.durationTime > 0L) {
         //TODO: Add these courses to the correct semester (c.start + duration between s.start, end)
         builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
             SemestersContract.UNLIMITED_COURSES_SEMESTER_ID);
       } else {
-        builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, c.semester_id);
+        builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, c.semesterId);
       }
       operations.add(builder.build());
     }
