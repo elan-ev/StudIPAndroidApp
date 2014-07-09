@@ -39,7 +39,8 @@ import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 /**
  * @author joern
  */
-public class CoursesFragment extends ProgressSherlockListFragment implements LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class CoursesFragment extends ProgressSherlockListFragment implements
+    LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
   public static final String TAG = CoursesFragment.class.getSimpleName();
 
   private static final String ID = CoursesContract.Columns.Courses._ID;
@@ -47,6 +48,7 @@ public class CoursesFragment extends ProgressSherlockListFragment implements Loa
   private static final String COLOR = CoursesContract.Columns.Courses.COURSE_COLOR;
   private static final String TYPE = CoursesContract.Columns.Courses.COURSE_TYPE;
   private static final String SEMESTER_ID = CoursesContract.Columns.Courses.COURSE_SEMESERT_ID;
+  private static final String MODULES = CoursesContract.Columns.Courses.COURSE_MODULES;
   private static final String SEMESTER_TITLE = SemestersContract.Columns.SEMESTER_TITLE;
 
   protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
@@ -104,10 +106,13 @@ public class CoursesFragment extends ProgressSherlockListFragment implements Loa
     Cursor cursor = (Cursor) mListView.getItemAtPosition(position);
     String courseId = cursor.getString(cursor.getColumnIndex(COURSE_ID));
     long cid = cursor.getLong(cursor.getColumnIndex(ID));
+    String modules = cursor.getString(cursor.getColumnIndex(MODULES));
+
     Intent intent = new Intent();
     intent.setClass(getActivity(), CourseViewActivity.class);
     intent.putExtra(CoursesContract.Columns.Courses.COURSE_ID, courseId);
     intent.putExtra(CoursesContract.Columns.Courses._ID, cid);
+    intent.putExtra(CoursesContract.Columns.Courses.COURSE_MODULES, modules);
 
     mContext.startActivity(intent);
   }
@@ -162,7 +167,7 @@ public class CoursesFragment extends ProgressSherlockListFragment implements Loa
   /*
    * Interface which encapsulates the content provider query projection array
    */
-  private static interface CourseQuery {
+  private interface CourseQuery {
 
     String[] PROJECTION = {
         CoursesContract.Qualified.Courses.COURSES_ID,
@@ -170,6 +175,7 @@ public class CoursesFragment extends ProgressSherlockListFragment implements Loa
         CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
         CoursesContract.Qualified.Courses.COURSES_COURSE_TYPE,
         CoursesContract.Qualified.Courses.COURSES_COURSE_COLOR,
+        CoursesContract.Qualified.Courses.COURSES_COURSE_MODULES,
         SemestersContract.Qualified.SEMESTERS_SEMESTER_ID,
         SemestersContract.Qualified.SEMESTERS_SEMESTER_TITLE
     };
