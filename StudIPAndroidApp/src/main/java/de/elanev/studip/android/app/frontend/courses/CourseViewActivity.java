@@ -21,6 +21,7 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.frontend.util.TabbedFragmentActivity;
+import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * Activity for displaying a ViewPager with tabs for course overview,
@@ -77,6 +78,13 @@ public class CourseViewActivity extends TabbedFragmentActivity {
           R.drawable.ic_action_files,
           R.string.Documents,
           CourseDocumentsFragment.class,
+          intentExtras);
+    }
+    if (Prefs.getInstance(this).isRecordingsEnabled()) {
+      mPagerAdapter.addTab(mActionbar.newTab(),
+          R.drawable.ic_action_recordings,
+          R.string.Recordings,
+          CourseRecordingsFragment.class,
           intentExtras);
     }
 
