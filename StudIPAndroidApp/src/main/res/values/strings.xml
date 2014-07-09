@@ -216,4 +216,7 @@
         frequently asked questions. Do you want to see it first?</string>
     <string name="faq_alert_dialog_negativ_button">No, send feedback.</string>
 
+    <!-- Course Recordings -->
+    <string name="Recordings">Recordings</string>
+
 </resources>
