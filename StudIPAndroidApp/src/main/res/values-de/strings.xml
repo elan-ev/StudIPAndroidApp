@@ -151,6 +151,7 @@
     <string name="user_profile_data">der Benutzerprofile</string>
     <string name="institutes">Ihrere Institute</string>
     <string name="your_user_data">Ihrer Benutzerdaten</string>
+    <string name="search_studip">Stud.IP suchen</string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Erfolgreich gelöscht</string>
