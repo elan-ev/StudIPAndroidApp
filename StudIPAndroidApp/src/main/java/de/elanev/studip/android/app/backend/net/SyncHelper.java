@@ -78,7 +78,7 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
- * A convenience class for interacting with the rest.IP endpoints
+ * A convenience class for interacting with the rest.IP endpoints.
  *
  * @author joern
  */
@@ -98,7 +98,7 @@ public class SyncHelper {
       DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
 
   private SyncHelper() {
-    this.mUsersCache = CacheBuilder.newBuilder()
+    mUsersCache = CacheBuilder.newBuilder()
         .maximumSize(1000)
         .expireAfterWrite(5, TimeUnit.MINUTES)
         .build(new CacheLoader<String, User>() {
@@ -521,11 +521,10 @@ public class SyncHelper {
 
   private static ArrayList<ContentProviderOperation> parseCourses(Courses courses) {
     ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-
+    // First delete any existing courses
     operations.add(ContentProviderOperation.newDelete(CoursesContract.CONTENT_URI).build());
-    String currentSemesterId = Prefs.getInstance(mContext).getCurrentSemesterId();
 
-    // FIXME meh^2 on....
+    // Then add new course information
     for (Course c : courses.courses) {
       ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(CoursesContract.CONTENT_URI)
           .withValue(CoursesContract.Columns.Courses.COURSE_ID, c.courseId)
@@ -533,13 +532,10 @@ public class SyncHelper {
           .withValue(CoursesContract.Columns.Courses.COURSE_DESCIPTION, c.description)
           .withValue(CoursesContract.Columns.Courses.COURSE_SUBTITLE, c.subtitle)
           .withValue(CoursesContract.Columns.Courses.COURSE_LOCATION, c.location)
-          .withValue(CoursesContract.Columns.Courses.COURSE_DURATION_TIME,
-              c.durationTime).withValue(CoursesContract.Columns.Courses.COURSE_COLOR, c.color)
-              // .withValue(CoursesContract.Columns.Courses.COURSE_NUMBER,
-              // c.number)
+          .withValue(CoursesContract.Columns.Courses.COURSE_DURATION_TIME, c.durationTime)
+          .withValue(CoursesContract.Columns.Courses.COURSE_COLOR, c.color)
           .withValue(CoursesContract.Columns.Courses.COURSE_TYPE, c.type)
-              // .withValue(CoursesContract.Columns.Courses.COURSE_MODULES,
-              // JSONWriter.writeValueAsString(c.modules))
+          .withValue(CoursesContract.Columns.Courses.COURSE_MODULES, c.modules.getAsJson())
           .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME, c.startTime);
 
       if (c.durationTime == -1L) {
@@ -554,7 +550,6 @@ public class SyncHelper {
       }
       operations.add(builder.build());
     }
-    // meh^2 off...
 
     return operations;
 
