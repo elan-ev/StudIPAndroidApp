@@ -212,4 +212,7 @@
     <string name="faq_alert_dialog_negativ_button">Nein, Feedback
         senden.</string>
 
+    <!-- Course Recordings -->
+    <string name="Recordings">Aufzeichnungen</string>
+
 </resources>
