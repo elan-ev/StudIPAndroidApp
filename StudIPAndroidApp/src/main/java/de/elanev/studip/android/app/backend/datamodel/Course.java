@@ -11,10 +11,14 @@
 package de.elanev.studip.android.app.backend.datamodel;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**
@@ -81,6 +85,32 @@ public class Course {
     //      public boolean documents_folder_permissions = false;
     //      public boolean calendar = false;
     //      public boolean resources = false;
+
+    @JsonIgnore
+    public String getAsJson() {
+      ObjectMapper mapper = new ObjectMapper();
+      String json = "";
+      try {
+        json = mapper.writeValueAsString(this);
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+      }
+      return json;
+    }
+
+    @JsonIgnore
+    public static Modules fromJson(String m) {
+      ObjectMapper mapper = new ObjectMapper();
+      Modules modules = null;
+      try {
+        modules = mapper.readValue(m, Modules.class);
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      return modules;
+    }
   }
 
 }
