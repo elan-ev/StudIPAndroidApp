@@ -10,51 +10,77 @@
  */
 package de.elanev.studip.android.app.backend.datamodel;
 
-import android.database.Cursor;
 
 import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import de.elanev.studip.android.app.backend.db.CoursesContract;
 
 /**
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Course {
-    public String course_id;
-    public Long start_time;
-    public Long duration_time;
-    public String title;
-    public String subtitle;
-    public int type;
-    public Modules modules;
-    public String description;
-    public String location;
-    public String semester_id;
-    public ArrayList<String> teachers;
-    public ArrayList<String> tutors;
-    public ArrayList<String> students;
-    public String color;
+  @JsonProperty("course_id")
+  public String courseId;
+  @JsonProperty("start_time")
+  public Long startTime;
+  @JsonProperty("duration_time")
+  public Long durationTime;
+  @JsonProperty("title")
+  public String title;
+  @JsonProperty("subtitle")
+  public String subtitle;
+  @JsonProperty("modules")
+  public Modules modules;
+  @JsonProperty("description")
+  public String description;
+  @JsonProperty("location")
+  public String location;
+  @JsonProperty("semester_id")
+  public String semesterId;
+  @JsonProperty("teachers")
+  public ArrayList<String> teachers;
+  @JsonProperty("tutors")
+  public ArrayList<String> tutors;
+  @JsonProperty("students")
+  public ArrayList<String> students;
+  @JsonProperty("color")
+  public String color;
+  //TODO: Check for what to use, otherwise remove it.
+  @JsonProperty("type")
+  public int type;
 
-    public Course() {
-    }
+  public Course() {
+  }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Modules {
-        public Boolean calendar = false;
-        public Boolean chat = false;
-        public Boolean documents = false;
-        public Boolean documents_folder_permissions = false;
-        public Boolean elearning_interface = false;
-        public Boolean forum = false;
-        public Boolean literature = false;
-        public Boolean participants = false;
-        public Boolean personal = false;
-        public Boolean schedule = false;
-        public Boolean scm = false;
-        public Boolean wiki = false;
-    }
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static class Modules {
+    // Course Overview
+    @JsonProperty("overview")
+    public boolean overview = false;
+    // Course documents
+    @JsonProperty("documents")
+    public boolean documents = false;
+    // Course schedule
+    @JsonProperty("schedule")
+    public boolean schedule = false;
+    // Course participants
+    @JsonProperty("participants")
+    public boolean participants = false;
+
+    /* Unused modules are commented out to save parse time. Enable if implementing the feature. */
+    //      public boolean admin = false;
+    //      public boolean forum = false;
+    //      public boolean personal = false;
+    //      public boolean literature = false;
+    //      public boolean wiki = false;
+    //      public boolean scm = false;
+    //      public boolean elearning_interface = false;
+    //      public boolean documents_folder_permissions = false;
+    //      public boolean calendar = false;
+    //      public boolean resources = false;
+  }
 
 }
