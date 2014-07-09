@@ -151,6 +151,7 @@
     <string name="user_profile_data">user profile data</string>
     <string name="institutes">institutes</string>
     <string name="your_user_data">your user data</string>
+    <string name="search_studip">Search Stud.IP</string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Successfully deleted</string>

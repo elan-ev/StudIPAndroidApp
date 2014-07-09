@@ -9,9 +9,11 @@
 package de.elanev.studip.android.app.backend.net.oauth;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +32,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -35,6 +40,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
@@ -57,16 +63,13 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
- * Created by joern on 03.05.14.
- */
-
-/**
  * The fragment that is holding the actual sign in and authorization logic.
  *
  * @author joern
  */
-public class SignInFragment extends SherlockListFragment implements SyncHelper.SyncHelperCallbacks, OAuthConnector.OAuthCallbacks {
-  public static final String REQEUEST_TOKEN_RECEIVED = "reqeuestTokenReceived";
+public class SignInFragment extends SherlockListFragment implements SyncHelper.SyncHelperCallbacks,
+    OAuthConnector.OAuthCallbacks, SearchView.OnQueryTextListener {
+  public static final String REQUEST_TOKEN_RECEIVED = "requestTokenReceived";
   public static final String AUTH_CANCELED = "authCanceled";
   private static final String TAG = SignInFragment.class.getSimpleName();
   private boolean mCoursesSynced = false;
@@ -101,18 +104,16 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
   public SignInFragment() {}
 
   /**
-   * Instantiates a new SignInFragment
+   * Instantiates a new SignInFragment.
    *
    * @return A new SignInFragment instance
    */
   public static SignInFragment newInstance() {
-    SignInFragment fragment = new SignInFragment();
-
-    return fragment;
+    return new SignInFragment();
   }
 
   /**
-   * Instantiates a new SignInFragment
+   * Instantiates a new SignInFragment.
    *
    * @return A new SignInFragment instance
    */
@@ -180,7 +181,7 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
     getSherlockActivity().setTitle(R.string.app_name);
     hideLoginForm();
     if (savedInstanceState != null) {
-      mRequestTokenReceived = savedInstanceState.getBoolean(REQEUEST_TOKEN_RECEIVED);
+      mRequestTokenReceived = savedInstanceState.getBoolean(REQUEST_TOKEN_RECEIVED);
     }
 
     Prefs prefs = Prefs.getInstance(getActivity());
@@ -207,7 +208,7 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
     setListAdapter(mAdapter);
     mAdapter.notifyDataSetChanged();
     mListView.setSelector(R.drawable.list_item_selector);
-
+    mListView.setTextFilterEnabled(true);
 
     showLoginForm();
     Button signInButton = (Button) getView().findViewById(R.id.sign_in_button);
@@ -240,7 +241,7 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
 
   @Override public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putBoolean(REQEUEST_TOKEN_RECEIVED, mRequestTokenReceived);
+    outState.putBoolean(REQUEST_TOKEN_RECEIVED, mRequestTokenReceived);
   }
 
   /* Hides the login form and sets the progress indicator as visible */
@@ -265,7 +266,7 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
   }
 
   /**
-   * Starts the next activity after prefetching
+   * Starts the next activity after prefetching.
    */
   public void startMainActivity() {
     Intent intent = new Intent(getActivity(), MainActivity.class);
@@ -370,8 +371,15 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
   }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.main, menu);
-    menu.removeItem(R.id.menu_sign_out);
+    inflater.inflate(R.menu.menu_sign_in, menu);
+
+    SearchManager searchManager = (SearchManager) getSherlockActivity().getSystemService(
+        Context.SEARCH_SERVICE);
+    SearchView searchView = (SearchView) menu.findItem(R.id.search_studip).getActionView();
+    searchView.setSearchableInfo(
+        searchManager.getSearchableInfo(getSherlockActivity().getComponentName()));
+    searchView.setSubmitButtonEnabled(false);
+    searchView.setOnQueryTextListener(this);
 
     super.onCreateOptionsMenu(menu, inflater);
   }
@@ -381,8 +389,8 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
     switch (item.getItemId()) {
       case R.id.menu_feedback:
         if (mSelectedServer != null) {
-          String contact_mail = mSelectedServer.getContactEmail();
-          StuffUtil.startFeedback(getActivity(), contact_mail);
+          String contactEmail = mSelectedServer.getContactEmail();
+          StuffUtil.startFeedback(getActivity(), contactEmail);
         }
         return true;
       case R.id.menu_about:
@@ -453,8 +461,8 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
         break;
     }
 
-    if (mContactsSynced && mMessagesSynced && mCoursesSynced && mNewsSynced && mUsersSynced &&
-        mSemestersSynced && mInstitutesSynced) {
+    if (mContactsSynced && mMessagesSynced && mCoursesSynced && mNewsSynced && mUsersSynced
+        && mSemestersSynced && mInstitutesSynced) {
 
       mCoursesSynced = false;
       mContactsSynced = false;
@@ -468,7 +476,6 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
       if (getActivity() != null) {
         startMainActivity();
       }
-      return;
     }
   }
 
@@ -485,7 +492,7 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
         break;
       case SyncHelper.SyncHelperCallbacks.ERROR_USER_SYNC:
         finalErrorMessage = String.format(genericErrorMessage,
-            getString(R.string.user_profile_data));
+                                          getString(R.string.user_profile_data));
         break;
       case SyncHelper.SyncHelperCallbacks.ERROR_SEMESTER_SYNC:
         finalErrorMessage = String.format(genericErrorMessage, getString(R.string.semesters));
@@ -537,39 +544,36 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
 
     String url = String.format(getString(R.string.restip_user), mSelectedServer.getApiUrl());
 
-    JacksonRequest<User> request = new JacksonRequest<User>(url,
-        User.class,
-        null,
-        new Response.Listener<User>() {
-          @Override public void onResponse(User response) {
-            Prefs.getInstance(getActivity()).setUserId(response.user_id);
-            performPrefetchSync();
-          }
-        },
-        new Response.ErrorListener() {
-          @Override public void onErrorResponse(VolleyError error) {
-            Log.wtf(TAG, "Error requesting user details: " + error.getLocalizedMessage() +
-                "ErrorCode: " + error.networkResponse.statusCode);
+    JacksonRequest<User> request = new JacksonRequest<User>(url, User.class, null,
+                                                            new Response.Listener<User>() {
+                                                              @Override public void onResponse(User response) {
+                                                                Prefs.getInstance(getActivity())
+                                                                    .setUserId(response.user_id);
+                                                                performPrefetchSync();
+                                                              }
+                                                            }, new Response.ErrorListener() {
+      @Override public void onErrorResponse(VolleyError error) {
+        Log.wtf(TAG, "Error requesting user details: " + error.getLocalizedMessage() + "ErrorCode: "
+            + error.networkResponse.statusCode);
 
-            // Build error message
-            String genericMessage = getString(R.string.sync_error_generic);
-            String errorPosition = getString(R.string.your_user_data);
-            StringBuilder sb = new StringBuilder(String.format(genericMessage, errorPosition));
-            String err = error.getLocalizedMessage();
-            if (err != null) {
-              sb.append(err);
-            } else {
-              sb.append("ErrorCode: ").append(error.networkResponse.statusCode);
-            }
+        // Build error message
+        String genericMessage = getString(R.string.sync_error_generic);
+        String errorPosition = getString(R.string.your_user_data);
+        StringBuilder sb = new StringBuilder(String.format(genericMessage, errorPosition));
+        String err = error.getLocalizedMessage();
+        if (err != null) {
+          sb.append(err);
+        } else {
+          sb.append("ErrorCode: ").append(error.networkResponse.statusCode);
+        }
 
 
-            // Toast error and display login form
-            Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
-            resetSignInActivityState();
-            showLoginForm();
-          }
-        },
-        Request.Method.GET
+        // Toast error and display login form
+        Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
+        resetSignInActivityState();
+        showLoginForm();
+      }
+    }, Request.Method.GET
     );
 
     try {
@@ -597,18 +601,36 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
     showLoginForm();
   }
 
+  @Override public boolean onQueryTextSubmit(String s) {
+    return false;
+  }
+
+  @Override public boolean onQueryTextChange(String s) {
+    // this is your adapter that will be filtered
+    if (TextUtils.isEmpty(s)) {
+      mListView.clearTextFilter();
+    } else {
+      mListView.setFilterText(s);
+    }
+
+    return true;
+  }
+
   public interface OnRequestTokenReceived {
-    public void requestTokenReceived(String authUrl);
+    void requestTokenReceived(String authUrl);
   }
 
   /* Array adapter class which holds and displays the saved servers */
-  private class ServerAdapter extends ArrayAdapter<Server> {
-    private Context context;
-    private int textViewResourceId;
-    private Server[] data = null;
+  private class ServerAdapter extends ArrayAdapter<Server> implements Filterable {
+    private Context mContext;
+    private int mTextViewResourceId;
+    private Server[] mData = null;
+    private ServerFilter mFilter = null;
+    private Server[] mOriginalData;
+    private final Object lock = new Object();
 
     /**
-     * Public constructor which takes the context, viewRessource and
+     * Public constructor which takes the context, viewResource and
      * server data and initializes it.
      *
      * @param context            the execution context
@@ -617,29 +639,85 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
      */
     public ServerAdapter(Context context, int textViewResourceId, Server[] data) {
       super(context, textViewResourceId);
-      this.context = context;
-      this.textViewResourceId = textViewResourceId;
-      this.data = data;
+      this.mContext = context;
+      this.mTextViewResourceId = textViewResourceId;
+      this.mData = data;
+    }
+
+    @Override public Filter getFilter() {
+      if (mFilter == null) {
+        return new ServerFilter();
+      } else {
+        return mFilter;
+      }
     }
 
     @Override public int getCount() {
-      return data.length;
+      return mData.length;
     }
 
     @Override public Server getItem(int position) {
-      return data[position];
+      return mData[position];
     }
 
     @Override public View getView(int position, View convertView, ViewGroup parent) {
       if (convertView == null) {
-        LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-        convertView = inflater.inflate(textViewResourceId, parent, false);
+        LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
+        convertView = inflater.inflate(mTextViewResourceId, parent, false);
       }
 
-      Server server = data[position];
+      Server server = mData[position];
       ((TextView) convertView.findViewById(android.R.id.text1)).setText(server.getName());
       convertView.setTag(server);
       return convertView;
+    }
+
+    private class ServerFilter extends Filter {
+
+      @Override protected FilterResults performFiltering(CharSequence constraint) {
+        FilterResults result = new FilterResults();
+
+        if (mOriginalData == null) {
+          synchronized (lock) {
+            mOriginalData = mData.clone();
+          }
+        }
+
+        if (constraint.length() > 0) {
+          String lowerCaseConstraint = constraint.toString().toLowerCase();
+          ArrayList<Server> filtered = new ArrayList<Server>();
+          Server[] values = mOriginalData;
+
+          for (Server s : values) {
+            if (s.getName().toLowerCase().contains(lowerCaseConstraint)) {
+              filtered.add(s);
+            }
+          }
+          result.count = filtered.size();
+          result.values = filtered.toArray(new Server[filtered.size()]);
+
+        } else {
+
+          synchronized (lock) {
+            Server[] serversArray = mOriginalData.clone();
+            result.values = serversArray;
+            result.count = serversArray.length;
+          }
+        }
+
+        return result;
+      }
+
+      @Override protected void publishResults(CharSequence constraint, FilterResults results) {
+        mData = (Server[]) results.values;
+
+        if (results.count > 0) {
+          notifyDataSetChanged();
+        } else {
+          notifyDataSetInvalidated();
+        }
+      }
+
     }
   }
 }
