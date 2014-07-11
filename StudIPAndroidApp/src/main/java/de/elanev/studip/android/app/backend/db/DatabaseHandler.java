@@ -18,8 +18,17 @@ import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
+  private static final Patch[] PATCHES = new Patch[]{
+      // First db migration, create table for recordings.
+      new Patch() {
+        @Override public void apply(SQLiteDatabase db) {
+          db.execSQL(RecordingsContract.CREATE_TABLE_RECORDINGS);
+        }
+      }
+  };
 
-  private static final int DATABASE_VERSION = 9;
+  // Add patch count to the existing db version for backward compatibility
+  private static final int DATABASE_VERSION = 9 + PATCHES.length;
 
   private static final String DATABASE_NAME = BuildConfig.DATABASE;
   private static final String LEGACY_DATABASE_NAME = "studip.db";
@@ -69,7 +78,34 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
   @Override
   public void onCreate(SQLiteDatabase db) {
+    // Install the previous Database.
+    installDb(db);
 
+    // Run the full migration path since introduction.
+    for (Patch patch : PATCHES) {
+      patch.apply(db);
+    }
+  }
+
+  @Override
+  public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    int normalizedOld = oldVersion - 9;
+    int normlizedNew = newVersion - 9;
+    for (int i = normalizedOld; i < normlizedNew; i++) {
+      PATCHES[i].apply(db);
+    }
+  }
+
+  @Override
+  public void onOpen(SQLiteDatabase db) {
+    db.execSQL("PRAGMA foreign_keys = ON;");
+    super.onOpen(db);
+  }
+
+  /*
+   * Runs the installation process for previous db schema.
+   */
+  private void installDb(SQLiteDatabase db) {
     // Semesters
     db.execSQL(SemestersContract.CREATE_STRING);
     db.execSQL("INSERT INTO semesters (semester_id, title) VALUES ('" +
@@ -87,8 +123,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // Users
     db.execSQL(UsersContract.CREATE_STRING);
-    db.execSQL("INSERT INTO users (user_id, title_pre, forename, lastname, title_post) " +
-        "VALUES ('____%system%____', '', 'Stud.IP', '', '')");
+    db.execSQL("INSERT INTO users (user_id, title_pre, forename, lastname, title_post) "
+        + "VALUES ('____%system%____', '', 'Stud.IP', '', '')");
 
     // Documents
     db.execSQL(DocumentsContract.CREATE_STRING);
@@ -106,55 +142,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     db.execSQL(ContactsContract.CREATE_TABLE_CONTACT_GROUPS_STRING);
     db.execSQL(ContactsContract.CREATE_TABLE_CONTACT_GROUP_MEMBERS_STRING);
 
-    //Authentication
+    // Authentication
     db.execSQL(AuthenticationContract.CREATE_TABLE_AUTHENTICATION);
 
     // Institutes
     db.execSQL(InstitutesContract.CREATE_STRING);
-
   }
 
-  @Override
-  public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    // Semesters
-    db.execSQL("drop table if exists " + SemestersContract.TABLE);
-
-    // News
-    db.execSQL("drop table if exists " + NewsContract.TABLE);
-
-    // Courses
-    db.execSQL("drop table if exists " + CoursesContract.TABLE_COURSES);
-    db.execSQL("drop table if exists " + CoursesContract.TABLE_COURSE_USER);
-
-    // Users
-    db.execSQL("drop table if exists " + UsersContract.TABLE);
-
-    // Documents
-    db.execSQL("drop table if exists " + DocumentsContract.TABLE_DOCUMENTS);
-    db.execSQL("drop table if exists " + DocumentsContract.TABLE_DOCUMENT_FOLDERS);
-
-    // Messages
-    db.execSQL("drop table if exists " + MessagesContract.TABLE_MESSAGES);
-    db.execSQL("drop table if exists " + MessagesContract.TABLE_MESSAGE_FOLDERS);
-
-    // Events
-    db.execSQL("drop table if exists " + EventsContract.TABLE);
-
-    // Contacts
-    db.execSQL("drop table if exists " + ContactsContract.TABLE_CONTACTS);
-    db.execSQL("drop table if exists " + ContactsContract.TABLE_CONTACT_GROUPS);
-    db.execSQL("drop table if exists " + ContactsContract.TABLE_CONTACT_GROUP_MEMBERS);
-
-    // Authentication
-    db.execSQL("drop table if exists " + AuthenticationContract.TABLE_AUTHENTICATION);
-
-    onCreate(db);
-  }
-
-
-  @Override
-  public void onOpen(SQLiteDatabase db) {
-    db.execSQL("PRAGMA foreign_keys = ON;");
-    super.onOpen(db);
+  /*
+   * Abstract Patch class to encapsulate each database migration
+   */
+  private abstract static class Patch {
+    public abstract void apply(SQLiteDatabase db);
   }
 }
