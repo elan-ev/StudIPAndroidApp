@@ -17,6 +17,7 @@
     <string name="restip_courses_courseid_members" translatable="false">%1$s/courses/%2$s/members"</string>
     <string name="restip_courses_courseid_members_status" translatable="false">%1$s/courses/%2$s/members/%3$s"</string>
     <string name="restip_courses_courseid_events" translatable="false">%1$s/courses/%2$s/events"</string>
+    <string name="restip_courses_courseid_ocepisodes" translatable="false">%1$s/courses/%2$s/oc_episodes</string>
 
     <!-- Documents -->
     <string name="restip_documents_documentid" translatable="false">%1$s/documents/%2$s</string>
