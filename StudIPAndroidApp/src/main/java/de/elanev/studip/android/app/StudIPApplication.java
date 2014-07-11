@@ -45,19 +45,6 @@ public class StudIPApplication extends Application {
   public void onCreate() {
     super.onCreate();
 
-    if (BuildConfig.DEBUG) {
-      final Thread.UncaughtExceptionHandler subclass = Thread.currentThread()
-          .getUncaughtExceptionHandler();
-      Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-        @Override
-        public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
-          Log.getStackTraceString(paramThrowable);
-
-          subclass.uncaughtException(paramThread, paramThrowable);
-        }
-      });
-    }
-
     // create instance
     mInstance = this;
 
