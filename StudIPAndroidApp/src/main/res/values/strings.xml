@@ -217,6 +217,9 @@
     <string name="faq_alert_dialog_negativ_button">No, send feedback.</string>
 
     <!-- Course Recordings -->
-    <string name="Recordings">Recordings</string>
+    <string name="Recordings">OC Episodes</string>
+    <string name="no_recordings">No recordings available</string>
+    <string name="preview_image">Preview image</string>
+    <string name="recordings_chooser_title">Play recording with</string>
 
 </resources>
