@@ -53,6 +53,8 @@ import de.elanev.studip.android.app.backend.datamodel.MessageFolders;
 import de.elanev.studip.android.app.backend.datamodel.Messages;
 import de.elanev.studip.android.app.backend.datamodel.News;
 import de.elanev.studip.android.app.backend.datamodel.NewsItem;
+import de.elanev.studip.android.app.backend.datamodel.Recording;
+import de.elanev.studip.android.app.backend.datamodel.Recordings;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
 import de.elanev.studip.android.app.backend.datamodel.Semesters;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -63,6 +65,7 @@ import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
 import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
+import de.elanev.studip.android.app.backend.db.RecordingsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
@@ -472,6 +475,7 @@ public class SyncHelper {
               int studentRole = CoursesContract.USER_ROLE_STUDENT;
 
               for (Course c : response.courses) {
+                requestRecordingsForCourse(c.courseId, callbacks);
                 new CourseUsersInsertTask(c.teachers).execute(c.courseId, teacherRole);
                 new CourseUsersInsertTask(c.tutors).execute(c.courseId, tutorRole);
                 new CourseUsersInsertTask(c.students).execute(c.courseId, studentRole);
@@ -1237,31 +1241,124 @@ public class SyncHelper {
     }
   }
 
+  public void requestRecordingsForCourse(final String courseId,
+      final SyncHelperCallbacks callbacks) {
+    String recordingsUrl = String.format(mContext.getString(R.string.restip_courses_courseid_ocepisodes),
+        mServer.getApiUrl(),
+        courseId);
+
+    JacksonRequest<Recordings> recordingsRequest = new JacksonRequest<Recordings>(recordingsUrl,
+        Recordings.class,
+        null,
+        new Listener<Recordings>() {
+          @Override public void onResponse(Recordings response) {
+            ArrayList<ContentProviderOperation> ops = parseRecordings(response, courseId);
+            if (!ops.isEmpty()) {
+              try {
+                mContext.getContentResolver().applyBatch(AbstractContract.CONTENT_AUTHORITY, ops);
+                if (callbacks != null) {
+                  callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_RECORDINGS_SYNC);
+                }
+              } catch (RemoteException e) {
+                e.printStackTrace();
+              } catch (OperationApplicationException e) {
+                e.printStackTrace();
+              }
+            }
+          }
+        },
+        new ErrorListener() {
+          @Override public void onErrorResponse(VolleyError error) {
+            if (callbacks != null) {
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_RECORDINGS_SYNC, error);
+            }
+            Log.e(TAG, String.format("Network request error %d", error.networkResponse.statusCode));
+          }
+        },
+        Method.GET
+    );
+
+    try {
+      recordingsRequest.setRetryPolicy(mRetryPolicy);
+      recordingsRequest.setPriority(Request.Priority.NORMAL);
+      OAuthConnector.with(mServer).sign(recordingsRequest);
+      StudIPApplication.getInstance().addToRequestQueue(recordingsRequest);
+      if (callbacks != null) {
+        callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_RECORDINGS_SYNC);
+      }
+    } catch (OAuthCommunicationException e) {
+      e.printStackTrace();
+    } catch (OAuthExpectationFailedException e) {
+      e.printStackTrace();
+    } catch (OAuthMessageSignerException e) {
+      e.printStackTrace();
+    } catch (OAuthNotAuthorizedException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  private static ArrayList<ContentProviderOperation> parseRecordings(Recordings recordings,
+      String courseId) {
+    ArrayList<Recording> recs = recordings.getRecordings();
+    ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+    for (Recording r : recs) {
+      ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
+          RecordingsContract.CONTENT_URI);
+
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_ID, r.getId());
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_AUDIO_DOWNLOAD,
+          r.getAudioDownload());
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_AUTHOR, r.getAuthor());
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_COURSE_ID, courseId);
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_DESCRIPTION,
+          r.getDescription());
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_DURATION, r.getDuration());
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_EXTERNAL_PLAYER_URL,
+          r.getExternalPlayerUrl());
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_PRESENTATION_DOWNLOAD,
+          r.getPresentationDownload());
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_PRESENTER_DOWNLOAD,
+          r.getPresenterDownload());
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_PREVIEW, r.getPreview());
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_START, r.getStart());
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_TITLE, r.getTitle());
+      
+      ops.add(builder.build());
+    }
+
+    return ops;
+  }
+
   /**
    * Callback interface for clients to interact with the SyncHelper
    */
   public interface SyncHelperCallbacks {
-    public static final int STARTED_COURSES_SYNC = 101;
-    public static final int STARTED_NEWS_SYNC = 102;
-    public static final int STARTED_SEMESTER_SYNC = 103;
-    public static final int STARTED_CONTACTS_SYNC = 104;
-    public static final int STARTED_MESSAGES_SYNC = 105;
-    public static final int STARTED_USER_SYNC = 106;
-    public static final int STARTED_INSTITUTES_SYNC = 107;
-    public static final int FINISHED_COURSES_SYNC = 201;
-    public static final int FINISHED_NEWS_SYNC = 202;
-    public static final int FINISHED_SEMESTER_SYNC = 203;
-    public static final int FINISHED_CONTACTS_SYNC = 204;
-    public static final int FINISHED_MESSAGES_SYNC = 205;
-    public static final int FINISHED_USER_SYNC = 206;
-    public static final int FINISHED_INSTITUTES_SYNC = 207;
-    public static final int ERROR_COURSES_SYNC = 301;
-    public static final int ERROR_NEWS_SYNC = 302;
-    public static final int ERROR_SEMESTER_SYNC = 303;
-    public static final int ERROR_CONTACTS_SYNC = 304;
-    public static final int ERROR_MESSAGES_SYNC = 305;
-    public static final int ERROR_USER_SYNC = 306;
-    public static final int ERROR_INSTITUTES_SYNC = 307;
+    int STARTED_COURSES_SYNC = 101;
+    int STARTED_NEWS_SYNC = 102;
+    int STARTED_SEMESTER_SYNC = 103;
+    int STARTED_CONTACTS_SYNC = 104;
+    int STARTED_MESSAGES_SYNC = 105;
+    int STARTED_USER_SYNC = 106;
+    int STARTED_INSTITUTES_SYNC = 107;
+    int STARTED_RECORDINGS_SYNC = 108;
+    int FINISHED_COURSES_SYNC = 201;
+    int FINISHED_NEWS_SYNC = 202;
+    int FINISHED_SEMESTER_SYNC = 203;
+    int FINISHED_CONTACTS_SYNC = 204;
+    int FINISHED_MESSAGES_SYNC = 205;
+    int FINISHED_USER_SYNC = 206;
+    int FINISHED_INSTITUTES_SYNC = 207;
+    int FINISHED_RECORDINGS_SYNC = 208;
+    int ERROR_COURSES_SYNC = 301;
+    int ERROR_NEWS_SYNC = 302;
+    int ERROR_SEMESTER_SYNC = 303;
+    int ERROR_CONTACTS_SYNC = 304;
+    int ERROR_MESSAGES_SYNC = 305;
+    int ERROR_USER_SYNC = 306;
+    int ERROR_INSTITUTES_SYNC = 307;
+    int ERROR_RECORDINGS_SYNC = 308;
 
     public void onSyncStarted();
 
