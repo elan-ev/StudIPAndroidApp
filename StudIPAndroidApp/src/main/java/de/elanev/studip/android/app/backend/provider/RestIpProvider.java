@@ -40,6 +40,7 @@ import de.elanev.studip.android.app.backend.db.EventsContract;
 import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
+import de.elanev.studip.android.app.backend.db.RecordingsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
@@ -66,6 +67,7 @@ public class RestIpProvider extends ContentProvider {
   private static final int COURSE_USER_ID = 204;
   private static final int COURSES_IDS = 205;
   private static final int COURSE_ID = 206;
+  private static final int COURSES_ID_RECORDINGS = 207;
   private static final int USERS = 300;
   private static final int USERS_ID = 301;
   private static final int USERS_COURSE_ID = 302;
@@ -100,6 +102,7 @@ public class RestIpProvider extends ContentProvider {
   private static final int CONTACTS_GROUP_MEMBERS_GROUPID = 805;
   private static final int AUTHENTICATION = 900;
   private static final int INSTITUTES = 1000;
+  private static final int RECORDINGS = 1100;
   private long mLastDocumentsSync = -1;
   private long mLastCoursesSync = -1;
   private long mLastNewsSync = -1;
@@ -129,6 +132,7 @@ public class RestIpProvider extends ContentProvider {
     matcher.addURI(authority, "courses/ids", COURSES_IDS);
     matcher.addURI(authority, "courses/events/*", COURSES_ID_EVENTS);
     matcher.addURI(authority, "courses/userids/*", COURSE_USER_ID);
+    matcher.addURI(authority, "courses/recordings/*", COURSES_ID_RECORDINGS);
     matcher.addURI(authority, "courses/#", COURSES_ID);
     matcher.addURI(authority, "course/#", COURSE_ID);
 
@@ -181,6 +185,9 @@ public class RestIpProvider extends ContentProvider {
 
     // matchers for institutes
     matcher.addURI(authority, "institutes", INSTITUTES);
+
+    // match for recordings
+    matcher.addURI(authority, "recordings", RECORDINGS);
 
     return matcher;
   }
@@ -438,6 +445,29 @@ public class RestIpProvider extends ContentProvider {
             orderBy);
 
         c.setNotificationUri(getContext().getContentResolver(), EventsContract.CONTENT_URI);
+        break;
+      }
+      case COURSES_ID_RECORDINGS: {
+        String cid = uri.getLastPathSegment();
+
+        if (TextUtils.isEmpty(sortOrder)) {
+          orderBy = RecordingsContract.DEFAULT_SORT_ORDER;
+        } else {
+          orderBy = sortOrder;
+        }
+
+        String whereStr = "(" + RecordingsContract.Columns.Recordings.RECORDING_COURSE_ID + " = "
+            + "'" + cid + "')" +
+            (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : "");
+        c = db.query(RecordingsContract.TABLE_RECORDINGS,
+            projection,
+            whereStr,
+            selectionArgs,
+            null,
+            null,
+            orderBy);
+
+        c.setNotificationUri(getContext().getContentResolver(), RecordingsContract.CONTENT_URI);
         break;
       }
       case USERS:
@@ -962,6 +992,14 @@ public class RestIpProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(InstitutesContract.CONTENT_URI, rowId);
       }
+      case RECORDINGS: {
+        long rowId = db.insertWithOnConflict(RecordingsContract.TABLE_RECORDINGS,
+            null,
+            values,
+            SQLiteDatabase.CONFLICT_REPLACE);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return ContentUris.withAppendedId(RecordingsContract.CONTENT_URI, rowId);
+      }
       default: {
         throw new UnsupportedOperationException("Unsupported insert uri: " + uri);
       }
@@ -1320,6 +1358,10 @@ public class RestIpProvider extends ContentProvider {
       }
       case INSTITUTES: {
         return db.delete(InstitutesContract.TABLE, selection, selectionArgs);
+      }
+
+      case RECORDINGS: {
+        return db.delete(RecordingsContract.TABLE_RECORDINGS, selection, selectionArgs);
       }
 
       default: {
