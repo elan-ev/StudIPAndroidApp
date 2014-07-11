@@ -37,7 +37,8 @@
             android:name=".backend.net.oauth.SignInActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
-            android:excludeFromRecents="true">
+            android:excludeFromRecents="true"
+            android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
             android:name=".backend.net.oauth.WebViewActivity"
