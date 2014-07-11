@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2014 ELAN e.V.
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the GNU Public License v3.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.gnu.org/licenses/gpl.html
+  -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <FrameLayout
+        android:layout_width="@dimen/preview_image_width"
+        android:layout_height="@dimen/preview_image_height"
+        android:id="@+id/preview_image_container">
+
+        <ImageView
+            android:id="@+id/preview_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/nobody_normal"
+            android:contentDescription="@string/preview_image"/>
+
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="bottom|right"
+            android:paddingRight="@dimen/layout_padding_normal"
+            android:textColor="@color/primary_text_dark"
+            android:textSize="@dimen/text_size_small"
+            android:textIsSelectable="false"
+            android:background="#80000000"
+            tools:text="12:00"/>
+    </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/layout_margin_small"
+        android:paddingLeft="@dimen/layout_padding_normal"
+        android:textColor="@color/primary_text_light"
+        android:textSize="@dimen/text_size_medium"
+        android:textIsSelectable="false"
+        android:maxLines="2"
+        android:ellipsize="end"
+        tools:text="Computergrafik (Di., 22.04.2014, 10:00 - 12:00, Ort: 31/E06)"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/preview_image_container"/>
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/preview_image_width"
+        android:layout_marginBottom="@dimen/layout_margin_small"
+        android:layout_below="@id/title"
+        android:paddingLeft="@dimen/layout_padding_normal"
+        android:textColor="@color/secondary_text_light"
+        android:textSize="@dimen/text_size_small"
+        android:textIsSelectable="false"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:ellipsize="end"
+        tools:text="22.04.2014"/>
+
+    <TextView
+        android:id="@+id/author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/preview_image_width"
+        android:layout_marginBottom="@dimen/layout_margin_small"
+        android:layout_below="@id/date"
+        android:paddingLeft="@dimen/layout_padding_normal"
+        android:textColor="@color/secondary_text_light"
+        android:textSize="@dimen/text_size_small"
+        android:textIsSelectable="false"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:ellipsize="end"
+        tools:text="Prof.Dr. Oliver Vornberger , Nils Haldenwang, M.Sc.)"
+        />
+
+</RelativeLayout>
