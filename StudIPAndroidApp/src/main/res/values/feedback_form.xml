@@ -8,7 +8,8 @@
 <resources>
 
     <string name="feedback_form_developer_mail" translatable="false">studipmobil@elan-ev.de</string>
-    <string name="feedback_form_subject" translatable="false">Stud.IP mobil Android Feedback</string>
+    <string name="feedback_form_subject" translatable="false">Stud.IP mobil Android
+        Feedback [%1$s]</string>
     <string name="feedback_form_message_template">
         Wenn Sie Fragen, Wünsche, Bemerkungen oder ein Fehler entdeckt haben,
         können Sie uns gerne Feedback senden.\nWir kümmern uns dann darum.\n\n===============\n
