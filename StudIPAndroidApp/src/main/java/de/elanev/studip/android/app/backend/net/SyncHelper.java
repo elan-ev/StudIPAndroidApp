@@ -95,6 +95,7 @@ public class SyncHelper {
   private static long mLastNewsSync = 0;
   private static long mLastContactsSync = 0;
   private static long mLastCoursesSync = 0;
+  private static long mLastRecordingsSync = 0;
   // TODO Make dependent on device connection type
   private final DefaultRetryPolicy mRetryPolicy = new DefaultRetryPolicy(30000,
       DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -475,7 +476,9 @@ public class SyncHelper {
               int studentRole = CoursesContract.USER_ROLE_STUDENT;
 
               for (Course c : response.courses) {
-                requestRecordingsForCourse(c.courseId, callbacks);
+                if (mServer.isRecordingsEnabled()) {
+                  requestRecordingsForCourse(c.courseId, callbacks);
+                }
                 new CourseUsersInsertTask(c.teachers).execute(c.courseId, teacherRole);
                 new CourseUsersInsertTask(c.tutors).execute(c.courseId, tutorRole);
                 new CourseUsersInsertTask(c.students).execute(c.courseId, studentRole);
@@ -1243,57 +1246,64 @@ public class SyncHelper {
 
   public void requestRecordingsForCourse(final String courseId,
       final SyncHelperCallbacks callbacks) {
-    String recordingsUrl = String.format(mContext.getString(R.string.restip_courses_courseid_ocepisodes),
-        mServer.getApiUrl(),
-        courseId);
+    long currTime = System.currentTimeMillis();
+    if ((currTime - mLastRecordingsSync) > BuildConfig.RECORDINGS_SYNC_THRESHOLD) {
+      mLastRecordingsSync = currTime;
+      Log.i(TAG, "SYNCING RECORDINGS");
 
-    JacksonRequest<Recordings> recordingsRequest = new JacksonRequest<Recordings>(recordingsUrl,
-        Recordings.class,
-        null,
-        new Listener<Recordings>() {
-          @Override public void onResponse(Recordings response) {
-            ArrayList<ContentProviderOperation> ops = parseRecordings(response, courseId);
-            if (!ops.isEmpty()) {
-              try {
-                mContext.getContentResolver().applyBatch(AbstractContract.CONTENT_AUTHORITY, ops);
-                if (callbacks != null) {
-                  callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_RECORDINGS_SYNC);
+      String recordingsUrl = String.format(mContext.getString(R.string.restip_courses_courseid_ocepisodes),
+          mServer.getApiUrl(),
+          courseId);
+
+      JacksonRequest<Recordings> recordingsRequest = new JacksonRequest<Recordings>(recordingsUrl,
+          Recordings.class,
+          null,
+          new Listener<Recordings>() {
+            @Override public void onResponse(Recordings response) {
+              ArrayList<ContentProviderOperation> ops = parseRecordings(response, courseId);
+              if (!ops.isEmpty()) {
+                try {
+                  mContext.getContentResolver().applyBatch(AbstractContract.CONTENT_AUTHORITY, ops);
+                  if (callbacks != null) {
+                    callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_RECORDINGS_SYNC);
+                  }
+                } catch (RemoteException e) {
+                  e.printStackTrace();
+                } catch (OperationApplicationException e) {
+                  e.printStackTrace();
                 }
-              } catch (RemoteException e) {
-                e.printStackTrace();
-              } catch (OperationApplicationException e) {
-                e.printStackTrace();
               }
             }
-          }
-        },
-        new ErrorListener() {
-          @Override public void onErrorResponse(VolleyError error) {
-            if (callbacks != null) {
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_RECORDINGS_SYNC, error);
+          },
+          new ErrorListener() {
+            @Override public void onErrorResponse(VolleyError error) {
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_RECORDINGS_SYNC, error);
+              }
+              Log.e(TAG,
+                  String.format("Network request error %d", error.networkResponse.statusCode));
             }
-            Log.e(TAG, String.format("Network request error %d", error.networkResponse.statusCode));
-          }
-        },
-        Method.GET
-    );
+          },
+          Method.GET
+      );
 
-    try {
-      recordingsRequest.setRetryPolicy(mRetryPolicy);
-      recordingsRequest.setPriority(Request.Priority.NORMAL);
-      OAuthConnector.with(mServer).sign(recordingsRequest);
-      StudIPApplication.getInstance().addToRequestQueue(recordingsRequest);
-      if (callbacks != null) {
-        callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_RECORDINGS_SYNC);
+      try {
+        recordingsRequest.setRetryPolicy(mRetryPolicy);
+        recordingsRequest.setPriority(Request.Priority.NORMAL);
+        OAuthConnector.with(mServer).sign(recordingsRequest);
+        StudIPApplication.getInstance().addToRequestQueue(recordingsRequest);
+        if (callbacks != null) {
+          callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_RECORDINGS_SYNC);
+        }
+      } catch (OAuthCommunicationException e) {
+        e.printStackTrace();
+      } catch (OAuthExpectationFailedException e) {
+        e.printStackTrace();
+      } catch (OAuthMessageSignerException e) {
+        e.printStackTrace();
+      } catch (OAuthNotAuthorizedException e) {
+        e.printStackTrace();
       }
-    } catch (OAuthCommunicationException e) {
-      e.printStackTrace();
-    } catch (OAuthExpectationFailedException e) {
-      e.printStackTrace();
-    } catch (OAuthMessageSignerException e) {
-      e.printStackTrace();
-    } catch (OAuthNotAuthorizedException e) {
-      e.printStackTrace();
     }
 
   }
@@ -1324,7 +1334,7 @@ public class SyncHelper {
       builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_PREVIEW, r.getPreview());
       builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_START, r.getStart());
       builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_TITLE, r.getTitle());
-      
+
       ops.add(builder.build());
     }
 
