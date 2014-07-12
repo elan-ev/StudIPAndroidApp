@@ -95,10 +95,13 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
 
   private View.OnClickListener mMissingServerOnClickListener = new View.OnClickListener() {
     @Override public void onClick(View v) {
-      String email = getString(R.string.feedback_form_developer_mail);
-      StuffUtil.startFeedback(getActivity(), email);
+      Server s = new Server();
+      s.setName("Stud.IP mobil developer");
+      s.setContactEmail(getString(R.string.feedback_form_developer_mail));
+      StuffUtil.startFeedback(getActivity(), s);
     }
   };
+
   private OnRequestTokenReceived mCallbacks;
 
   public SignInFragment() {}
@@ -373,11 +376,9 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.menu_sign_in, menu);
 
-    SearchManager searchManager = (SearchManager) getSherlockActivity().getSystemService(
-        Context.SEARCH_SERVICE);
+    SearchManager searchManager = (SearchManager) getSherlockActivity().getSystemService(Context.SEARCH_SERVICE);
     SearchView searchView = (SearchView) menu.findItem(R.id.search_studip).getActionView();
-    searchView.setSearchableInfo(
-        searchManager.getSearchableInfo(getSherlockActivity().getComponentName()));
+    searchView.setSearchableInfo(searchManager.getSearchableInfo(getSherlockActivity().getComponentName()));
     searchView.setSubmitButtonEnabled(false);
     searchView.setOnQueryTextListener(this);
 
@@ -389,8 +390,7 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
     switch (item.getItemId()) {
       case R.id.menu_feedback:
         if (mSelectedServer != null) {
-          String contactEmail = mSelectedServer.getContactEmail();
-          StuffUtil.startFeedback(getActivity(), contactEmail);
+          StuffUtil.startFeedback(getActivity(), mSelectedServer);
         }
         return true;
       case R.id.menu_about:
@@ -492,7 +492,7 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
         break;
       case SyncHelper.SyncHelperCallbacks.ERROR_USER_SYNC:
         finalErrorMessage = String.format(genericErrorMessage,
-                                          getString(R.string.user_profile_data));
+            getString(R.string.user_profile_data));
         break;
       case SyncHelper.SyncHelperCallbacks.ERROR_SEMESTER_SYNC:
         finalErrorMessage = String.format(genericErrorMessage, getString(R.string.semesters));
@@ -544,36 +544,41 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
 
     String url = String.format(getString(R.string.restip_user), mSelectedServer.getApiUrl());
 
-    JacksonRequest<User> request = new JacksonRequest<User>(url, User.class, null,
-                                                            new Response.Listener<User>() {
-                                                              @Override public void onResponse(User response) {
-                                                                Prefs.getInstance(getActivity())
-                                                                    .setUserId(response.user_id);
-                                                                performPrefetchSync();
-                                                              }
-                                                            }, new Response.ErrorListener() {
-      @Override public void onErrorResponse(VolleyError error) {
-        Log.wtf(TAG, "Error requesting user details: " + error.getLocalizedMessage() + "ErrorCode: "
-            + error.networkResponse.statusCode);
+    JacksonRequest<User> request = new JacksonRequest<User>(url,
+        User.class,
+        null,
+        new Response.Listener<User>() {
+          @Override public void onResponse(User response) {
+            Prefs.getInstance(getActivity()).setUserId(response.user_id);
+            performPrefetchSync();
+          }
+        },
+        new Response.ErrorListener() {
+          @Override public void onErrorResponse(VolleyError error) {
+            Log.wtf(TAG,
+                "Error requesting user details: " + error.getLocalizedMessage() + "ErrorCode: "
+                    + error.networkResponse.statusCode
+            );
 
-        // Build error message
-        String genericMessage = getString(R.string.sync_error_generic);
-        String errorPosition = getString(R.string.your_user_data);
-        StringBuilder sb = new StringBuilder(String.format(genericMessage, errorPosition));
-        String err = error.getLocalizedMessage();
-        if (err != null) {
-          sb.append(err);
-        } else {
-          sb.append("ErrorCode: ").append(error.networkResponse.statusCode);
-        }
+            // Build error message
+            String genericMessage = getString(R.string.sync_error_generic);
+            String errorPosition = getString(R.string.your_user_data);
+            StringBuilder sb = new StringBuilder(String.format(genericMessage, errorPosition));
+            String err = error.getLocalizedMessage();
+            if (err != null) {
+              sb.append(err);
+            } else {
+              sb.append("ErrorCode: ").append(error.networkResponse.statusCode);
+            }
 
 
-        // Toast error and display login form
-        Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
-        resetSignInActivityState();
-        showLoginForm();
-      }
-    }, Request.Method.GET
+            // Toast error and display login form
+            Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
+            resetSignInActivityState();
+            showLoginForm();
+          }
+        },
+        Request.Method.GET
     );
 
     try {

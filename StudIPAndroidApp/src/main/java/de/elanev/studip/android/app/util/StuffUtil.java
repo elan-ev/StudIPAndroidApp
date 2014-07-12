@@ -19,6 +19,7 @@ import com.crashlytics.android.Crashlytics;
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
@@ -37,7 +38,7 @@ public final class StuffUtil {
     context.startActivity(intent);
   }
 
-  public static void startFeedback(final Context context, final String email) {
+  public static void startFeedback(final Context context, final Server server) {
 
     AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -58,7 +59,7 @@ public final class StuffUtil {
             new DialogInterface.OnClickListener() {
               @Override
               public void onClick(DialogInterface dialog, int which) {
-                startFeedbackIntent(context, email);
+                startFeedbackIntent(context, server);
               }
             }
         )
@@ -67,11 +68,14 @@ public final class StuffUtil {
 
   }
 
-  private static void startFeedbackIntent(Context context, String contactMail) {
+  private static void startFeedbackIntent(Context context, Server server) {
     try {
-      Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", contactMail, null));
+      Intent intent = new Intent(Intent.ACTION_SENDTO,
+          Uri.fromParts("mailto", server.getContactEmail(), null));
 
-      intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.feedback_form_subject));
+      String subjectField = String.format(context.getString(R.string.feedback_form_subject),
+          server.getName());
+      intent.putExtra(Intent.EXTRA_SUBJECT, subjectField);
 
       intent.putExtra(Intent.EXTRA_TEXT,
           String.format(context.getString(R.string.feedback_form_message_template),
@@ -85,8 +89,6 @@ public final class StuffUtil {
           context.getString(R.string.feedback_form_action)));
     } catch (Exception e) {
       if (BuildConfig.USE_CRASHLYTICS) Crashlytics.logException(e);
-
-      return;
     }
   }
 

@@ -96,8 +96,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
     switch (item.getItemId()) {
       case R.id.menu_feedback:
-        String contact_mail = Prefs.getInstance(this).getServer().getContactEmail();
-        StuffUtil.startFeedback(this, contact_mail);
+        StuffUtil.startFeedback(this, Prefs.getInstance(this).getServer());
         return true;
 
       case R.id.menu_about:
