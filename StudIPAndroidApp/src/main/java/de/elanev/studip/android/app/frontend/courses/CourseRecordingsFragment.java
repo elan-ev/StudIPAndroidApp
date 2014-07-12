@@ -125,7 +125,6 @@ public class CourseRecordingsFragment extends ProgressSherlockListFragment imple
 
   @Override public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
     if (getActivity() != null) {
-      //TODO: Create sections
       mAdapter.swapCursor(cursor);
       setLoadingViewVisible(false);
     }
