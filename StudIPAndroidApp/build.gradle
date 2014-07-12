@@ -14,8 +14,8 @@ def versionBuild = 18
 
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8
-def versionPatchBeta = 7
-def versionBuildBeta = 19
+def versionPatchBeta = 8
+def versionBuildBeta = 3
 
 buildscript {
 
@@ -116,6 +116,7 @@ android {
       buildConfigField "int", "COURSES_SYNC_THRESHOLD", "5000"; // 1h
       buildConfigField "int", "NEWS_SYNC_THRESHOLD", "5000"; // 1min
       buildConfigField "int", "CONTACTS_SYNC_THRESHOLD", "5000"; // 1min
+      buildConfigField "int", "RECORDINGS_SYNC_THRESHOLD", "5000"; // 1min
       ext.enableCrashlytics = false;
       versionNameSuffix '-DEBUG'
       debuggable = true;
@@ -131,6 +132,7 @@ android {
       buildConfigField "int", "COURSES_SYNC_THRESHOLD", "3600000"; // 1h
       buildConfigField "int", "NEWS_SYNC_THRESHOLD", "60000"; // 1min
       buildConfigField "int", "CONTACTS_SYNC_THRESHOLD", "60000"; // 1min
+      buildConfigField "int", "RECORDINGS_SYNC_THRESHOLD", "360000"; // 1h
 
       ext.enableCrashlytics = true;
       versionNameSuffix '-RELEASE'
