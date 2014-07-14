@@ -52,6 +52,7 @@
 -keep public class de.elanev.studip.android.app.backend.datamodel.** {
   public void set*(***);
   public *** get();
+  public *** is*();
 }
 -keepclassmembers class de.elanev.studip.android.app.backend.datamodel.** {
    public *;

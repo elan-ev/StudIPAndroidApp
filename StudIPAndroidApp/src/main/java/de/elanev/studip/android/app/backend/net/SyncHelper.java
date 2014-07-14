@@ -476,7 +476,7 @@ public class SyncHelper {
               int studentRole = CoursesContract.USER_ROLE_STUDENT;
 
               for (Course c : response.courses) {
-                if (mServer.isRecordingsEnabled()) {
+                if (Prefs.getInstance(mContext).isRecordingsEnabled()) {
                   requestRecordingsForCourse(c.courseId, callbacks);
                 }
                 new CourseUsersInsertTask(c.teachers).execute(c.courseId, teacherRole);
@@ -1246,64 +1246,59 @@ public class SyncHelper {
 
   public void requestRecordingsForCourse(final String courseId,
       final SyncHelperCallbacks callbacks) {
-    long currTime = System.currentTimeMillis();
-    if ((currTime - mLastRecordingsSync) > BuildConfig.RECORDINGS_SYNC_THRESHOLD) {
-      mLastRecordingsSync = currTime;
-      Log.i(TAG, "SYNCING RECORDINGS");
+    Log.i(TAG, "SYNCING RECORDINGS");
 
-      String recordingsUrl = String.format(mContext.getString(R.string.restip_courses_courseid_ocepisodes),
-          mServer.getApiUrl(),
-          courseId);
+    String recordingsUrl = String.format(mContext.getString(R.string.restip_courses_courseid_ocepisodes),
+        mServer.getApiUrl(),
+        courseId);
 
-      JacksonRequest<Recordings> recordingsRequest = new JacksonRequest<Recordings>(recordingsUrl,
-          Recordings.class,
-          null,
-          new Listener<Recordings>() {
-            @Override public void onResponse(Recordings response) {
-              ArrayList<ContentProviderOperation> ops = parseRecordings(response, courseId);
-              if (!ops.isEmpty()) {
-                try {
-                  mContext.getContentResolver().applyBatch(AbstractContract.CONTENT_AUTHORITY, ops);
-                  if (callbacks != null) {
-                    callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_RECORDINGS_SYNC);
-                  }
-                } catch (RemoteException e) {
-                  e.printStackTrace();
-                } catch (OperationApplicationException e) {
-                  e.printStackTrace();
+    JacksonRequest<Recordings> recordingsRequest = new JacksonRequest<Recordings>(recordingsUrl,
+        Recordings.class,
+        null,
+        new Listener<Recordings>() {
+          @Override public void onResponse(Recordings response) {
+            ArrayList<ContentProviderOperation> ops = parseRecordings(response, courseId);
+            if (!ops.isEmpty()) {
+              try {
+                mContext.getContentResolver().applyBatch(AbstractContract.CONTENT_AUTHORITY, ops);
+                if (callbacks != null) {
+                  callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_RECORDINGS_SYNC);
                 }
+              } catch (RemoteException e) {
+                e.printStackTrace();
+              } catch (OperationApplicationException e) {
+                e.printStackTrace();
               }
             }
-          },
-          new ErrorListener() {
-            @Override public void onErrorResponse(VolleyError error) {
-              if (callbacks != null) {
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_RECORDINGS_SYNC, error);
-              }
-              Log.e(TAG,
-                  String.format("Network request error %d", error.networkResponse.statusCode));
+          }
+        },
+        new ErrorListener() {
+          @Override public void onErrorResponse(VolleyError error) {
+            if (callbacks != null) {
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_RECORDINGS_SYNC, error);
             }
-          },
-          Method.GET
-      );
+            Log.e(TAG, String.format("Network request error %d", error.networkResponse.statusCode));
+          }
+        },
+        Method.GET
+    );
 
-      try {
-        recordingsRequest.setRetryPolicy(mRetryPolicy);
-        recordingsRequest.setPriority(Request.Priority.NORMAL);
-        OAuthConnector.with(mServer).sign(recordingsRequest);
-        StudIPApplication.getInstance().addToRequestQueue(recordingsRequest);
-        if (callbacks != null) {
-          callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_RECORDINGS_SYNC);
-        }
-      } catch (OAuthCommunicationException e) {
-        e.printStackTrace();
-      } catch (OAuthExpectationFailedException e) {
-        e.printStackTrace();
-      } catch (OAuthMessageSignerException e) {
-        e.printStackTrace();
-      } catch (OAuthNotAuthorizedException e) {
-        e.printStackTrace();
+    try {
+      recordingsRequest.setRetryPolicy(mRetryPolicy);
+      recordingsRequest.setPriority(Request.Priority.HIGH);
+      OAuthConnector.with(mServer).sign(recordingsRequest);
+      StudIPApplication.getInstance().addToRequestQueue(recordingsRequest);
+      if (callbacks != null) {
+        callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_RECORDINGS_SYNC);
       }
+    } catch (OAuthCommunicationException e) {
+      e.printStackTrace();
+    } catch (OAuthExpectationFailedException e) {
+      e.printStackTrace();
+    } catch (OAuthMessageSignerException e) {
+      e.printStackTrace();
+    } catch (OAuthNotAuthorizedException e) {
+      e.printStackTrace();
     }
 
   }
