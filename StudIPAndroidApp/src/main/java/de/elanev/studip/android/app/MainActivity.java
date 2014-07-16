@@ -28,16 +28,17 @@ import com.actionbarsherlock.view.Menu;
 import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
 
 import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.frontend.contacts.ContactsGroupsFragment;
 import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
 import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
 import de.elanev.studip.android.app.frontend.news.NewsTabsFragment;
 import de.elanev.studip.android.app.frontend.planer.PlannerFragment;
-import de.elanev.studip.android.app.frontend.profile.ProfileFragment;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
+import de.elanev.studip.android.app.widget.UserDetailsActivity;
 
 /**
  * @author joern
@@ -111,9 +112,10 @@ public class MainActivity extends SherlockFragmentActivity {
     return super.onOptionsItemSelected(item);
   }
 
-  /*
-   * Deletes the preferences and database to logout of the service
-   */
+    /*
+     * Deletes the preferences and database to logout of the service
+     */
+
   private void logout() {
     //Cancel all pending network requests
     StudIPApplication.getInstance().cancelAllPendingRequests(SyncHelper.TAG);
@@ -131,14 +133,16 @@ public class MainActivity extends SherlockFragmentActivity {
     finish();
   }
 
-  @Override public void onBackPressed() {
+  @Override
+  public void onBackPressed() {
     if (!ApiUtils.isOverApi11()) {
       return;
     }
     super.onBackPressed();
   }
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     if (isFinishing()) {
@@ -273,10 +277,18 @@ public class MainActivity extends SherlockFragmentActivity {
             }
             break;
           case R.id.navigation_profile:
-            fragTag = ProfileFragment.class.getName();
-            frag = findFragment(fragTag);
-            if (frag == null) {
-              frag = new ProfileFragment();
+
+            String userId = Prefs.getInstance(this).getUserId();
+
+            if (userId != null) {
+              fragTag = UserDetailsActivity.UserDetailsFragment.class.getName();
+              frag = findFragment(fragTag);
+              if (frag == null) {
+                frag = new UserDetailsActivity.UserDetailsFragment();
+                Bundle args = new Bundle();
+                args.putString(UsersContract.Columns.USER_ID, userId);
+                frag.setArguments(args);
+              }
             }
             break;
         }
@@ -302,7 +314,8 @@ public class MainActivity extends SherlockFragmentActivity {
     return getSupportFragmentManager().findFragmentByTag(tag);
   }
 
-  @Override protected void onStart() {
+  @Override
+  protected void onStart() {
     super.onStart();
     isPaused = false;
   }
