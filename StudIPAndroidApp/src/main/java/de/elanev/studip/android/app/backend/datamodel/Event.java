@@ -25,8 +25,6 @@ public class Event {
     public String description;
     public String categories;
     public String room;
-    // Special property for the planner
-    public String courseTitle;
 
     public Event() {
     }
