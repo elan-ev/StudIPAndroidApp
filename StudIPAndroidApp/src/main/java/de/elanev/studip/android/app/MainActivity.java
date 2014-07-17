@@ -224,7 +224,7 @@ public class MainActivity extends SherlockFragmentActivity {
               getString(R.string.Planner))
       );
       adapter.add(new MenuItem(R.id.navigation_profile,
-              R.drawable.ic_action_profile,
+              R.drawable.ic_menu_profile,
               getString(R.string.Profile))
       );
 
