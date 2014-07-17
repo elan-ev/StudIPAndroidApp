@@ -28,6 +28,7 @@ import com.actionbarsherlock.view.Menu;
 import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
 
 import de.elanev.studip.android.app.backend.db.AbstractContract;
+import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.frontend.contacts.ContactsGroupsFragment;
 import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
@@ -37,6 +38,7 @@ import de.elanev.studip.android.app.frontend.planer.PlannerFragment;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
+import de.elanev.studip.android.app.widget.UserDetailsActivity;
 
 /**
  * @author joern
@@ -54,35 +56,41 @@ public class MainActivity extends SherlockFragmentActivity {
   private MenuAdapter mAdapter;
   private boolean isPaused;
 
-  @Override public void onConfigurationChanged(Configuration newConfig) {
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     mDrawerToggle.onConfigurationChanged(newConfig);
   }
 
-  @Override protected void onPause() {
+  @Override
+  protected void onPause() {
     super.onPause();
     isPaused = true;
   }
 
-  @Override protected void onPostCreate(Bundle savedInstanceState) {
+  @Override
+  protected void onPostCreate(Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
     // Sync the toggle state after onRestoreInstanceState has occurred.
     mDrawerToggle.syncState();
   }
 
-  @Override protected void onSaveInstanceState(Bundle outState) {
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
     outState.putInt(ACTIVE_NAVIGATION_ITEM, mPosition);
     super.onSaveInstanceState(outState);
   }
 
-  @Override public boolean onCreateOptionsMenu(Menu menu) {
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
     super.onCreateOptionsMenu(menu);
     getSupportMenuInflater().inflate(R.menu.main, menu);
 
     return true;
   }
 
-  @Override public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+  @Override
+  public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
 
     // ABS specific drawer open and close code
     if (item.getItemId() == android.R.id.home) {
@@ -98,7 +106,6 @@ public class MainActivity extends SherlockFragmentActivity {
       case R.id.menu_feedback:
         StuffUtil.startFeedback(this, Prefs.getInstance(this).getServer());
         return true;
-
       case R.id.menu_about:
         StuffUtil.startAbout(this);
         return true;
@@ -130,14 +137,16 @@ public class MainActivity extends SherlockFragmentActivity {
     finish();
   }
 
-  @Override public void onBackPressed() {
+  @Override
+  public void onBackPressed() {
     if (!ApiUtils.isOverApi11()) {
       return;
     }
     super.onBackPressed();
   }
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     if (isFinishing()) {
@@ -214,6 +223,11 @@ public class MainActivity extends SherlockFragmentActivity {
               R.drawable.ic_menu_planner,
               getString(R.string.Planner))
       );
+      adapter.add(new MenuItem(R.id.navigation_profile,
+              R.drawable.ic_action_profile,
+              getString(R.string.Profile))
+      );
+
     }
     return adapter;
   }
@@ -266,6 +280,21 @@ public class MainActivity extends SherlockFragmentActivity {
               frag = new PlannerFragment();
             }
             break;
+          case R.id.navigation_profile:
+
+            String userId = Prefs.getInstance(this).getUserId();
+
+            if (userId != null) {
+              fragTag = UserDetailsActivity.UserDetailsFragment.class.getName();
+              frag = findFragment(fragTag);
+              if (frag == null) {
+                frag = new UserDetailsActivity.UserDetailsFragment();
+                Bundle args = new Bundle();
+                args.putString(UsersContract.Columns.USER_ID, userId);
+                frag.setArguments(args);
+              }
+            }
+            break;
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, frag, fragTag).commit();
@@ -289,7 +318,8 @@ public class MainActivity extends SherlockFragmentActivity {
     return getSupportFragmentManager().findFragmentByTag(tag);
   }
 
-  @Override protected void onStart() {
+  @Override
+  protected void onStart() {
     super.onStart();
     isPaused = false;
   }
