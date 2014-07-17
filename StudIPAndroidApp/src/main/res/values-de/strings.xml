@@ -216,7 +216,7 @@
         senden.</string>
 
     <!-- Course Recordings -->
-    <string name="Recordings">OC Episoden</string>
+    <string name="Recordings">Aufnahmen</string>
     <string name="no_recordings">Keine Aufzeichnungen verfügbar</string>
     <string name="preview_image">Preview image</string>
     <string name="recordings_chooser_title">Aufzeichnung abspielen mit</string>

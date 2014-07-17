@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.frontend.planer;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -57,12 +58,11 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  *         Fragment for showing data related to the /events route of the api.
  *         In Stud.IP known as Planner.
  */
-public class PlannerFragment extends ProgressSherlockListFragment implements AdapterView.OnItemClickListener {
+public class PlannerFragment extends ProgressSherlockListFragment implements
+    AdapterView.OnItemClickListener {
 
   private static final String TAG = PlannerFragment.class.getSimpleName();
-  private static String[] PROJECTION = {CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE};
-  private static String SELECTION = CoursesContract.Qualified.Courses.COURSES_COURSE_ID + " = ?";
-  private static String SORT_ORDER = CoursesContract.Qualified.Courses.COURSES_COURSE_ID + " ASC";
+
   private String mEventsRoute;
   private Server mServer;
   private EventsAdapter mAdapter;
@@ -103,31 +103,7 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
         null,
         new Response.Listener<Events>() {
           public void onResponse(Events response) {
-
-            ArrayList<EventsAdapter.Section> sections = new ArrayList<EventsAdapter.Section>();
-            long currentDay;
-            long prevDay = -1;
-            String currentCourseId;
-            String prevCourseId = null;
-
-            for (int i = 0; i < response.events.size(); i++) {
-              Event e = response.events.get(i);
-              currentDay = e.start * 1000L;
-              currentCourseId = e.course_id;
-
-              if (!TextTools.isSameDay(currentDay, prevDay)) {
-                String title = TextTools.getLocalizedTime(currentDay, getActivity());
-                sections.add(new EventsAdapter.Section(i, title));
-              }
-
-              if (!TextUtils.equals(currentCourseId, prevCourseId)) {
-                e.courseTitle = getTitleForCourseId(currentCourseId, getActivity());
-              }
-
-              prevDay = currentDay;
-            }
-            mAdapter.updateData(response, sections);
-            setLoadingViewVisible(false);
+            new CourseInfoLoadTask(getActivity()).execute(response);
           }
 
         },
@@ -167,57 +143,32 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
     }
   }
 
-  private static String getTitleForCourseId(String courseId, Context context) {
-    String title = null;
-
-    if (context != null) {
-      Cursor c = context.getContentResolver()
-          .query(CoursesContract.CONTENT_URI,
-              PROJECTION,
-              SELECTION,
-              new String[]{courseId},
-              // SelectionArgs
-              SORT_ORDER);
-
-      if (!c.isAfterLast()) {
-        c.moveToNext();
-        title = c.getString(0);
-      }
-      c.close();
-    }
-
-    return title;
-  }
-
   @Override
   public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    Event e = (Event) mAdapter.getItem(position);
-    String cid = e.course_id;
-    String title = e.courseTitle;
+    EventsAdapter.EventsAdapterItem e = (EventsAdapter.EventsAdapterItem) mAdapter.getItem(position);
+    String cid = e.eventCourseId;
+    String title = e.eventCourseTitle;
+    String modules = e.eventCourseModules;
 
-    Bundle args = new Bundle();
     Intent intent = new Intent(getActivity(), CourseViewActivity.class);
     intent.putExtra(CoursesContract.Columns.Courses.COURSE_ID, cid);
     intent.putExtra(CoursesContract.Columns.Courses.COURSE_TITLE, title);
+    intent.putExtra(CoursesContract.Columns.Courses.COURSE_MODULES, modules);
     startActivity(intent);
   }
 
   private static class EventsAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
-    private ArrayList<Event> mData;
+    private ArrayList<EventsAdapterItem> mData;
     private LayoutInflater mInflater;
-    private Context mContext;
     private ArrayList<Section> mSections;
     private SimpleDateFormat mDateTimeFormat;
 
     public EventsAdapter(Context context) {
-
-      mContext = context;
       mInflater = LayoutInflater.from(context);
-      mData = new ArrayList<Event>();
+      mData = new ArrayList<EventsAdapterItem>();
       mSections = new ArrayList<Section>();
       mDateTimeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-
     }
 
     @Override
@@ -285,22 +236,23 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
 
       EventHolder holder = (EventHolder) row.getTag();
 
-      Event event = mData.get(position);
+      EventsAdapterItem adapterItem = mData.get(position);
 
-      holder.course_title.setText(event.courseTitle);
-      String roomStr = mDateTimeFormat.format(event.start * 1000L) + " - " +
-          mDateTimeFormat.format(event.end * 1000L);
-      if (!TextUtils.isEmpty(event.room)) roomStr = roomStr + " (" + event.room + ")";
+      holder.course_title.setText(adapterItem.eventCourseTitle);
+      String roomStr = mDateTimeFormat.format(adapterItem.event.start * 1000L) + " - " +
+          mDateTimeFormat.format(adapterItem.event.end * 1000L);
+      if (!TextUtils.isEmpty(adapterItem.event.room))
+        roomStr = roomStr + " (" + adapterItem.event.room + ")";
 
       holder.room.setText(roomStr);
-      holder.title.setText(event.title);
+      holder.title.setText(adapterItem.event.title);
 
       return row;
     }
 
     @Override
     public boolean isEmpty() {
-      return mData == null ? true : mData.isEmpty();
+      return mData == null || mData.isEmpty();
     }
 
     /**
@@ -310,13 +262,13 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
      * @param data     The data to update the events adpater with
      * @param sections The sections to divide the events adapters data
      */
-    public void updateData(Events data, ArrayList<Section> sections) {
+    public void updateData(ArrayList<EventsAdapterItem> data, ArrayList<Section> sections) {
       if (mData != null && mSections != null) {
         // Clear old data
         mData.clear();
         mSections.clear();
         // Add new data
-        mData.addAll(data.events);
+        mData.addAll(data);
         mSections.addAll(sections);
         notifyDataSetChanged();
       }
@@ -342,6 +294,111 @@ public class PlannerFragment extends ProgressSherlockListFragment implements Ada
     private class EventHolder {
       TextView course_title, title, room;
 
+    }
+
+    static class EventsAdapterItem {
+      Event event;
+      String eventCourseTitle;
+      String eventCourseId;
+      String eventCourseModules;
+
+      EventsAdapterItem(Event event,
+          String eventCourseTitle,
+          String eventCourseId,
+          String eventCourseModules) {
+        this.event = event;
+        this.eventCourseTitle = eventCourseTitle;
+        this.eventCourseId = eventCourseId;
+        this.eventCourseModules = eventCourseModules;
+      }
+    }
+
+  }
+
+  private class CourseInfoLoadTask extends AsyncTask<Events, Void, CourseInfoLoadTask.ResultSet> {
+
+    private Context mContext;
+    private final String[] projection = {
+        CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
+        CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
+        CoursesContract.Qualified.Courses.COURSES_COURSE_MODULES,
+    };
+    private final String selection = CoursesContract.Qualified.Courses.COURSES_COURSE_ID + " = ?";
+
+    CourseInfoLoadTask(Context context) {
+      this.mContext = context;
+    }
+
+    @Override protected ResultSet doInBackground(Events... params) {
+      ArrayList<EventsAdapter.Section> sections = new ArrayList<EventsAdapter.Section>();
+      ArrayList<EventsAdapter.EventsAdapterItem> items = new ArrayList<EventsAdapter.EventsAdapterItem>();
+
+      Events events = params[0];
+      long prevDay = -1;
+      String prevCourseId = null;
+
+      for (int i = 0; i < events.events.size(); i++) {
+        Event e = events.events.get(i);
+        long currentDay = e.start * 1000L;
+        String currentCourseId = e.course_id;
+
+        if (!TextTools.isSameDay(currentDay, prevDay)) {
+          String title = TextTools.getLocalizedTime(currentDay, getActivity());
+          sections.add(new EventsAdapter.Section(i, title));
+        }
+
+        if (!TextUtils.equals(currentCourseId, prevCourseId)) {
+
+          if (mContext != null) {
+            Cursor c = mContext.getContentResolver()
+                .query(CoursesContract.CONTENT_URI,
+                    projection,
+                    selection,
+                    new String[]{currentCourseId},
+                    null);
+
+            if (!c.isAfterLast()) {
+              c.moveToNext();
+              EventsAdapter.EventsAdapterItem eventsAdapterItem = new EventsAdapter.EventsAdapterItem(
+                  e,
+                  c.getString(0),
+                  c.getString(1),
+                  c.getString(2));
+
+              items.add(eventsAdapterItem);
+            }
+            c.close();
+          }
+
+        }
+
+        prevDay = currentDay;
+        prevCourseId = currentCourseId;
+      }
+
+      return new ResultSet(items, sections);
+    }
+
+    @Override protected void onPostExecute(ResultSet resultSet) {
+      if (!resultSet.isEmpty()) {
+        mAdapter.updateData(resultSet.items, resultSet.sections);
+      }
+      setLoadingViewVisible(false);
+    }
+
+    protected class ResultSet {
+      ArrayList<EventsAdapter.EventsAdapterItem> items;
+      ArrayList<EventsAdapter.Section> sections;
+
+      public ResultSet(ArrayList<EventsAdapter.EventsAdapterItem> items,
+          ArrayList<EventsAdapter.Section> sections) {
+        this.items = items;
+        this.sections = sections;
+      }
+
+      public boolean isEmpty() {
+        return items == null || sections == null;
+      }
     }
   }
 }
