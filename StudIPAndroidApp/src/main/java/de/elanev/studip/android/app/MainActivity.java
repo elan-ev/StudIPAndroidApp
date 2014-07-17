@@ -56,35 +56,41 @@ public class MainActivity extends SherlockFragmentActivity {
   private MenuAdapter mAdapter;
   private boolean isPaused;
 
-  @Override public void onConfigurationChanged(Configuration newConfig) {
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     mDrawerToggle.onConfigurationChanged(newConfig);
   }
 
-  @Override protected void onPause() {
+  @Override
+  protected void onPause() {
     super.onPause();
     isPaused = true;
   }
 
-  @Override protected void onPostCreate(Bundle savedInstanceState) {
+  @Override
+  protected void onPostCreate(Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
     // Sync the toggle state after onRestoreInstanceState has occurred.
     mDrawerToggle.syncState();
   }
 
-  @Override protected void onSaveInstanceState(Bundle outState) {
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
     outState.putInt(ACTIVE_NAVIGATION_ITEM, mPosition);
     super.onSaveInstanceState(outState);
   }
 
-  @Override public boolean onCreateOptionsMenu(Menu menu) {
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
     super.onCreateOptionsMenu(menu);
     getSupportMenuInflater().inflate(R.menu.main, menu);
 
     return true;
   }
 
-  @Override public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+  @Override
+  public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
 
     // ABS specific drawer open and close code
     if (item.getItemId() == android.R.id.home) {
@@ -100,7 +106,6 @@ public class MainActivity extends SherlockFragmentActivity {
       case R.id.menu_feedback:
         StuffUtil.startFeedback(this, Prefs.getInstance(this).getServer());
         return true;
-
       case R.id.menu_about:
         StuffUtil.startAbout(this);
         return true;
@@ -112,10 +117,9 @@ public class MainActivity extends SherlockFragmentActivity {
     return super.onOptionsItemSelected(item);
   }
 
-    /*
-     * Deletes the preferences and database to logout of the service
-     */
-
+  /*
+   * Deletes the preferences and database to logout of the service
+   */
   private void logout() {
     //Cancel all pending network requests
     StudIPApplication.getInstance().cancelAllPendingRequests(SyncHelper.TAG);
