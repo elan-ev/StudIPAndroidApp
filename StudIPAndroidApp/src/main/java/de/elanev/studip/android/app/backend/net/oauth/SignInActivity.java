@@ -22,7 +22,8 @@ import de.elanev.studip.android.app.util.ApiUtils;
  *
  * @author joern
  */
-public class SignInActivity extends SherlockFragmentActivity implements WebAuthFragment.OnWebViewAuthListener, SignInFragment.OnRequestTokenReceived {
+public class SignInActivity extends SherlockFragmentActivity implements
+    WebAuthFragment.OnWebViewAuthListener, SignInFragment.OnRequestTokenReceived {
 
   private static final String TAG = SignInActivity.class.getSimpleName();
 
@@ -63,7 +64,7 @@ public class SignInActivity extends SherlockFragmentActivity implements WebAuthF
 
   @Override public void onAuthCancelled() {
     FragmentManager fm = getSupportFragmentManager();
-     SignInFragment frag = SignInFragment.newInstance();
+    SignInFragment frag = SignInFragment.newInstance();
     fm.beginTransaction()
         .replace(R.id.content_frame, frag, SignInFragment.class.getName())
         .commit();
@@ -77,7 +78,7 @@ public class SignInActivity extends SherlockFragmentActivity implements WebAuthF
     getSupportFragmentManager().beginTransaction()
         .detach(signInFrag)
         .add(R.id.content_frame, frag, WebAuthFragment.class.getName())
-        .commit();
+        .commitAllowingStateLoss();
   }
 
 
