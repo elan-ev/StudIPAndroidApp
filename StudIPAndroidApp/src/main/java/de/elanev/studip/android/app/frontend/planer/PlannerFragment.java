@@ -113,7 +113,10 @@ public class PlannerFragment extends ProgressSherlockListFragment implements
               Log.wtf(TAG, error.getMessage());
             }
             setLoadingViewVisible(false);
-            Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG).show();
+
+            if (getActivity() != null) {
+              Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG).show();
+            }
           }
         }
 
