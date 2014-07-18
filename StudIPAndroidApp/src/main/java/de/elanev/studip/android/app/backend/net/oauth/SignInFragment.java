@@ -480,9 +480,8 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
   }
 
   @Override public void onSyncError(int status, VolleyError error) {
-    Log.wtf(TAG, "Sync error " + error.getLocalizedMessage());
-
-    if (getActivity() == null || error.networkResponse.statusCode == 404) return;
+    if (getActivity() == null || error == null || error.networkResponse.statusCode == 404) return;
+    Log.wtf(TAG, "Sync error " + status);
 
     String genericErrorMessage = getString(R.string.sync_error_generic);
     String finalErrorMessage;
