@@ -94,7 +94,6 @@ public class SyncHelper {
   private static long mLastNewsSync = 0;
   private static long mLastContactsSync = 0;
   private static long mLastCoursesSync = 0;
-  private static long mLastRecordingsSync = 0;
   // TODO Make dependent on device connection type
   private final DefaultRetryPolicy mRetryPolicy = new DefaultRetryPolicy(30000,
       DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -194,6 +193,10 @@ public class SyncHelper {
   }
 
   public void requestInstitutesForUserID(String userId, final SyncHelperCallbacks callbacks) {
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     String institutesUrl = String.format(mContext.getString(R.string.restip_user_institutes),
         mServer.getApiUrl(),
         userId);
@@ -307,6 +310,11 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void performContactsSync(final SyncHelperCallbacks callbacks, Request.Priority priority) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     long currTime = System.currentTimeMillis();
     if ((currTime - mLastContactsSync) > BuildConfig.CONTACTS_SYNC_THRESHOLD) {
       mLastContactsSync = currTime;
@@ -431,6 +439,11 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void performCoursesSync(final SyncHelperCallbacks callbacks) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     long currTime = System.currentTimeMillis();
     if ((currTime - mLastCoursesSync) > BuildConfig.COURSES_SYNC_THRESHOLD) {
       mLastCoursesSync = currTime;
@@ -551,6 +564,11 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void performNewsSync(final SyncHelperCallbacks callbacks) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     long currTime = System.currentTimeMillis();
     if ((currTime - mLastNewsSync) > BuildConfig.NEWS_SYNC_THRESHOLD) {
       mLastNewsSync = currTime;
@@ -602,6 +620,11 @@ public class SyncHelper {
    */
   public void performNewsSyncForIds(final HashSet<String> newsRangeIds,
       final SyncHelperCallbacks callbacks) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     Log.i(TAG, "SYNCING NEWS");
 
     if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
@@ -651,6 +674,11 @@ public class SyncHelper {
   public void requestNewsForRange(final String range,
       final Listener<News> listener,
       final SyncHelperCallbacks callbacks) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     Log.i(TAG, "Performing Sync for range: " + range);
     final String newsUrl = String.format(mContext.getString(R.string.restip_news_rangeid) + ".json",
         mServer.getApiUrl(),
@@ -719,7 +747,7 @@ public class SyncHelper {
    */
   public void loadUsersForCourse(String courseId, SyncHelperCallbacks callbacks) {
 
-    new UserLoadTask().execute(new Object[]{courseId, callbacks});
+    new UserLoadTask().execute(courseId, callbacks);
 
   }
 
@@ -729,6 +757,10 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void performSemestersSync(final SyncHelperCallbacks callbacks) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
 
     Log.i(TAG, "SYNCING SEMESTERS");
     final String semestersUrl = String.format(
@@ -816,6 +848,11 @@ public class SyncHelper {
    * @param courseId the course id for which the events should be requested
    */
   public void performEventsSyncForCourseId(final String courseId) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     Log.i(TAG, "SYNCING COURSE EVENTS: " + courseId);
     final String eventsUrl = String.format(
         mContext.getString(R.string.restip_courses_courseid_events) + ".json",
@@ -860,6 +897,11 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void performMessagesSync(final SyncHelperCallbacks callbacks) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     Log.i(TAG, "SYNCING MESSAGES");
 
     final String[] boxes = mContext.getResources()
@@ -959,6 +1001,10 @@ public class SyncHelper {
       final SyncHelperCallbacks callbacks,
       Listener<Messages> listener) {
 
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     Log.i(TAG, "SYNCING MESSAGES FOR FOLDER " + folder);
     String folderUrl = String.format(mContext.getString(R.string.restip_messages_box_folderid),
         mServer.getApiUrl(),
@@ -1005,7 +1051,9 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void requestUser(String userId, SyncHelperCallbacks callbacks) {
-    //        Log.i(TAG, "SYNCING USER: " + userId);
+    if (mServer == null) {
+      return;
+    }
 
     if (!TextUtils.equals("", userId) && !TextUtils.equals("____%system%____", userId)) {
       try {
@@ -1114,6 +1162,11 @@ public class SyncHelper {
    * @param courseId course id to perform the sync for
    */
   public void performDocumentsSyncForCourse(final String courseId) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     Log.i(TAG, "PERFORMING DOCUMENTS SYNC FOR COURSE " + courseId);
 
     String foldersUrl = String.format(mContext.getString(R.string.restip_documents_rangeid_folder),
@@ -1172,6 +1225,11 @@ public class SyncHelper {
    * Requests a folder and recursive the subfolders
    */
   private void requestDocumentsForFolder(final DocumentFolder folder, final String courseId) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     Log.i(TAG, "PERFORMING DOCUMENTS SYNC FOR COURSE " + courseId + " Folder: " + folder.folder_id);
 
     String foldersUrl =
@@ -1229,6 +1287,11 @@ public class SyncHelper {
 
   public void requestRecordingsForCourse(final String courseId,
       final SyncHelperCallbacks callbacks) {
+
+    if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
+      return;
+    }
+
     Log.i(TAG, "SYNCING RECORDINGS");
 
     String recordingsUrl = String.format(mContext.getString(R.string.restip_courses_courseid_ocepisodes),
