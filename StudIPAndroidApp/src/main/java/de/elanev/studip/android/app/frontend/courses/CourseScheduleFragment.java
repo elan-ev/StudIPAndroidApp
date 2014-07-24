@@ -16,6 +16,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -25,8 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
@@ -34,7 +33,7 @@ import de.elanev.studip.android.app.backend.db.EventsContract;
 /**
  * @author joern
  */
-public class CourseScheduleFragment extends SherlockListFragment implements LoaderCallbacks<Cursor> {
+public class CourseScheduleFragment extends ListFragment implements LoaderCallbacks<Cursor> {
   public static final String TAG = CourseScheduleFragment.class.getSimpleName();
   private static final int COURSOR_EVENTS_LIST_LOADER = 102;
   protected final ContentObserver mEventsObserver = new ContentObserver(new Handler()) {

@@ -8,17 +8,13 @@
 package de.elanev.studip.android.app.frontend.messages;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
+import android.view.Window;
 
 import de.elanev.studip.android.app.R;
 
-public class MessageComposeActivity extends SherlockFragmentActivity {
+public class MessageComposeActivity extends ActionBarActivity {
 
     private static final String TAG = MessageComposeActivity.class.getSimpleName();
 
@@ -30,7 +26,7 @@ public class MessageComposeActivity extends SherlockFragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         Bundle args = getIntent().getExtras();
 
 		setContentView(R.layout.content_frame);

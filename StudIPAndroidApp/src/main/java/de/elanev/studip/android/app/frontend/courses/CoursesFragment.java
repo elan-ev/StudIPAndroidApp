@@ -33,13 +33,13 @@ import java.util.ArrayList;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
-import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 
 /**
  * @author joern
  */
-public class CoursesFragment extends ProgressSherlockListFragment implements
+public class CoursesFragment extends ProgressListFragment implements
     LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
   public static final String TAG = CoursesFragment.class.getSimpleName();
 
@@ -71,7 +71,7 @@ public class CoursesFragment extends ProgressSherlockListFragment implements
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mContext = getSherlockActivity();
+    mContext = getActivity();
   }
 
   @Override

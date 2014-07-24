@@ -12,21 +12,19 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.util.Log;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.MenuItem;
 
 import de.elanev.studip.android.app.R;
 
 /**
- * Activity holding a WebView which prompts the user the OAuth permission
+ * Activity holding a WebView which prompts the user the OAuth permission.
  *
  * @author joern
  */
-public class WebViewActivity extends SherlockActivity {
+public class WebViewActivity extends ActionBarActivity {
 
     public static final String TAG = WebViewActivity.class.getSimpleName();
     private WebView mWebview;

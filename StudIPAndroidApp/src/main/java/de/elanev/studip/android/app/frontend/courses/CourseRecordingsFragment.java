@@ -40,7 +40,7 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.RecordingsContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 
 /**
@@ -48,7 +48,7 @@ import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
  *
  * @author Jörn
  */
-public class CourseRecordingsFragment extends ProgressSherlockListFragment implements
+public class CourseRecordingsFragment extends ProgressListFragment implements
     LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
   public static final String TAG = CourseRecordingsFragment.class.getSimpleName();
 

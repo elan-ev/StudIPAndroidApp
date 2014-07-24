@@ -10,11 +10,14 @@ package de.elanev.studip.android.app;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -22,10 +25,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
 
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -46,13 +45,13 @@ import de.elanev.studip.android.app.widget.UserDetailsActivity;
  *         Activity holding the navigation drawer and content frame.
  *         It manages the navigation and content fragments.
  */
-public class MainActivity extends SherlockFragmentActivity {
+public class MainActivity extends ActionBarActivity {
   public static final String TAG = MainActivity.class.getSimpleName();
   public static final String ACTIVE_NAVIGATION_ITEM = "active_navi_item";
   private static int mPosition = 0;
   public DrawerLayout mDrawerLayout;
   public ListView mDrawerListView;
-  public SherlockActionBarDrawerToggle mDrawerToggle;
+  public ActionBarDrawerToggle mDrawerToggle;
   private MenuAdapter mAdapter;
   private boolean isPaused;
 
@@ -81,17 +80,13 @@ public class MainActivity extends SherlockFragmentActivity {
     super.onSaveInstanceState(outState);
   }
 
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    super.onCreateOptionsMenu(menu);
-    getSupportMenuInflater().inflate(R.menu.main, menu);
+  @Override public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.main, menu);
 
-    return true;
+    return super.onCreateOptionsMenu(menu);
   }
 
-  @Override
-  public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
-
+  @Override public boolean onOptionsItemSelected(android.view.MenuItem item) {
     // ABS specific drawer open and close code
     if (item.getItemId() == android.R.id.home) {
 
@@ -118,8 +113,8 @@ public class MainActivity extends SherlockFragmentActivity {
   }
 
   /*
-   * Deletes the preferences and database to logout of the service
-   */
+     * Deletes the preferences and database to logout of the service
+     */
   private void logout() {
     //Cancel all pending network requests
     StudIPApplication.getInstance().cancelAllPendingRequests(SyncHelper.TAG);
@@ -164,20 +159,20 @@ public class MainActivity extends SherlockFragmentActivity {
     mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
     mDrawerListView = (ListView) findViewById(R.id.left_drawer);
 
-    mDrawerToggle = new SherlockActionBarDrawerToggle(this,
+    mDrawerToggle = new ActionBarDrawerToggle(this,
         mDrawerLayout,
         R.drawable.ic_navigation_drawer,
         R.string.open_drawer,
         R.string.close_drawer) {
 
       public void onDrawerOpened(View drawerView) {
-        invalidateOptionsMenu();
+        supportInvalidateOptionsMenu();
       }
 
       /** Called when a drawer has settled in a completely closed state. */
       public void onDrawerClosed(View view) {
         // creates call to onPrepareOptionsMenu()
-        invalidateOptionsMenu();
+        supportInvalidateOptionsMenu();
       }
     };
 

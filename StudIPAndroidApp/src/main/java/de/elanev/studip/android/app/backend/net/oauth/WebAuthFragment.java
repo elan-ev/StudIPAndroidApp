@@ -11,24 +11,24 @@ package de.elanev.studip.android.app.backend.net.oauth;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.MenuItem;
-
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.ApiUtils;
 
 /**
- * Created by joern on 03.05.14.
+ * @author Jörn
  */
-public class WebAuthFragment extends SherlockFragment {
+public class WebAuthFragment extends Fragment {
   public static final String TAG = WebAuthFragment.class.getSimpleName();
   public static final String AUTH_URL = "authUrl";
   private OnWebViewAuthListener mCallbacks;
@@ -69,8 +69,8 @@ public class WebAuthFragment extends SherlockFragment {
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    getSherlockActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getSherlockActivity().setTitle(android.R.string.cancel);
+    ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    getActivity().setTitle(android.R.string.cancel);
     setHasOptionsMenu(true);
   }
 
@@ -117,7 +117,7 @@ public class WebAuthFragment extends SherlockFragment {
 
   /* WebviewClient which overrides the onPageStarted method to intercept the OAuth result */
   private class LoginWebViewClient extends WebViewClient {
-    public final String TAG = LoginWebViewClient.class.getCanonicalName();
+    private final String TAG = LoginWebViewClient.class.getCanonicalName();
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {

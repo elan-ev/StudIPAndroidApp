@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.UserDetailsActivity;
 
 
@@ -12,7 +12,7 @@ import de.elanev.studip.android.app.widget.UserDetailsActivity;
 /**
  * Created by aklassen on 07.06.14.
  */
-public class ProfileFragment extends ProgressSherlockListFragment {
+public class ProfileFragment extends ProgressListFragment {
 
     private static final String TAG = ProfileFragment.class.getSimpleName();
 
@@ -23,7 +23,7 @@ public class ProfileFragment extends ProgressSherlockListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContext = getSherlockActivity();
+        mContext = getActivity();
         String userId = Prefs.getInstance(mContext).getUserId();
 
         if (userId != null) {

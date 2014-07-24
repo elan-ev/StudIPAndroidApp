@@ -12,8 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
-
-import com.actionbarsherlock.view.MenuItem;
+import android.view.MenuItem;
 
 import java.util.List;
 
