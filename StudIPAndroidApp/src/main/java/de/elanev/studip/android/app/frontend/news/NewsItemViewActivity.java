@@ -9,20 +9,20 @@ package de.elanev.studip.android.app.frontend.news;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
 import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.BuildConfig;
@@ -34,7 +34,7 @@ import de.elanev.studip.android.app.util.TextTools;
 /**
  * @author joern
  */
-public class NewsItemViewActivity extends SherlockFragmentActivity {
+public class NewsItemViewActivity extends ActionBarActivity {
 
   public static ActionBar mActionbar = null;
   protected ListFragment mFrag;
@@ -93,7 +93,7 @@ public class NewsItemViewActivity extends SherlockFragmentActivity {
     return super.onOptionsItemSelected(item);
   }
 
-  public static class NewsItemFragment extends SherlockFragment {
+  public static class NewsItemFragment extends Fragment {
     private Bundle mArgs = null;
     private Context mContext = null;
     private TextView mTitleTextView, mBodyTextView, mAuthorTextView;

@@ -10,10 +10,9 @@ package de.elanev.studip.android.app.widget;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 import android.webkit.WebView;
-
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.MenuItem;
 
 import de.elanev.studip.android.app.R;
 
@@ -22,7 +21,7 @@ import de.elanev.studip.android.app.R;
  *
  * @author joern
  */
-public class WebViewActivity extends SherlockActivity {
+public class WebViewActivity extends ActionBarActivity {
 
   public static final String TAG = WebViewActivity.class.getSimpleName();
   public static final String URL = "de.elanev.studip.android.app.URL";

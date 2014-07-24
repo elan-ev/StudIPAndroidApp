@@ -11,12 +11,12 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.ApiUtils;
@@ -25,19 +25,20 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 /**
  * Created by joern on 09.10.13.
  */
-public class ProgressSherlockListFragment extends SherlockFragment implements StickyListHeadersListView.OnStickyHeaderOffsetChangedListener {
+public class ProgressListFragment extends Fragment implements StickyListHeadersListView
+    .OnStickyHeaderOffsetChangedListener {
 
   protected Context mContext;
   protected StickyListHeadersListView mListView;
   private View mListContainerView, mProgressView;
   private TextView mEmptyMessageTextView;
 
-  public ProgressSherlockListFragment() {}
+  public ProgressListFragment() {}
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mContext = getSherlockActivity();
+    mContext = getActivity();
 
   }
 

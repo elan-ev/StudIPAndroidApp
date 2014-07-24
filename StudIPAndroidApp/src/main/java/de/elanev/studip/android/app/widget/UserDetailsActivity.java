@@ -18,18 +18,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.BuildConfig;
@@ -40,7 +38,7 @@ import de.elanev.studip.android.app.frontend.messages.MessageComposeActivity;
 /**
  * @author joern
  */
-public class UserDetailsActivity extends SherlockFragmentActivity {
+public class UserDetailsActivity extends ActionBarActivity {
 
   /*
    * (non-Javadoc)
@@ -109,7 +107,7 @@ public class UserDetailsActivity extends SherlockFragmentActivity {
     };
   }
 
-  public static class UserDetailsFragment extends SherlockFragment implements LoaderCallbacks<Cursor> {
+  public static class UserDetailsFragment extends Fragment implements LoaderCallbacks<Cursor> {
     public static final String TAG = UserDetailsFragment.class.getCanonicalName();
     protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
       @Override
