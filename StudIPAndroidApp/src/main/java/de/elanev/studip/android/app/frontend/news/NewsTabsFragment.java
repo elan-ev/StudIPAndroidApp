@@ -9,20 +9,19 @@
 package de.elanev.studip.android.app.frontend.news;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockFragment;
-
 import de.elanev.studip.android.app.R;
 
 /**
  * Created by joern on 12.04.14.
  */
-public class NewsTabsFragment extends SherlockFragment {
+public class NewsTabsFragment extends Fragment {
 
   public NewsTabsFragment() {}
 

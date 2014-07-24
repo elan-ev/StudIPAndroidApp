@@ -19,6 +19,9 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -27,9 +30,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -52,7 +52,7 @@ import de.elanev.studip.android.app.backend.net.util.StringRequest;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
-import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -62,7 +62,7 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
 /**
  * @author joern
  */
-public class MessagesListFragment extends ProgressSherlockListFragment implements LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class MessagesListFragment extends ProgressListFragment implements LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
   public static final String TAG = MessagesListFragment.class.getSimpleName();
   protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
     @Override

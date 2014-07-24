@@ -14,6 +14,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -28,7 +29,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.BuildConfig;
@@ -42,7 +42,7 @@ import de.elanev.studip.android.app.util.TextTools;
 /**
  * @author joern
  */
-public class CourseOverviewFragment extends SherlockFragment implements LoaderCallbacks<Cursor> {
+public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<Cursor> {
   public static final String TAG = CourseOverviewFragment.class.getSimpleName();
   private static final int COURSE_LOADER = 101;
   protected final ContentObserver mObserverCourse = new ContentObserver(new Handler()) {
@@ -241,7 +241,7 @@ public class CourseOverviewFragment extends SherlockFragment implements LoaderCa
           String courseTitle = cursor.getString(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
           String courseDescription = cursor.getString(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
           mTitleTextView.setText(courseTitle);
-          getSherlockActivity().setTitle(courseTitle);
+          getActivity().setTitle(courseTitle);
 
           if (!TextUtils.isEmpty(courseDescription)) {
             mDescriptionTextView.setText(courseDescription);

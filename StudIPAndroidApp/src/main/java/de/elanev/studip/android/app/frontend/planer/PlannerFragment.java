@@ -45,7 +45,7 @@ import de.elanev.studip.android.app.frontend.courses.CourseViewActivity;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
-import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import de.elanev.studip.android.app.widget.ProgressListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
@@ -58,7 +58,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  *         Fragment for showing data related to the /events route of the api.
  *         In Stud.IP known as Planner.
  */
-public class PlannerFragment extends ProgressSherlockListFragment implements
+public class PlannerFragment extends ProgressListFragment implements
     AdapterView.OnItemClickListener {
 
   private static final String TAG = PlannerFragment.class.getSimpleName();
@@ -72,7 +72,7 @@ public class PlannerFragment extends ProgressSherlockListFragment implements
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mContext = getSherlockActivity();
+    mContext = getActivity();
     mServer = Prefs.getInstance(mContext).getServer();
     mEventsRoute = String.format(getString(R.string.restip_planner) + ".json", mServer.getApiUrl());
 

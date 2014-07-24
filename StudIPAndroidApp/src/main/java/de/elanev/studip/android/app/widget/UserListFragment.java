@@ -68,7 +68,7 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
 /**
  * @author joern
  */
-public abstract class UserListFragment extends ProgressSherlockListFragment implements LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public abstract class UserListFragment extends ProgressListFragment implements LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
   private static final String TAG = UserListFragment.class.getCanonicalName();
   private static ContentResolver mResolver;
   private static String mApiUrl;

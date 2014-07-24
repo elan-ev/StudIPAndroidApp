@@ -12,10 +12,19 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SearchViewCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -28,11 +37,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -67,8 +71,8 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
  *
  * @author joern
  */
-public class SignInFragment extends SherlockListFragment implements SyncHelper.SyncHelperCallbacks,
-    OAuthConnector.OAuthCallbacks, SearchView.OnQueryTextListener {
+public class SignInFragment extends ListFragment implements SyncHelper.SyncHelperCallbacks,
+    OAuthConnector.OAuthCallbacks {
   public static final String REQUEST_TOKEN_RECEIVED = "requestTokenReceived";
   public static final String AUTH_CANCELED = "authCanceled";
   private static final String TAG = SignInFragment.class.getSimpleName();
@@ -179,9 +183,9 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     Log.i(TAG, "onActivityCreated Called!");
     super.onActivityCreated(savedInstanceState);
-    getSherlockActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-    getSherlockActivity().getSupportActionBar().setHomeButtonEnabled(false);
-    getSherlockActivity().setTitle(R.string.app_name);
+    ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    ((ActionBarActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(false);
+    getActivity().setTitle(R.string.app_name);
     hideLoginForm();
     if (savedInstanceState != null) {
       mRequestTokenReceived = savedInstanceState.getBoolean(REQUEST_TOKEN_RECEIVED);
@@ -374,14 +378,29 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
   }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
     inflater.inflate(R.menu.menu_sign_in, menu);
 
-    SearchManager searchManager = (SearchManager) getSherlockActivity().getSystemService(Context.SEARCH_SERVICE);
-    SearchView searchView = (SearchView) menu.findItem(R.id.search_studip).getActionView();
-    searchView.setSearchableInfo(searchManager.getSearchableInfo(getSherlockActivity().getComponentName()));
-    searchView.setSubmitButtonEnabled(false);
-    searchView.setOnQueryTextListener(this);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+      MenuItem searchItem = menu.findItem(R.id.search_studip);
+      SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+      SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+        @Override public boolean onQueryTextSubmit(String s) {
+          return false;
+        }
 
+        @Override public boolean onQueryTextChange(String s) {
+          if (TextUtils.isEmpty(s)) {
+            mListView.clearTextFilter();
+          } else {
+            mListView.setFilterText(s);
+          }
+
+          return true;
+        }
+      };
+      searchView.setOnQueryTextListener(queryTextListener);
+    }
     super.onCreateOptionsMenu(menu, inflater);
   }
 
@@ -603,21 +622,6 @@ public class SignInFragment extends SherlockListFragment implements SyncHelper.S
   @Override public void onAccesTokenRequestError(OAuthError e) {
     Toast.makeText(mContext, e.errorMessage, Toast.LENGTH_LONG).show();
     showLoginForm();
-  }
-
-  @Override public boolean onQueryTextSubmit(String s) {
-    return false;
-  }
-
-  @Override public boolean onQueryTextChange(String s) {
-    // this is your adapter that will be filtered
-    if (TextUtils.isEmpty(s)) {
-      mListView.clearTextFilter();
-    } else {
-      mListView.setFilterText(s);
-    }
-
-    return true;
   }
 
   public interface OnRequestTokenReceived {

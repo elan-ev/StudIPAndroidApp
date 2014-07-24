@@ -62,7 +62,7 @@ import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
-import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import de.elanev.studip.android.app.widget.ProgressListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
@@ -208,7 +208,7 @@ public class CourseDocumentsFragment extends Fragment {
 
   }
 
-  public static class DocumentsListFragment extends ProgressSherlockListFragment implements AdapterView.OnItemClickListener, StickyListHeadersListView.OnHeaderClickListener {
+  public static class DocumentsListFragment extends ProgressListFragment implements AdapterView.OnItemClickListener, StickyListHeadersListView.OnHeaderClickListener {
 
 
     private static final String FOLDER_NAME = "folder_name";

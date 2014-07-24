@@ -35,13 +35,13 @@ import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.util.TextTools;
-import de.elanev.studip.android.app.widget.ProgressSherlockListFragment;
+import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 
 /**
  * @author joern
  */
-public class NewsListFragment extends ProgressSherlockListFragment implements LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class NewsListFragment extends ProgressListFragment implements LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
   public static final String TAG = NewsListFragment.class.getSimpleName();
   public static final String NEWS_SELECTOR = "news_selector";

@@ -10,8 +10,7 @@ package de.elanev.studip.android.app.backend.net.oauth;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.ApiUtils;
@@ -22,7 +21,7 @@ import de.elanev.studip.android.app.util.ApiUtils;
  *
  * @author joern
  */
-public class SignInActivity extends SherlockFragmentActivity implements
+public class SignInActivity extends ActionBarActivity implements
     WebAuthFragment.OnWebViewAuthListener, SignInFragment.OnRequestTokenReceived {
 
   private static final String TAG = SignInActivity.class.getSimpleName();

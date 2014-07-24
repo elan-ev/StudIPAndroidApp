@@ -8,17 +8,16 @@
 package de.elanev.studip.android.app.frontend;
 
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
 
 import de.elanev.studip.android.app.R;
 
 /**
  * Created by joern on 02.11.13.
  */
-public class AboutActivity extends SherlockFragmentActivity {
+public class AboutActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

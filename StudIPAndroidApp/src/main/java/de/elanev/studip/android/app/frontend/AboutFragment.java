@@ -9,22 +9,21 @@ package de.elanev.studip.android.app.frontend;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
-
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.widget.WebViewActivity;
 
 /**
- * Created by joern on 07.10.13.
+ * @author Jörn
  */
-public class AboutFragment extends SherlockFragment {
+public class AboutFragment extends Fragment {
 
   TextView mVersionTextView, mHomepageTextView, mLicensesTextView, mPrivacyTextView, mLegalTextView, mFaqTextView;
 
@@ -39,7 +38,7 @@ public class AboutFragment extends SherlockFragment {
       return null;
     }
 
-    View v = inflater.inflate(R.layout.fragment_about_app, null);
+    View v = inflater.inflate(R.layout.fragment_about_app, container, false);
 
     mVersionTextView = (TextView) v.findViewById(R.id.version_text);
     mHomepageTextView = (TextView) v.findViewById(R.id.homepage_text);

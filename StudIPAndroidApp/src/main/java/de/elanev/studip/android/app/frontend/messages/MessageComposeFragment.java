@@ -11,14 +11,19 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
@@ -31,10 +36,6 @@ import android.widget.Filter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -62,7 +63,7 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
 /**
  * @author joern
  */
-public class MessageComposeFragment extends SherlockFragment implements LoaderCallbacks<Cursor> {
+public class MessageComposeFragment extends Fragment implements LoaderCallbacks<Cursor> {
   public static final String TAG = MessageComposeFragment.class.getSimpleName();
   private static final int MESSAGE_REPLY = 1000;
   private static final int MESSAGE_FORWARD = 1001;
@@ -247,9 +248,9 @@ public class MessageComposeFragment extends SherlockFragment implements LoaderCa
     menu.findItem(R.id.send_icon).setVisible(mSendButtonVisible);
 
     if (!mSendButtonVisible) {
-      getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+      ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
     } else {
-      getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+      ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
     }
 
 
@@ -291,7 +292,7 @@ public class MessageComposeFragment extends SherlockFragment implements LoaderCa
         } else {
 
           mSendButtonVisible = false;
-          getSherlockActivity().supportInvalidateOptionsMenu();
+          getActivity().supportInvalidateOptionsMenu();
 
           String apiUrl = Prefs.getInstance(mContext).getServer().getApiUrl();
           String messagesUrl = String.format(getString(R.string.restip_messages), apiUrl);
@@ -325,7 +326,7 @@ public class MessageComposeFragment extends SherlockFragment implements LoaderCa
 
                   if (getActivity() != null) {
                     mSendButtonVisible = true;
-                    getSherlockActivity().supportInvalidateOptionsMenu();
+                    getActivity().supportInvalidateOptionsMenu();
 
                     Toast.makeText(mContext, R.string.something_went_wrong, Toast.LENGTH_SHORT)
                         .show();

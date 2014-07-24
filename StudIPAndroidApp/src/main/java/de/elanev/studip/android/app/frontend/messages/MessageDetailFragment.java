@@ -14,23 +14,24 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -56,7 +57,7 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
 /**
  * @author joern
  */
-public class MessageDetailFragment extends SherlockFragment implements LoaderCallbacks<Cursor> {
+public class MessageDetailFragment extends Fragment implements LoaderCallbacks<Cursor> {
   public static final String TAG = MessageDetailFragment.class.getSimpleName();
   private static final int MESSAGE_REPLY = 1000;
   private static final int MESSAGE_FORWARD = 1001;
@@ -159,9 +160,9 @@ public class MessageDetailFragment extends SherlockFragment implements LoaderCal
     menu.findItem(R.id.delete_message).setVisible(mDeleteButtonVisible);
 
     if (!mDeleteButtonVisible) {
-      getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+      ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
     } else {
-      getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+      ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
     }
 
     super.onPrepareOptionsMenu(menu);
@@ -172,9 +173,9 @@ public class MessageDetailFragment extends SherlockFragment implements LoaderCal
     switch (item.getItemId()) {
 
       case R.id.delete_message:
-        if (getSherlockActivity() != null) {
+        if (getActivity() != null) {
           mDeleteButtonVisible = false;
-          getSherlockActivity().supportInvalidateOptionsMenu();
+          getActivity().supportInvalidateOptionsMenu();
         }
 
         String contactsUrl = String.format(getString(R.string.restip_messages_messageid),
@@ -206,9 +207,9 @@ public class MessageDetailFragment extends SherlockFragment implements LoaderCal
                * #onErrorResponse(com.android.volley. VolleyError)
                */
               public void onErrorResponse(VolleyError error) {
-                if (getSherlockActivity() != null) {
+                if (getActivity() != null) {
                   mDeleteButtonVisible = true;
-                  getSherlockActivity().supportInvalidateOptionsMenu();
+                  getActivity().supportInvalidateOptionsMenu();
 
                   if (error.getMessage() != null) Log.e(TAG, error.getMessage());
 

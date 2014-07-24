@@ -15,17 +15,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 
 import java.util.ArrayList;
 
 /**
  * @author joern
  */
-public class TabbedFragmentActivity extends SherlockFragmentActivity {
+public class TabbedFragmentActivity extends ActionBarActivity {
     public static final String ACTIVE_TAB = "activeTab";
     protected ActionBar mActionbar;
 
@@ -144,7 +142,7 @@ public class TabbedFragmentActivity extends SherlockFragmentActivity {
         public void onPageScrollStateChanged(int state) {
         }
 
-        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+        public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
             Object tag = tab.getTag();
             for (int i = 0; i < mTabs.size(); i++) {
                 if (mTabs.get(i) == tag) {
@@ -153,13 +151,13 @@ public class TabbedFragmentActivity extends SherlockFragmentActivity {
             }
         }
 
-        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+        public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
         }
 
-        public void onTabReselected(Tab tab, FragmentTransaction ft) {
+        public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
         }
 
-        static final class TabInfo {
+      static final class TabInfo {
             private final Class<?> clss;
             private final Bundle args;
 
