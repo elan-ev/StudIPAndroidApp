@@ -1,5 +1,6 @@
 Stud.IP Android App
 ===================
+[![Build Status](https://travis-ci.org/elan-ev/StudIPAndroidApp.svg?branch=master)](https://travis-ci.org/elan-ev/StudIPAndroidApp)
 
 A mobile Stud.IP client application for the Android plattform which utilizes the studip-rest.ip Rest-API Plugin [studip/studip-rest.ip][2]
 for communication with a Stud.IP backend.
