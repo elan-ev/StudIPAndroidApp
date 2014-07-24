@@ -8,23 +8,28 @@
   ~ http://www.gnu.org/licenses/gpl.html
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:StudIPApplication="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/menu_feedback"
-        android:showAsAction="never"
         android:title="@string/Feedback"
-        android:titleCondensed="@string/Feedback"/>
+        android:titleCondensed="@string/Feedback"
+        StudIPApplication:showAsAction="never"
+        />
 
     <item
         android:id="@+id/menu_about"
-        android:showAsAction="never"
         android:title="@string/about_studip_mobile"
-        android:titleCondensed="@string/About"/>
+        android:titleCondensed="@string/About"
+        StudIPApplication:showAsAction="never"
+        />
 
     <item
         android:id="@+id/search_studip"
         android:title="@string/search_studip"
         android:icon="@drawable/ic_action_search"
-        android:showAsAction="collapseActionView|ifRoom"
-        android:actionViewClass="com.actionbarsherlock.widget.SearchView"/>
+        StudIPApplication:actionViewClass="android.support.v7.widget.SearchView"
+        StudIPApplication:showAsAction="collapseActionView|ifRoom"
+        />
 </menu>
