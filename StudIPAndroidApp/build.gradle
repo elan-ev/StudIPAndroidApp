@@ -37,19 +37,18 @@ repositories {
 dependencies {
   compile fileTree(dir: 'libs', include: '*.jar')
   compile 'com.android.support:support-v4:20.+'
+  compile 'com.android.support:appcompat-v7:20.+'
   compile 'com.fasterxml.jackson.core:jackson-databind:2.4.+'
   compile 'com.fasterxml.jackson.core:jackson-annotations:2.4.+'
   compile 'oauth.signpost:signpost-commonshttp4:1.2.1.2'
   compile 'oauth.signpost:oauth-signpost:1.2.1.2'
   compile 'oauth.signpost:signpost-core:1.2.1.2'
-  compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
   compile 'com.crashlytics.android:crashlytics:1.+'
   compile 'com.squareup.picasso:picasso:2.2.0'
   compile 'com.squareup.okhttp:okhttp:1.5.4'
   compile 'se.emilsjolander:stickylistheaders:2.4.+'
   compile 'com.google.guava:guava:17.+'
   compile project(':libprojects:volley')
-  compile project(':libprojects:SherlockNavigationDrawer:AndroidStudio:SherlockNavigationDrawerProject:SherlockNavigationDrawer')
 }
 
 def buildTime() {
