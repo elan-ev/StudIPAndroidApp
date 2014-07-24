@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:StudIPApplication="http://schemas.android.com/apk/res-auto">
 
-    <item
+<item
         android:id="@+id/compose_icon"
         android:icon="@drawable/ic_action_mail"
-        android:showAsAction="ifRoom|withText"
+        StudIPApplication:showAsAction="ifRoom|withText"
         android:title="@string/compose_message"
         android:titleCondensed="@string/Compose">
     </item>
