@@ -59,6 +59,8 @@ def buildTime() {
 
 android {
 
+  testBuildType "staging"
+
   lintOptions {
     abortOnError false
   }
@@ -138,6 +140,22 @@ android {
       runProguard = true
       proguardFile 'proguard-project.txt'
       proguardFile getDefaultProguardFile('proguard-android.txt')
+    }
+
+    staging {
+      buildConfigField "boolean", "USE_CRASHLYTICS", "false"
+
+      // Database name configuration
+      buildConfigField "String", "DATABASE", "\"studip_staging.db\""
+
+      // SyncHelper threshold values
+      buildConfigField "int", "COURSES_SYNC_THRESHOLD", "3600000"; // 1h
+      buildConfigField "int", "NEWS_SYNC_THRESHOLD", "60000"; // 1min
+      buildConfigField "int", "CONTACTS_SYNC_THRESHOLD", "60000"; // 1min
+      ext.enableCrashlytics = false
+      versionNameSuffix '-STAGING'
+      debuggable = false
+      runProguard = false
     }
 
     applicationVariants.all { variant ->
