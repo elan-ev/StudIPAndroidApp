@@ -11,20 +11,31 @@
 package de.elanev.studip.android.app.backend.datamodel;
 
 
-import java.io.IOException;
-import java.util.ArrayList;
-
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 /**
+ * POJO that represents the response of the /courses/:course_id route.
+ *
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonRootName(value = "course")
 public class Course {
   @JsonProperty("course_id")
   public String courseId;
@@ -52,11 +63,34 @@ public class Course {
   public ArrayList<String> students;
   @JsonProperty("color")
   public String color;
-  //TODO: Check for what to use, otherwise remove it.
   @JsonProperty("type")
   public int type;
+  @JsonProperty("additional_data")
+  private AdditionalData additionalData;
+  @JsonIgnore
+  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
   public Course() {
+  }
+
+  @JsonProperty("additional_data")
+  public AdditionalData getAdditionalData() {
+    return additionalData;
+  }
+
+  @JsonProperty("additional_data")
+  public void setAdditionalData(AdditionalData additionalData) {
+    this.additionalData = additionalData;
+  }
+
+  @JsonAnyGetter
+  public Map<String, Object> getAdditionalProperties() {
+    return this.additionalProperties;
+  }
+
+  @JsonAnySetter
+  public void setAdditionalProperty(String name, Object value) {
+    this.additionalProperties.put(name, value);
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
@@ -73,6 +107,9 @@ public class Course {
     // Course participants
     @JsonProperty("participants")
     public boolean participants = false;
+    // Course matterhorn recordings
+    @JsonProperty("oc_matterhorn")
+    public boolean recordings = false;
 
     /* Unused modules are commented out to save parse time. Enable if implementing the feature. */
     //      public boolean admin = false;
@@ -111,6 +148,39 @@ public class Course {
       }
       return modules;
     }
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @JsonPropertyOrder({
+      "oc_recordings"
+  })
+  public class AdditionalData {
+
+    @JsonProperty("oc_recordings")
+    private List<Recording> recordings = new ArrayList<Recording>();
+    @JsonIgnore
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    @JsonProperty("oc_recordings")
+    public List<Recording> getRecordings() {
+      return recordings;
+    }
+
+    @JsonProperty("oc_recordings")
+    public void setRecordings(List<Recording> recordings) {
+      this.recordings = recordings;
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+      return this.additionalProperties;
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+      this.additionalProperties.put(name, value);
+    }
+
   }
 
 }

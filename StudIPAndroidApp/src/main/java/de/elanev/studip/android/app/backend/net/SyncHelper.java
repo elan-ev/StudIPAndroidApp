@@ -31,6 +31,7 @@ import com.google.common.cache.LoadingCache;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +54,6 @@ import de.elanev.studip.android.app.backend.datamodel.Messages;
 import de.elanev.studip.android.app.backend.datamodel.News;
 import de.elanev.studip.android.app.backend.datamodel.NewsItem;
 import de.elanev.studip.android.app.backend.datamodel.Recording;
-import de.elanev.studip.android.app.backend.datamodel.Recordings;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
 import de.elanev.studip.android.app.backend.datamodel.Semesters;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -472,7 +472,7 @@ public class SyncHelper {
               int studentRole = CoursesContract.USER_ROLE_STUDENT;
 
               for (Course c : response.courses) {
-                if (Prefs.getInstance(mContext).isRecordingsEnabled()) {
+                if (c.modules.recordings) {
                   requestRecordingsForCourse(c.courseId, callbacks);
                 }
                 new CourseUsersInsertTask(c.teachers).execute(c.courseId, teacherRole);
@@ -1294,16 +1294,16 @@ public class SyncHelper {
 
     Log.i(TAG, "SYNCING RECORDINGS");
 
-    String recordingsUrl = String.format(mContext.getString(R.string.restip_courses_courseid_ocepisodes),
+    String recordingsUrl = String.format(mContext.getString(R.string.restip_courses_courseid),
         mServer.getApiUrl(),
         courseId);
 
-    JacksonRequest<Recordings> recordingsRequest = new JacksonRequest<Recordings>(recordingsUrl,
-        Recordings.class,
+    JacksonRequest<Course> recordingsRequest = new JacksonRequest<Course>(recordingsUrl,
+        Course.class,
         null,
-        new Listener<Recordings>() {
-          @Override public void onResponse(Recordings response) {
-            ArrayList<ContentProviderOperation> ops = parseRecordings(response, courseId);
+        new Listener<Course>() {
+          @Override public void onResponse(Course response) {
+            ArrayList<ContentProviderOperation> ops = parseRecordings(response);
             if (!ops.isEmpty()) {
               try {
                 mContext.getContentResolver().applyBatch(AbstractContract.CONTENT_AUTHORITY, ops);
@@ -1349,9 +1349,9 @@ public class SyncHelper {
 
   }
 
-  private static ArrayList<ContentProviderOperation> parseRecordings(Recordings recordings,
-      String courseId) {
-    ArrayList<Recording> recs = recordings.getRecordings();
+  private static ArrayList<ContentProviderOperation> parseRecordings(Course course) {
+    Log.d(TAG, course.title);
+    List<Recording> recs = course.getAdditionalData().getRecordings();
     ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
     for (Recording r : recs) {
@@ -1362,7 +1362,7 @@ public class SyncHelper {
       builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_AUDIO_DOWNLOAD,
           r.getAudioDownload());
       builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_AUTHOR, r.getAuthor());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_COURSE_ID, courseId);
+      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_COURSE_ID, course.courseId);
       builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_DESCRIPTION,
           r.getDescription());
       builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_DURATION, r.getDuration());
