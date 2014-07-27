@@ -26,19 +26,6 @@ public class Server implements Serializable {
   private String authorizationUrl;    // = OAUTH_URL + "/authorize";
   private String apiUrl;      // = BASE_URL + "/api";
   private String contactEmail;
-  //FIXME: Remove this stuff when info is available through api.
-  private boolean recordingsEnabled = false;
-
-  @JsonProperty("recordings_enabled")
-  public boolean isRecordingsEnabled() {
-    return recordingsEnabled;
-  }
-
-  @JsonProperty("recordings_enabled")
-  public void setRecordingsEnabled(boolean recordingsEnabled) {
-    this.recordingsEnabled = recordingsEnabled;
-  }
-  //FIXME
 
   public String getAccessToken() {
     return accessToken;
