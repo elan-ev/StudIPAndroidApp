@@ -21,12 +21,12 @@ import java.util.ArrayList;
 public class Recordings {
   private ArrayList<Recording> recordings = new ArrayList<Recording>();
 
-  @JsonProperty("oc_episodes")
+  @JsonProperty("oc_recordings")
   public ArrayList<Recording> getRecordings() {
     return recordings;
   }
 
-  @JsonProperty("oc_episodes")
+  @JsonProperty("oc_recordings")
   public void setRecordings(ArrayList<Recording> recordings) {
     this.recordings = recordings;
   }
