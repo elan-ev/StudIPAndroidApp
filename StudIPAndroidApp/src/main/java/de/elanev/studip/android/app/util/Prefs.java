@@ -155,10 +155,6 @@ public class Prefs {
 
     if (Long.parseLong(returnUri.getLastPathSegment()) != -1) {
       mCachedServer = server;
-
-      // Save the info whether the server supports recordings
-      setRecordingsEnabled(server.isRecordingsEnabled());
-
     } else {
       mCachedServer = null;
     }
@@ -274,24 +270,5 @@ public class Prefs {
    */
   public void setCurrentSemesterId(String semesterId) {
     mPrefs.edit().putString(CURRENT_SEMESTER_ID, semesterId).commit();
-  }
-
-  /**
-   * Set to indicate that the current Stud.IP api provides course recordings.
-   *
-   * @param enabled True if the current Stud.IP provides course recordings.
-   */
-  public void setRecordingsEnabled(boolean enabled) {
-    mPrefs.edit().putBoolean(RECORDINGS_ENABLED, enabled).commit();
-  }
-
-  /**
-   * Indicated whether the current Stud.IP provides course recordings to show in the course
-   * overview.
-   *
-   * @return True if the Stud.IP provides course recordings, otherwise false.
-   */
-  public boolean isRecordingsEnabled() {
-    return mPrefs.getBoolean(RECORDINGS_ENABLED, false);
   }
 }
