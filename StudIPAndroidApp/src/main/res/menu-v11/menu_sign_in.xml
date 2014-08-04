@@ -24,5 +24,12 @@
         android:titleCondensed="@string/About"
         StudIPApplication:showAsAction="never"
         />
-    
+
+    <item
+        android:id="@+id/search_studip"
+        android:title="@string/search_studip"
+        android:icon="@drawable/ic_action_search"
+        StudIPApplication:actionViewClass="android.support.v7.widget.SearchView"
+        StudIPApplication:showAsAction="collapseActionView|ifRoom"
+        />
 </menu>
