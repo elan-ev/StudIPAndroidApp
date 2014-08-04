@@ -3,6 +3,7 @@ package de.elanev.studip.android.app;
 import android.annotation.TargetApi;
 import android.app.Application;
 import android.os.Build;
+import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -14,6 +15,7 @@ import com.crashlytics.android.Crashlytics;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import de.elanev.studip.android.app.backend.net.util.OkHttpStack;
+import de.elanev.studip.android.app.util.ApiUtils;
 
 /*******************************************************************************
  * Copyright (c) 2013 ELAN e.V.
@@ -53,22 +55,22 @@ public class StudIPApplication extends Application {
 
     // Load SQLCipher JNI Libs
     SQLiteDatabase.loadLibs(this);
-    //TODO: Update OKHTTP Lib after the ResponceCache fix is in v > 1.5.4
-    //        if(BuildConfig.DEBUG) {
-    //                StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-    //                        .detectDiskReads()
-    //                        .detectDiskWrites()
-    //                        .detectNetwork()   // or .detectAll() for all detectable problems
-    //                        .penaltyLog()
-    //                        .build());
-    //                StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-    //                        .detectLeakedSqlLiteObjects()
-    //                        .detectLeakedClosableObjects()
-    //                        .penaltyLog()
-    //                        .penaltyDeath()
-    //                        .build());
-    //
-    //        }
+
+    // Enable StrictMode for debug builds
+    if (BuildConfig.DEBUG) {
+      StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads()
+          .detectDiskWrites()
+          .detectAll()
+          .penaltyLog()
+          .build());
+      StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+      builder.detectLeakedSqlLiteObjects().penaltyLog().penaltyDeath();
+      if (ApiUtils.isOverApi11()) {
+        builder.detectLeakedClosableObjects();
+      }
+      StrictMode.setVmPolicy(builder.build());
+
+    }
   }
 
   /**
