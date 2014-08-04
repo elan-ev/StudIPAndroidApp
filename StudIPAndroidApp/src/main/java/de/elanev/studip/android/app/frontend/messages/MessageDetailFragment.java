@@ -305,7 +305,10 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
     mMessageBodyTextView.setMovementMethod(new ScrollingMovementMethod());
 
     mMessageSubjectTextView.setText(mSubject);
-    mMessageBodyTextView.setText(Html.fromHtml(mMessage));
+
+    if (mMessage != null) {
+      mMessageBodyTextView.setText(Html.fromHtml(mMessage));
+    }
     mMessageDateTextView.setText(TextTools.getLocalizedAuthorAndDateString(String.format(
             "%s %s %s %s",
             mSenderTitlePre,

@@ -1231,7 +1231,8 @@ public class RestIpProvider extends ContentProvider {
           for (ContentValues value : values) {
             insertEvent.bindString(1, value.getAsString(eventIdCol));
             insertEvent.bindString(2, value.getAsString(eventCourseIdCol));
-            insertEvent.bindString(3, value.getAsString(eventTitleCol));
+            String val = value.getAsString(eventTitleCol);
+            if (val != null) { insertEvent.bindString(3, val); }
             insertEvent.bindLong(4, value.getAsLong(eventStartCol));
             insertEvent.bindLong(5, value.getAsLong(eventEndCol));
             insertEvent.bindString(6, value.getAsString(eventDescriptionCol));
