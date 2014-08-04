@@ -9,14 +9,12 @@
 package de.elanev.studip.android.app.backend.net.oauth;
 
 import android.app.Activity;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.SearchViewCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
@@ -499,7 +497,8 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   }
 
   @Override public void onSyncError(int status, VolleyError error) {
-    if (getActivity() == null || error == null || error.networkResponse.statusCode == 404) return;
+    if (getActivity() == null || error == null || error.networkResponse == null
+        || error.networkResponse.statusCode == 404) return;
     Log.wtf(TAG, "Sync error " + status);
 
     String genericErrorMessage = getString(R.string.sync_error_generic);

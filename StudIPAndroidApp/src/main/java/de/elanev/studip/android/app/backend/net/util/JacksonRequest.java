@@ -98,17 +98,9 @@ public class JacksonRequest<T> extends VolleySignPostRequestWrapper<T> {
                     mapper.readValue(new String(response.data,
                             HttpHeaderParser.parseCharset(response.headers)), clazz),
                     HttpHeaderParser.parseCacheHeaders(response));
-        } catch (UnsupportedEncodingException e) {
-            logResponse("Request: " + getMethod() + " " + getUrl() + "\nResponse: " + str + "\nError: " + e.getMessage());
-            return Response.error(new ParseError(e));
-        } catch (JsonParseException e) {
-            logResponse("Request: " + getMethod() + " " + getUrl() + "\nResponse: " + str + "\nError: " + e.getMessage());
-            return Response.error(new ParseError(e));
-        } catch (JsonMappingException e) {
-            logResponse("Request: " + getMethod() + " " + getUrl() + "\nResponse: " + str + "\nError: " + e.getMessage());
-            return Response.error(new ParseError(e));
-        } catch (IOException e) {
-            logResponse("Request: " + getMethod() + " " + getUrl() + "\nResponse: " + str + "\nError: " + e.getMessage());
+        } catch (Exception e) {
+            logResponse("Error: " + e.getMessage()+"\nRequest: " + getMethod() + "\nURL: " +
+                getUrl() + "\nResponse: " + str );
             return Response.error(new ParseError(e));
         }
     }
