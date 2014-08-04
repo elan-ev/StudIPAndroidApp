@@ -1323,7 +1323,10 @@ public class SyncHelper {
             if (callbacks != null) {
               callbacks.onSyncError(SyncHelperCallbacks.ERROR_RECORDINGS_SYNC, error);
             }
-            Log.e(TAG, String.format("Network request error %d", error.networkResponse.statusCode));
+            if (error != null && error.networkResponse != null) {
+              Log.e(TAG,
+                  String.format("Network request error %d", error.networkResponse.statusCode));
+            }
           }
         },
         Method.GET

@@ -94,6 +94,36 @@ public class Course {
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
+  public static class AdditionalData {
+
+    @JsonProperty("oc_recordings")
+    private List<Recording> recordings = new ArrayList<Recording>();
+    @JsonIgnore
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    @JsonProperty("oc_recordings")
+    public List<Recording> getRecordings() {
+      return recordings;
+    }
+
+    @JsonProperty("oc_recordings")
+    public void setRecordings(List<Recording> recordings) {
+      this.recordings = recordings;
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+      return this.additionalProperties;
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+      this.additionalProperties.put(name, value);
+    }
+
+  }
+
+  @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Modules {
     // Course Overview
     @JsonProperty("overview")
@@ -148,39 +178,6 @@ public class Course {
       }
       return modules;
     }
-  }
-
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  @JsonPropertyOrder({
-      "oc_recordings"
-  })
-  public class AdditionalData {
-
-    @JsonProperty("oc_recordings")
-    private List<Recording> recordings = new ArrayList<Recording>();
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-    @JsonProperty("oc_recordings")
-    public List<Recording> getRecordings() {
-      return recordings;
-    }
-
-    @JsonProperty("oc_recordings")
-    public void setRecordings(List<Recording> recordings) {
-      this.recordings = recordings;
-    }
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-      return this.additionalProperties;
-    }
-
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-      this.additionalProperties.put(name, value);
-    }
-
   }
 
 }
