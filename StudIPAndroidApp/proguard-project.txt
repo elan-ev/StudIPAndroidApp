@@ -33,8 +33,8 @@
 
 -keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature
 
--keep class android.support.v4.** { *; }
--keep interface android.support.v4.** { *; }
+-keep class android.support.** { *; }
+-keep interface android.support.** { *; }
 -keep class com.actionbarsherlock.** { *; }
 -keep interface com.actionbarsherlock.** { *; }
 -keep class net.sqlcipher.** { *; }
@@ -60,7 +60,7 @@
 -keepclassmembers class **.R$* {public static <fields>;}
 -keep class **.R$*
 
--dontwarn android.support.v4.**
+-dontwarn android.support.**
 -dontwarn org.apache.**
 -dontwarn com.actionbarsherlock.internal.**
 -dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
