@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.MenuItem;
 
 import java.util.List;
@@ -40,9 +41,6 @@ public class CourseViewActivity extends TabbedFragmentActivity {
     // Get intent data
     Bundle intentExtras = getIntent().getExtras();
 
-    // Get activated modules for course
-    String modulesJson = intentExtras.getString(CoursesContract.Columns.Courses.COURSE_MODULES);
-    Course.Modules modules = Course.Modules.fromJson(modulesJson);
 
     // ViewPager, PageAdapter setup
     mPager = new ViewPager(this);
@@ -57,33 +55,40 @@ public class CourseViewActivity extends TabbedFragmentActivity {
         CourseOverviewFragment.class,
         intentExtras);
 
-    if (modules.schedule) {
-      mPagerAdapter.addTab(mActionbar.newTab(),
-          R.drawable.ic_action_schedule,
-          R.string.Schedule,
-          CourseScheduleFragment.class,
-          intentExtras);
-    }
-    if (modules.participants) {
-      mPagerAdapter.addTab(mActionbar.newTab(),
-          R.drawable.ic_action_attendees,
-          R.string.attendees,
-          CourseAttendeesFragment.class,
-          intentExtras);
-    }
-    if (modules.documents) {
-      mPagerAdapter.addTab(mActionbar.newTab(),
-          R.drawable.ic_action_files,
-          R.string.Documents,
-          CourseDocumentsFragment.class,
-          intentExtras);
-    }
-    if (modules.recordings) {
-      mPagerAdapter.addTab(mActionbar.newTab(),
-          R.drawable.ic_action_recordings,
-          R.string.Recordings,
-          CourseRecordingsFragment.class,
-          intentExtras);
+    // Get activated modules for course
+    String modulesJson = intentExtras.getString(CoursesContract.Columns.Courses.COURSE_MODULES);
+    if (!TextUtils.isEmpty(modulesJson)) {
+      Course.Modules modules = Course.Modules.fromJson(modulesJson);
+
+      if (modules.schedule) {
+        mPagerAdapter.addTab(mActionbar.newTab(),
+            R.drawable.ic_action_schedule,
+            R.string.Schedule,
+            CourseScheduleFragment.class,
+            intentExtras);
+      }
+      if (modules.participants) {
+        mPagerAdapter.addTab(mActionbar.newTab(),
+            R.drawable.ic_action_attendees,
+            R.string.attendees,
+            CourseAttendeesFragment.class,
+            intentExtras);
+      }
+      if (modules.documents) {
+        mPagerAdapter.addTab(mActionbar.newTab(),
+            R.drawable.ic_action_files,
+            R.string.Documents,
+            CourseDocumentsFragment.class,
+            intentExtras);
+      }
+      if (modules.recordings) {
+        mPagerAdapter.addTab(mActionbar.newTab(),
+            R.drawable.ic_action_recordings,
+            R.string.Recordings,
+            CourseRecordingsFragment.class,
+            intentExtras);
+      }
+
     }
 
     // Setting Activity title
