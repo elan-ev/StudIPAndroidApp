@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -59,7 +60,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  *         In Stud.IP known as Planner.
  */
 public class PlannerFragment extends ProgressListFragment implements
-    AdapterView.OnItemClickListener {
+    AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
   private static final String TAG = PlannerFragment.class.getSimpleName();
 
@@ -87,6 +88,8 @@ public class PlannerFragment extends ProgressListFragment implements
     mAdapter = new EventsAdapter(mContext);
     mListView.setOnItemClickListener(this);
     mListView.setAdapter(mAdapter);
+
+    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
   }
 
   @Override
@@ -109,20 +112,17 @@ public class PlannerFragment extends ProgressListFragment implements
         },
         new Response.ErrorListener() {
           public void onErrorResponse(VolleyError error) {
-            if (error.getMessage() != null) {
+            if (getActivity() != null && error != null && error.getMessage() != null) {
               Log.wtf(TAG, error.getMessage());
-            }
-            setLoadingViewVisible(false);
-
-            if (getActivity() != null) {
+              mSwipeRefreshLayoutListView.setRefreshing(false);
+              setLoadingViewVisible(false);
               Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG).show();
             }
           }
         }
 
         ,
-        Request.Method.GET
-    );
+        Request.Method.GET);
 
     DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(30000,
         DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -158,6 +158,10 @@ public class PlannerFragment extends ProgressListFragment implements
     intent.putExtra(CoursesContract.Columns.Courses.COURSE_TITLE, title);
     intent.putExtra(CoursesContract.Columns.Courses.COURSE_MODULES, modules);
     startActivity(intent);
+  }
+
+  @Override public void onRefresh() {
+    requestEvents();
   }
 
   private static class EventsAdapter extends BaseAdapter implements StickyListHeadersAdapter {
@@ -387,6 +391,7 @@ public class PlannerFragment extends ProgressListFragment implements
         mAdapter.updateData(resultSet.items, resultSet.sections);
       }
       setLoadingViewVisible(false);
+      mSwipeRefreshLayoutListView.setRefreshing(false);
     }
 
     protected class ResultSet {
