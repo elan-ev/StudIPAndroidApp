@@ -16,9 +16,14 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
+import com.android.volley.VolleyError;
+
+import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +39,8 @@ import de.elanev.studip.android.app.widget.UserListFragment;
 /**
  * @author joern
  */
-public class CourseAttendeesFragment extends UserListFragment implements LoaderCallbacks<Cursor> {
+public class CourseAttendeesFragment extends UserListFragment implements LoaderCallbacks<Cursor>,
+    SwipeRefreshLayout.OnRefreshListener, SyncHelper.SyncHelperCallbacks {
   public static final String TAG = CourseAttendeesFragment.class.getSimpleName();
   private final ContentObserver mObserver = new ContentObserver(new Handler()) {
     @Override
@@ -62,7 +68,6 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
 
     mCourseId = mArgs.getString(CoursesContract.Columns.Courses.COURSE_ID);
     // Creating the adapters for the listview
-
     mUsersAdapter = new ListAdapterUsers(mContext);
   }
 
@@ -74,8 +79,11 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
 
     mListView.setOnItemClickListener(this);
     mListView.setOnStickyHeaderOffsetChangedListener(this);
-
     mListView.setAdapter(mUsersAdapter);
+
+    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+
     // initialize CursorLoader
     getLoaderManager().initLoader(0, mArgs, this);
   }
@@ -106,8 +114,7 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
         UsersQuery.projection,
         null,
         null,
-        CoursesContract.COURSE_USERS_DEFAULT_SORT
-    );
+        CoursesContract.COURSE_USERS_DEFAULT_SORT);
   }
 
   public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -136,8 +143,7 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
           default:
             throw new UnknownError("unknown role type");
         }
-        sections.add(new SectionedCursorAdapter.Section(cursor.getPosition(), role)
-        );
+        sections.add(new SectionedCursorAdapter.Section(cursor.getPosition(), role));
       }
 
       prevRole = currRole;
@@ -166,6 +172,29 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
       Intent intent = new Intent(mContext, UserDetailsActivity.class);
       intent.putExtra(UsersContract.Columns.USER_ID, userId);
       mContext.startActivity(intent);
+    }
+  }
+
+  @Override public void onRefresh() {
+    SyncHelper.getInstance(mContext).loadUsersForCourse(mCourseId, this);
+  }
+
+  @Override public void onSyncStarted() {
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+  }
+
+  @Override public void onSyncStateChange(int status) {
+  }
+
+  @Override public void onSyncFinished(int status) {
+    mSwipeRefreshLayoutListView.setRefreshing(false);
+  }
+
+  @Override public void onSyncError(int status, VolleyError error) {
+    mSwipeRefreshLayoutListView.setRefreshing(false);
+    if (getActivity() != null && error != null &&
+        error.networkResponse != null && error.networkResponse.statusCode != 404) {
+      Toast.makeText(mContext, R.string.sync_error_generic, Toast.LENGTH_LONG).show();
     }
   }
 
