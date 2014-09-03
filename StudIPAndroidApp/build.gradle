@@ -14,8 +14,8 @@ def versionBuild = 10
 
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8
-def versionPatchBeta = 8
-def versionBuildBeta = 11
+def versionPatchBeta = 9
+def versionBuildBeta = 1
 
 buildscript {
 
@@ -46,7 +46,7 @@ dependencies {
   compile 'com.crashlytics.android:crashlytics:1.+'
   compile 'com.squareup.picasso:picasso:2.2.0'
   compile 'com.squareup.okhttp:okhttp:1.6.0'
-  compile 'se.emilsjolander:stickylistheaders:2.4.+'
+  compile 'se.emilsjolander:stickylistheaders:2.5.0'
   compile 'com.google.guava:guava:17.+'
   compile project(':libprojects:volley')
 }
