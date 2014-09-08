@@ -11,18 +11,13 @@ If you want to contribute to this project, feel free to do so. For more informat
 
 Setup
 -----
-1. Git stuff
-  * Clone the project.
-  * Run ```git submodule init``` to initialize the submodules
-  * ```git submodule update``` to clone the submodules
-
-2. Gradle (Android Studio)
+1. Android Studio
   * Under Quick Start click ```Import Project..``` and choose the cloned project root
   * Choose ```Use gradle wrapper (recommended)```
   * Press Ok and let Gradle do the rest
   * If you want to learn more about Gradle and Android Studio, you can find further information [here][9]
 
-3. Server setup
+2. Server setup
   * The app now expects a static servers String variable in ```de.elanev.studip.android.app.util.ServerData.java```.
   Formatted as followed:
   
@@ -61,7 +56,6 @@ Libs
 ---------
 * [oauth-signpost][4]
 * [Jackson JSON Processor][5]
-* [ActionBarSherlock][6]
 * [Google Volley HTTP][7]
 * [Square Picasso][10]
 * [SQLCipher][11]
@@ -84,7 +78,6 @@ License
 [3]: http://code.google.com/p/maven-android-plugin/wiki/GettingStarted
 [4]: http://code.google.com/p/oauth-signpost/
 [5]: http://wiki.fasterxml.com/JacksonHome
-[6]: http://actionbarsherlock.com/
 [7]: https://android.googlesource.com/platform/frameworks/volley/
 [8]: http://www.elan-ev.de/
 [9]: http://developer.android.com/sdk/installing/studio.html
