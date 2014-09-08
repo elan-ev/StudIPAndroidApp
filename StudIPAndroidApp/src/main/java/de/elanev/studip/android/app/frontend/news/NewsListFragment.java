@@ -19,12 +19,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +38,7 @@ import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
@@ -41,7 +46,9 @@ import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 /**
  * @author joern
  */
-public class NewsListFragment extends ProgressListFragment implements LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class NewsListFragment extends ProgressListFragment implements LoaderCallbacks<Cursor>,
+    AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener,
+    SyncHelper.SyncHelperCallbacks {
 
   public static final String TAG = NewsListFragment.class.getSimpleName();
   public static final String NEWS_SELECTOR = "news_selector";
@@ -83,10 +90,12 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
     setEmptyMessage(R.string.no_news);
 
     mListView.setOnItemClickListener(this);
+    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
 
     mNewsAdapter = new NewsAdapter(mContext);
     mListView.setAdapter(mNewsAdapter);
-
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+    SyncHelper.getInstance(mContext).performNewsSync(this);
     // initialize CursorLoader
     getLoaderManager().initLoader(newsSelector, null, this);
   }
@@ -201,8 +210,7 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
         c.getString(c.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE)),
         c.getString(c.getColumnIndex(UsersContract.Columns.USER_FORENAME)),
         c.getString(c.getColumnIndex(UsersContract.Columns.USER_LASTNAME)),
-        c.getString(c.getColumnIndex(UsersContract.Columns.USER_TITLE_POST))
-    );
+        c.getString(c.getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
     String userImageUrl = c.getString(c.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
     long date = c.getLong(c.getColumnIndex(NewsContract.Columns.NEWS_MKDATE));
 
@@ -217,6 +225,33 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
     intent.setClass(getActivity(), NewsItemViewActivity.class);
     intent.putExtras(args);
     startActivity(intent);
+  }
+
+  @Override public void onRefresh() {
+    SyncHelper.getInstance(mContext).performNewsSync(this);
+  }
+
+  @Override public void onSyncStarted() {
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+  }
+
+  @Override public void onSyncStateChange(int status) {
+  }
+
+  @Override public void onSyncFinished(int status) {
+    if (status == SyncHelper.SyncHelperCallbacks.FINISHED_NEWS_SYNC) {
+      mSwipeRefreshLayoutListView.setRefreshing(false);
+    }
+  }
+
+  @Override public void onSyncError(int status, VolleyError error) {
+    if (status == SyncHelper.SyncHelperCallbacks.ERROR_NEWS_SYNC && error != null
+        && error.networkResponse != null && error.networkResponse.statusCode != 404) {
+      if (getActivity() != null) {
+        Toast.makeText(mContext, R.string.sync_error_generic, Toast.LENGTH_LONG).show();
+      }
+      mSwipeRefreshLayoutListView.setRefreshing(false);
+    }
   }
 
   private interface NewsQuery {

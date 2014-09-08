@@ -27,6 +27,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,6 +57,7 @@ import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.ApiUtils;
@@ -208,22 +210,17 @@ public class CourseDocumentsFragment extends Fragment {
 
   }
 
-  public static class DocumentsListFragment extends ProgressListFragment implements AdapterView.OnItemClickListener, StickyListHeadersListView.OnHeaderClickListener {
+  public static class DocumentsListFragment extends ProgressListFragment implements
+      AdapterView.OnItemClickListener, StickyListHeadersListView.OnHeaderClickListener,
+      SwipeRefreshLayout.OnRefreshListener {
 
 
     private static final String FOLDER_NAME = "folder_name";
-    private static final String[] PROJECTION = new String[]
-
-        {
-            UsersContract.Columns.USER_TITLE_PRE,
-            UsersContract.Columns.USER_FORENAME,
-            UsersContract.Columns.USER_LASTNAME,
-            UsersContract.Columns.USER_TITLE_POST
-        };
-    private static final String SELECTION = UsersContract.Columns.USER_ID + " = ?";
     private Server mServer;
     private DocumentsAdapter mAdapter;
     private String mCourseId;
+    private String mFolderId;
+    private String mFolderName;
 
     public DocumentsListFragment() {}
 
@@ -240,6 +237,8 @@ public class CourseDocumentsFragment extends Fragment {
       super.onActivityCreated(savedInstanceState);
       setEmptyMessage(R.string.no_documents);
 
+      mSwipeRefreshLayoutListView.setOnRefreshListener(this);
+
       mListView.setOnItemClickListener(this);
       mListView.setOnHeaderClickListener(this);
       mListView.setAdapter(mAdapter);
@@ -249,9 +248,9 @@ public class CourseDocumentsFragment extends Fragment {
     @Override
     public void onStart() {
       super.onStart();
-      String folderName = getArguments().getString(FOLDER_NAME);
-      String folderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
-      downloadDocumentsForFolder(mCourseId, folderId, folderName);
+      mFolderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
+      mFolderName = getArguments().getString(FOLDER_NAME);
+      downloadDocumentsForFolder(mCourseId, mFolderId, mFolderName);
     }
 
     private void downloadDocumentsForFolder(String courseId,
@@ -286,19 +285,23 @@ public class CourseDocumentsFragment extends Fragment {
 
               mAdapter.updateData(list, folderName);
               setLoadingViewVisible(false);
+              mSwipeRefreshLayoutListView.setRefreshing(false);
             }
 
           },
           new Response.ErrorListener() {
             public void onErrorResponse(VolleyError error) {
-              if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
-              setLoadingViewVisible(false);
+              if (getActivity() != null && error != null && error.getMessage() != null) {
+                Log.wtf(TAG, error.getMessage());
+                Toast.makeText(mContext, R.string.sync_error_generic, Toast.LENGTH_LONG).show();
+                mSwipeRefreshLayoutListView.setRefreshing(false);
+                setLoadingViewVisible(false);
+              }
             }
           }
 
           ,
-          Request.Method.GET
-      );
+          Request.Method.GET);
 
       DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(30000,
           DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -310,6 +313,7 @@ public class CourseDocumentsFragment extends Fragment {
       try {
         OAuthConnector.with(mServer).sign(documentFoldersRequest);
         StudIPApplication.getInstance().addToRequestQueue(documentFoldersRequest, TAG);
+        mSwipeRefreshLayoutListView.setRefreshing(true);
       } catch (OAuthExpectationFailedException e) {
         e.printStackTrace();
       } catch (OAuthCommunicationException e) {
@@ -426,8 +430,8 @@ public class CourseDocumentsFragment extends Fragment {
 
           // Create the download request
           DownloadManager.Request request = new DownloadManager.Request(Uri.parse(signedDownloadUrl)).setAllowedNetworkTypes(
-              DownloadManager.Request.NETWORK_WIFI |
-                  DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
+              DownloadManager.Request.NETWORK_WIFI
+                  | DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
               .setAllowedOverRoaming(false)                   // Disallow roaming downloading
               .setTitle(fileName)                             // Title of this download
               .setDescription(fileDescription);               // Description of this download
@@ -460,6 +464,10 @@ public class CourseDocumentsFragment extends Fragment {
         long l,
         boolean b) {
       getActivity().onBackPressed();
+    }
+
+    @Override public void onRefresh() {
+      downloadDocumentsForFolder(mCourseId, mFolderId, mFolderName);
     }
 
     public static class WarningDialog extends DialogFragment {
@@ -497,11 +505,10 @@ public class CourseDocumentsFragment extends Fragment {
         return new AlertDialog.Builder(getActivity()).setTitle(mDialogTitleRes)
             .setMessage(mDialogMessageRes)
             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface dialog, int whichButton) {
-                    dialog.dismiss();
-                  }
-                }
-            )
+              public void onClick(DialogInterface dialog, int whichButton) {
+                dialog.dismiss();
+              }
+            })
             .create();
       }
     }
@@ -587,8 +594,7 @@ public class CourseDocumentsFragment extends Fragment {
           holder.icon.setBackgroundColor(getResources().getColor(R.color.studip_mobile_dark));
           holder.title.setText(f.name);
           String subText = String.format(getString(R.string.last_updated),
-              TextTools.getTimeAgo(f.chdate, mContext)
-          );
+              TextTools.getTimeAgo(f.chdate, mContext));
           holder.subtitle.setText(subText);
           holder.subtitle.setVisibility(View.VISIBLE);
         } else {

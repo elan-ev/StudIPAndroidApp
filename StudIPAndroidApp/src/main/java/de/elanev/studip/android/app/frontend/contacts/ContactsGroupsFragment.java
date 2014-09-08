@@ -15,9 +15,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +30,7 @@ import java.util.List;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.widget.ListAdapterUsers;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 import de.elanev.studip.android.app.widget.UserDetailsActivity;
@@ -33,11 +39,11 @@ import de.elanev.studip.android.app.widget.UserListFragment;
 /**
  * @author joern
  */
-public class ContactsGroupsFragment extends UserListFragment {
+public class ContactsGroupsFragment extends UserListFragment implements
+    SwipeRefreshLayout.OnRefreshListener, SyncHelper.SyncHelperCallbacks {
 
   protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
-    @Override
-    public void onChange(boolean selfChange) {
+    @Override public void onChange(boolean selfChange) {
       if (getActivity() == null) {
         return;
       }
@@ -52,48 +58,43 @@ public class ContactsGroupsFragment extends UserListFragment {
 
   public ContactsGroupsFragment() {}
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     mUserAdapter = new ListAdapterUsers(mContext);
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     getActivity().setTitle(R.string.Contacts);
     setEmptyMessage(R.string.no_contacts);
 
     mListView.setOnItemClickListener(this);
     mListView.setOnStickyHeaderOffsetChangedListener(this);
-
     mListView.setAdapter(mUserAdapter);
+
+    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
     // initialize CursorLoader
     getLoaderManager().initLoader(0, null, this);
   }
 
-  @Override
-  public void onAttach(Activity activity) {
+  @Override public void onStart() {
+    super.onStart();
+    SyncHelper.getInstance(mContext).forcePerformContactsSync(this);
+  }
+
+  @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
     activity.getContentResolver()
         .registerContentObserver(ContactsContract.CONTENT_URI_CONTACT_GROUPS, true, mObserver);
   }
 
-  @Override
-  public void onDetach() {
+  @Override public void onDetach() {
     super.onDetach();
     getActivity().getContentResolver().unregisterContentObserver(mObserver);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-   * android.os.Bundle)
-   */
-  public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+  @Override public Loader<Cursor> onCreateLoader(int id, Bundle data) {
     setLoadingViewVisible(true);
     return new CursorLoader(mContext,
         ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS,
@@ -103,14 +104,7 @@ public class ContactsGroupsFragment extends UserListFragment {
         null);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-   * .support.v4.content.Loader, java.lang.Object)
-   */
-  public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+  @Override public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
     if (getActivity() == null) {
       return;
     }
@@ -137,19 +131,11 @@ public class ContactsGroupsFragment extends UserListFragment {
     setLoadingViewVisible(false);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-   * .support.v4.content.Loader)
-   */
-  public void onLoaderReset(Loader<Cursor> loader) {
+  @Override public void onLoaderReset(Loader<Cursor> loader) {
     mUserAdapter.swapCursor(null);
   }
 
-  @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+  @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Cursor c = (Cursor) mListView.getItemAtPosition(position);
 
     String userId = c.getString(c.getColumnIndex(UsersContract.Columns.USER_ID));
@@ -160,4 +146,26 @@ public class ContactsGroupsFragment extends UserListFragment {
     }
   }
 
+  @Override public void onRefresh() {
+    SyncHelper.getInstance(mContext).forcePerformContactsSync(this);
+  }
+
+  @Override public void onSyncStarted() {
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+  }
+
+  @Override public void onSyncStateChange(int status) {
+  }
+
+  @Override public void onSyncFinished(int status) {
+    mSwipeRefreshLayoutListView.setRefreshing(false);
+  }
+
+  @Override public void onSyncError(int status, VolleyError error) {
+    mSwipeRefreshLayoutListView.setRefreshing(false);
+    if (getActivity() != null && error != null && error.networkResponse != null
+        && error.networkResponse.statusCode != 404) {
+      Toast.makeText(mContext, R.string.sync_error_generic, Toast.LENGTH_LONG).show();
+    }
+  }
 }

@@ -210,7 +210,7 @@ public class RestIpProvider extends ContentProvider {
 
     switch (match) {
       case NEWS:
-        SyncHelper.getInstance(getContext()).performNewsSync(null);
+//        SyncHelper.getInstance(getContext()).performNewsSync(null);
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = NewsContract.DEFAULT_SORT_ORDER;
@@ -231,7 +231,7 @@ public class RestIpProvider extends ContentProvider {
         break;
 
       case NEWS_COURSES:
-        SyncHelper.getInstance(getContext()).performNewsSync(null);
+//        SyncHelper.getInstance(getContext()).performNewsSync(null);
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = NewsContract.DEFAULT_SORT_ORDER;
@@ -254,7 +254,7 @@ public class RestIpProvider extends ContentProvider {
         break;
 
       case NEWS_INSTITUTES:
-        SyncHelper.getInstance(getContext()).performNewsSync(null);
+//        SyncHelper.getInstance(getContext()).performNewsSync(null);
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = NewsContract.DEFAULT_SORT_ORDER;
@@ -275,7 +275,7 @@ public class RestIpProvider extends ContentProvider {
         break;
 
       case NEWS_GLOBAL:
-        SyncHelper.getInstance(getContext()).performNewsSync(null);
+//        SyncHelper.getInstance(getContext()).performNewsSync(null);
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = NewsContract.DEFAULT_SORT_ORDER;
@@ -332,8 +332,6 @@ public class RestIpProvider extends ContentProvider {
             orderBy
         );
       case COURSES: {
-        SyncHelper.getInstance(getContext()).performCoursesSync(null);
-
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = CoursesContract.DEFAULT_SORT_ORDER;
         } else {
