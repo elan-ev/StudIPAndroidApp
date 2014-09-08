@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -59,10 +60,9 @@ import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 
-/**
- * @author joern
- */
-public class MessagesListFragment extends ProgressListFragment implements LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class MessagesListFragment extends ProgressListFragment implements LoaderCallbacks<Cursor>,
+    AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener,
+    SyncHelper.SyncHelperCallbacks {
   public static final String TAG = MessagesListFragment.class.getSimpleName();
   protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
     @Override
@@ -101,8 +101,12 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     setEmptyMessage(R.string.no_messages);
 
     mListView.setOnItemClickListener(this);
-
     mListView.setAdapter(mMessagesAdapter);
+
+    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
+    // Request the latest messages from server
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+    SyncHelper.getInstance(mContext).performMessagesSync(this);
     // initialize CursorLoader
     getLoaderManager().initLoader(0, null, this);
   }
@@ -121,36 +125,12 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     getActivity().getContentResolver().unregisterContentObserver(mObserver);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
-   * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
-   */
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.messages_list_menu, menu);
     super.onCreateOptionsMenu(menu, inflater);
   }
 
-  /**
-   *
-   */
-  //    public void switchContent(long messagesFolder) {
-  //        getLoaderManager().destroyLoader(0);
-  //        Bundle args = new Bundle();
-  //        args.putLong(MessagesContract.Columns.MessageFolders._ID,
-  //                messagesFolder);
-  //        getLoaderManager().initLoader(0, args, this);
-  //    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * com.actionbarsherlock.app.SherlockListFragment#onPrepareOptionsMenu(com
-     * .actionbarsherlock.view.Menu)
-     */
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
     MainActivity activity = (MainActivity) getActivity();
@@ -160,13 +140,6 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     super.onPrepareOptionsMenu(menu);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * com.actionbarsherlock.app.SherlockListFragment#onOptionsItemSelected(
-   * com.actionbarsherlock.view.MenuItem)
-   */
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (isAdded()) {
@@ -185,28 +158,8 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
 
   }
 
-  @Override
-  public void onStart() {
-    super.onStart();
-    // Request the latest messages from server
-    SyncHelper.getInstance(mContext).performMessagesSync(null);
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-   * android.os.Bundle)
-   */
   public Loader<Cursor> onCreateLoader(int id, Bundle data) {
     setLoadingViewVisible(true);
-    // TODO: Folder chooser
-    // String messageFolder = "Posteingang";
-    // if (data != null) {
-    // messageFolder = data
-    // .getLong(MessagesContract.Columns.MessageFolders._ID);
-    // }
     return new CursorLoader(mContext,
         MessagesContract.CONTENT_URI_MESSAGE_FOLDERS.buildUpon()
             .appendPath("name")
@@ -215,21 +168,9 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
         MessageQuery.projection,
         UsersContract.Qualified.USERS_USER_ID + " NOT NULL",
         null,
-        MessagesContract.DEFAULT_SORT_ORDER_MESSAGES
-    );
+        MessagesContract.DEFAULT_SORT_ORDER_MESSAGES);
   }
 
-	/*
-     * loader callbacks
-	 */
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-   * .support.v4.content.Loader, java.lang.Object)
-   */
   public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
     if (getActivity() == null) {
       return;
@@ -239,8 +180,7 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     if (cursor.getCount() > 0) {
       List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
       if (!cursor.isAfterLast())
-        getActivity().setTitle(cursor.getString(cursor.getColumnIndex(MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_NAME))
-        );
+        getActivity().setTitle(cursor.getString(cursor.getColumnIndex(MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_NAME)));
 
       long previousDay = -1;
       long currentDay = -1;
@@ -264,13 +204,6 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     setLoadingViewVisible(false);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-   * .support.v4.content.Loader)
-   */
   public void onLoaderReset(Loader<Cursor> loader) {
     mMessagesAdapter.swapCursor(null);
   }
@@ -305,18 +238,11 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
       public void onResponse(String response) {
         mContext.getContentResolver()
             .update(MessagesContract.CONTENT_URI_MESSAGES.buildUpon()
-                    .appendPath("read")
-                    .appendPath(String.valueOf(messageIntId))
-                    .build(), null, null, null
-            );
+                .appendPath("read")
+                .appendPath(String.valueOf(messageIntId))
+                .build(), null, null, null);
       }
     }, new ErrorListener() {
-      /*
-       * (non-Javadoc)
-       *
-       * @see com.android.volley.Response.ErrorListener
-       * #onErrorResponse(com.android.volley. VolleyError)
-       */
       public void onErrorResponse(VolleyError error) {
         if (error.getMessage() != null) Log.e(TAG, error.getMessage());
 
@@ -324,8 +250,7 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
             getString(R.string.something_went_wrong) + error.getMessage(),
             Toast.LENGTH_SHORT).show();
       }
-    }
-    );
+    });
 
     try {
       Server server = Prefs.getInstance(mContext).getServer();
@@ -341,6 +266,33 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
       StuffUtil.startSignInActivity(mContext);
     }
     StudIPApplication.getInstance().addToRequestQueue(request);
+  }
+
+  @Override public void onRefresh() {
+    SyncHelper.getInstance(mContext).performMessagesSync(this);
+  }
+
+  @Override public void onSyncStarted() {
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+  }
+
+  @Override public void onSyncStateChange(int status) {
+  }
+
+  @Override public void onSyncFinished(int status) {
+    if (status == SyncHelper.SyncHelperCallbacks.FINISHED_MESSAGES_SYNC) {
+      mSwipeRefreshLayoutListView.setRefreshing(false);
+    }
+  }
+
+  @Override public void onSyncError(int status, VolleyError error) {
+    if (status == SyncHelper.SyncHelperCallbacks.ERROR_MESSAGES_SYNC && error != null
+        && error.networkResponse != null && error.networkResponse.statusCode != 404) {
+      if (getActivity() != null) {
+        Toast.makeText(mContext, R.string.sync_error_generic, Toast.LENGTH_LONG).show();
+      }
+      mSwipeRefreshLayoutListView.setRefreshing(false);
+    }
   }
 
   /*
@@ -369,25 +321,11 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
       super(context);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.widget.CursorAdapter#newView(android.content.Context
-     * , android.database.Cursor, android.view.ViewGroup)
-     */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
       return getActivity().getLayoutInflater().inflate(R.layout.list_item_message, parent, false);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.widget.CursorAdapter#bindView(android.view.View,
-     * android.content.Context, android.database.Cursor)
-     */
     @Override
     public void bindView(View view, Context context, final Cursor cursor) {
 

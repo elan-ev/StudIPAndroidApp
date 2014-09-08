@@ -231,8 +231,7 @@ public class SyncHelper {
             }
           }
         },
-        Method.GET
-    );
+        Method.GET);
 
     institutesRequest.setRetryPolicy(mRetryPolicy);
     institutesRequest.setPriority(Request.Priority.NORMAL);
@@ -299,6 +298,7 @@ public class SyncHelper {
     return ops;
   }
 
+  //TODO: implement this in one method
   public void forcePerformContactsSync(SyncHelperCallbacks callbacks) {
     mLastContactsSync = 0;
     performContactsSync(callbacks, Request.Priority.IMMEDIATE);
@@ -357,8 +357,7 @@ public class SyncHelper {
               if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
             }
           },
-          Method.GET
-      );
+          Method.GET);
 
       // Request ContactGroups
       final JacksonRequest<ContactGroups> contactGroupsRequest = new JacksonRequest<ContactGroups>(
@@ -390,8 +389,7 @@ public class SyncHelper {
               if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
             }
           },
-          Method.GET
-      );
+          Method.GET);
 
       contactsRequest.setRetryPolicy(mRetryPolicy);
       contactGroupsRequest.setRetryPolicy(mRetryPolicy);
@@ -406,8 +404,7 @@ public class SyncHelper {
         OAuthConnector.with(mServer).sign(contactGroupsRequest);
         StudIPApplication.getInstance().addToRequestQueue(contactGroupsRequest, TAG);
 
-        if (callbacks != null)
-          callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_CONTACTS_SYNC);
+        if (callbacks != null) callbacks.onSyncStarted();
 
       } catch (OAuthMessageSignerException e) {
         e.printStackTrace();
@@ -443,83 +440,82 @@ public class SyncHelper {
     if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
       return;
     }
+    //
+    //    long currTime = System.currentTimeMillis();
+    //    if (!forceReload && (currTime - mLastCoursesSync) > BuildConfig.COURSES_SYNC_THRESHOLD) {
+    //      mLastCoursesSync = currTime;
+    //    }
 
-    long currTime = System.currentTimeMillis();
-    if ((currTime - mLastCoursesSync) > BuildConfig.COURSES_SYNC_THRESHOLD) {
-      mLastCoursesSync = currTime;
-      Log.i(TAG, "SYNCING COURSES");
+    Log.i(TAG, "SYNCING COURSES");
+    final String coursesUrl = String.format(mContext.getString(R.string.restip_courses) + ".json",
+        mServer.getApiUrl());
 
-      final String coursesUrl = String.format(mContext.getString(R.string.restip_courses) + ".json",
-          mServer.getApiUrl());
-
-      JacksonRequest<Courses> coursesRequest;
-      coursesRequest = new JacksonRequest<Courses>(coursesUrl,
-          Courses.class,
-          null,
-          new Listener<Courses>() {
-            public void onResponse(Courses response) {
-              try {
-                mContext.getContentResolver() //
-                    .applyBatch(AbstractContract.CONTENT_AUTHORITY, parseCourses(response));
-              } catch (RemoteException e) {
-                e.printStackTrace();
-              } catch (OperationApplicationException e) {
-                e.printStackTrace();
-              }
-
-              int teacherRole = CoursesContract.USER_ROLE_TEACHER;
-              int tutorRole = CoursesContract.USER_ROLE_TUTOR;
-              int studentRole = CoursesContract.USER_ROLE_STUDENT;
-
-              for (Course c : response.courses) {
-                if (c.modules.recordings) {
-                  requestRecordingsForCourse(c.courseId, callbacks);
-                }
-                new CourseUsersInsertTask(c.teachers).execute(c.courseId, teacherRole);
-                new CourseUsersInsertTask(c.tutors).execute(c.courseId, tutorRole);
-                new CourseUsersInsertTask(c.students).execute(c.courseId, studentRole);
-                new UsersRequestTask().execute(c.teachers.toArray(new String[c.teachers.size()]));
-              }
-
-              if (callbacks != null)
-                callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_COURSES_SYNC);
-              Log.i(TAG, "FINISHED SYNCING COURSES");
-
+    JacksonRequest<Courses> coursesRequest;
+    coursesRequest = new JacksonRequest<Courses>(coursesUrl,
+        Courses.class,
+        null,
+        new Listener<Courses>() {
+          public void onResponse(Courses response) {
+            try {
+              mContext.getContentResolver() //
+                  .applyBatch(AbstractContract.CONTENT_AUTHORITY, parseCourses(response));
+            } catch (RemoteException e) {
+              e.printStackTrace();
+            } catch (OperationApplicationException e) {
+              e.printStackTrace();
             }
 
-          },
-          new ErrorListener() {
-            public void onErrorResponse(VolleyError error) {
-              if (callbacks != null)
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_COURSES_SYNC, error);
+            int teacherRole = CoursesContract.USER_ROLE_TEACHER;
+            int tutorRole = CoursesContract.USER_ROLE_TUTOR;
+            int studentRole = CoursesContract.USER_ROLE_STUDENT;
 
-              if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+            for (Course c : response.courses) {
+              if (c.modules.recordings) {
+                requestRecordingsForCourse(c.courseId, callbacks);
+              }
+              new CourseUsersInsertTask(c.teachers).execute(c.courseId, teacherRole);
+              new CourseUsersInsertTask(c.tutors).execute(c.courseId, tutorRole);
+              new CourseUsersInsertTask(c.students).execute(c.courseId, studentRole);
+              new UsersRequestTask().execute(c.teachers.toArray(new String[c.teachers.size()]));
             }
-          },
-          Method.GET
-      );
 
-      coursesRequest.setRetryPolicy(mRetryPolicy);
+            if (callbacks != null)
+              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_COURSES_SYNC);
+            Log.i(TAG, "FINISHED SYNCING COURSES");
 
-      try {
-        OAuthConnector.with(mServer).sign(coursesRequest);
-        StudIPApplication.getInstance().addToRequestQueue(coursesRequest, TAG);
+          }
 
-        // Tell the listener that the course sync started
-        if (callbacks != null)
-          callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_COURSES_SYNC);
+        },
+        new ErrorListener() {
+          public void onErrorResponse(VolleyError error) {
+            if (callbacks != null)
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_COURSES_SYNC, error);
 
-      } catch (OAuthMessageSignerException e) {
-        e.printStackTrace();
-      } catch (OAuthExpectationFailedException e) {
-        e.printStackTrace();
-      } catch (OAuthCommunicationException e) {
-        e.printStackTrace();
-      } catch (OAuthNotAuthorizedException e) {
-        StuffUtil.startSignInActivity(mContext);
+            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+          }
+        },
+        Method.GET);
+
+    coursesRequest.setRetryPolicy(mRetryPolicy);
+
+    try {
+      OAuthConnector.with(mServer).sign(coursesRequest);
+      StudIPApplication.getInstance().addToRequestQueue(coursesRequest, TAG);
+
+      // Tell the listener that the course sync started
+      if (callbacks != null) {
+        callbacks.onSyncStarted();
       }
-    }
 
+    } catch (OAuthMessageSignerException e) {
+      e.printStackTrace();
+    } catch (OAuthExpectationFailedException e) {
+      e.printStackTrace();
+    } catch (OAuthCommunicationException e) {
+      e.printStackTrace();
+    } catch (OAuthNotAuthorizedException e) {
+      StuffUtil.startSignInActivity(mContext);
+    }
   }
 
   private static ArrayList<ContentProviderOperation> parseCourses(Courses courses) {
@@ -568,47 +564,42 @@ public class SyncHelper {
     if (!Prefs.getInstance(mContext).isAppAuthorized() || mServer == null) {
       return;
     }
+    final ContentResolver resolver = mContext.getContentResolver();
 
-    long currTime = System.currentTimeMillis();
-    if ((currTime - mLastNewsSync) > BuildConfig.NEWS_SYNC_THRESHOLD) {
-      mLastNewsSync = currTime;
-      final ContentResolver resolver = mContext.getContentResolver();
+    Cursor c = resolver.query(CoursesContract.CONTENT_URI,
+        new String[]{CoursesContract.Columns.Courses.COURSE_ID},
+        null,
+        null,
+        null);
 
-      Cursor c = resolver.query(CoursesContract.CONTENT_URI,
-          new String[]{CoursesContract.Columns.Courses.COURSE_ID},
-          null,
-          null,
-          null);
+    HashSet<String> rangeIds = new HashSet<String>();
+    c.moveToFirst();
 
-      HashSet<String> rangeIds = new HashSet<String>();
-      c.moveToFirst();
+    while (!c.isAfterLast()) {
+      rangeIds.add(c.getString(0));
 
-      while (!c.isAfterLast()) {
-        rangeIds.add(c.getString(0));
-
-        c.moveToNext();
-      }
-      c.close();
-
-      c = resolver.query(InstitutesContract.CONTENT_URI,
-          new String[]{InstitutesContract.Columns.INSTITUTE_ID},
-          null,
-          null,
-          null);
-
-      c.moveToFirst();
-      while (!c.isAfterLast()) {
-        rangeIds.add(c.getString(0));
-
-        c.moveToNext();
-      }
-      c.close();
-
-      rangeIds.add(mContext.getString(R.string.restip_news_global_identifier));
-      performNewsSyncForIds(rangeIds, callbacks);
-
-      //TODO: Delete old news from database
+      c.moveToNext();
     }
+    c.close();
+
+    c = resolver.query(InstitutesContract.CONTENT_URI,
+        new String[]{InstitutesContract.Columns.INSTITUTE_ID},
+        null,
+        null,
+        null);
+
+    c.moveToFirst();
+    while (!c.isAfterLast()) {
+      rangeIds.add(c.getString(0));
+
+      c.moveToNext();
+    }
+    c.close();
+
+    rangeIds.add(mContext.getString(R.string.restip_news_global_identifier));
+    performNewsSyncForIds(rangeIds, callbacks);
+
+    //TODO: Delete old news from database
   }
 
   /**
@@ -633,33 +624,34 @@ public class SyncHelper {
     for (final String id : newsRangeIds) {
       final int finalI = i;
 
+
       requestNewsForRange(id, new Listener<News>() {
-            public void onResponse(News response) {
-              try {
-                ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-                for (NewsItem n : response.news) {
-                  new UsersRequestTask().execute(n.user_id);
-                  operations.add(parseNewsItem(n, id));
-                }
-                if (!operations.isEmpty()) {
-                  mContext.getContentResolver()
-                      .applyBatch(AbstractContract.CONTENT_AUTHORITY, operations);
-                }
-
-                if (finalI == (newsRangeIds.size() - 1)) {
-                  if (callbacks != null)
-                    callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
-                  Log.i(TAG, "FINISHED SYNCING NEWS");
-                }
-              } catch (RemoteException e) {
-                e.printStackTrace();
-              } catch (OperationApplicationException e) {
-                e.printStackTrace();
-              }
-
+        public void onResponse(News response) {
+          try {
+            ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+            for (NewsItem n : response.news) {
+              new UsersRequestTask().execute(n.user_id);
+              operations.add(parseNewsItem(n, id));
             }
-          }, callbacks
-      );
+            if (!operations.isEmpty()) {
+              mContext.getContentResolver()
+                  .applyBatch(AbstractContract.CONTENT_AUTHORITY, operations);
+            }
+
+            if (finalI == (newsRangeIds.size() - 1)) {
+              if (callbacks != null) {
+                callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
+                Log.i(TAG, "FINISHED SYNCING NEWS");
+              }
+            }
+          } catch (RemoteException e) {
+            e.printStackTrace();
+          } catch (OperationApplicationException e) {
+            e.printStackTrace();
+          }
+
+        }
+      }, callbacks);
       i++;
     }
   }
@@ -698,8 +690,7 @@ public class SyncHelper {
             if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
         },
-        Method.GET
-    );
+        Method.GET);
     newsRequest.setRetryPolicy(mRetryPolicy);
 
     try {
@@ -795,8 +786,7 @@ public class SyncHelper {
             if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
         },
-        Method.GET
-    );
+        Method.GET);
     semestersRequest.setRetryPolicy(mRetryPolicy);
 
     try {
@@ -873,8 +863,7 @@ public class SyncHelper {
             Log.wtf(TAG, error.getMessage());
           }
         },
-        Method.GET
-    );
+        Method.GET);
     eventsRequest.setRetryPolicy(mRetryPolicy);
     eventsRequest.setPriority(Request.Priority.IMMEDIATE);
     try {
@@ -927,39 +916,37 @@ public class SyncHelper {
 
               final int finalI = i;
               requestMessagesForFolder(i, box, callbacks, new Listener<Messages>() {
-                    public void onResponse(Messages response) {
-                      try {
+                public void onResponse(Messages response) {
+                  try {
 
-                        for (Message m : response.messages) {
-                          if (callbacks != null) {
-                            new UsersRequestTask().execute(m.sender_id, m.receiver_id);
-                          } else {
-                            requestUser(m.sender_id, null);
-                            requestUser(m.receiver_id, null);
-                          }
-                        }
-
-                        mContext.getContentResolver()
-                            .applyBatch(AbstractContract.CONTENT_AUTHORITY,
-                                new MessagesHandler(response,
-                                    foldersResponse.folders.get(finalI),
-                                    box).parse()
-                            );
-
-                        if (callbacks != null && finalI == foldersResponse.folders.size() - 1) {
-                          callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_MESSAGES_SYNC);
-                          Log.i(TAG, "FINISHED SYNCING MESSAGES");
-                          return;
-                        }
-
-                      } catch (RemoteException e) {
-                        e.printStackTrace();
-                      } catch (OperationApplicationException e) {
-                        e.printStackTrace();
+                    for (Message m : response.messages) {
+                      if (callbacks != null) {
+                        new UsersRequestTask().execute(m.sender_id, m.receiver_id);
+                      } else {
+                        requestUser(m.sender_id, null);
+                        requestUser(m.receiver_id, null);
                       }
                     }
+
+                    mContext.getContentResolver()
+                        .applyBatch(AbstractContract.CONTENT_AUTHORITY,
+                            new MessagesHandler(response,
+                                foldersResponse.folders.get(finalI),
+                                box).parse());
+
+                    if (callbacks != null && finalI == foldersResponse.folders.size() - 1) {
+                      callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_MESSAGES_SYNC);
+                      Log.i(TAG, "FINISHED SYNCING MESSAGES");
+                      return;
+                    }
+
+                  } catch (RemoteException e) {
+                    e.printStackTrace();
+                  } catch (OperationApplicationException e) {
+                    e.printStackTrace();
                   }
-              );
+                }
+              });
             }
           }
         },
@@ -971,8 +958,7 @@ public class SyncHelper {
             if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
         },
-        Method.GET
-    );
+        Method.GET);
 
     messageFoldersRequest.setRetryPolicy(mRetryPolicy);
     messageFoldersRequest.setPriority(Request.Priority.IMMEDIATE);
@@ -1023,8 +1009,7 @@ public class SyncHelper {
             if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
         },
-        Method.GET
-    );
+        Method.GET);
 
     try {
       messagesRequest.setRetryPolicy(mRetryPolicy);
@@ -1058,7 +1043,8 @@ public class SyncHelper {
     if (!TextUtils.equals("", userId) && !TextUtils.equals("____%system%____", userId)) {
       try {
         mUsersCache.get(userId);
-        //                    Log.i(TAG, "!!!!!USER CACHE HIT!!!!!");
+        if (callbacks != null) callbacks.onSyncStarted();
+
       } catch (CacheLoader.InvalidCacheLoadException exception) {
 
         try {
@@ -1067,7 +1053,7 @@ public class SyncHelper {
           StudIPApplication.getInstance()
               .addToRequestQueue(createUserRequest(userId, callbacks), TAG);
 
-          if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
+          if (callbacks != null) callbacks.onSyncStarted();
         } catch (OAuthCommunicationException e) {
           e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
@@ -1128,8 +1114,7 @@ public class SyncHelper {
           }
 
         },
-        Method.GET
-    );
+        Method.GET);
 
     OAuthConnector.with(mServer).sign(userJacksonRequest);
 
@@ -1201,8 +1186,7 @@ public class SyncHelper {
             if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
         },
-        Method.GET
-    );
+        Method.GET);
 
     documentFoldersRequest.setRetryPolicy(mRetryPolicy);
     documentFoldersRequest.setPriority(Request.Priority.IMMEDIATE);
@@ -1265,8 +1249,7 @@ public class SyncHelper {
             if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
           }
         },
-        Method.GET
-    );
+        Method.GET);
 
     documentRequest.setRetryPolicy(mRetryPolicy);
     documentRequest.setPriority(Request.Priority.IMMEDIATE);
@@ -1329,8 +1312,7 @@ public class SyncHelper {
             }
           }
         },
-        Method.GET
-    );
+        Method.GET);
 
     try {
       recordingsRequest.setRetryPolicy(mRetryPolicy);
@@ -1449,7 +1431,11 @@ public class SyncHelper {
             CourseUsers.
             COURSE_USER_USER_ID));
 
-        requestUser(userId, callbacks);
+        if (c.isLast() || c.isFirst()) {
+          requestUser(userId, callbacks);
+        } else {
+          requestUser(userId, null);
+        }
 
         c.moveToNext();
       }

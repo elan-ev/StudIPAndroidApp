@@ -52,7 +52,7 @@
             android:paddingLeft="@dimen/layout_margin_normal"
             android:text="@string/homepage_text"
             android:textColor="@color/primary_text_dark"
-            android:textColorLink="@color/sutdip_mobile_light"
+            android:textColorLink="@color/studip_mobile_light"
             android:textSize="@dimen/text_size_small"
             android:fontFamily="sans-serif-light"/>
 
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/layout_margin_normal"
             android:text="@string/faq"
-            android:textColor="@color/sutdip_mobile_light"
+            android:textColor="@color/studip_mobile_light"
             android:textSize="@dimen/text_size_medium"
             android:textStyle="bold"/>
 
@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/layout_margin_normal"
             android:text="@string/privacy_policy"
-            android:textColor="@color/sutdip_mobile_light"
+            android:textColor="@color/studip_mobile_light"
             android:textSize="@dimen/text_size_medium"
             android:textStyle="bold"/>
 
@@ -92,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/layout_margin_normal"
             android:text="@string/licenses"
-            android:textColor="@color/sutdip_mobile_light"
+            android:textColor="@color/studip_mobile_light"
             android:textSize="@dimen/text_size_medium"
             android:textStyle="bold"/>
 
@@ -102,7 +102,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/layout_margin_normal"
             android:text="@string/legal_notice"
-            android:textColor="@color/sutdip_mobile_light"
+            android:textColor="@color/studip_mobile_light"
             android:textSize="@dimen/text_size_medium"
             android:textStyle="bold"/>
     </LinearLayout>
