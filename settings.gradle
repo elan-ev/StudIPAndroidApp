@@ -1,3 +1,1 @@
 include ':StudIPAndroidApp'
-include ':libprojects:volley'
-
