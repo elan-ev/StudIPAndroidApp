@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
@@ -42,8 +43,7 @@ public class ContactsGroupsFragment extends UserListFragment implements
     SwipeRefreshLayout.OnRefreshListener, SyncHelper.SyncHelperCallbacks {
 
   protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
-    @Override
-    public void onChange(boolean selfChange) {
+    @Override public void onChange(boolean selfChange) {
       if (getActivity() == null) {
         return;
       }
@@ -58,15 +58,13 @@ public class ContactsGroupsFragment extends UserListFragment implements
 
   public ContactsGroupsFragment() {}
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     mUserAdapter = new ListAdapterUsers(mContext);
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     getActivity().setTitle(R.string.Contacts);
     setEmptyMessage(R.string.no_contacts);
@@ -76,32 +74,27 @@ public class ContactsGroupsFragment extends UserListFragment implements
     mListView.setAdapter(mUserAdapter);
 
     mSwipeRefreshLayoutListView.setOnRefreshListener(this);
-    mSwipeRefreshLayoutListView.setRefreshing(true);
     // initialize CursorLoader
     getLoaderManager().initLoader(0, null, this);
   }
 
-  @Override
-  public void onAttach(Activity activity) {
+  @Override public void onStart() {
+    super.onStart();
+    SyncHelper.getInstance(mContext).forcePerformContactsSync(this);
+  }
+
+  @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
     activity.getContentResolver()
         .registerContentObserver(ContactsContract.CONTENT_URI_CONTACT_GROUPS, true, mObserver);
   }
 
-  @Override
-  public void onDetach() {
+  @Override public void onDetach() {
     super.onDetach();
     getActivity().getContentResolver().unregisterContentObserver(mObserver);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-   * android.os.Bundle)
-   */
-  public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+  @Override public Loader<Cursor> onCreateLoader(int id, Bundle data) {
     setLoadingViewVisible(true);
     return new CursorLoader(mContext,
         ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS,
@@ -111,14 +104,7 @@ public class ContactsGroupsFragment extends UserListFragment implements
         null);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-   * .support.v4.content.Loader, java.lang.Object)
-   */
-  public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+  @Override public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
     if (getActivity() == null) {
       return;
     }
@@ -145,12 +131,11 @@ public class ContactsGroupsFragment extends UserListFragment implements
     setLoadingViewVisible(false);
   }
 
-  public void onLoaderReset(Loader<Cursor> loader) {
+  @Override public void onLoaderReset(Loader<Cursor> loader) {
     mUserAdapter.swapCursor(null);
   }
 
-  @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+  @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Cursor c = (Cursor) mListView.getItemAtPosition(position);
 
     String userId = c.getString(c.getColumnIndex(UsersContract.Columns.USER_ID));
