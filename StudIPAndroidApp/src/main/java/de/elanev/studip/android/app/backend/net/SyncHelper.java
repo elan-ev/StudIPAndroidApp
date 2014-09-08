@@ -404,8 +404,7 @@ public class SyncHelper {
         OAuthConnector.with(mServer).sign(contactGroupsRequest);
         StudIPApplication.getInstance().addToRequestQueue(contactGroupsRequest, TAG);
 
-        if (callbacks != null)
-          callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_CONTACTS_SYNC);
+        if (callbacks != null) callbacks.onSyncStarted();
 
       } catch (OAuthMessageSignerException e) {
         e.printStackTrace();
@@ -627,32 +626,32 @@ public class SyncHelper {
 
 
       requestNewsForRange(id, new Listener<News>() {
-            public void onResponse(News response) {
-              try {
-                ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-                for (NewsItem n : response.news) {
-                  new UsersRequestTask().execute(n.user_id);
-                  operations.add(parseNewsItem(n, id));
-                }
-                if (!operations.isEmpty()) {
-                  mContext.getContentResolver()
-                      .applyBatch(AbstractContract.CONTENT_AUTHORITY, operations);
-                }
-
-                if (finalI == (newsRangeIds.size() - 1)) {
-                  if (callbacks != null) {
-                    callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
-                    Log.i(TAG, "FINISHED SYNCING NEWS");
-                  }
-                }
-              } catch (RemoteException e) {
-                e.printStackTrace();
-              } catch (OperationApplicationException e) {
-                e.printStackTrace();
-              }
-
+        public void onResponse(News response) {
+          try {
+            ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+            for (NewsItem n : response.news) {
+              new UsersRequestTask().execute(n.user_id);
+              operations.add(parseNewsItem(n, id));
             }
-          }, callbacks);
+            if (!operations.isEmpty()) {
+              mContext.getContentResolver()
+                  .applyBatch(AbstractContract.CONTENT_AUTHORITY, operations);
+            }
+
+            if (finalI == (newsRangeIds.size() - 1)) {
+              if (callbacks != null) {
+                callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
+                Log.i(TAG, "FINISHED SYNCING NEWS");
+              }
+            }
+          } catch (RemoteException e) {
+            e.printStackTrace();
+          } catch (OperationApplicationException e) {
+            e.printStackTrace();
+          }
+
+        }
+      }, callbacks);
       i++;
     }
   }
@@ -917,37 +916,37 @@ public class SyncHelper {
 
               final int finalI = i;
               requestMessagesForFolder(i, box, callbacks, new Listener<Messages>() {
-                    public void onResponse(Messages response) {
-                      try {
+                public void onResponse(Messages response) {
+                  try {
 
-                        for (Message m : response.messages) {
-                          if (callbacks != null) {
-                            new UsersRequestTask().execute(m.sender_id, m.receiver_id);
-                          } else {
-                            requestUser(m.sender_id, null);
-                            requestUser(m.receiver_id, null);
-                          }
-                        }
-
-                        mContext.getContentResolver()
-                            .applyBatch(AbstractContract.CONTENT_AUTHORITY,
-                                new MessagesHandler(response,
-                                    foldersResponse.folders.get(finalI),
-                                    box).parse());
-
-                        if (callbacks != null && finalI == foldersResponse.folders.size() - 1) {
-                          callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_MESSAGES_SYNC);
-                          Log.i(TAG, "FINISHED SYNCING MESSAGES");
-                          return;
-                        }
-
-                      } catch (RemoteException e) {
-                        e.printStackTrace();
-                      } catch (OperationApplicationException e) {
-                        e.printStackTrace();
+                    for (Message m : response.messages) {
+                      if (callbacks != null) {
+                        new UsersRequestTask().execute(m.sender_id, m.receiver_id);
+                      } else {
+                        requestUser(m.sender_id, null);
+                        requestUser(m.receiver_id, null);
                       }
                     }
-                  });
+
+                    mContext.getContentResolver()
+                        .applyBatch(AbstractContract.CONTENT_AUTHORITY,
+                            new MessagesHandler(response,
+                                foldersResponse.folders.get(finalI),
+                                box).parse());
+
+                    if (callbacks != null && finalI == foldersResponse.folders.size() - 1) {
+                      callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_MESSAGES_SYNC);
+                      Log.i(TAG, "FINISHED SYNCING MESSAGES");
+                      return;
+                    }
+
+                  } catch (RemoteException e) {
+                    e.printStackTrace();
+                  } catch (OperationApplicationException e) {
+                    e.printStackTrace();
+                  }
+                }
+              });
             }
           }
         },
@@ -1044,7 +1043,8 @@ public class SyncHelper {
     if (!TextUtils.equals("", userId) && !TextUtils.equals("____%system%____", userId)) {
       try {
         mUsersCache.get(userId);
-        //                    Log.i(TAG, "!!!!!USER CACHE HIT!!!!!");
+        if (callbacks != null) callbacks.onSyncStarted();
+
       } catch (CacheLoader.InvalidCacheLoadException exception) {
 
         try {
@@ -1053,7 +1053,7 @@ public class SyncHelper {
           StudIPApplication.getInstance()
               .addToRequestQueue(createUserRequest(userId, callbacks), TAG);
 
-          if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_USER_SYNC);
+          if (callbacks != null) callbacks.onSyncStarted();
         } catch (OAuthCommunicationException e) {
           e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
@@ -1431,7 +1431,7 @@ public class SyncHelper {
             CourseUsers.
             COURSE_USER_USER_ID));
 
-        if (c.isLast()) {
+        if (c.isLast() || c.isFirst()) {
           requestUser(userId, callbacks);
         } else {
           requestUser(userId, null);
