@@ -99,8 +99,6 @@ public class PlannerFragment extends ProgressListFragment implements
   }
 
   private void requestEvents() {
-    setLoadingViewVisible(true);
-
     JacksonRequest<Events> eventsJacksonRequest = new JacksonRequest<Events>(mEventsRoute,
         Events.class,
         null,
@@ -115,7 +113,6 @@ public class PlannerFragment extends ProgressListFragment implements
             if (getActivity() != null && error != null && error.getMessage() != null) {
               Log.wtf(TAG, error.getMessage());
               mSwipeRefreshLayoutListView.setRefreshing(false);
-              setLoadingViewVisible(false);
               Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG).show();
             }
           }
@@ -134,6 +131,7 @@ public class PlannerFragment extends ProgressListFragment implements
     try {
       OAuthConnector.with(mServer).sign(eventsJacksonRequest);
       StudIPApplication.getInstance().addToRequestQueue(eventsJacksonRequest, TAG);
+      mSwipeRefreshLayoutListView.setRefreshing(true);
       Log.i(TAG, "Getting new events");
     } catch (OAuthExpectationFailedException e) {
       e.printStackTrace();
