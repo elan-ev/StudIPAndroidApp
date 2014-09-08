@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,20 +28,25 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 
 /**
  * @author joern
  */
-public class CoursesFragment extends ProgressListFragment implements
-    LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class CoursesFragment extends ProgressListFragment implements LoaderCallbacks<Cursor>,
+    AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener,
+    SyncHelper.SyncHelperCallbacks {
   public static final String TAG = CoursesFragment.class.getSimpleName();
 
   private static final String ID = CoursesContract.Columns.Courses._ID;
@@ -72,6 +78,7 @@ public class CoursesFragment extends ProgressListFragment implements
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = getActivity();
+
   }
 
   @Override
@@ -84,6 +91,9 @@ public class CoursesFragment extends ProgressListFragment implements
     mAdapter = new CoursesCursorAdapter(getActivity());
     mListView.setOnItemClickListener(this);
     mListView.setAdapter(mAdapter);
+    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+    SyncHelper.getInstance(mContext).performNewsSync(this);
 
     getLoaderManager().initLoader(0, null, this);
   }
@@ -126,8 +136,7 @@ public class CoursesFragment extends ProgressListFragment implements
         CoursesContract.Columns.Courses.COURSE_ID + " != " + "'" +
             getString(R.string.restip_news_global_identifier) + "'",
         null,
-        SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN + " DESC"
-    );
+        SemestersContract.Qualified.SEMESTERS_SEMESTER_BEGIN + " DESC");
   }
 
   @Override public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -159,10 +168,37 @@ public class CoursesFragment extends ProgressListFragment implements
       mAdapter.setSections(sections);
     }
     mAdapter.swapCursor(cursor);
-    setLoadingViewVisible(false);
+    mSwipeRefreshLayoutListView.setRefreshing(false);
   }
 
   @Override public void onLoaderReset(Loader<Cursor> loader) {}
+
+  @Override public void onRefresh() {
+    SyncHelper.getInstance(mContext).performCoursesSync(this);
+  }
+
+  @Override public void onSyncStarted() {
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+  }
+
+  @Override public void onSyncStateChange(int status) {
+  }
+
+  @Override public void onSyncFinished(int status) {
+    if (status == SyncHelper.SyncHelperCallbacks.FINISHED_COURSES_SYNC) {
+      mSwipeRefreshLayoutListView.setRefreshing(false);
+    }
+  }
+
+  @Override public void onSyncError(int status, VolleyError error) {
+    if (status == SyncHelper.SyncHelperCallbacks.ERROR_NEWS_SYNC && error != null
+        && error.networkResponse != null && error.networkResponse.statusCode != 404) {
+      if (getActivity() != null) {
+        Toast.makeText(mContext, R.string.sync_error_generic, Toast.LENGTH_LONG).show();
+      }
+      mSwipeRefreshLayoutListView.setRefreshing(false);
+    }
+  }
 
   /*
    * Interface which encapsulates the content provider query projection array

@@ -12,9 +12,11 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.TextView;
 
 
@@ -25,12 +27,12 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 /**
  * Created by joern on 09.10.13.
  */
-public class ProgressListFragment extends Fragment implements StickyListHeadersListView
-    .OnStickyHeaderOffsetChangedListener {
+public class ProgressListFragment extends Fragment implements
+    StickyListHeadersListView.OnStickyHeaderOffsetChangedListener {
 
   protected Context mContext;
   protected StickyListHeadersListView mListView;
-  private View mListContainerView, mProgressView;
+  protected SwipeRefreshLayout mSwipeRefreshLayoutListView;
   private TextView mEmptyMessageTextView;
 
   public ProgressListFragment() {}
@@ -47,12 +49,15 @@ public class ProgressListFragment extends Fragment implements StickyListHeadersL
       ViewGroup container,
       Bundle savedInstanceState) {
 
-    View v = inflater.inflate(R.layout.list, null);
-    mEmptyMessageTextView = (TextView) v.findViewById(R.id.empty_message);
-    mListContainerView = v.findViewById(R.id.list_container);
-    mProgressView = v.findViewById(R.id.progressbar);
-    mListView = (StickyListHeadersListView) v.findViewById(android.R.id.list);
-    mListView.setEmptyView(v.findViewById(android.R.id.empty));
+    View v = inflater.inflate(R.layout.list, container, false);
+    mEmptyMessageTextView = (TextView) v.findViewById(R.id.empty);
+    mListView = (StickyListHeadersListView) v.findViewById(R.id.list);
+    mListView.setEmptyView(mEmptyMessageTextView);
+    mSwipeRefreshLayoutListView = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
+    mSwipeRefreshLayoutListView.setColorSchemeResources(android.R.color.white,
+        R.color.studip_mobile_light,
+        R.color.studip_mobile_dark,
+        R.color.studip_mobile_darker);
 
     return v;
   }
@@ -81,10 +86,7 @@ public class ProgressListFragment extends Fragment implements StickyListHeadersL
    * @param visible progress bar visibility
    */
   protected void setLoadingViewVisible(boolean visible) {
-    if (mProgressView != null && mListContainerView != null) {
-      mListContainerView.setVisibility(visible ? View.GONE : View.VISIBLE);
-      mProgressView.setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
+    //TODO: REMOVE, NOT USED ANYMORE
   }
 
   @TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override
@@ -93,4 +95,5 @@ public class ProgressListFragment extends Fragment implements StickyListHeadersL
       int offset) {
     if (ApiUtils.isOverApi11()) view.setAlpha(1 - (offset / (float) view.getMeasuredHeight()));
   }
+
 }
