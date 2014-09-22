@@ -28,7 +28,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
   };
 
   // Add patch count to the existing db version for backward compatibility
-  private static final int DATABASE_VERSION = 9 + PATCHES.length;
+  private static final int LEGACY_DATABASE_VERSION = 9;
+  private static final int DATABASE_VERSION = LEGACY_DATABASE_VERSION + PATCHES.length;
 
   private static final String DATABASE_NAME = BuildConfig.DATABASE;
   private static final String LEGACY_DATABASE_NAME = "studip.db";
@@ -89,10 +90,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    int normalizedOld = oldVersion - 9;
-    int normlizedNew = newVersion - 9;
-    for (int i = normalizedOld; i < normlizedNew; i++) {
-      PATCHES[i].apply(db);
+    if (oldVersion < LEGACY_DATABASE_VERSION) {
+      deleteDatabase();
+      onCreate(db);
+    } else {
+      int normalizedOld = oldVersion - LEGACY_DATABASE_VERSION;
+      int normalizedNew = newVersion - LEGACY_DATABASE_VERSION;
+      for (int i = normalizedOld; i < normalizedNew; i++) {
+        PATCHES[i].apply(db);
+      }
     }
   }
 
@@ -109,9 +115,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Semesters
     db.execSQL(SemestersContract.CREATE_STRING);
     db.execSQL("INSERT INTO semesters (semester_id, title) VALUES ('" +
-            SemestersContract.UNLIMITED_COURSES_SEMESTER_ID +
-            "', " + "'" + mContext.getString(R.string.course_without_duration_limit) + "')"
-    );
+        SemestersContract.UNLIMITED_COURSES_SEMESTER_ID +
+        "', " + "'" + mContext.getString(R.string.course_without_duration_limit) + "')");
 
     // News
     db.execSQL(NewsContract.CREATE_STRING);
