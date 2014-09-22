@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  Copyright (c) 2013 ELAN e.V.
+  Copyright (c) 2014 ELAN e.V.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v3.0
   which accompanies this distribution, and is available at
@@ -110,9 +110,7 @@
     <string name="error_insufficient_space">ERROR_INSUFFICIENT_SPACE</string>
     <string name="error_to_many_redirects">ERROR_TOO_MANY_REDIRECTS</string>
     <string name="error_unhandled_error_code">ERROR_UNHANDLED_HTTP_CODE</string>
-    <string name="version_not_supported_message">
-        Unfortunately your Android version is currently not supporting downloads from Stud.IP.
-    </string>
+    <string name="version_not_supported_message">Unfortunately your Android version is currently not supporting downloads from Stud.IP.</string>
     <string name="downloads">%1$d downloads</string>
 
     <!-- About app Activity -->
@@ -123,8 +121,7 @@
     <string name="about_studip_mobile">About Stud.IP mobil</string>
     <string name="about_text">Stud.IP mobil for Android allows you to easily access your
         universities Stud.IP without opening the browser. The app offers you an optimized
-        experience for your android device.
-    </string>
+        experience for your android device.</string>
     <string name="homepage_text"><a href="http://mlearning.elan-ev.de/">visit our website</a></string>
     <string name="legal_notice">Legal notice</string>
     <string name="faq">Frequently asked questions</string>
@@ -138,16 +135,12 @@
     <string name="syncing_users">Synchronizing user profile data</string>
     <string name="syncing_institutes">Synchronizing institutes</string>
     <string name="no_servers">No servers available</string>
-    <string name="sync_notice">
-        Depending on your internet connection and Stud.IP
-        utilization this process may take several minutes to complete.
-    </string>
+    <string name="sync_notice">Depending on your internet connection and Stud.IP
+        utilization this process may take several minutes to complete.</string>
     <string name="authentication">Authentication</string>
     <string name="missing_studip_message"><u>Your Stud.IP is missing?\nLearn more about it
         here.</u></string>
-    <string name="sync_error_default">
-        Something went wrong while synchronizing your data. Please try again later.
-    </string>
+    <string name="sync_error_default">Something went wrong while synchronizing your data. Please try again later.</string>
     <string name="sync_error_generic">Something went wrong while synchronizing %1$s:\n </string>
     <string name="semesters">semesters</string>
     <string name="courses">courses</string>
@@ -196,16 +189,17 @@
     <string name="enter_subject">Enter subject</string>
     <string name="enter_message">Enter message</string>
 
-    <!-- Main OptionsMenu -->
+    <!-- Main Options Menu -->
     <string name="About">About</string>
     <string name="Logout">Logout</string>
     <string name="Feedback">Feedback</string>
 
     <!-- Planner -->
     <string name="Planner">Planner</string>
-    <string name="no_schedule">
-        You have no schedule for the next two weeks.
-    </string>
+    <string name="no_schedule">You have no schedule for the next two weeks.</string>
+
+    <!-- Profile -->
+    <string name="Profile">Profile</string>
 
     <!-- Institutes -->
     <string name="Institutes">Institutes</string>
