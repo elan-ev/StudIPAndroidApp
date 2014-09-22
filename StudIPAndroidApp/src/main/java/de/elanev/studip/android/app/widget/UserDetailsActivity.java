@@ -256,7 +256,7 @@ public class UserDetailsActivity extends ActionBarActivity {
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
       View root = getView();
 
-      if (root != null) {
+      if (root != null && cursor.getCount() != 0) {
         cursor.moveToFirst();
         // get infos from cursor
         mTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
