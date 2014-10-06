@@ -1,6 +1,7 @@
 [main]
 host = https://www.transifex.com
 
-[elan-ev.studip-mobil]
+[studip-mobil.stringsxml-56]
     file_filter = StudIPAndroidApp/src/main/res/values-<lang>/strings.xml
+    source_file = StudIPAndroidApp/src/main/res/values-de/strings.xml
     source_lang = de
