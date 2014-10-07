@@ -9,13 +9,13 @@ import java.text.SimpleDateFormat
 
 def versionMajor = 0 //prod
 def versionMinor = 8
-def versionPatch = 8
-def versionBuild = 10
+def versionPatch = 9
+def versionBuild = 0
 
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8
 def versionPatchBeta = 9
-def versionBuildBeta = 3
+def versionBuildBeta = 4
 
 buildscript {
 
@@ -23,7 +23,7 @@ buildscript {
     maven { url 'http://download.crashlytics.com/maven' }
   }
   dependencies {
-    classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+    classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.13.1'
   }
 
 }
@@ -36,14 +36,14 @@ repositories {
 
 dependencies {
   compile fileTree(dir: 'libs', include: '*.jar')
-  compile 'com.android.support:support-v4:20.+'
-  compile 'com.android.support:appcompat-v7:20.+'
+  compile 'com.android.support:support-v4:20.0.0'
+  compile 'com.android.support:appcompat-v7:20.0.0'
   compile 'com.fasterxml.jackson.core:jackson-databind:2.4.2'
   compile 'com.fasterxml.jackson.core:jackson-annotations:2.4.2'
   compile 'oauth.signpost:signpost-commonshttp4:1.2.1.2'
   compile 'oauth.signpost:oauth-signpost:1.2.1.2'
   compile 'oauth.signpost:signpost-core:1.2.1.2'
-  compile 'com.crashlytics.android:crashlytics:1.+'
+  compile 'com.crashlytics.android:crashlytics:1.1.13'
   compile 'com.squareup.picasso:picasso:2.2.0'
   compile 'com.squareup.okhttp:okhttp:1.6.0'
   compile 'se.emilsjolander:stickylistheaders:2.5.0'
@@ -65,7 +65,7 @@ android {
     abortOnError false
   }
 
-  compileSdkVersion 19
+  compileSdkVersion 20
   buildToolsVersion "20.0.0"
 
   signingConfigs {
@@ -86,7 +86,7 @@ android {
 
   defaultConfig {
     minSdkVersion 10
-    targetSdkVersion 19
+    targetSdkVersion 20
 
     versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
     versionName "${versionMajor}.${versionMinor}.${versionPatch}"
