@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 ELAN e.V.
+ * Copyright (c) 2014 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -19,17 +19,14 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.ApiUtils;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
-/**
- * Created by joern on 09.10.13.
- */
 public class ProgressListFragment extends Fragment implements
     StickyListHeadersListView.OnStickyHeaderOffsetChangedListener {
 
+  private static final String TAG = ProgressListFragment.class.getSimpleName();
   protected Context mContext;
   protected StickyListHeadersListView mListView;
   protected SwipeRefreshLayout mSwipeRefreshLayoutListView;
@@ -58,6 +55,35 @@ public class ProgressListFragment extends Fragment implements
         R.color.studip_mobile_light,
         R.color.studip_mobile_dark,
         R.color.studip_mobile_darker);
+
+    // Workaround for bug while using StickyHeaders and STR on older Androids
+    if (!ApiUtils.isOverApi11()) {
+      mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+        }
+
+        @Override
+        public void onScroll(AbsListView view,
+            int firstVisibleItem,
+            int visibleItemCount,
+            int totalItemCount) {
+
+          boolean enable = false;
+          if (view != null && totalItemCount != 0) {
+            // is the first item on screen and it's top visible
+            boolean firstItemVisible = firstVisibleItem == 0;
+            boolean topOfFirstItemVisible = view.getChildAt(0).getTop() == 0;
+
+            // disable refresh based on first item visibility
+            enable = firstItemVisible && topOfFirstItemVisible;
+          }
+
+          mSwipeRefreshLayoutListView.setEnabled(enable);
+        }
+      });
+    }
 
     return v;
   }
