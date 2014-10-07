@@ -42,6 +42,7 @@ import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.RecordingsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
+import de.elanev.studip.android.app.backend.db.UnizensusContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.util.Config;
@@ -103,6 +104,7 @@ public class RestIpProvider extends ContentProvider {
   private static final int AUTHENTICATION = 900;
   private static final int INSTITUTES = 1000;
   private static final int RECORDINGS = 1100;
+  private static final int UNIZENSUS = 1200;
   private long mLastDocumentsSync = -1;
   private long mLastCoursesSync = -1;
   private long mLastNewsSync = -1;
@@ -189,6 +191,9 @@ public class RestIpProvider extends ContentProvider {
     // match for recordings
     matcher.addURI(authority, "recordings", RECORDINGS);
 
+    // match for unizensus items
+    matcher.addURI(authority, "unizensus", UNIZENSUS);
+
     return matcher;
   }
 
@@ -210,7 +215,7 @@ public class RestIpProvider extends ContentProvider {
 
     switch (match) {
       case NEWS:
-//        SyncHelper.getInstance(getContext()).performNewsSync(null);
+        //        SyncHelper.getInstance(getContext()).performNewsSync(null);
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = NewsContract.DEFAULT_SORT_ORDER;
@@ -231,7 +236,7 @@ public class RestIpProvider extends ContentProvider {
         break;
 
       case NEWS_COURSES:
-//        SyncHelper.getInstance(getContext()).performNewsSync(null);
+        //        SyncHelper.getInstance(getContext()).performNewsSync(null);
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = NewsContract.DEFAULT_SORT_ORDER;
@@ -246,15 +251,14 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
 
         c.setNotificationUri(getContext().getContentResolver(), NewsContract.CONTENT_URI);
 
         break;
 
       case NEWS_INSTITUTES:
-//        SyncHelper.getInstance(getContext()).performNewsSync(null);
+        //        SyncHelper.getInstance(getContext()).performNewsSync(null);
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = NewsContract.DEFAULT_SORT_ORDER;
@@ -275,7 +279,7 @@ public class RestIpProvider extends ContentProvider {
         break;
 
       case NEWS_GLOBAL:
-//        SyncHelper.getInstance(getContext()).performNewsSync(null);
+        //        SyncHelper.getInstance(getContext()).performNewsSync(null);
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = NewsContract.DEFAULT_SORT_ORDER;
@@ -310,8 +314,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(), NewsContract.CONTENT_URI);
         break;
       }
@@ -329,8 +332,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
       case COURSES: {
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = CoursesContract.DEFAULT_SORT_ORDER;
@@ -361,8 +363,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(), CoursesContract.CONTENT_URI);
         break;
       }
@@ -380,8 +381,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(), CoursesContract.CONTENT_URI);
         break;
       }
@@ -414,8 +414,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(), CoursesContract.CONTENT_URI);
         break;
       }
@@ -497,8 +496,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(), UsersContract.CONTENT_URI);
         break;
       case USERS_COURSE_ID:
@@ -517,8 +515,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             UsersContract.Qualified.USERS_USER_ID,
             null,
-            orderBy
-        );
+            orderBy);
 
         c.setNotificationUri(getContext().getContentResolver(), UsersContract.CONTENT_URI);
         break;
@@ -543,8 +540,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(), DocumentsContract.CONTENT_URI);
         break;
       }
@@ -562,8 +558,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(),
             MessagesContract.CONTENT_URI_MESSAGES);
         break;
@@ -582,8 +577,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(),
             MessagesContract.CONTENT_URI_MESSAGES);
         break;
@@ -627,8 +621,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(),
             MessagesContract.CONTENT_URI_MESSAGES);
         break;
@@ -655,8 +648,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(),
             MessagesContract.CONTENT_URI_MESSAGES);
         break;
@@ -696,8 +688,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(),
             ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS);
         break;
@@ -739,8 +730,7 @@ public class RestIpProvider extends ContentProvider {
             selectionArgs,
             null,
             null,
-            orderBy
-        );
+            orderBy);
         c.setNotificationUri(getContext().getContentResolver(),
             ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS);
         break;
@@ -770,6 +760,20 @@ public class RestIpProvider extends ContentProvider {
             null);
 
         c.setNotificationUri(getContext().getContentResolver(), AuthenticationContract.CONTENT_URI);
+
+        break;
+      }
+
+      case UNIZENSUS: {
+        c = db.query(UnizensusContract.TABLE,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            null);
+
+        c.setNotificationUri(getContext().getContentResolver(), UnizensusContract.CONTENT_URI);
 
         break;
       }
@@ -851,6 +855,9 @@ public class RestIpProvider extends ContentProvider {
         return ContactsContract.CONTENT_ITEM_TYPE_CONTACT_GROUPS;
       case AUTHENTICATION:
         return AuthenticationContract.CONTENT_ITEM_TYPE;
+      case UNIZENSUS:
+        return UnizensusContract.CONTENT_ITEM_TYPE;
+
       default:
         throw new UnsupportedOperationException("Unknown mime type: " + uri);
     }
@@ -998,6 +1005,15 @@ public class RestIpProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(RecordingsContract.CONTENT_URI, rowId);
       }
+      case UNIZENSUS: {
+        long rowId = db.insertWithOnConflict(UnizensusContract.TABLE,
+            null,
+            values,
+            SQLiteDatabase.CONFLICT_REPLACE);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return ContentUris.withAppendedId(UnizensusContract.CONTENT_URI, rowId);
+      }
+
       default: {
         throw new UnsupportedOperationException("Unsupported insert uri: " + uri);
       }
@@ -1230,7 +1246,9 @@ public class RestIpProvider extends ContentProvider {
             insertEvent.bindString(1, value.getAsString(eventIdCol));
             insertEvent.bindString(2, value.getAsString(eventCourseIdCol));
             String val = value.getAsString(eventTitleCol);
-            if (val != null) { insertEvent.bindString(3, val); }
+            if (val != null) {
+              insertEvent.bindString(3, val);
+            }
             insertEvent.bindLong(4, value.getAsLong(eventStartCol));
             insertEvent.bindLong(5, value.getAsLong(eventEndCol));
             insertEvent.bindString(6, value.getAsString(eventDescriptionCol));
@@ -1295,8 +1313,7 @@ public class RestIpProvider extends ContentProvider {
         retVal = db.delete(MessagesContract.TABLE_MESSAGES,
             MessagesContract.Columns.Messages._ID + " = " + messageId +
                 (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
-            selectionArgs
-        );
+            selectionArgs);
         break;
       }
       case MESSAGES_STRING_ID: {
@@ -1304,8 +1321,7 @@ public class RestIpProvider extends ContentProvider {
         retVal = db.delete(MessagesContract.TABLE_MESSAGES,
             MessagesContract.Columns.Messages.MESSAGE_ID + " = " + '"' + messageId + '"' +
                 (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
-            selectionArgs
-        );
+            selectionArgs);
         break;
       }
       case CONTACTS_ID: {
@@ -1313,8 +1329,7 @@ public class RestIpProvider extends ContentProvider {
         retVal = db.delete(ContactsContract.TABLE_CONTACTS,
             ContactsContract.Columns.Contacts.USER_ID + " = " + '"' + userId + '"' +
                 (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
-            selectionArgs
-        );
+            selectionArgs);
         break;
       }
 
@@ -1323,8 +1338,7 @@ public class RestIpProvider extends ContentProvider {
         retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUP_MEMBERS,
             ContactsContract.Columns.ContactGroupMembers.GROUP_ID + " = " + '"' + groupId + '"' +
                 (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
-            selectionArgs
-        );
+            selectionArgs);
         break;
       }
       case CONTACTS: {
@@ -1348,8 +1362,7 @@ public class RestIpProvider extends ContentProvider {
         retVal = db.delete(ContactsContract.TABLE_CONTACT_GROUPS,
             ContactsContract.Columns.ContactGroups.GROUP_ID + " = " + '"' + groupId + '"' +
                 (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
-            selectionArgs
-        );
+            selectionArgs);
         return retVal;
       }
       case AUTHENTICATION: {

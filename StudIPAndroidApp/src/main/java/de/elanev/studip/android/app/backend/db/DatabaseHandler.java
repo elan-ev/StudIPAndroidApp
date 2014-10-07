@@ -24,6 +24,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         @Override public void apply(SQLiteDatabase db) {
           db.execSQL(RecordingsContract.CREATE_TABLE_RECORDINGS);
         }
+      },
+      new Patch() {
+        @Override public void apply(SQLiteDatabase db) {
+          db.execSQL(UnizensusContract.CREATE_TABLE_UNIZENSUS);
+        }
       }
   };
 

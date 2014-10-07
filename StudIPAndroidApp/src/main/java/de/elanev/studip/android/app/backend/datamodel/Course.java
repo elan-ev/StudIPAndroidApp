@@ -15,9 +15,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -96,10 +94,9 @@ public class Course {
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class AdditionalData {
 
+    //Opencast Course Recordings
     @JsonProperty("oc_recordings")
     private List<Recording> recordings = new ArrayList<Recording>();
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("oc_recordings")
     public List<Recording> getRecordings() {
@@ -110,6 +107,24 @@ public class Course {
     public void setRecordings(List<Recording> recordings) {
       this.recordings = recordings;
     }
+
+    //Unizensus plugin
+    @JsonProperty("unizensus")
+    private UnizensusItem unizensusItem;
+
+    @JsonProperty("unizensus")
+    public UnizensusItem getUnizensusItem() {
+      return unizensusItem;
+    }
+
+    @JsonProperty("unizensus")
+    public void setUnizensusItem(UnizensusItem unizensusItem) {
+      this.unizensusItem = unizensusItem;
+    }
+
+    // Other not recognized data
+    @JsonIgnore
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
@@ -140,6 +155,9 @@ public class Course {
     // Course matterhorn recordings
     @JsonProperty("oc_matterhorn")
     public boolean recordings = false;
+    // Course unizensus
+    @JsonProperty("unizensus")
+    public boolean unizensus = false;
 
     /* Unused modules are commented out to save parse time. Enable if implementing the feature. */
     //      public boolean admin = false;
