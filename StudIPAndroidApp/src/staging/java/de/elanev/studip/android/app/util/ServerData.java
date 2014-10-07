@@ -18,7 +18,7 @@ public final class ServerData {
             + "      \"name\": \"Testumgebung\","
             + "      \"consumer_key\": \"4cc7aa80eb6dc80cdd8658bf61298f44053ce7ef8\","
             + "      \"consumer_secret\": \"5ef6def72c81286f4231257aff1ffd03\","
-            + "      \"base_url\": \"https://coll.virtuos.uni-osnabrueck.de/studip/aklassen/studip2.5/plugins.php/restipplugin\","
+            + "      \"base_url\": \"https://vm036.rz.uni-osnabrueck.de/studip/aklassen/studip2.5/plugins.php/restipplugin\","
             + "      \"contact_email\": \"root@studip.de\""
             + "    }"
             + "  ]"
