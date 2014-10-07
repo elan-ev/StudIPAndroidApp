@@ -310,7 +310,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
       return;
     }
     hideLoginForm();
-    getActivity().getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
+
     Server server = Prefs.getInstance(mContext).getServer();
     OAuthConnector.with(server).getRequestToken(this);
   }
