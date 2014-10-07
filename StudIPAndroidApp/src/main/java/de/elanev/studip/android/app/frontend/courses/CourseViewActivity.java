@@ -88,12 +88,18 @@ public class CourseViewActivity extends TabbedFragmentActivity {
             CourseRecordingsFragment.class,
             intentExtras);
       }
+      if (modules.unizensus) {
+        mPagerAdapter.addTab(mActionbar.newTab(),
+            R.drawable.ic_action_unizensus,
+            R.string.unizensus,
+            CourseUnizensusFragment.class,
+            intentExtras);
+      }
 
     }
 
     // Setting Activity title
     setTitle(getIntent().getStringExtra(CoursesContract.Columns.Courses.COURSE_TITLE));
-
   }
 
   @Override

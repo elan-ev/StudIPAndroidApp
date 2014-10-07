@@ -57,6 +57,7 @@ import de.elanev.studip.android.app.backend.datamodel.Recording;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
 import de.elanev.studip.android.app.backend.datamodel.Semesters;
 import de.elanev.studip.android.app.backend.datamodel.Server;
+import de.elanev.studip.android.app.backend.datamodel.UnizensusItem;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
@@ -66,6 +67,7 @@ import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.RecordingsContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
+import de.elanev.studip.android.app.backend.db.UnizensusContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
@@ -525,29 +527,7 @@ public class SyncHelper {
 
     // Then add new course information
     for (Course c : courses.courses) {
-      ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(CoursesContract.CONTENT_URI)
-          .withValue(CoursesContract.Columns.Courses.COURSE_ID, c.courseId)
-          .withValue(CoursesContract.Columns.Courses.COURSE_TITLE, c.title)
-          .withValue(CoursesContract.Columns.Courses.COURSE_DESCIPTION, c.description)
-          .withValue(CoursesContract.Columns.Courses.COURSE_SUBTITLE, c.subtitle)
-          .withValue(CoursesContract.Columns.Courses.COURSE_LOCATION, c.location)
-          .withValue(CoursesContract.Columns.Courses.COURSE_DURATION_TIME, c.durationTime)
-          .withValue(CoursesContract.Columns.Courses.COURSE_COLOR, c.color)
-          .withValue(CoursesContract.Columns.Courses.COURSE_TYPE, c.type)
-          .withValue(CoursesContract.Columns.Courses.COURSE_MODULES, c.modules.getAsJson())
-          .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME, c.startTime);
-
-      if (c.durationTime == -1L) {
-        builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
-            SemestersContract.UNLIMITED_COURSES_SEMESTER_ID);
-      } else if (c.durationTime > 0L) {
-        //TODO: Add these courses to the correct semester (c.start + duration between s.start, end)
-        builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
-            SemestersContract.UNLIMITED_COURSES_SEMESTER_ID);
-      } else {
-        builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, c.semesterId);
-      }
-      operations.add(builder.build());
+      operations.addAll(parseCourse(c));
     }
 
     return operations;
@@ -1296,7 +1276,7 @@ public class SyncHelper {
         null,
         new Listener<Course>() {
           @Override public void onResponse(Course response) {
-            ArrayList<ContentProviderOperation> ops = parseRecordings(response);
+            ArrayList<ContentProviderOperation> ops = parseCourse(response);
             if (!ops.isEmpty()) {
               try {
                 mContext.getContentResolver().applyBatch(AbstractContract.CONTENT_AUTHORITY, ops);
@@ -1344,34 +1324,93 @@ public class SyncHelper {
 
   }
 
-  private static ArrayList<ContentProviderOperation> parseRecordings(Course course) {
-    Log.d(TAG, course.title);
-    List<Recording> recs = course.getAdditionalData().getRecordings();
+  private static ArrayList<ContentProviderOperation> parseCourse(Course course) {
+    // Static recorings contract references
+    Uri recordingsContentUrl = RecordingsContract.CONTENT_URI;
+    String recordingId = RecordingsContract.Columns.Recordings.RECORDING_ID;
+    String recordingAudioUrl = RecordingsContract.Columns.Recordings.RECORDING_AUDIO_DOWNLOAD;
+    String recordingAuthor = RecordingsContract.Columns.Recordings.RECORDING_AUTHOR;
+    String recordingCourseId = RecordingsContract.Columns.Recordings.RECORDING_COURSE_ID;
+    String recordingDescription = RecordingsContract.Columns.Recordings.RECORDING_DESCRIPTION;
+    String recordingDuration = RecordingsContract.Columns.Recordings.RECORDING_DURATION;
+    String recordingPlayerUrl = RecordingsContract.Columns.Recordings.RECORDING_EXTERNAL_PLAYER_URL;
+    String recordingPresentationUrl = RecordingsContract.Columns.Recordings.RECORDING_PRESENTATION_DOWNLOAD;
+    String recordingPresenterDownload = RecordingsContract.Columns.Recordings.RECORDING_PRESENTER_DOWNLOAD;
+    String recordingPreview = RecordingsContract.Columns.Recordings.RECORDING_PREVIEW;
+    String recordingStart = RecordingsContract.Columns.Recordings.RECORDING_START;
+    String recordingTitle = RecordingsContract.Columns.Recordings.RECORDING_TITLE;
+
+    // Static unizensus contract references
+    Uri unizensusContentUri = UnizensusContract.CONTENT_URI;
+    String unizensusType = UnizensusContract.Columns.Unizensus.ZENSUS_TYPE;
+    String unizensusUrl = UnizensusContract.Columns.Unizensus.ZENSUS_URL;
+    String unizensusCourseId = UnizensusContract.Columns.Unizensus.ZENSUS_COURSE_ID;
+
+
+    // DB Operations Array
     ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-    for (Recording r : recs) {
-      ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
-          RecordingsContract.CONTENT_URI);
+    // Parse the course data
+    ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(CoursesContract.CONTENT_URI)
+        .withValue(CoursesContract.Columns.Courses.COURSE_ID, course.courseId)
+        .withValue(CoursesContract.Columns.Courses.COURSE_TITLE, course.title)
+        .withValue(CoursesContract.Columns.Courses.COURSE_DESCIPTION, course.description)
+        .withValue(CoursesContract.Columns.Courses.COURSE_SUBTITLE, course.subtitle)
+        .withValue(CoursesContract.Columns.Courses.COURSE_LOCATION, course.location)
+        .withValue(CoursesContract.Columns.Courses.COURSE_DURATION_TIME, course.durationTime)
+        .withValue(CoursesContract.Columns.Courses.COURSE_COLOR, course.color)
+        .withValue(CoursesContract.Columns.Courses.COURSE_TYPE, course.type)
+        .withValue(CoursesContract.Columns.Courses.COURSE_MODULES, course.modules.getAsJson())
+        .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME, course.startTime);
 
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_ID, r.getId());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_AUDIO_DOWNLOAD,
-          r.getAudioDownload());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_AUTHOR, r.getAuthor());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_COURSE_ID, course.courseId);
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_DESCRIPTION,
-          r.getDescription());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_DURATION, r.getDuration());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_EXTERNAL_PLAYER_URL,
-          r.getExternalPlayerUrl());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_PRESENTATION_DOWNLOAD,
-          r.getPresentationDownload());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_PRESENTER_DOWNLOAD,
-          r.getPresenterDownload());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_PREVIEW, r.getPreview());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_START, r.getStart());
-      builder.withValue(RecordingsContract.Columns.Recordings.RECORDING_TITLE, r.getTitle());
+    if (course.durationTime == -1L) {
+      builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
+          SemestersContract.UNLIMITED_COURSES_SEMESTER_ID);
+    } else if (course.durationTime > 0L) {
+      //TODO: Add these courses to the correct semester (c.start + duration between s.start, end)
+      builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
+          SemestersContract.UNLIMITED_COURSES_SEMESTER_ID);
+    } else {
+      builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, course.semesterId);
+    }
+    ops.add(builder.build());
 
-      ops.add(builder.build());
+    if(course.getAdditionalData() != null) {
+
+
+      // Parse the course recordings, if existing
+      if (course.modules.recordings && course.getAdditionalData().getRecordings() != null) {
+        List<Recording> recordings = course.getAdditionalData().getRecordings();
+        for (Recording r : recordings) {
+          builder = ContentProviderOperation.newInsert(recordingsContentUrl)
+              .withValue(recordingId, r.getId())
+              .withValue(recordingAudioUrl, r.getAudioDownload())
+              .withValue(recordingAuthor, r.getAuthor())
+              .withValue(recordingCourseId, course.courseId)
+              .withValue(recordingDescription, r.getDescription())
+              .withValue(recordingDuration, r.getDuration())
+              .withValue(recordingPlayerUrl, r.getExternalPlayerUrl())
+              .withValue(recordingPresentationUrl, r.getPresentationDownload())
+              .withValue(recordingPresenterDownload, r.getPresenterDownload())
+              .withValue(recordingPreview, r.getPreview())
+              .withValue(recordingStart, r.getStart())
+              .withValue(recordingTitle, r.getTitle());
+
+          ops.add(builder.build());
+        }
+      }
+
+      // Parse the course unizensus items, if existing
+      if (course.modules.unizensus && course.getAdditionalData().getUnizensusItem() != null) {
+        UnizensusItem unizensusItem = course.getAdditionalData().getUnizensusItem();
+
+        builder = ContentProviderOperation.newInsert(unizensusContentUri)
+            .withValue(unizensusType, unizensusItem.type)
+            .withValue(unizensusUrl, unizensusItem.url)
+            .withValue(unizensusCourseId, course.courseId);
+
+        ops.add(builder.build());
+      }
     }
 
     return ops;
