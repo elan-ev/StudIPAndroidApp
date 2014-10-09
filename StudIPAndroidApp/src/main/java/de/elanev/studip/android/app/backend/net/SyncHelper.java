@@ -629,10 +629,19 @@ public class SyncHelper {
         public void onResponse(News response) {
           try {
             ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+
+            // Create delete statement for current range id
+            ContentProviderOperation.Builder builder = ContentProviderOperation.newDelete(
+                NewsContract.CONTENT_URI);
+            builder.withSelection(NewsContract.Columns.NEWS_RANGE_ID + " = ?", new String[]{id});
+            operations.add(builder.build());
+
+            // start inserting new items
             for (NewsItem n : response.news) {
               new UsersRequestTask().execute(n.user_id);
               operations.add(parseNewsItem(n, id));
             }
+
             if (!operations.isEmpty()) {
               mContext.getContentResolver()
                   .applyBatch(AbstractContract.CONTENT_AUTHORITY, operations);
@@ -713,19 +722,20 @@ public class SyncHelper {
   }
 
   private static ContentProviderOperation parseNewsItem(NewsItem news, String mCourseId) {
-    ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(NewsContract.CONTENT_URI);
-    builder.withValue(NewsContract.Columns.NEWS_ID, news.news_id);
-    builder.withValue(NewsContract.Columns.NEWS_TOPIC, news.topic);
-    builder.withValue(NewsContract.Columns.NEWS_BODY, news.body);
-    builder.withValue(NewsContract.Columns.NEWS_DATE, news.date);
-    builder.withValue(NewsContract.Columns.NEWS_USER_ID, news.user_id);
-    builder.withValue(NewsContract.Columns.NEWS_CHDATE, news.chdate);
-    builder.withValue(NewsContract.Columns.NEWS_MKDATE, news.mkdate);
-    builder.withValue(NewsContract.Columns.NEWS_EXPIRE, news.expire);
-    builder.withValue(NewsContract.Columns.NEWS_ALLOW_COMMENTS, news.allow_comments);
-    builder.withValue(NewsContract.Columns.NEWS_CHDATE_UID, news.chdate_uid);
-    builder.withValue(NewsContract.Columns.NEWS_BODY_ORIGINAL, news.body_original);
-    builder.withValue(NewsContract.Columns.NEWS_RANGE_ID, mCourseId);
+
+    ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(NewsContract.CONTENT_URI)
+        .withValue(NewsContract.Columns.NEWS_ID, news.news_id)
+        .withValue(NewsContract.Columns.NEWS_TOPIC, news.topic)
+        .withValue(NewsContract.Columns.NEWS_BODY, news.body)
+        .withValue(NewsContract.Columns.NEWS_DATE, news.date)
+        .withValue(NewsContract.Columns.NEWS_USER_ID, news.user_id)
+        .withValue(NewsContract.Columns.NEWS_CHDATE, news.chdate)
+        .withValue(NewsContract.Columns.NEWS_MKDATE, news.mkdate)
+        .withValue(NewsContract.Columns.NEWS_EXPIRE, news.expire)
+        .withValue(NewsContract.Columns.NEWS_ALLOW_COMMENTS, news.allow_comments)
+        .withValue(NewsContract.Columns.NEWS_CHDATE_UID, news.chdate_uid)
+        .withValue(NewsContract.Columns.NEWS_BODY_ORIGINAL, news.body_original)
+        .withValue(NewsContract.Columns.NEWS_RANGE_ID, mCourseId);
 
     return builder.build();
   }
