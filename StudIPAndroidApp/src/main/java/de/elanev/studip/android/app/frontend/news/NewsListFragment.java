@@ -136,7 +136,8 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
     return new CursorLoader(getActivity(),
         uri,
         projection,
-        null,
+        NewsContract.Columns.NEWS_EXPIRE + " > (strftime('%s','now')-"
+            + NewsContract.Columns.NEWS_DATE + ")",
         null,
         NewsContract.DEFAULT_SORT_ORDER);
   }
