@@ -1271,7 +1271,7 @@ public class RestIpProvider extends ContentProvider {
     final int match = sUriMatcher.match(uri);
     switch (match) {
       case NEWS: {
-        return db.delete(NewsContract.TABLE, null, null);
+        return db.delete(NewsContract.TABLE, selection, selectionArgs);
       }
       case USERS: {
         break;
