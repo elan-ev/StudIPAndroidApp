@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.BuildConfig;
@@ -40,13 +41,7 @@ import de.elanev.studip.android.app.frontend.messages.MessageComposeActivity;
  */
 public class UserDetailsActivity extends ActionBarActivity {
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.app.Activity#onCreate(android.os.Bundle)
-   */
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.content_frame);
 
@@ -70,15 +65,7 @@ public class UserDetailsActivity extends ActionBarActivity {
 
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
-   * (com.actionbarsherlock.view.MenuItem)
-   */
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       // Respond to the action bar's Up/Home button
       case android.R.id.home:
@@ -110,8 +97,8 @@ public class UserDetailsActivity extends ActionBarActivity {
   public static class UserDetailsFragment extends Fragment implements LoaderCallbacks<Cursor> {
     public static final String TAG = UserDetailsFragment.class.getCanonicalName();
     protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
-      @Override
-      public void onChange(boolean selfChange) {
+
+      @Override public void onChange(boolean selfChange) {
         if (getActivity() == null) {
           return;
         }
@@ -127,81 +114,56 @@ public class UserDetailsActivity extends ActionBarActivity {
 
     public UserDetailsFragment() {}
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Creates a new instance of the UserDetails fragment, sets the fragments arguments and
+     * returns it.
      *
-     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+     * @param arguments The arguments to add to the fragment.
+     * @return The new UserDetails fragment instance.
      */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public static UserDetailsFragment newInstance(Bundle arguments) {
+      UserDetailsFragment fragment = new UserDetailsFragment();
+
+      fragment.setArguments(arguments);
+
+      return fragment;
+    }
+
+    @Override public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       mData = getArguments();
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater,
+    @Override public View onCreateView(LayoutInflater inflater,
         ViewGroup container,
         Bundle savedInstanceState) {
       return inflater.inflate(R.layout.fragment_user_details, null);
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    @Override public void onActivityCreated(Bundle savedInstanceState) {
       super.onActivityCreated(savedInstanceState);
       setHasOptionsMenu(true);
       // initialize CursorLoader
       getLoaderManager().initLoader(0, mData, this);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * de.elanev.studip.android.app.frontend.news.GeneralNewsFragment#onAttach
-     * (android.app.Activity)
-     */
-    @Override
-    public void onAttach(Activity activity) {
+    @Override public void onAttach(Activity activity) {
       super.onAttach(activity);
       activity.getContentResolver()
           .registerContentObserver(UsersContract.CONTENT_URI, true, mObserver);
     }
 
-    @Override
-    public void onDetach() {
+    @Override public void onDetach() {
       super.onDetach();
       getActivity().getContentResolver().unregisterContentObserver(mObserver);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com
-     * .actionbarsherlock.view.Menu,
-     * com.actionbarsherlock.view.MenuInflater)
-     */
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
       inflater.inflate(R.menu.user_detail_menu, menu);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * com.actionbarsherlock.app.SherlockFragment#onOptionsItemSelected(
-     * com.actionbarsherlock.view.MenuItem)
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    @Override public boolean onOptionsItemSelected(MenuItem item) {
       switch (item.getItemId()) {
         case R.id.send_message:
           Intent intent = new Intent(getActivity(), MessageComposeActivity.class);
@@ -213,28 +175,13 @@ public class UserDetailsActivity extends ActionBarActivity {
           intent.putExtra(UsersContract.Columns.USER_TITLE_PRE, mTitlePre);
           startActivity(intent);
           return true;
-        // TODO Later
-        // case R.id.add_to_favorites:
-        // Log.d(TAG, "add fav");
-        // return true;
-        //
-        // case R.id.add_to_contacts:
-        // Log.d(TAG, "add contect");
-        // return true;
 
         default:
           return super.onOptionsItemSelected(item);
       }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader
-     * (int, android.os.Bundle)
-     */
-    public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+    @Override public Loader<Cursor> onCreateLoader(int id, Bundle data) {
       String userId = data.getString(UsersContract.Columns.USER_ID);
 
       return new CursorLoader(getActivity(),
@@ -242,18 +189,10 @@ public class UserDetailsActivity extends ActionBarActivity {
           UserQuery.projection,
           null,
           null,
-          null
-      );
+          null);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished
-     * (android .support.v4.content.Loader, java.lang.Object)
-     */
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+    @Override public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
       View root = getView();
 
       if (root != null && cursor.getCount() != 0) {
@@ -311,14 +250,7 @@ public class UserDetailsActivity extends ActionBarActivity {
       }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset
-     * (android .support.v4.content.Loader)
-     */
-    public void onLoaderReset(Loader<Cursor> loader) {
+    @Override public void onLoaderReset(Loader<Cursor> loader) {
       // nothing to do
     }
 

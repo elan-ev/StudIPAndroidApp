@@ -32,6 +32,7 @@ import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.frontend.contacts.ContactsGroupsFragment;
 import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
 import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
+import de.elanev.studip.android.app.frontend.news.NewsListFragment;
 import de.elanev.studip.android.app.frontend.news.NewsTabsFragment;
 import de.elanev.studip.android.app.frontend.planer.PlannerFragment;
 import de.elanev.studip.android.app.util.ApiUtils;
@@ -52,6 +53,7 @@ public class MainActivity extends ActionBarActivity {
   public DrawerLayout mDrawerLayout;
   public ListView mDrawerListView;
   public ActionBarDrawerToggle mDrawerToggle;
+  private String mUserId;
   private MenuAdapter mAdapter;
   private boolean isPaused;
 
@@ -190,6 +192,8 @@ public class MainActivity extends ActionBarActivity {
     if (savedInstanceState == null) changeFragment(mPosition);
     else changeFragment(savedInstanceState.getInt(ACTIVE_NAVIGATION_ITEM));
 
+    mUserId = Prefs.getInstance(this).getUserId();
+
   }
 
   /* Creates a new MenuAdapter with the defined items */
@@ -199,29 +203,25 @@ public class MainActivity extends ActionBarActivity {
     // Only show the menu items if the user is authorized with the API
     if (Prefs.getInstance(this).isAppAuthorized()) {
       adapter.add(new MenuItem(R.id.navigation_news,
-              R.drawable.ic_menu_news,
-              getString(R.string.News))
-      );
+          R.drawable.ic_menu_news,
+          getString(R.string.News)));
       adapter.add(new MenuItem(R.id.navigation_courses,
-              R.drawable.ic_menu_courses,
-              getString(R.string.Courses))
-      );
+          R.drawable.ic_menu_courses,
+          getString(R.string.Courses)));
       adapter.add(new MenuItem(R.id.navigation_messages,
-              R.drawable.ic_menu_messages,
-              getString(R.string.Messages))
-      );
+          R.drawable.ic_menu_messages,
+          getString(R.string.Messages)));
       adapter.add(new MenuItem(R.id.navigation_contacts,
-              R.drawable.ic_menu_community,
-              getString(R.string.Contacts))
-      );
+          R.drawable.ic_menu_community,
+          getString(R.string.Contacts)));
       adapter.add(new MenuItem(R.id.navigation_planner,
-              R.drawable.ic_menu_planner,
-              getString(R.string.Planner))
-      );
-      adapter.add(new MenuItem(R.id.navigation_profile,
-              R.drawable.ic_menu_profile,
-              getString(R.string.Profile))
-      );
+          R.drawable.ic_menu_planner,
+          getString(R.string.Planner)));
+      if (mUserId != null) {
+        adapter.add(new MenuItem(R.id.navigation_profile,
+            R.drawable.ic_menu_profile,
+            getString(R.string.Profile)));
+      }
 
     }
     return adapter;
@@ -276,20 +276,22 @@ public class MainActivity extends ActionBarActivity {
             }
             break;
           case R.id.navigation_profile:
-
-            String userId = Prefs.getInstance(this).getUserId();
-
-            if (userId != null) {
+            if (mUserId != null) {
               fragTag = UserDetailsActivity.UserDetailsFragment.class.getName();
               frag = findFragment(fragTag);
+
               if (frag == null) {
-                frag = new UserDetailsActivity.UserDetailsFragment();
                 Bundle args = new Bundle();
-                args.putString(UsersContract.Columns.USER_ID, userId);
-                frag.setArguments(args);
+                args.putString(UsersContract.Columns.USER_ID, mUserId);
+                frag = UserDetailsActivity.UserDetailsFragment.newInstance(args);
               }
+            } else {
+              mDrawerLayout.closeDrawers();
+              return;
             }
             break;
+          default:
+            frag = new NewsListFragment();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, frag, fragTag).commit();
