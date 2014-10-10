@@ -67,13 +67,6 @@ public class WebAuthFragment extends Fragment {
     return super.onOptionsItemSelected(item);
   }
 
-  @Override public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getActivity().setTitle(android.R.string.cancel);
-    setHasOptionsMenu(true);
-  }
-
   @Override public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
@@ -84,6 +77,11 @@ public class WebAuthFragment extends Fragment {
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
+
+    ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    getActivity().setTitle(android.R.string.cancel);
+    setHasOptionsMenu(true);
+
     String url = getArguments().getString(AUTH_URL);
     mWebView.setWebViewClient(new LoginWebViewClient());
 
