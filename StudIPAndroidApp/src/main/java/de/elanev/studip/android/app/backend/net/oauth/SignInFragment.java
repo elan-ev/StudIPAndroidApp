@@ -38,6 +38,7 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -572,31 +573,32 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         },
         new Response.ErrorListener() {
           @Override public void onErrorResponse(VolleyError error) {
-            Log.wtf(TAG,
-                "Error requesting user details: " + error.getLocalizedMessage() + "ErrorCode: "
-                    + error.networkResponse.statusCode
-            );
+            if (error != null && error.networkResponse != null) {
+              VolleyLog.wtf("Error requesting user details: %s, " + "ErrorCode: %d",
+                  error.getLocalizedMessage(),
+                  error.networkResponse.statusCode);
 
-            // Build error message
-            String genericMessage = getString(R.string.sync_error_generic);
-            String errorPosition = getString(R.string.your_user_data);
-            StringBuilder sb = new StringBuilder(String.format(genericMessage, errorPosition));
-            String err = error.getLocalizedMessage();
-            if (err != null) {
-              sb.append(err);
-            } else {
-              sb.append("ErrorCode: ").append(error.networkResponse.statusCode);
+
+              // Build error message
+              String genericMessage = getString(R.string.sync_error_generic);
+              String errorPosition = getString(R.string.your_user_data);
+              StringBuilder sb = new StringBuilder(String.format(genericMessage, errorPosition));
+              String err = error.getLocalizedMessage();
+              if (err != null) {
+                sb.append(err);
+              } else {
+                sb.append("ErrorCode: ").append(error.networkResponse.statusCode);
+              }
+
+
+              // Toast error and display login form
+              Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
             }
-
-
-            // Toast error and display login form
-            Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
             resetSignInActivityState();
             showLoginForm();
           }
         },
-        Request.Method.GET
-    );
+        Request.Method.GET);
 
     try {
       OAuthConnector.with(mSelectedServer).sign(request);
