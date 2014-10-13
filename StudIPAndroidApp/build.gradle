@@ -15,7 +15,7 @@ def versionBuild = 0
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8
 def versionPatchBeta = 9
-def versionBuildBeta = 4
+def versionBuildBeta = 6
 
 buildscript {
 
