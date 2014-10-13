@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
 def versionMajor = 0 //prod
 def versionMinor = 8
 def versionPatch = 9
-def versionBuild = 0
+def versionBuild = 7
 
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 8

@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +28,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.VolleyError;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -49,7 +52,8 @@ import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
  * @author Jörn
  */
 public class CourseRecordingsFragment extends ProgressListFragment implements
-    LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+    LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener,
+    SyncHelper.SyncHelperCallbacks, SwipeRefreshLayout.OnRefreshListener {
   public static final String TAG = CourseRecordingsFragment.class.getSimpleName();
 
   private ListAdapterRecordings mAdapter;
@@ -87,13 +91,14 @@ public class CourseRecordingsFragment extends ProgressListFragment implements
     setEmptyMessage(R.string.no_recordings);
     mListView.setAdapter(mAdapter);
     mListView.setOnItemClickListener(this);
+    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
     getLoaderManager().initLoader(0, getArguments(), this);
   }
 
   @Override public void onStart() {
     super.onStart();
-
-    SyncHelper.getInstance(mContext).requestRecordingsForCourse(mCourseId, null);
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+    SyncHelper.getInstance(mContext).requestRecordingsForCourse(mCourseId, this);
   }
 
   @Override public void onAttach(Activity activity) {
@@ -119,8 +124,7 @@ public class CourseRecordingsFragment extends ProgressListFragment implements
         RecordingsQuery.projection,
         null,
         null,
-        RecordingsContract.DEFAULT_SORT_ORDER
-    );
+        RecordingsContract.DEFAULT_SORT_ORDER);
   }
 
   @Override public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
@@ -142,6 +146,33 @@ public class CourseRecordingsFragment extends ProgressListFragment implements
     intent.setDataAndType(Uri.parse(url), "video/*");
     startActivity(Intent.createChooser(intent,
         mContext.getString(R.string.recordings_chooser_title)));
+  }
+
+  @Override public void onSyncStarted() {
+    mSwipeRefreshLayoutListView.setRefreshing(true);
+  }
+
+  @Override public void onSyncStateChange(int status) {
+  }
+
+  @Override public void onSyncFinished(int status) {
+    if (status == SyncHelper.SyncHelperCallbacks.FINISHED_RECORDINGS_SYNC) {
+      mSwipeRefreshLayoutListView.setRefreshing(false);
+    }
+  }
+
+  @Override public void onSyncError(int status, VolleyError error) {
+    if (status == SyncHelper.SyncHelperCallbacks.ERROR_RECORDINGS_SYNC && error != null
+        && error.networkResponse != null && error.networkResponse.statusCode != 404) {
+      if (getActivity() != null) {
+        Toast.makeText(mContext, R.string.sync_error_generic, Toast.LENGTH_LONG).show();
+      }
+      mSwipeRefreshLayoutListView.setRefreshing(false);
+    }
+  }
+
+  @Override public void onRefresh() {
+    SyncHelper.getInstance(mContext).requestRecordingsForCourse(mCourseId, this);
   }
 
   private interface RecordingsQuery {
@@ -194,8 +225,7 @@ public class CourseRecordingsFragment extends ProgressListFragment implements
           TimeUnit.MILLISECONDS.toMinutes(duration)
               - TimeUnit.HOURS.toMinutes((TimeUnit.MILLISECONDS).toHours(duration)),
           TimeUnit.MILLISECONDS.toSeconds(duration)
-              - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration))
-      );
+              - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
       holder.duration.setText(durationString);
 
       try {
@@ -203,8 +233,7 @@ public class CourseRecordingsFragment extends ProgressListFragment implements
         holder.date.setText(DateUtils.formatDateTime(mContext,
             startDate.getTime(),
             DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_NUMERIC_DATE
-                | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY
-        ));
+                | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY));
       } catch (ParseException e) {
         e.printStackTrace();
       }
