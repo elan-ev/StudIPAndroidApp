@@ -156,6 +156,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     setContentView(R.layout.activity_main);
+    mUserId = Prefs.getInstance(this).getUserId();
     mAdapter = getNewMenuAdapter();
 
     mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -191,8 +192,6 @@ public class MainActivity extends ActionBarActivity {
 
     if (savedInstanceState == null) changeFragment(mPosition);
     else changeFragment(savedInstanceState.getInt(ACTIVE_NAVIGATION_ITEM));
-
-    mUserId = Prefs.getInstance(this).getUserId();
 
   }
 
