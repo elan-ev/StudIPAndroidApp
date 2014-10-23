@@ -32,7 +32,9 @@ import com.android.volley.VolleyError;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
@@ -43,6 +45,7 @@ import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.frontend.courses.CourseViewActivity;
+import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
@@ -337,23 +340,24 @@ public class PlannerFragment extends ProgressListFragment implements
     @Override protected ResultSet doInBackground(Events... params) {
       ArrayList<EventsAdapter.Section> sections = new ArrayList<EventsAdapter.Section>();
       ArrayList<EventsAdapter.EventsAdapterItem> items = new ArrayList<EventsAdapter.EventsAdapterItem>();
+      Map<String, String[]> eventItemCache = new HashMap<String, String[]>();
 
       Events events = params[0];
       long prevDay = -1;
-      String prevCourseId = null;
 
       for (int i = 0; i < events.events.size(); i++) {
         Event e = events.events.get(i);
-        long currentDay = e.start * 1000L;
+        long currentDateMillies = e.start * 1000L;
         String currentCourseId = e.course_id;
 
-        if (!TextTools.isSameDay(currentDay, prevDay)) {
-          String title = TextTools.getLocalizedTime(currentDay, getActivity());
+        // Create new section for every day
+        if (!DateTools.isSameDay(currentDateMillies, prevDay)) {
+          String title = TextTools.getLocalizedTime(currentDateMillies, getActivity());
           sections.add(new EventsAdapter.Section(i, title));
         }
 
-        if (!TextUtils.equals(currentCourseId, prevCourseId)) {
-
+        // Load from db and cache the course information
+        if (!eventItemCache.containsKey(currentCourseId)) {
           if (mContext != null) {
             Cursor c = mContext.getContentResolver()
                 .query(CoursesContract.CONTENT_URI,
@@ -364,21 +368,22 @@ public class PlannerFragment extends ProgressListFragment implements
 
             if (!c.isAfterLast()) {
               c.moveToNext();
-              EventsAdapter.EventsAdapterItem eventsAdapterItem = new EventsAdapter.EventsAdapterItem(
-                  e,
-                  c.getString(0),
-                  c.getString(1),
-                  c.getString(2));
-
-              items.add(eventsAdapterItem);
+              String[] courseInfoArray = {c.getString(0), c.getString(1), c.getString(2)};
+              eventItemCache.put(currentCourseId, courseInfoArray);
             }
             c.close();
           }
-
         }
 
-        prevDay = currentDay;
-        prevCourseId = currentCourseId;
+        // Create new adapter item and add it to the adapter
+        String[] courseInfos = eventItemCache.get(currentCourseId);
+        EventsAdapter.EventsAdapterItem item = new EventsAdapter.EventsAdapterItem(e,
+            courseInfos[0],
+            courseInfos[1],
+            courseInfos[2]);
+        items.add(item);
+
+        prevDay = currentDateMillies;
       }
 
       return new ResultSet(items, sections);
