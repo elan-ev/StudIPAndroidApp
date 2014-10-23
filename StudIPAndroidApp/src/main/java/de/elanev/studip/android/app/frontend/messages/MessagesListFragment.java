@@ -50,6 +50,7 @@ import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
+import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
@@ -186,7 +187,7 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
       long currentDay = -1;
       while (!cursor.isAfterLast()) {
         currentDay = cursor.getLong(cursor.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_MKDATE));
-        if (!TextTools.isSameDay(previousDay * 1000L, currentDay * 1000L)) {
+        if (!DateTools.isSameDay(previousDay * 1000L, currentDay * 1000L)) {
           sections.add(new SectionedCursorAdapter.Section(cursor.getPosition(),
               TextTools.getLocalizedTime(currentDay * 1000L, mContext)));
         }
