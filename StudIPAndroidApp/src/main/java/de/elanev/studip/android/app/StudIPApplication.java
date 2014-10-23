@@ -5,7 +5,6 @@ import android.app.Application;
 import android.os.Build;
 import android.os.StrictMode;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -16,6 +15,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import de.elanev.studip.android.app.backend.net.util.OkHttpStack;
 import de.elanev.studip.android.app.util.ApiUtils;
+import io.fabric.sdk.android.Fabric;
 
 /*******************************************************************************
  * Copyright (c) 2013 ELAN e.V.
@@ -51,7 +51,9 @@ public class StudIPApplication extends Application {
     mInstance = this;
 
     // Trigger initialization of Crashlytics
-    if (BuildConfig.USE_CRASHLYTICS) Crashlytics.start(this);
+    if (BuildConfig.USE_CRASHLYTICS) {
+      Fabric.with(this, new Crashlytics());
+    }
 
     // Load SQLCipher JNI Libs
     SQLiteDatabase.loadLibs(this);
