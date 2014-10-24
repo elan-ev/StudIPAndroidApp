@@ -42,6 +42,7 @@ import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.datamodel.Events;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
+import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.frontend.courses.CourseViewActivity;
@@ -370,6 +371,8 @@ public class PlannerFragment extends ProgressListFragment implements
               c.moveToNext();
               String[] courseInfoArray = {c.getString(0), c.getString(1), c.getString(2)};
               eventItemCache.put(currentCourseId, courseInfoArray);
+            } else {
+              SyncHelper.getInstance(mContext).performCoursesSync(null);
             }
             c.close();
           }
@@ -377,11 +380,13 @@ public class PlannerFragment extends ProgressListFragment implements
 
         // Create new adapter item and add it to the adapter
         String[] courseInfos = eventItemCache.get(currentCourseId);
-        EventsAdapter.EventsAdapterItem item = new EventsAdapter.EventsAdapterItem(e,
-            courseInfos[0],
-            courseInfos[1],
-            courseInfos[2]);
-        items.add(item);
+        if (courseInfos != null) {
+          EventsAdapter.EventsAdapterItem item = new EventsAdapter.EventsAdapterItem(e,
+              courseInfos[0],
+              courseInfos[1],
+              courseInfos[2]);
+          items.add(item);
+        }
 
         prevDay = currentDateMillies;
       }
