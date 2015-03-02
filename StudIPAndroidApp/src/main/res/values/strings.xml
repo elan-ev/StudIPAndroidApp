@@ -216,7 +216,10 @@
     <string name="no_recordings">No recordings available</string>
     <string name="preview_image">Preview image</string>
     <string name="recordings_chooser_title">Play recording with</string>
-    <string name="unizensus">Unizensus</string>
+    <string name="recording_no_available">Recording currently not available.</string>
+
+    <!-- Tab Unizensus -->
+    <string name="unizensus">Unicensus</string>
 
     <!-- Course Forums -->
     <string name="forum">Forum</string>
