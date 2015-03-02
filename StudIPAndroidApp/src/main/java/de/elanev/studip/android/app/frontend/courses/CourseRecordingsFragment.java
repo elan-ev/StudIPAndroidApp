@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -35,7 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.RecordingsContract;
@@ -145,11 +146,13 @@ public class CourseRecordingsFragment extends ProgressListFragment implements
   @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Cursor c = (Cursor) mAdapter.getItem(position);
     String url = c.getString(c.getColumnIndex(RecordingsContract.Columns.Recordings.RECORDING_PRESENTATION_DOWNLOAD));
-
-    Intent intent = new Intent(Intent.ACTION_VIEW);
-    intent.setDataAndType(Uri.parse(url), "video/*");
-    startActivity(Intent.createChooser(intent,
-        mContext.getString(R.string.recordings_chooser_title)));
+if (!TextUtils.isEmpty(url)) {
+  Intent intent = new Intent(Intent.ACTION_VIEW);
+  intent.setDataAndType(Uri.parse(url), "video/*");
+  startActivity(Intent.createChooser(intent, mContext.getString(R.string.recordings_chooser_title)));
+} else  {
+  Toast.makeText(getActivity(), R.string.recording_no_available, Toast.LENGTH_LONG).show();
+}
   }
 
   private interface RecordingsQuery {
