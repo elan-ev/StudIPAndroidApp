@@ -567,7 +567,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         null,
         new Response.Listener<User>() {
           @Override public void onResponse(User response) {
-            Prefs.getInstance(getActivity()).setUserId(response.user_id);
+            Prefs.getInstance(getActivity()).setUserId(response.userId);
             performPrefetchSync();
           }
         },

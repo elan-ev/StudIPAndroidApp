@@ -56,4 +56,13 @@
     <!-- Planer -->
     <string name="restip_planner" translatable="false">%1$s/events</string>
 
+    <!-- Course ForumCategories -->
+    <string name="restip_courses_forums" translatable="false">%1$s/courses/%2$s/forums</string>
+    <string name="restip_courses_forum" translatable="false">%1$s/courses/%2$s/forum/%3$s</string>
+    <string name="restip_courses_forum_topics" translatable="false">%1$s/courses/%2$s/forum/%3$s/topics</string>
+    <string name="restip_courses_forum_topic_threads" translatable="false">%1$s/courses/%2$s/forum/%3$s/topic/%4$s/threads</string>
+    <string name="restip_courses_forum_topic_thread" translatable="false">%1$s/courses/%2$s/forum/%3$s/topic/%4$s/thread/%5$s</string>
+    <string name="restip_courses_forum_topic_thread_posts" translatable="false">%1$s/courses/%2$s/forum/%3$s/topic/%4$s/thread/%5$s/posts</string>
+    <string name="restip_courses_forum_topic_thread_post" translatable="false">%1$s/courses/%2$s/forum/%3$s/topic/%4$s/thread/%5$s/post/%6$s</string>
+
 </resources>

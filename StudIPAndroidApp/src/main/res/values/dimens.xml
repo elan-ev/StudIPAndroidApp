@@ -33,4 +33,8 @@
 
     <dimen name="preview_image_width">160dp</dimen>
     <dimen name="preview_image_height">90dp</dimen>
+
+
+    <dimen name="keyline_1">16dp</dimen>
+
 </resources>

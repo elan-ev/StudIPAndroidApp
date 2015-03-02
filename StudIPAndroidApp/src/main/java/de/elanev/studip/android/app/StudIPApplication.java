@@ -10,12 +10,15 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.crashlytics.android.Crashlytics;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.Picasso;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import de.elanev.studip.android.app.backend.net.util.OkHttpStack;
 import de.elanev.studip.android.app.util.ApiUtils;
 import io.fabric.sdk.android.Fabric;
+import retrofit.client.OkClient;
 
 /*******************************************************************************
  * Copyright (c) 2013 ELAN e.V.
@@ -72,6 +75,8 @@ public class StudIPApplication extends Application {
       }
       StrictMode.setVmPolicy(builder.build());
 
+      Picasso.with(this).setIndicatorsEnabled(true);
+      Picasso.with(this).setLoggingEnabled(true);
     }
   }
 
@@ -106,7 +111,8 @@ public class StudIPApplication extends Application {
   public RequestQueue getRequestQueue() {
     // Create new if no queue is null
     if (mRequestQueue == null)
-      mRequestQueue = Volley.newRequestQueue(getApplicationContext(), new OkHttpStack());
+      mRequestQueue = Volley.newRequestQueue(getApplicationContext(),
+          new OkHttpStack(new OkHttpClient()));
 
     return mRequestQueue;
   }

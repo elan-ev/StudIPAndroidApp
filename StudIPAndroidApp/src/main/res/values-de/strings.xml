@@ -222,4 +222,31 @@
     <string name="recordings_chooser_title">Aufzeichnung abspielen mit</string>
     <string name="unizensus">Unizensus</string>
 
+    <!-- Forums -->
+    <string name="forum">Forum</string>
+    <string name="no_entries">Keine Beiträge vorhanden</string>
+    <string name="Create_new_entry">Neuen Beitrag erstellen</string>
+    <string name="New_entry">Neuer Beitrag</string>
+    <string name="Enter_content">Forebeitrag verfassen</string>
+    <string name="no_forum_categories">Keine Kategorien vorhanden</string>
+
+    <!-- Time Strings -->
+    <plurals name="seconds_abbrev">
+        <item quantity="one">Sek.</item>
+        <item quantity="other">Sek.</item>
+    </plurals>
+
+    <plurals name="minutes_abbrev">
+        <item quantity="one">Min.</item>
+        <item quantity="other">Min.</item>
+    </plurals>
+    <plurals name="hours_abbrev">
+        <item quantity="one">Std.</item>
+        <item quantity="other">Std.</item>
+    </plurals>
+    <plurals name="days_abbrev">
+        <item quantity="one">Tag</item>
+        <item quantity="other">Tage</item>
+    </plurals>
+
 </resources>

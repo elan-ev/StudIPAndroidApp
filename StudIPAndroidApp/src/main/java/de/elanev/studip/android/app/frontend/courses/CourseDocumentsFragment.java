@@ -56,8 +56,6 @@ import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.DocumentsContract;
-import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.ApiUtils;
@@ -110,6 +108,14 @@ public class CourseDocumentsFragment extends Fragment {
   };
 
   public CourseDocumentsFragment() {}
+
+  public static CourseDocumentsFragment newInstance(Bundle arguments) {
+    CourseDocumentsFragment fragment = new CourseDocumentsFragment();
+
+    fragment.setArguments(arguments);
+
+    return fragment;
+  }
 
   @Override
   public void onAttach(Activity activity) {
