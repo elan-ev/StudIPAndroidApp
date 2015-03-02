@@ -125,7 +125,7 @@ public class SyncHelper {
       User user = new User();
 
       c.moveToFirst();
-      user.user_id = c.getString(0);
+      user.userId = c.getString(0);
       c.close();
       return user;
     } else {
@@ -1073,8 +1073,8 @@ public class SyncHelper {
 
           public void onResponse(User response) {
             try {
-              if (response != null && !TextUtils.equals("____%system%____", response.user_id)) {
-                mUsersCache.put(response.user_id, response);
+              if (response != null && !TextUtils.equals("____%system%____", response.userId)) {
+                mUsersCache.put(response.userId, response);
 
                 //FIXME: Add to userDbOp cache and execute the whole bunch at once
                 mUserDbOp.add(parseUser(response));
@@ -1113,17 +1113,17 @@ public class SyncHelper {
 
   private static ContentProviderOperation parseUser(User user) {
     ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(UsersContract.CONTENT_URI);
-    builder.withValue(UsersContract.Columns.USER_ID, user.user_id);
+    builder.withValue(UsersContract.Columns.USER_ID, user.userId);
     builder.withValue(UsersContract.Columns.USER_USERNAME, user.username);
     builder.withValue(UsersContract.Columns.USER_PERMS, user.perms);
-    builder.withValue(UsersContract.Columns.USER_TITLE_PRE, user.title_pre);
+    builder.withValue(UsersContract.Columns.USER_TITLE_PRE, user.titlePre);
     builder.withValue(UsersContract.Columns.USER_FORENAME, user.forename);
     builder.withValue(UsersContract.Columns.USER_LASTNAME, user.lastname);
-    builder.withValue(UsersContract.Columns.USER_TITLE_POST, user.title_post);
+    builder.withValue(UsersContract.Columns.USER_TITLE_POST, user.titlePost);
     builder.withValue(UsersContract.Columns.USER_EMAIL, user.email);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_SMALL, user.avatar_small);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_MEDIUM, user.avatar_medium);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_NORMAL, user.avatar_normal);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_SMALL, user.avatarSmall);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_MEDIUM, user.avatarMedium);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_NORMAL, user.avatarNormal);
     builder.withValue(UsersContract.Columns.USER_PHONE, user.phone);
     builder.withValue(UsersContract.Columns.USER_HOMEPAGE, user.homepage);
     builder.withValue(UsersContract.Columns.USER_PRIVADR, user.privadr);

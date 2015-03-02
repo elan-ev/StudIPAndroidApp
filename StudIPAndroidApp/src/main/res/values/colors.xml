@@ -9,6 +9,7 @@
 <resources>
 
     <color name="studip_mobile_dark">#34598f</color>
+    <color name="studip_mobile_dark_alpha">#af34598f</color>
     <color name="studip_mobile_darker">#243E63</color>
     <color name="studip_mobile_light">#899AB9</color>
     <color name="primary_text_light">#c000</color>

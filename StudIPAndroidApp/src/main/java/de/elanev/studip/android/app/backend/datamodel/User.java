@@ -6,88 +6,132 @@
  * http://www.gnu.org/licenses/gpl.html
  ******************************************************************************/
 /**
- * 
+ *
  */
 package de.elanev.studip.android.app.backend.datamodel;
 
+import android.text.TextUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 /**
  * @author joern
- * 
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName(value = "user")
 public class User {
-	public String user_id;
-	public String username;
-	public String perms;
-	public String title_pre;
-	public String forename;
-	public String lastname;
-	public String title_post;
-	public String email;
-	public String avatar_small;
-	public String avatar_medium;
-	public String avatar_normal;
-	public String phone;
-	public String homepage;
-	public String privadr;
-	public int role;
+  public static final String NAME = User.class.getName() + ".name";
+  public static final String AVATAR = User.class.getName() + ".avatar";
+  @JsonProperty("user_id")
+  public String userId;
+  @JsonProperty("username")
+  public String username;
+  @JsonProperty("perms")
+  public String perms;
+  @JsonProperty("title_pre")
+  public String titlePre;
+  @JsonProperty("forename")
+  public String forename;
+  @JsonProperty("lastname")
+  public String lastname;
+  @JsonProperty("title_post")
+  public String titlePost;
+  @JsonProperty("email")
+  public String email;
+  @JsonProperty("avatar_small")
+  public String avatarSmall;
+  @JsonProperty("avatar_medium")
+  public String avatarMedium;
+  @JsonProperty("avatar_normal")
+  public String avatarNormal;
+  @JsonProperty("phonse")
+  public String phone;
+  @JsonProperty("homepage")
+  public String homepage;
+  @JsonProperty("privadr")
+  public String privadr;
+  @JsonProperty("role")
+  public int role;
+  @JsonProperty("skype")
+  public String skype;
+  @JsonProperty("skype_show")
+  public boolean skypeShow;
 
-	/**
-	 * Default constructor
-	 */
-	public User() {
-	}
+  /**
+   * Default constructor
+   */
+  public User() {}
 
-	/**
-	 * @param user_id
-	 * @param username
-	 * @param perms
-	 * @param title_pre
-	 * @param forename
-	 * @param lastname
-	 * @param title_post
-	 * @param email
-	 * @param avatar_small
-	 * @param avatar_medium
-	 * @param avatar_normal
-	 * @param phone
-	 * @param homepage
-	 * @param privadr
-	 * @param role
-	 */
-	public User(String user_id, String username, String perms,
-			String title_pre, String forename, String lastname,
-			String title_post, String email, String avatar_small,
-			String avatar_medium, String avatar_normal, String phone,
-			String homepage, String privadr, int role) {
-		this.user_id = user_id;
-		this.username = username;
-		this.perms = perms;
-		this.title_pre = title_pre;
-		this.forename = forename;
-		this.lastname = lastname;
-		this.title_post = title_post;
-		this.email = email;
-		this.avatar_small = avatar_small;
-		this.avatar_medium = avatar_medium;
-		this.avatar_normal = avatar_normal;
-		this.phone = phone;
-		this.homepage = homepage;
-		this.privadr = privadr;
-		this.role = role;
-	}
+  /**
+   * @param userId
+   * @param username
+   * @param perms
+   * @param titlePre
+   * @param forename
+   * @param lastname
+   * @param titlePost
+   * @param email
+   * @param avatarSmall
+   * @param avatarMedium
+   * @param avatarNormal
+   * @param phone
+   * @param homepage
+   * @param privadr
+   * @param role
+   */
+  public User(String userId,
+      String username,
+      String perms,
+      String titlePre,
+      String forename,
+      String lastname,
+      String titlePost,
+      String email,
+      String avatarSmall,
+      String avatarMedium,
+      String avatarNormal,
+      String phone,
+      String homepage,
+      String privadr,
+      int role) {
+    this.userId = userId;
+    this.username = username;
+    this.perms = perms;
+    this.titlePre = titlePre;
+    this.forename = forename;
+    this.lastname = lastname;
+    this.titlePost = titlePost;
+    this.email = email;
+    this.avatarSmall = avatarSmall;
+    this.avatarMedium = avatarMedium;
+    this.avatarNormal = avatarNormal;
+    this.phone = phone;
+    this.homepage = homepage;
+    this.privadr = privadr;
+    this.role = role;
+  }
 
-	public String getFullName() {
-		return this.title_pre + " " + this.forename + " " + this.lastname + " "
-				+ this.title_post;
-	}
+  public String getFullName() {
+    StringBuilder builder = new StringBuilder();
+    if (!TextUtils.isEmpty(this.titlePre)) {
+      builder.append(this.titlePre).append(" ");
+    }
+    if (!TextUtils.isEmpty(this.forename)) {
+      builder.append(this.forename).append(" ");
+    }
+    if (!TextUtils.isEmpty(this.lastname)) {
+      builder.append(this.lastname).append(" ");
+    }
+    if (!TextUtils.isEmpty(this.titlePost)) {
+      builder.append(this.titlePost);
+    }
+    return builder.toString();
+  }
 
-	public String getName() {
-		return this.forename + " " + this.lastname;
-	}
+  public String getName() {
+    return this.forename + " " + this.lastname;
+  }
 
 }

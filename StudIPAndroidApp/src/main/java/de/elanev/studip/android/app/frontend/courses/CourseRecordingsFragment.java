@@ -71,6 +71,14 @@ public class CourseRecordingsFragment extends ProgressListFragment implements
 
   public CourseRecordingsFragment() {}
 
+  public static CourseRecordingsFragment newInstance(Bundle arguments) {
+    CourseRecordingsFragment fragment = new CourseRecordingsFragment();
+
+    fragment.setArguments(arguments);
+
+    return fragment;
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -209,13 +217,7 @@ public class CourseRecordingsFragment extends ProgressListFragment implements
         e.printStackTrace();
       }
 
-      Picasso picasso = Picasso.with(mContext);
-
-      if (BuildConfig.DEBUG) {
-        picasso.setDebugging(true);
-      }
-
-      picasso.load(previewUrl)
+      Picasso.with(mContext).load(previewUrl)
           .resizeDimen(R.dimen.preview_image_width, R.dimen.preview_image_height)
           .centerCrop()
           .placeholder(R.drawable.nobody_normal)

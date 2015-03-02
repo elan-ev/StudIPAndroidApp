@@ -3,6 +3,6 @@
 	url = https://github.com/elan-ev/volley.git
   branch = master
   ignore = dirty
-[submodule "lib/signpost-retrofit"]
-	path = lib/signpost-retrofit
+[submodule "libs/signpost-retrofit"]
+	path = libs/signpost-retrofit
 	url = https://github.com/mndfcked/signpost-retrofit.git
