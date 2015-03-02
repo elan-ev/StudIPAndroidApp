@@ -220,6 +220,9 @@
     <string name="no_recordings">Keine Aufzeichnungen verfügbar</string>
     <string name="preview_image">Preview image</string>
     <string name="recordings_chooser_title">Aufzeichnung abspielen mit</string>
+    <string name="recording_no_available">Aufzeichnung zur Zeit in der App nicht verfügbar.</string>
+
+    <!-- Tab Unizensus -->
     <string name="unizensus">Unizensus</string>
 
     <!-- Forums -->
