@@ -31,6 +31,14 @@ public class CourseUnizensusFragment extends Fragment implements
 
   public CourseUnizensusFragment() {}
 
+  public static CourseUnizensusFragment newInstance(Bundle arguments) {
+    CourseUnizensusFragment fragment = new CourseUnizensusFragment();
+
+    fragment.setArguments(arguments);
+
+    return fragment;
+  }
+
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mCourseId = getArguments().getString(CoursesContract.Columns.Courses.COURSE_ID);

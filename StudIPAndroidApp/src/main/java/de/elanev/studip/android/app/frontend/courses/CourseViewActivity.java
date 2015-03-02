@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2015 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.List;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
+import de.elanev.studip.android.app.frontend.forums.ForumCategoriesListFragment;
 import de.elanev.studip.android.app.frontend.util.TabbedFragmentActivity;
 
 /**
@@ -27,21 +28,39 @@ import de.elanev.studip.android.app.frontend.util.TabbedFragmentActivity;
  * schedule, participants and documents.
  */
 public class CourseViewActivity extends TabbedFragmentActivity {
+  private static final String INTENT_EXTRAS = "intent_extras";
+  static Bundle sExtras;
+  static String sTitle;
   ViewPager mPager;
   BasePagerTabsAdapter mPagerAdapter;
+  Course.Modules mModules = new Course.Modules();
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-
     getSupportActionBar().setHomeButtonEnabled(true);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     // Get intent data
-    Bundle intentExtras = getIntent().getExtras();
+    if (savedInstanceState != null) {
+      sExtras = savedInstanceState.getBundle(INTENT_EXTRAS);
+    } else {
+      Bundle intentExtras = getIntent().getExtras();
+      if (intentExtras != null) {
+        sExtras = intentExtras;
+      }
+    }
 
+    if (sExtras != null) {
+      sTitle = sExtras.getString(CoursesContract.Columns.Courses.COURSE_TITLE);
+      setTitle(sTitle);
 
+      String modulesJson = sExtras.getString(CoursesContract.Columns.Courses.COURSE_MODULES);
+      if (!TextUtils.isEmpty(modulesJson)) {
+        mModules = Course.Modules.fromJson(modulesJson);
+      }
+    }
     // ViewPager, PageAdapter setup
     mPager = new ViewPager(this);
     mPager.setId("VP".hashCode());
@@ -53,53 +72,58 @@ public class CourseViewActivity extends TabbedFragmentActivity {
         R.drawable.ic_action_seminar,
         R.string.Overview,
         CourseOverviewFragment.class,
-        intentExtras);
+        sExtras);
 
-    // Get activated modules for course
-    String modulesJson = intentExtras.getString(CoursesContract.Columns.Courses.COURSE_MODULES);
-    if (!TextUtils.isEmpty(modulesJson)) {
-      Course.Modules modules = Course.Modules.fromJson(modulesJson);
 
-      if (modules.schedule) {
-        mPagerAdapter.addTab(mActionbar.newTab(),
-            R.drawable.ic_action_schedule,
-            R.string.Schedule,
-            CourseScheduleFragment.class,
-            intentExtras);
-      }
-      if (modules.participants) {
-        mPagerAdapter.addTab(mActionbar.newTab(),
-            R.drawable.ic_action_attendees,
-            R.string.attendees,
-            CourseAttendeesFragment.class,
-            intentExtras);
-      }
-      if (modules.documents) {
-        mPagerAdapter.addTab(mActionbar.newTab(),
-            R.drawable.ic_action_files,
-            R.string.Documents,
-            CourseDocumentsFragment.class,
-            intentExtras);
-      }
-      if (modules.recordings) {
-        mPagerAdapter.addTab(mActionbar.newTab(),
-            R.drawable.ic_action_recordings,
-            R.string.Recordings,
-            CourseRecordingsFragment.class,
-            intentExtras);
-      }
-      if (modules.unizensus) {
-        mPagerAdapter.addTab(mActionbar.newTab(),
-            R.drawable.ic_action_unizensus,
-            R.string.unizensus,
-            CourseUnizensusFragment.class,
-            intentExtras);
-      }
-
+    if (mModules.schedule) {
+      mPagerAdapter.addTab(mActionbar.newTab(),
+          R.drawable.ic_action_schedule,
+          R.string.Schedule,
+          CourseScheduleFragment.class,
+          sExtras);
+    }
+    if (mModules.participants) {
+      mPagerAdapter.addTab(mActionbar.newTab(),
+          R.drawable.ic_action_attendees,
+          R.string.attendees,
+          CourseAttendeesFragment.class,
+          sExtras);
+    }
+    if (mModules.forum) {
+      mPagerAdapter.addTab(mActionbar.newTab(),
+          R.drawable.ic_action_forum,
+          R.string.forum,
+          ForumCategoriesListFragment.class,
+          sExtras);
+    }
+    if (mModules.documents) {
+      mPagerAdapter.addTab(mActionbar.newTab(),
+          R.drawable.ic_action_files,
+          R.string.Documents,
+          CourseDocumentsFragment.class,
+          sExtras);
+    }
+    if (mModules.recordings) {
+      mPagerAdapter.addTab(mActionbar.newTab(),
+          R.drawable.ic_action_recordings,
+          R.string.Recordings,
+          CourseRecordingsFragment.class,
+          sExtras);
+    }
+    if (mModules.unizensus) {
+      mPagerAdapter.addTab(mActionbar.newTab(),
+          R.drawable.ic_action_unizensus,
+          R.string.unizensus,
+          CourseUnizensusFragment.class,
+          sExtras);
     }
 
-    // Setting Activity title
-    setTitle(getIntent().getStringExtra(CoursesContract.Columns.Courses.COURSE_TITLE));
+
+  }
+
+  @Override public void onSaveInstanceState(Bundle outState) {
+    outState.putBundle(INTENT_EXTRAS, sExtras);
+    super.onSaveInstanceState(outState);
   }
 
   @Override
@@ -113,7 +137,6 @@ public class CourseViewActivity extends TabbedFragmentActivity {
 
     return super.onOptionsItemSelected(item);
   }
-
 
   @Override
   public void onBackPressed() {
@@ -140,4 +163,5 @@ public class CourseViewActivity extends TabbedFragmentActivity {
     }
     return false;
   }
+
 }
