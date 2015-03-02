@@ -1,0 +1,25 @@
+Changes included in the v3.2.0 release of SQLCipher for Android:
+
+ * Consistent SQLCipher defines
+ * Use sqlcipher 3.2.0
+ * Merge branch 'reproducible-build' of https://github.com/eighthave/android-database-sqlcipher into eighthave-reproducible-build
+ * fix timestamps in the release zipball to make them deterministic
+ * sort the file list in the release zip to make it deterministic
+ * script to compare release zipballs to check for differences
+ * use `git describe` for release version and fix type in zipball name
+ * remove commons-codec.jar and guava-r09.jar from Eclipse project
+ * use faketime, if available, to set the build time based on the git commit
+ * remove commons-codec.jar and guava-r09.jar from Eclipse project
+ * add `ant javadoc` to generate javadoc to include in releases
+ * use faketime, if available, to set the build time based on the git commit
+ * add build metadata to jar file to aid reproducible builds
+ * Fix FIELD_TYPE_NULL value to match Android Java mapping
+ * Include sample ProGuard file for use with SQLCipher for Android
+ * Merge remote-tracking branch 'brodybits/icu-unicode-fix'
+ * Update build notes to include ref. to android-7 platform requirement
+ * Merge remote-tracking branch 'jdc/master'
+ * Fix build of sqlcipher to work together with ICU (Unicode) lib
+ * Adjust folder name for release packaging
+ * Add direct change password support via SQLiteDatabase.changePassword
+ * Remove dependencies on commons-codec.jar and guava-r09.jar (to reduce java method count by ~7900 methods)
+ * Remove dependencies on commons-codec.jar and guava-r09.jar (to reduce java method count by ~7900 methods)
