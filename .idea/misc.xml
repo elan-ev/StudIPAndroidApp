@@ -6,6 +6,10 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/libs/signpost-retrofit" />
+  </component>
+  <component name="IdProvider" IDEtalkID="0B87FD2C9751F5831572DC6DEFEA747A" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
@@ -99,4 +103,3 @@
     </configuration>
   </component>
 </project>
-
