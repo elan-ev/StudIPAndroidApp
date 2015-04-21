@@ -61,11 +61,8 @@ public class TextTools {
 
     final long diff = now - time;
     Resources res = ctx.getResources();
-    if (diff < 60 * SECOND_MILLIS) {
-      long times = diff / SECOND_MILLIS;
-      return String.format("%d %s",
-          times,
-          res.getQuantityString(R.plurals.seconds_abbrev, (int) times));
+    if (diff < MINUTE_MILLIS) {
+      return ctx.getString(R.string.just_now);
     } else if (diff < 60 * MINUTE_MILLIS) {
       long times = diff / MINUTE_MILLIS;
       return String.format("%d %s",
