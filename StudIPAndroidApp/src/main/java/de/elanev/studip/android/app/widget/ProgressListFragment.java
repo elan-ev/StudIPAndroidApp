@@ -51,8 +51,9 @@ public class ProgressListFragment extends Fragment implements
     mListView = (StickyListHeadersListView) v.findViewById(R.id.list);
     mListView.setEmptyView(mEmptyMessageTextView);
     mSwipeRefreshLayoutListView = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
-    mSwipeRefreshLayoutListView.setColorSchemeResources(android.R.color.white,
-        R.color.studip_mobile_light,
+    // Set SwipeRefreshLayout up
+    mSwipeRefreshLayoutListView.setColorSchemeResources(R.color.studip_mobile_dark,
+        R.color.studip_mobile_darker,
         R.color.studip_mobile_dark,
         R.color.studip_mobile_darker);
 
