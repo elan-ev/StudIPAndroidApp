@@ -16,7 +16,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.TextUtils;
 
+import de.elanev.studip.android.app.backend.datamodel.Routes;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.AuthenticationContract;
 
@@ -36,6 +38,7 @@ public class Prefs {
   private static final String TAG = Prefs.class.getSimpleName();
   private static final String CURRENT_SEMESTER_ID = "currentSemesterId";
   private static final String RECORDINGS_ENABLED = "recordingsEnabled";
+  private static final String FORUM_IS_ACTIVATED = "activeRoutes";
   private static Prefs sInstance;
   private Context mContext;
   private SharedPreferences mPrefs;
@@ -65,7 +68,7 @@ public class Prefs {
    * Clears the SharedPreferences
    */
   public void clearPrefs() {
-    mPrefs.edit().clear().commit();
+    mPrefs.edit().clear().apply();
     this.mCachedServer = null;
   }
 
@@ -174,7 +177,7 @@ public class Prefs {
    * Set the app as started. This will cause the isFirstStart() method to return false.
    */
   public void setAppStarted() {
-    mPrefs.edit().putBoolean(APP_FIRST_START, false).commit();
+    mPrefs.edit().putBoolean(APP_FIRST_START, false).apply();
   }
 
 
@@ -212,19 +215,19 @@ public class Prefs {
    * @deprecated debug only, for credential migration testing.
    */
   public void simulateOldPrefs(Server server) {
-    mPrefs.edit().putString("accessToken", server.getAccessToken()).commit();
-    mPrefs.edit().putString("accessTokenSecret", server.getAccessTokenSecret()).commit();
-    mPrefs.edit().putString("serverName", server.getName()).commit();
-    mPrefs.edit().putString("serverUrl", server.getBaseUrl()).commit();
-    mPrefs.edit().putString("serverKey", server.getConsumerKey()).commit();
-    mPrefs.edit().putString("serverSecret", server.getConsumerSecret()).commit();
+    mPrefs.edit().putString("accessToken", server.getAccessToken()).apply();
+    mPrefs.edit().putString("accessTokenSecret", server.getAccessTokenSecret()).apply();
+    mPrefs.edit().putString("serverName", server.getName()).apply();
+    mPrefs.edit().putString("serverUrl", server.getBaseUrl()).apply();
+    mPrefs.edit().putString("serverKey", server.getConsumerKey()).apply();
+    mPrefs.edit().putString("serverSecret", server.getConsumerSecret()).apply();
   }
 
   /**
    * Sets the preference that indicates that the initial sync operation was successful.
    */
   public void setAppSynced() {
-    mPrefs.edit().putBoolean(APP_SYMC_COMPLETE, true).commit();
+    mPrefs.edit().putBoolean(APP_SYMC_COMPLETE, true).apply();
   }
 
   /**
@@ -251,7 +254,7 @@ public class Prefs {
    * @param userId the current users Stud.IP user id String.
    */
   public void setUserId(String userId) {
-    mPrefs.edit().putString(USER_ID, userId).commit();
+    mPrefs.edit().putString(USER_ID, userId).apply();
   }
 
   /**
@@ -269,6 +272,19 @@ public class Prefs {
    * @param semesterId Stud.IP id String of the current semester.
    */
   public void setCurrentSemesterId(String semesterId) {
-    mPrefs.edit().putString(CURRENT_SEMESTER_ID, semesterId).commit();
+    mPrefs.edit().putString(CURRENT_SEMESTER_ID, semesterId).apply();
+  }
+
+  /**
+   * Saves the wether the forum is activated or not.
+   *
+   * @param value Indicates an activated forum.
+   */
+  public void setForumIsActivated(boolean value) {
+      mPrefs.edit().putBoolean(FORUM_IS_ACTIVATED, value).apply();
+  }
+
+  public boolean isForumActivated() {
+    return mPrefs.getBoolean(FORUM_IS_ACTIVATED, false);
   }
 }

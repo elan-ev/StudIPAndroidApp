@@ -54,6 +54,7 @@ import de.elanev.studip.android.app.backend.datamodel.Messages;
 import de.elanev.studip.android.app.backend.datamodel.News;
 import de.elanev.studip.android.app.backend.datamodel.NewsItem;
 import de.elanev.studip.android.app.backend.datamodel.Recording;
+import de.elanev.studip.android.app.backend.datamodel.Routes;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
 import de.elanev.studip.android.app.backend.datamodel.Semesters;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -70,6 +71,8 @@ import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.UnizensusContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
+import de.elanev.studip.android.app.backend.net.services.CustomJsonConverterApiService;
+import de.elanev.studip.android.app.backend.net.services.DiscoveryRouteJsonConverter;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.DocumentsHandler;
 import de.elanev.studip.android.app.backend.net.sync.MessagesHandler;
@@ -80,6 +83,10 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * A convenience class for interacting with the rest.IP endpoints.
@@ -100,6 +107,7 @@ public class SyncHelper {
   private final DefaultRetryPolicy mRetryPolicy = new DefaultRetryPolicy(30000,
       DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
       DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+  private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
   private SyncHelper() {
     mUsersCache = CacheBuilder.newBuilder()
@@ -1416,6 +1424,34 @@ public class SyncHelper {
     return ops;
   }
 
+  public void requestApiRoutes(final SyncHelperCallbacks callbacks) {
+    CustomJsonConverterApiService apiService = new CustomJsonConverterApiService(mContext, mServer,
+        new DiscoveryRouteJsonConverter());
+
+    mCompositeSubscription.add(apiService.discoverApi()
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<Routes>() {
+          @Override public void onCompleted() {
+            if (callbacks != null) {
+              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_ROUTES_SYNC);
+            }
+          }
+
+          @Override public void onError(Throwable e) {
+            VolleyError error = new VolleyError();
+            error.setStackTrace(e.getStackTrace());
+            if (callbacks != null) {
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_ROUTES_SYNC, error);
+            }
+          }
+
+          @Override public void onNext(Routes routes) {
+            Prefs.getInstance(mContext).setForumIsActivated(routes.isForumActivated);
+          }
+        }));
+  }
+
   /**
    * Callback interface for clients to interact with the SyncHelper
    */
@@ -1428,6 +1464,7 @@ public class SyncHelper {
     int STARTED_USER_SYNC = 106;
     int STARTED_INSTITUTES_SYNC = 107;
     int STARTED_RECORDINGS_SYNC = 108;
+    int STARTED_ROUTES_SYNC = 109;
     int FINISHED_COURSES_SYNC = 201;
     int FINISHED_NEWS_SYNC = 202;
     int FINISHED_SEMESTER_SYNC = 203;
@@ -1436,6 +1473,7 @@ public class SyncHelper {
     int FINISHED_USER_SYNC = 206;
     int FINISHED_INSTITUTES_SYNC = 207;
     int FINISHED_RECORDINGS_SYNC = 208;
+    int FINISHED_ROUTES_SYNC = 209;
     int ERROR_COURSES_SYNC = 301;
     int ERROR_NEWS_SYNC = 302;
     int ERROR_SEMESTER_SYNC = 303;
@@ -1444,6 +1482,7 @@ public class SyncHelper {
     int ERROR_USER_SYNC = 306;
     int ERROR_INSTITUTES_SYNC = 307;
     int ERROR_RECORDINGS_SYNC = 308;
+    int ERROR_ROUTES_SYNC = 309;
 
     public void onSyncStarted();
 
