@@ -8,9 +8,9 @@
 import java.text.SimpleDateFormat
 
 def versionMajor = 0 //prod
-def versionMinor = 8
-def versionPatch = 9
-def versionBuild = 11
+def versionMinor = 9
+def versionPatch = 8
+def versionBuild = 0
 
 def versionMajorBeta = 0 //beta
 def versionMinorBeta = 9
@@ -79,7 +79,7 @@ android {
   }
 
   compileSdkVersion 21
-  buildToolsVersion "21.1.2"
+  buildToolsVersion "22.0.1"
 
   signingConfigs {
     release
