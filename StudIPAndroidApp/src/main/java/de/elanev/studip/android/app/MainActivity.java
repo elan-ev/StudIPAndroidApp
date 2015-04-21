@@ -153,7 +153,12 @@ public class MainActivity extends ActionBarActivity {
     if (!Prefs.getInstance(this).isAppAuthorized()) {
       StuffUtil.startSignInActivity(this);
       finish();
+      return;
     }
+
+    // Verify that the forum routes are still activated
+    //TODO: Move this and other API checks to a Service or something, but not here
+    SyncHelper.getInstance(this).requestApiRoutes(null);
 
     setContentView(R.layout.activity_main);
     mAdapter = getNewMenuAdapter();
