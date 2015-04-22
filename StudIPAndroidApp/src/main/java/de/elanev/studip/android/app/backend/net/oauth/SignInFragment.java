@@ -134,7 +134,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
       ViewGroup container,
       Bundle savedInstanceState) {
     Log.i(TAG, "onCreateView Called!");
-    View v = inflater.inflate(R.layout.fragment_sign_in, null);
+    View v = inflater.inflate(R.layout.fragment_sign_in, container, false);
 
     mProgressInfo = v.findViewById(R.id.progress_info);
     mSignInForm = v.findViewById(R.id.sign_in_form);
