@@ -99,8 +99,12 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
 
     if (isAdded()) {
       switch (item.getItemId()) {
+        case android.R.id.home:
+          getActivity().onBackPressed();
+          return true;
         case R.id.create_new_area:
           createNewEntry();
+          return true;
         default:
           return super.onOptionsItemSelected(item);
       }

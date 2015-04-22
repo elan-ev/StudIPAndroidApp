@@ -22,6 +22,7 @@ import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.frontend.forums.ForumCategoriesListFragment;
 import de.elanev.studip.android.app.frontend.util.TabbedFragmentActivity;
+import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * Activity for displaying a ViewPager with tabs for course overview,
@@ -89,7 +90,7 @@ public class CourseViewActivity extends TabbedFragmentActivity {
           CourseAttendeesFragment.class,
           sExtras);
     }
-    if (mModules.forum) {
+    if (mModules.forum && Prefs.getInstance(this).isForumActivated()) {
       mPagerAdapter.addTab(mActionbar.newTab(),
           R.drawable.ic_action_forum,
           R.string.forum,
