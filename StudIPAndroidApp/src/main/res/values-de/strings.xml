@@ -111,6 +111,8 @@
         Leider unterstützt Ihre Android Version zur Zeit keine Downloads von Stud.IP.
     </string>
     <string name="downloads">%1$d Downloads</string>
+    <string name="error_downloadmanager_disabled">Der DownloadManager ist deaktiviert.
+        Bitte reaktivieren um fortzufahren.</string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Datenschutzerklärung</string>

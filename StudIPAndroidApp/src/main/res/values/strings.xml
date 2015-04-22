@@ -113,6 +113,7 @@
     <string name="error_unhandled_error_code">ERROR_UNHANDLED_HTTP_CODE</string>
     <string name="version_not_supported_message">Unfortunately your Android version is currently not supporting downloads from Stud.IP.</string>
     <string name="downloads">%1$d downloads</string>
+    <string name="error_downloadmanager_disabled">Your download manager is disabled. Please enable it to continue.</string>
 
     <!-- About app Activity -->
     <string name="version_and_copyright" translatable="false">Version: %1$s
