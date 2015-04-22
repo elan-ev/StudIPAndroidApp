@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 0.9.10 *(2015-04-22)*
+----------------------------
+* Fix: User ThreadPool executor to avoid crashes on pre Honeycomb devices. (issue #24)
+* Fix: Check if activity or callback is null before calling on RequestToken response. (issue #40)
+* Fix: Crash after starting a download when DownloadManager isn't available. (issue #52)
+* Fix: Crash after a finished download when no DownloadsView is available. (issue #56)
+
 Version 0.9.9 *(2015-04-22)*
 ----------------------------
 * New: Implantation of course forums tab
