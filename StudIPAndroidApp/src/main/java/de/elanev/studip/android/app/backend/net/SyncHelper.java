@@ -15,6 +15,7 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import de.elanev.studip.android.app.BuildConfig;
@@ -77,6 +79,7 @@ import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.DocumentsHandler;
 import de.elanev.studip.android.app.backend.net.sync.MessagesHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
+import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -729,14 +732,21 @@ public class SyncHelper {
   }
 
   /**
-   * Requests all users from a specfic course
+   * Requests all users from a specific course
    *
    * @param courseId  the ID of the course to request the users for
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void loadUsersForCourse(String courseId, SyncHelperCallbacks callbacks) {
-
-    new UserLoadTask().execute(courseId, callbacks);
+    try {
+      if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
+        new UserLoadTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, courseId, callbacks);
+      } else {
+        new UserLoadTask().execute(courseId, callbacks);
+      }
+    } catch (RejectedExecutionException e) {
+      // All thread are used, try again next time
+    }
 
   }
 
