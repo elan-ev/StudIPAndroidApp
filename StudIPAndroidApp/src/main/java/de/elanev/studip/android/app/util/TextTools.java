@@ -8,6 +8,7 @@
 package de.elanev.studip.android.app.util;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 
@@ -23,90 +24,126 @@ import de.elanev.studip.android.app.R;
  */
 public class TextTools {
 
-    private static final int SECOND_MILLIS = 1000;
-    private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
-    private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
-    private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
+  private static final int SECOND_MILLIS = 1000;
+  private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
+  private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
+  private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
 
-    /**
-     * Prints human readable file size
-     *
-     * @param size unreadable size in long
-     * @return readable size string
-     */
-    public static String readableFileSize(long size) {
-        if (size <= 0) {
-            return "0";
-        }
-
-        final String[] units = new String[]
-                {
-                        "B", "KB", "MB", "GB", "TB"
-                };
-
-        int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
-        return new DecimalFormat("#,##0.00")
-                .format(size / Math.pow(1024, digitGroups))
-                + " "
-                + units[digitGroups];
+  /**
+   * Prints human readable file size
+   *
+   * @param size unreadable size in long
+   * @return readable size string
+   */
+  public static String readableFileSize(long size) {
+    if (size <= 0) {
+      return "0";
     }
 
-    public static String getTimeAgo(long time, Context ctx) {
-        if (time < 1000000000000L) {
-            time *= 1000;
-        }
+    final String[] units = new String[]{
+        "B", "KB", "MB", "GB", "TB"
+    };
 
-        long now = System.currentTimeMillis();
-        if (time > now || time <= 0) {
-            return null;
-        }
+    int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+    return new DecimalFormat("#,##0.00").format(size / Math.pow(1024, digitGroups)) + " "
+        + units[digitGroups];
+  }
 
-        final long diff = now - time;
-        if (diff < MINUTE_MILLIS) {
-            return ctx.getString(R.string.just_now);
-        } else if (diff < 2 * MINUTE_MILLIS) {
-            return ctx.getString(R.string.a_minute_ago);
-        } else if (diff < 50 * MINUTE_MILLIS) {
-            return String.format(ctx.getString(R.string.minutes_ago),
-                    (diff / MINUTE_MILLIS));
-        } else if (diff < 90 * MINUTE_MILLIS) {
-            return ctx.getString(R.string.an_hour_ago);
-        } else if (diff < 24 * HOUR_MILLIS) {
-            return String.format(ctx.getString(R.string.hours_ago),
-                    (diff / HOUR_MILLIS));
-        } else if (diff < 48 * HOUR_MILLIS) {
-            return ctx.getString(R.string.yesterday);
-        } else {
-            Long diffDays = diff / DAY_MILLIS;
-            if (diffDays < 100) {
-                return String
-                        .format(ctx.getString(R.string.days_ago),
-                                diffDays);
-            } else {
-                return getLocalizedTime(time, ctx);
-            }
-        }
+  public static String getShortRelativeTime(long time, Context ctx) {
+    if (time < 1000000000000L) {
+      time *= 1000;
     }
 
-    public static String getLocalizedAuthorAndDateString(String author,
-                                                         Long date, Context ctx) {
-        return String.format("%s %s %s", getTimeAgo(date, ctx),
-                ctx.getString(R.string.by), author);
+    long now = System.currentTimeMillis();
+    if (time > now || time <= 0) {
+      return null;
     }
 
-    public static String getLocalizedTime(long time, Context ctx) {
-        return DateUtils.formatDateTime(ctx, time,
-                DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE
-                        | DateUtils.FORMAT_SHOW_WEEKDAY);
+    final long diff = now - time;
+    Resources res = ctx.getResources();
+    if (diff < MINUTE_MILLIS) {
+      return ctx.getString(R.string.just_now);
+    } else if (diff < 60 * MINUTE_MILLIS) {
+      long times = diff / MINUTE_MILLIS;
+      return String.format("%d %s",
+          times,
+          res.getQuantityString(R.plurals.minutes_abbrev, (int) times));
+    } else if (diff < 24 * HOUR_MILLIS) {
+      long times = diff / HOUR_MILLIS;
+      return String.format("%d %s",
+          times,
+          res.getQuantityString(R.plurals.hours_abbrev, (int) times));
+    } else if (diff < 10 * DAY_MILLIS) {
+      long times = diff / DAY_MILLIS;
+      return String.format("%d %s",
+          times,
+          res.getQuantityString(R.plurals.days_abbrev, (int) times));
+    } else if (diff < 365 * DAY_MILLIS) {
+      return DateUtils.formatDateTime(ctx,
+          time,
+          DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_MONTH);
+    } else {
+      return DateUtils.formatDateTime(ctx,
+          time,
+          DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_MONTH
+              | DateUtils.FORMAT_NO_MONTH_DAY);
+    }
+  }
+
+  public static String getLocalizedAuthorAndDateString(String author, Long date, Context ctx) {
+    return String.format("%s %s %s", getTimeAgo(date, ctx), ctx.getString(R.string.by), author);
+  }
+
+  public static String getTimeAgo(long time, Context ctx) {
+    if (time < 1000000000000L) {
+      time *= 1000;
     }
 
-    public static String buildLocalizedTimeString(Long time, Context ctx) {
-        return DateFormat.getTimeFormat(ctx).format(time);
+    long now = System.currentTimeMillis();
+    if (time > now || time <= 0) {
+      return null;
     }
 
-    public static String capitalizeFirstLetter(String s) {
-        String str = s.substring(0, 1).toUpperCase(Locale.getDefault())
-                + s.substring(1).toLowerCase(Locale.getDefault());
-        return str;
+    final long diff = now - time;
+    if (diff < MINUTE_MILLIS) {
+      return ctx.getString(R.string.just_now);
+    } else if (diff < 2 * MINUTE_MILLIS) {
+      return ctx.getString(R.string.a_minute_ago);
+    } else if (diff < 50 * MINUTE_MILLIS) {
+      return String.format(ctx.getString(R.string.minutes_ago), (diff / MINUTE_MILLIS));
+    } else if (diff < 90 * MINUTE_MILLIS) {
+      return ctx.getString(R.string.an_hour_ago);
+    } else if (diff < 24 * HOUR_MILLIS) {
+      return String.format(ctx.getString(R.string.hours_ago), (diff / HOUR_MILLIS));
+    } else if (diff < 48 * HOUR_MILLIS) {
+      return ctx.getString(R.string.yesterday);
+    } else {
+      Long diffDays = diff / DAY_MILLIS;
+      if (diffDays < 100) {
+        return String.format(ctx.getString(R.string.days_ago), diffDays);
+      } else {
+        return getLocalizedTime(time, ctx);
+      }
     }
+  }
+
+  public static String getLocalizedTime(long time, Context ctx) {
+    return DateUtils.formatDateTime(ctx,
+        time,
+        DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_WEEKDAY);
+  }
+
+  public static String buildLocalizedTimeString(Long time, Context ctx) {
+    return DateFormat.getTimeFormat(ctx).format(time);
+  }
+
+  public static String capitalizeFirstLetter(String s) {
+    String str = s.substring(0, 1).toUpperCase(Locale.getDefault()) + s.substring(1)
+        .toLowerCase(Locale.getDefault());
+    return str;
+  }
+
+  public static String stripImages(String content) {
+    return content.replaceAll("\\<img.*?>", "");
+  }
 }

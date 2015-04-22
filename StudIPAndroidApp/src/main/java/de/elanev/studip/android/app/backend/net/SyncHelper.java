@@ -54,6 +54,7 @@ import de.elanev.studip.android.app.backend.datamodel.Messages;
 import de.elanev.studip.android.app.backend.datamodel.News;
 import de.elanev.studip.android.app.backend.datamodel.NewsItem;
 import de.elanev.studip.android.app.backend.datamodel.Recording;
+import de.elanev.studip.android.app.backend.datamodel.Routes;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
 import de.elanev.studip.android.app.backend.datamodel.Semesters;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -70,6 +71,8 @@ import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.db.UnizensusContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
+import de.elanev.studip.android.app.backend.net.services.CustomJsonConverterApiService;
+import de.elanev.studip.android.app.backend.net.services.DiscoveryRouteJsonConverter;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.DocumentsHandler;
 import de.elanev.studip.android.app.backend.net.sync.MessagesHandler;
@@ -80,6 +83,10 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * A convenience class for interacting with the rest.IP endpoints.
@@ -100,6 +107,7 @@ public class SyncHelper {
   private final DefaultRetryPolicy mRetryPolicy = new DefaultRetryPolicy(30000,
       DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
       DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+  private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
   private SyncHelper() {
     mUsersCache = CacheBuilder.newBuilder()
@@ -125,7 +133,7 @@ public class SyncHelper {
       User user = new User();
 
       c.moveToFirst();
-      user.user_id = c.getString(0);
+      user.userId = c.getString(0);
       c.close();
       return user;
     } else {
@@ -1073,8 +1081,8 @@ public class SyncHelper {
 
           public void onResponse(User response) {
             try {
-              if (response != null && !TextUtils.equals("____%system%____", response.user_id)) {
-                mUsersCache.put(response.user_id, response);
+              if (response != null && !TextUtils.equals("____%system%____", response.userId)) {
+                mUsersCache.put(response.userId, response);
 
                 //FIXME: Add to userDbOp cache and execute the whole bunch at once
                 mUserDbOp.add(parseUser(response));
@@ -1113,17 +1121,17 @@ public class SyncHelper {
 
   private static ContentProviderOperation parseUser(User user) {
     ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(UsersContract.CONTENT_URI);
-    builder.withValue(UsersContract.Columns.USER_ID, user.user_id);
+    builder.withValue(UsersContract.Columns.USER_ID, user.userId);
     builder.withValue(UsersContract.Columns.USER_USERNAME, user.username);
     builder.withValue(UsersContract.Columns.USER_PERMS, user.perms);
-    builder.withValue(UsersContract.Columns.USER_TITLE_PRE, user.title_pre);
+    builder.withValue(UsersContract.Columns.USER_TITLE_PRE, user.titlePre);
     builder.withValue(UsersContract.Columns.USER_FORENAME, user.forename);
     builder.withValue(UsersContract.Columns.USER_LASTNAME, user.lastname);
-    builder.withValue(UsersContract.Columns.USER_TITLE_POST, user.title_post);
+    builder.withValue(UsersContract.Columns.USER_TITLE_POST, user.titlePost);
     builder.withValue(UsersContract.Columns.USER_EMAIL, user.email);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_SMALL, user.avatar_small);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_MEDIUM, user.avatar_medium);
-    builder.withValue(UsersContract.Columns.USER_AVATAR_NORMAL, user.avatar_normal);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_SMALL, user.avatarSmall);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_MEDIUM, user.avatarMedium);
+    builder.withValue(UsersContract.Columns.USER_AVATAR_NORMAL, user.avatarNormal);
     builder.withValue(UsersContract.Columns.USER_PHONE, user.phone);
     builder.withValue(UsersContract.Columns.USER_HOMEPAGE, user.homepage);
     builder.withValue(UsersContract.Columns.USER_PRIVADR, user.privadr);
@@ -1416,6 +1424,34 @@ public class SyncHelper {
     return ops;
   }
 
+  public void requestApiRoutes(final SyncHelperCallbacks callbacks) {
+    CustomJsonConverterApiService apiService = new CustomJsonConverterApiService(mContext, mServer,
+        new DiscoveryRouteJsonConverter());
+
+    mCompositeSubscription.add(apiService.discoverApi()
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<Routes>() {
+          @Override public void onCompleted() {
+            if (callbacks != null) {
+              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_ROUTES_SYNC);
+            }
+          }
+
+          @Override public void onError(Throwable e) {
+            VolleyError error = new VolleyError();
+            error.setStackTrace(e.getStackTrace());
+            if (callbacks != null) {
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_ROUTES_SYNC, error);
+            }
+          }
+
+          @Override public void onNext(Routes routes) {
+            Prefs.getInstance(mContext).setForumIsActivated(routes.isForumActivated);
+          }
+        }));
+  }
+
   /**
    * Callback interface for clients to interact with the SyncHelper
    */
@@ -1428,6 +1464,7 @@ public class SyncHelper {
     int STARTED_USER_SYNC = 106;
     int STARTED_INSTITUTES_SYNC = 107;
     int STARTED_RECORDINGS_SYNC = 108;
+    int STARTED_ROUTES_SYNC = 109;
     int FINISHED_COURSES_SYNC = 201;
     int FINISHED_NEWS_SYNC = 202;
     int FINISHED_SEMESTER_SYNC = 203;
@@ -1436,6 +1473,7 @@ public class SyncHelper {
     int FINISHED_USER_SYNC = 206;
     int FINISHED_INSTITUTES_SYNC = 207;
     int FINISHED_RECORDINGS_SYNC = 208;
+    int FINISHED_ROUTES_SYNC = 209;
     int ERROR_COURSES_SYNC = 301;
     int ERROR_NEWS_SYNC = 302;
     int ERROR_SEMESTER_SYNC = 303;
@@ -1444,6 +1482,7 @@ public class SyncHelper {
     int ERROR_USER_SYNC = 306;
     int ERROR_INSTITUTES_SYNC = 307;
     int ERROR_RECORDINGS_SYNC = 308;
+    int ERROR_ROUTES_SYNC = 309;
 
     public void onSyncStarted();
 

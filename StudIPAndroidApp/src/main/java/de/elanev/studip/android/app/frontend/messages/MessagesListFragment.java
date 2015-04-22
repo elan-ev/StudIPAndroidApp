@@ -351,19 +351,12 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
 
 
       ImageView imageView = (ImageView) view.findViewById(R.id.user_image);
-      Picasso picasso = Picasso.with(context);
 
-      if (BuildConfig.DEBUG) {
-        picasso.setDebugging(true);
-      }
-
-
-      picasso.load(userImageUrl)
+      Picasso.with(context).load(userImageUrl)
           .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
           .centerCrop()
           .placeholder(R.drawable.nobody_normal)
           .into(imageView);
-
     }
 
   }

@@ -27,10 +27,6 @@
 #   public *;
 #}
 
--libraryjars libs/armeabi.jar
--libraryjars libs/x86.jar
--libraryjars libs/sqlcipher.jar
-
 -keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature
 
 -keep class android.support.** { *; }
@@ -59,6 +55,14 @@
 }
 -keepclassmembers class **.R$* {public static <fields>;}
 -keep class **.R$*
+-keep class org.lucasr.twowayview.** { *; }
+-keep class retrofit.http.** { *; }
+-keep class com.squareup.okhttp.** { *; }
+-keep interface com.squareup.okhttp.** { *; }
+-keep public class * extends android.support.v4.app.Fragment
+-keepclassmembers class * extends android.support.v4.app.Fragment{
+ public *** newInstance(android.os.Bundle);
+}
 
 -dontwarn android.support.**
 -dontwarn org.apache.**
@@ -66,3 +70,6 @@
 -dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
 -dontwarn com.google.common.**
 -dontwarn com.squareup.okhttp.**
+-dontwarn okio.**
+-dontwarn rx.**
+-dontwarn retrofit.appengine.UrlFetchClient

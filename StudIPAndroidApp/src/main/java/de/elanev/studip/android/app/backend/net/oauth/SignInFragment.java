@@ -134,7 +134,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
       ViewGroup container,
       Bundle savedInstanceState) {
     Log.i(TAG, "onCreateView Called!");
-    View v = inflater.inflate(R.layout.fragment_sign_in, null);
+    View v = inflater.inflate(R.layout.fragment_sign_in, container, false);
 
     mProgressInfo = v.findViewById(R.id.progress_info);
     mSignInForm = v.findViewById(R.id.sign_in_form);
@@ -292,6 +292,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   private void performPrefetchSync() {
     String userId = Prefs.getInstance(mContext).getUserId();
     SyncHelper.getInstance(mContext).requestInstitutesForUserID(userId, this);
+    SyncHelper.getInstance(mContext).requestApiRoutes(this);
   }
 
   /* Hides the progess indicator and sets the login form as visible */
@@ -527,6 +528,9 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
       case SyncHelper.SyncHelperCallbacks.ERROR_MESSAGES_SYNC:
         finalErrorMessage = String.format(genericErrorMessage, getString(R.string.messages));
         break;
+      case SyncHelper.SyncHelperCallbacks.ERROR_ROUTES_SYNC:
+        finalErrorMessage = String.format(genericErrorMessage, "routes");
+        break;
       default:
         finalErrorMessage = getString(R.string.sync_error_default);
     }
@@ -567,7 +571,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         null,
         new Response.Listener<User>() {
           @Override public void onResponse(User response) {
-            Prefs.getInstance(getActivity()).setUserId(response.user_id);
+            Prefs.getInstance(getActivity()).setUserId(response.userId);
             performPrefetchSync();
           }
         },

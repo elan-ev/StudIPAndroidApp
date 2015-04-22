@@ -1,32 +1,23 @@
 language: android
 jdk: oraclejdk7
+cache: false
+sudo: false
 env:
   matrix:
-    - ANDROID_TARGET=android-10
-    - ANDROID_TARGET=android-14 ANDROID_ABI=armeabi-v7a
+    - ANDROID_TARGET=android-10 ANDROID_ABI=armeabi
     - ANDROID_TARGET=android-17 ANDROID_ABI=armeabi-v7a
     - ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
     - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
-
-before_install:
-  # workaround for travis-ci/travis-ci#2279
-  #- 'sudo mv /usr/local/android-sdk/tools/android-* /usr/local/bin'
-  # Accept all licenses (workaround for travis-ci/travis-ci#2466)
-  # Upgrade 'platform-tools' before 'tools' (workaround for travis-ci/travis-ci#2470)
-  # Run dinstinct 'android update sdk' commands
-  #- "android-update-sdk --components='platform-tools,tools' --accept-licenses='.+'"
-  #- "android-update-sdk --components='build-tools-20.0.0' --accept-licenses='.+'"
-  #- "android-update-sdk --components='android-20' --accept-licenses='.+'"
-  #- "android-update-sdk --components='extra-android-m2repository,extra-google-m2repository,
-  #extra-android-support' --accept-licenses='.+'"
-
 
 android:
   components:
     - tools
     - platform-tools
-    - build-tools-21.0.2
+    - build-tools-21.1.2
     - extra-android-support
+    - android-10
+    - android-17
+    - android-19
     - android-21
   licenses:
     - android-sdk-license-5be876d5
