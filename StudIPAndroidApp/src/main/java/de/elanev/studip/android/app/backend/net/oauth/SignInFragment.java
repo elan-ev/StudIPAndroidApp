@@ -551,6 +551,10 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   }
 
   @Override public void onRequestTokenReceived(String authUrl) {
+    if (getActivity() == null || mCallbacks == null) {
+      return;
+    }
+
     mRequestTokenReceived = true;
     mCallbacks.requestTokenReceived(authUrl);
   }
