@@ -79,4 +79,8 @@
         <item name="dropDownListViewStyle">@style/DropDownListView.Studipmobil</item>
     </style>
 
+    <style name="TwoWayViewBase">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
 </resources>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2015 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.util.DebugFragment;
 import de.elanev.studip.android.app.util.TextTools;
 
 /**
@@ -45,6 +46,14 @@ import de.elanev.studip.android.app.util.TextTools;
 public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<Cursor> {
   public static final String TAG = CourseOverviewFragment.class.getSimpleName();
   private static final int COURSE_LOADER = 101;
+  private static final int COURSE_EVENTS_LOADER = 102;
+  private static final int COURSE_NEWS_LOADER = 103;
+  private static final int COURSE_TEACHERS_LOADER = 104;
+  private TextView mTitleTextView, mTeacherNameTextView, mDescriptionTextView, mNewsTitleTextView, mNewsAuthorTextView, mNewsTextTextView, mNewsShowMoreTextView, mTeacherCountTextView;
+  private ImageView mUserImageView;
+  private Context mContext;
+  public static Bundle mArgs;
+
   protected final ContentObserver mObserverCourse = new ContentObserver(new Handler()) {
 
     @Override
@@ -59,7 +68,6 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
       }
     }
   };
-  private static final int COURSE_EVENTS_LOADER = 102;
   protected final ContentObserver mObserverEvents = new ContentObserver(new Handler()) {
 
     @Override
@@ -74,7 +82,6 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
       }
     }
   };
-  private static final int COURSE_NEWS_LOADER = 103;
   protected final ContentObserver mObserverNews = new ContentObserver(new Handler()) {
 
     @Override
@@ -89,13 +96,18 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
       }
     }
   };
-  private static final int COURSE_TEACHERS_LOADER = 104;
-  private TextView mTitleTextView, mTeacherNameTextView, mDescriptionTextView, mNewsTitleTextView, mNewsAuthorTextView, mNewsTextTextView, mNewsShowMoreTextView, mTeacherCountTextView;
-  private ImageView mUserImageView;
-  private Context mContext;
-  private Bundle mArgs;
+  private TextView mNextAppointmentTextView;
+
 
   public CourseOverviewFragment() {}
+
+  public static CourseOverviewFragment newInstance(Bundle arguments) {
+    CourseOverviewFragment fragment = new CourseOverviewFragment();
+
+    fragment.setArguments(arguments);
+
+    return fragment;
+  }
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -109,7 +121,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
       ViewGroup container,
       Bundle savedInstanceState) {
 
-    View view = inflater.inflate(R.layout.fragment_course_details, null);
+    View view = inflater.inflate(R.layout.fragment_course_details, container, false);
 
     mTitleTextView = (TextView) view.findViewById(R.id.course_title);
     mDescriptionTextView = (TextView) view.findViewById(R.id.course_description);
@@ -120,6 +132,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
     mNewsTextTextView = (TextView) view.findViewById(R.id.news_text);
     mNewsShowMoreTextView = (TextView) view.findViewById(R.id.show_news_body);
     mUserImageView = (ImageView) view.findViewById(R.id.user_image);
+    mNextAppointmentTextView = (TextView) view.findViewById(R.id.course_next_appointment);
     return view;
   }
 
@@ -141,6 +154,10 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
       }
 
     });
+  }
+
+  @Override public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(mArgs);
   }
 
   public void toggleLatestNewsView() {
@@ -181,6 +198,10 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
   }
 
   public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+
+    if(data == null) {
+      throw new IllegalStateException("Bundle data must not be null!");
+    }
 
     String cid = data.getString(CoursesContract.Columns.Courses.COURSE_ID);
     long dbId = data.getLong(CoursesContract.Columns.Courses._ID);
@@ -251,12 +272,11 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
         }
         break;
       case COURSE_EVENTS_LOADER:
-        final TextView nextAppointmentTextView = (TextView) getView().findViewById(R.id.course_next_appointment);
         if (cursor.getCount() >= 1) {
 
           String room = cursor.getString(cursor.getColumnIndex(EventsContract.Columns.EVENT_ROOM));
           String title = cursor.getString(cursor.getColumnIndex(EventsContract.Columns.EVENT_TITLE));
-          nextAppointmentTextView.setText(String.format("%s\n%s", title, room));
+          mNextAppointmentTextView.setText(String.format("%s\n%s", title, room));
         }
 
         break;
@@ -294,18 +314,13 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
           int teacherCount = cursor.getCount();
           if (teacherCount > 1) {
             mTeacherCountTextView.setText(String.format(getString(R.string.and_more_teachers,
-                        teacherCount - 1)
+                    (teacherCount - 1))
                 )
             );
             mTeacherCountTextView.setVisibility(View.VISIBLE);
           }
-          Picasso picasso = Picasso.with(mContext);
 
-          if (BuildConfig.DEBUG) {
-            picasso.setDebugging(true);
-          }
-
-          picasso.load(teacherAvatarUrl)
+          Picasso.with(mContext).load(teacherAvatarUrl)
               .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
               .centerCrop()
               .placeholder(R.drawable.nobody_normal)

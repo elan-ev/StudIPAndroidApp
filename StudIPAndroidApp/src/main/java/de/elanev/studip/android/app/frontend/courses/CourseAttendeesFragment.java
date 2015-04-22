@@ -61,6 +61,14 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
 
   public CourseAttendeesFragment() {}
 
+  public static CourseAttendeesFragment newInstance(Bundle arguments) {
+    CourseAttendeesFragment fragment = new CourseAttendeesFragment();
+
+    fragment.setArguments(arguments);
+
+    return fragment;
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);

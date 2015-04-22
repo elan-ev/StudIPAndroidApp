@@ -317,19 +317,11 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
             mSenderTitlePost), mDate, mContext
     ));
 
-    Picasso picasso = Picasso.with(mContext);
-
-    if (BuildConfig.DEBUG) {
-      picasso.setDebugging(true);
-    }
-
-    picasso.load(mUserImageUrl)
+    Picasso.with(mContext).load(mUserImageUrl)
         .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
         .centerCrop()
         .placeholder(R.drawable.nobody_normal)
         .into(mUserImageView);
-
-
   }
 
   public void onLoaderReset(Loader<Cursor> loader) {

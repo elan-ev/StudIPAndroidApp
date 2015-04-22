@@ -1281,7 +1281,7 @@ public class RestIpProvider extends ContentProvider {
     int retVal = -1;
 
     // Deleting the whole db
-    if (uri == AbstractContract.BASE_CONTENT_URI) {
+    if (uri.compareTo(AbstractContract.BASE_CONTENT_URI) == 0) {
       deleteDatabase();
       return 1;
     }

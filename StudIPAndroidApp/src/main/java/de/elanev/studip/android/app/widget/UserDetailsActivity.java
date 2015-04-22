@@ -214,13 +214,8 @@ public class UserDetailsActivity extends ActionBarActivity {
 
         // find views and set infos
         final ImageView userImageView = (ImageView) root.findViewById(R.id.user_image);
-        Picasso picasso = Picasso.with(getActivity());
 
-        if (BuildConfig.DEBUG) {
-          picasso.setDebugging(true);
-        }
-
-        picasso.load(userImageUrl)
+        Picasso.with(getActivity()).load(userImageUrl)
             .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
             .centerCrop()
             .placeholder(R.drawable.nobody_normal)
