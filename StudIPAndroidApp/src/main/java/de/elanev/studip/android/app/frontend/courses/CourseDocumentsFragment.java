@@ -449,7 +449,14 @@ public class CourseDocumentsFragment extends Fragment {
           request.allowScanningByMediaScanner();
           request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
-          downloadManager.enqueue(request);
+          try {
+            downloadManager.enqueue(request);
+          } catch (IllegalArgumentException e) {
+            if (getActivity() != null) {
+              Toast.makeText(getActivity(), R.string.error_downloadmanager_disabled, Toast.LENGTH_LONG)
+                  .show();
+            }
+          }
 
         } catch (OAuthMessageSignerException e) {
           e.printStackTrace();
