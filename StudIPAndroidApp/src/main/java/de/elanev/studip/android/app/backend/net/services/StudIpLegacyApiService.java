@@ -111,8 +111,7 @@ public class StudIpLegacyApiService {
           }
         })
         .flatMap(new Func1<ForumEntry, Observable<ForumEntry>>() {
-          @Override
-          public Observable<ForumEntry> call(ForumEntry entry) {
+          @Override public Observable<ForumEntry> call(ForumEntry entry) {
             return Observable.zip(Observable.just(entry),
                 getUser(entry.userId),
                 new Func2<ForumEntry, User, ForumEntry>() {
@@ -229,14 +228,11 @@ public class StudIpLegacyApiService {
   }
 
   public interface RestIPLegacyService {
-    @PUT("/courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String
-        courseId, Callback<ForumCategory> cb);
+    @PUT("/courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
+        Callback<ForumCategory> cb);
 
     @GET("/courses/{course_id}/forum_categories") Observable<ForumCategories> getForumCategories(@Path(
         "course_id") String courseId);
-
-    @GET("/forum_category/{category_id}") Observable<ForumCategory> getForumCategory(@Path(
-        "category_id") String categoryId);
 
     @GET("/forum_category/{category_id}/areas") Observable<ForumAreas> getForumAreas(@Path(
         "category_id") String categoryId, @Query("offset") int offset, @Query("limit") int limit);
@@ -248,9 +244,6 @@ public class StudIpLegacyApiService {
         "topic_id") String topicId, @Query("offset") int offset, @Query("limit") int limit);
 
     @GET("/forum_entry/{entry_id}") Observable<ForumEntry> getForumEntry(@Path("entry_id") String entryId);
-
-    @GET("/forum_entry/{entry_id}/children") Observable<ForumEntries> getForumEntryChildren(@Path(
-        "entry_id") String entryId);
 
     @FormUrlEncoded @POST("/forum_entry/{topic_id}") Observable<ForumArea> createForumEntry(@Path(
         "topic_id") String topicId,
