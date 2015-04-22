@@ -35,6 +35,8 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName(value = "course")
 public class Course {
+  public static final String ID = Course.class.getName() + ".id";
+
   @JsonProperty("course_id")
   public String courseId;
   @JsonProperty("start_time")
@@ -158,10 +160,12 @@ public class Course {
     // Course unizensus
     @JsonProperty("unizensus")
     public boolean unizensus = false;
+    // Course forum
+    @JsonProperty("forum")
+    public boolean forum = false;
 
     /* Unused modules are commented out to save parse time. Enable if implementing the feature. */
     //      public boolean admin = false;
-    //      public boolean forum = false;
     //      public boolean personal = false;
     //      public boolean literature = false;
     //      public boolean wiki = false;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2015 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -55,15 +55,16 @@ public class CourseScheduleFragment extends ListFragment implements LoaderCallba
   private View mListContainerView, mProgressView;
   private TextView mEmptyMessageTextView;
 
-  public CourseScheduleFragment() {
+  public CourseScheduleFragment() {}
+
+  public static CourseScheduleFragment newInstance(Bundle arguments) {
+    CourseScheduleFragment fragment = new CourseScheduleFragment();
+
+    fragment.setArguments(arguments);
+
+    return fragment;
   }
 
-  /*
-       * (non-Javadoc)
-       *
-       * @see android.support.v4.app.ListFragment#onCreateView(android.view.
-       * LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-       */
   @Override
   public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
