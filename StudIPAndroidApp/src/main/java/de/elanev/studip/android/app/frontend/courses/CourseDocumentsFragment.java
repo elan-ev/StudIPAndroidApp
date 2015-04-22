@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DownloadManager;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -169,8 +170,13 @@ public class CourseDocumentsFragment extends Fragment {
 
       case DownloadManager.STATUS_SUCCESSFUL:
         showToastMessage(R.string.download_completed);
-        // Show the download activity
-        startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
+        try {
+          // Show the download activity
+          startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
+        } catch (ActivityNotFoundException e) {
+          // No download manager installed or active, let the user handle the downloads.
+        }
+
         break;
 
       default:
