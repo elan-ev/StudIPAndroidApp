@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2015 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
@@ -34,10 +36,10 @@ import de.elanev.studip.android.app.util.TextTools;
 /**
  * @author joern
  */
-public class NewsItemViewActivity extends ActionBarActivity {
+public class NewsItemViewActivity extends AppCompatActivity {
 
-  public static ActionBar mActionbar = null;
   protected ListFragment mFrag;
+  private Toolbar mToolbar;
   String mTitle;
   String mBody;
   Long mTimestamp;
@@ -53,23 +55,24 @@ public class NewsItemViewActivity extends ActionBarActivity {
     super.onCreate(savedInstanceState);
     Bundle args = getIntent().getExtras();
 
+    setContentView(R.layout.content_frame);
+    mToolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(mToolbar);
+
+    getSupportActionBar().setHomeButtonEnabled(true);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
     // No arguments, nothing to display, finish activity
     if (args == null) {
       finish();
       return;
     }
 
-    setContentView(R.layout.content_frame);
-    getSupportActionBar().setHomeButtonEnabled(true);
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
     if (savedInstanceState == null) {
-
       NewsItemFragment newsItemFrag = NewsItemFragment.newInstance(args);
       getSupportFragmentManager().beginTransaction()
           .add(R.id.content_frame, newsItemFrag, NewsItemFragment.class.getName())
           .commit();
-
     }
 
   }

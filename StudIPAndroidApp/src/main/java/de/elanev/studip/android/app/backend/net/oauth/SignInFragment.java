@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -182,8 +183,8 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     Log.i(TAG, "onActivityCreated Called!");
     super.onActivityCreated(savedInstanceState);
-    ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-    ((ActionBarActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(false);
+    ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(false);
     getActivity().setTitle(R.string.app_name);
     hideLoginForm();
     if (savedInstanceState != null) {
