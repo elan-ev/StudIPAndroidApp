@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2015 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +32,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.frontend.messages.MessageComposeActivity;
@@ -39,12 +39,16 @@ import de.elanev.studip.android.app.frontend.messages.MessageComposeActivity;
 /**
  * @author joern
  */
-public class UserDetailsActivity extends ActionBarActivity {
+public class UserDetailsActivity extends AppCompatActivity {
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.content_frame);
 
+    setContentView(R.layout.content_frame);
+    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+
+    getSupportActionBar().setHomeButtonEnabled(true);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     Bundle args = getIntent().getExtras();
@@ -215,7 +219,8 @@ public class UserDetailsActivity extends ActionBarActivity {
         // find views and set infos
         final ImageView userImageView = (ImageView) root.findViewById(R.id.user_image);
 
-        Picasso.with(getActivity()).load(userImageUrl)
+        Picasso.with(getActivity())
+            .load(userImageUrl)
             .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
             .centerCrop()
             .placeholder(R.drawable.nobody_normal)

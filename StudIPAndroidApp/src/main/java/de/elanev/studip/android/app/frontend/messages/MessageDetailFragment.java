@@ -19,6 +19,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -160,9 +161,9 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
     menu.findItem(R.id.delete_message).setVisible(mDeleteButtonVisible);
 
     if (!mDeleteButtonVisible) {
-      ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+      ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
     } else {
-      ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+      ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
     }
 
     super.onPrepareOptionsMenu(menu);
