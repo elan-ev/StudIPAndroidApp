@@ -54,7 +54,7 @@ public class CourseViewActivity extends AppCompatActivity {
 
     mPager = (ViewPager) findViewById(R.id.pager);
     mTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
-    mTabLayout.setDistributeEvenly(true);
+    mTabLayout.setDistributeEvenly(false);
     mTabLayout.setCustomTabView(R.layout.tab_indicator, android.R.id.text1);
     mTabLayout.setSelectedIndicatorColors(getResources().getColor(R.color.tab_selected_strip));
 
