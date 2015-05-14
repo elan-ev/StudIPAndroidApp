@@ -130,7 +130,7 @@
             android:gravity="center"
             android:text="@string/missing_studip_message"
             android:textColor="@color/primary_text_dark"
-            android:textSize="@dimen/text_size_micro"/>
+            android:textSize="@dimen/text_size_small"/>
     </LinearLayout>
 
 </LinearLayout>

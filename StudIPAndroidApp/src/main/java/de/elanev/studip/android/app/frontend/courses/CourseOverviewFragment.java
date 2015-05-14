@@ -31,13 +31,11 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.util.DebugFragment;
 import de.elanev.studip.android.app.util.TextTools;
 
 /**
@@ -321,7 +319,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
           }
 
           Picasso.with(mContext).load(teacherAvatarUrl)
-              .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+              .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
               .centerCrop()
               .placeholder(R.drawable.nobody_normal)
               .into(mUserImageView);

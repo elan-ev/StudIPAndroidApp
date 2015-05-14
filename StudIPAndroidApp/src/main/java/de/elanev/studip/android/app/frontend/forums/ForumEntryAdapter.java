@@ -93,7 +93,7 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
           mContext));
 
       mPicasso.load(item.user.avatarNormal)
-          .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+          .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
           .centerCrop()
           .placeholder(R.drawable.nobody_normal)
           .into(viewHolder.mUserImageView);

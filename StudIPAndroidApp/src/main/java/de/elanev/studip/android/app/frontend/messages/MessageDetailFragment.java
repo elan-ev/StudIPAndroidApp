@@ -18,7 +18,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
@@ -39,7 +38,6 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.squareup.picasso.Picasso;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -319,7 +317,7 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
     ));
 
     Picasso.with(mContext).load(mUserImageUrl)
-        .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+        .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
         .centerCrop()
         .placeholder(R.drawable.nobody_normal)
         .into(mUserImageView);

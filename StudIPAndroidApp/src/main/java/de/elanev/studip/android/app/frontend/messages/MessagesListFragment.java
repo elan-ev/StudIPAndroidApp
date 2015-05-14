@@ -40,7 +40,6 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
@@ -353,7 +352,7 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
       ImageView imageView = (ImageView) view.findViewById(R.id.user_image);
 
       Picasso.with(context).load(userImageUrl)
-          .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+          .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
           .centerCrop()
           .placeholder(R.drawable.nobody_normal)
           .into(imageView);
