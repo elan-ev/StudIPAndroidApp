@@ -221,7 +221,7 @@ public class UserDetailsActivity extends AppCompatActivity {
 
         Picasso.with(getActivity())
             .load(userImageUrl)
-            .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+            .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
             .centerCrop()
             .placeholder(R.drawable.nobody_normal)
             .into(userImageView);

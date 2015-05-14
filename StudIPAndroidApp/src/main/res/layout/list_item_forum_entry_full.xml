@@ -10,8 +10,8 @@
 
     <ImageView
         android:id="@+id/user_image"
-        android:layout_width="@dimen/user_image_medium"
-        android:layout_height="@dimen/user_image_medium"
+        android:layout_width="@dimen/user_image_icon_size"
+        android:layout_height="@dimen/user_image_icon_size"
         android:layout_marginBottom="4dp"
         android:layout_marginEnd="@dimen/layout_margin_normal"
         android:layout_marginLeft="16dp"

@@ -12,8 +12,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -27,7 +25,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -171,7 +168,7 @@ public class NewsItemViewActivity extends AppCompatActivity {
       mBodyTextView.setText(Html.fromHtml(mBody));
 
       Picasso.with(mContext).load(mUserImageUrl)
-          .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+          .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
           .centerCrop()
           .placeholder(R.drawable.nobody_normal)
           .into(mUserImageView);

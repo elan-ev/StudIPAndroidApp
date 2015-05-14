@@ -7,63 +7,64 @@
   ~ http://www.gnu.org/licenses/gpl.html
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="fill_parent"
-                android:layout_height="?android:attr/listPreferredItemHeight">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="72dp"
+              android:orientation="horizontal"
+              android:background="?android:selectableItemBackground">
 
     <ImageView
         android:id="@+id/icon"
-
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginRight="8dp"
-
-        android:background="@color/studip_mobile_dark"
-        android:padding="16dp"
-        android:scaleType="fitCenter"
+        android:layout_width="@dimen/rounded_icon_size"
+        android:layout_height="@dimen/rounded_icon_size"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="@dimen/keyline_1"
+        android:layout_marginStart="@dimen/keyline_1"
         android:contentDescription="@string/icon"
         />
 
-    <TextView
-        android:id="@+id/text2"
-
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="6dip"
-        android:layout_toRightOf="@+id/icon"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:orientation="vertical"
+        android:layout_marginLeft="@dimen/keyline_2_minus_16dp"
+        android:layout_marginStart="@dimen/keyline_2_minus_16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/text1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/keyline_1"
+            android:layout_marginEnd="@dimen/keyline_1"
+            android:layout_marginBottom="4dp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:maxLines="1"
+            android:textColor="@color/primary_text_light"
+            android:textSize="@dimen/text_size_small"
+            tools:text="@string/lipsum_short"/>
+
+        <TextView
+            android:id="@+id/text2"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/keyline_1"
+            android:layout_marginEnd="@dimen/keyline_1"
+            android:layout_marginTop="4dp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:maxLines="1"
+            android:textColor="@color/secondary_text_light"
+            android:textSize="@dimen/text_size_xsmall"
+            tools:text="Sample text so see how the layout behaves with content."
+            />
 
 
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:maxLines="1"
-        android:textColor="@color/secondary_text_light"
-        android:textSize="@dimen/text_size_small"
-        tools:text="Sample text so see how the layout behaves with content."
-        />
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/text1"
-
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dip"
-        android:layout_above="@+id/text2"
-        android:layout_toRightOf="@id/icon"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignWithParentIfMissing="true"
-
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:gravity="center_vertical"
-        android:textColor="@color/primary_text_light"
-        android:textSize="@dimen/text_size_medium"
-        tools:text="Sample text for the main section."
-        />
-
-</RelativeLayout>
+</LinearLayout>
