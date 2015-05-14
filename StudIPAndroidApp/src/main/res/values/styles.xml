@@ -14,15 +14,18 @@
         <!-- Hide default action bar -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="windowActionModeOverlay">true</item>
+
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@android:color/white</item>
+
+        <item name="actionModeBackground">@color/studip_mobile_dark</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
 
         <!-- Customize the color palette -->
         <item name="colorPrimary">@color/studip_mobile_dark</item>
         <item name="colorPrimaryDark">@color/studip_mobile_darker</item>
         <item name="colorAccent">@color/studip_mobile_light</item>
-
-        <item name="android:textColorPrimary">@color/abc_primary_text_material_dark</item>
-        <item name="actionMenuTextColor">@color/abc_primary_text_material_dark</item>
-        <item name="android:textColorSecondary">@color/abc_secondary_text_material_dark</item>
 
         <!-- Set global primary text color -->
         <item name="android:textColor">@color/primary_text_light</item>

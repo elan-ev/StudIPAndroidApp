@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2014 ELAN e.V.
+  ~ Copyright (c) 2015 ELAN e.V.
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the GNU Public License v3.0
   ~ which accompanies this distribution, and is available at
@@ -8,31 +8,38 @@
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:orientation="horizontal">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="48dp"
+              android:orientation="horizontal"
+              android:background="?android:selectableItemBackground">
 
     <ImageView
         android:id="@+id/icon1"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:background="@color/studip_mobile_dark"
-        android:padding="16dp"
-        android:contentDescription="@string/icon"/>
+        android:layout_width="@dimen/rounded_icon_size"
+        android:layout_height="@dimen/rounded_icon_size"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="@dimen/keyline_1"
+        android:layout_marginStart="@dimen/keyline_1"
+        android:contentDescription="@string/icon"
+        />
 
     <TextView
         android:id="@+id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/list_item_vert_margin"
-        android:layout_marginLeft="@dimen/list_item_hor_margin"
-        android:layout_marginRight="@dimen/list_item_hor_margin"
-        android:layout_marginTop="@dimen/list_item_vert_margin"
+        android:layout_marginLeft="@dimen/keyline_2_minus_16dp"
+        android:layout_marginStart="@dimen/keyline_2_minus_16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:ellipsize="end"
-        android:maxLines="2"
+        android:maxLines="1"
         android:textColor="@color/primary_text_light"
         android:textSize="@dimen/text_size_small"
-        tools:text="Sample text for the TextView to see how the layout behaves with content."/>
+        tools:text="@string/lipsum_short"/>
 
 </LinearLayout>

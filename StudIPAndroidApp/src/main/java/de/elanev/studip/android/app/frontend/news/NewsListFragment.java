@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -339,6 +341,13 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
         case NewsTabsAdapter.NEWS_GLOBAL:
           icon.setImageResource(R.drawable.ic_action_global);
           break;
+      }
+
+      try {
+        int tintColor = Color.parseColor(getString(R.color.studip_mobile_dark));
+        icon.setColorFilter(tintColor);
+      } catch (Exception e) {
+        Log.wtf(TAG, e.getMessage());
       }
 
       newsTopicView.setText(newsTopic);
