@@ -106,6 +106,9 @@ datasources.xml
 gradle.xml
 .idea/libraries
 dictionaries
+.idea/misc.xml
+StudIPAndroidApp.iml
+
 
 # Unwanted binaries
 *.db
@@ -122,3 +125,5 @@ StudIPAndroidApp/src/release/AndroidManifest.xml
 StudIPAndroidApp/src/release/java/de/elanev/studip/android/app/util/Config.java
 StudIPAndroidApp/src/release/java/de/elanev/studip/android/app/util/ServerData.java
 StudIPAndroidApp/src/debug/java/de/elanev/studip/android/app/util/ServerData.java
+
+
