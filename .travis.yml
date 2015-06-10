@@ -30,4 +30,4 @@ before_script:
 script: "./gradlew connectedCheck"
 notifications:
   slack:
-    secure: U8SlpEeBN0ewfImYfvIywGUXJTZ9cGrJ+pEoZ0Fh3lJk2yjs0CvUKrNhAiHPv0LBUjcVBswA2JzAf5xN5yzL1T5FYdLXo6j+w70dJwPmbs9t+TITVD7rG0mnP2mYJLvpdu3s7ejQr1m35igaJFxoYRDOGgpgavw2vAacxVhw7HY=
+    secure: Ov7XJdmH5SB1zQlVVT7gozs42Ju1XIONyC2B8+dwKqAxdXEjscTUFkKOPOLVGtfloAd2/8t70LeB1CxIByBMy/WMU4VNYloGMD2FrwFasGhveXCVubKla33miE/Iq+4/R3TXxWffk4Pvvj6BE3D0rQJw8+0RvbBzLsh928USj7E=
