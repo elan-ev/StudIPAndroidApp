@@ -8,11 +8,13 @@
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -39,7 +41,7 @@ public class CourseViewActivity extends AppCompatActivity {
   static Bundle sExtras;
   static String sTitle;
   private ViewPager mPager;
-  private SlidingTabLayout mTabLayout;
+  private TabLayout mTabLayout;
   private FragmentsAdapter mPagerAdapter;
   private Course.Modules mModules = new Course.Modules();
 
@@ -49,15 +51,15 @@ public class CourseViewActivity extends AppCompatActivity {
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-    getSupportActionBar().setHomeButtonEnabled(true);
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    ActionBar actionBar = getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setHomeButtonEnabled(true);
+      actionBar.setDisplayHomeAsUpEnabled(true);
+    }
 
     mPager = (ViewPager) findViewById(R.id.pager);
-    mTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
-    mTabLayout.setDistributeEvenly(false);
-    mTabLayout.setCustomTabView(R.layout.tab_indicator, android.R.id.text1);
-    mTabLayout.setSelectedIndicatorColors(getResources().getColor(R.color.tab_selected_strip));
-
+    mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+    mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
     // Get intent data
     if (savedInstanceState != null) {
@@ -84,8 +86,7 @@ public class CourseViewActivity extends AppCompatActivity {
 
     mPagerAdapter = new FragmentsAdapter(getSupportFragmentManager(), getTabs());
     mPager.setAdapter(mPagerAdapter);
-    mTabLayout.setViewPager(mPager);
-
+    mTabLayout.setupWithViewPager(mPager);
   }
 
   private ArrayList<Tab> getTabs() {
