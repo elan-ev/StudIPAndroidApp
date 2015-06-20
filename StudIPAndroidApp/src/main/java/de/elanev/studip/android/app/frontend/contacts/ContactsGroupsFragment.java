@@ -70,7 +70,6 @@ public class ContactsGroupsFragment extends UserListFragment implements
     setEmptyMessage(R.string.no_contacts);
 
     mListView.setOnItemClickListener(this);
-    mListView.setOnStickyHeaderOffsetChangedListener(this);
     mListView.setAdapter(mUserAdapter);
 
     mSwipeRefreshLayoutListView.setOnRefreshListener(this);
