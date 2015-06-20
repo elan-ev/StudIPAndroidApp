@@ -81,6 +81,7 @@
         android:layout_marginEnd="@dimen/keyline_1"
         android:layout_marginBottom="@dimen/keyline_1"
         android:layout_below="@id/entry_subject"
+        android:fontFamily="@string/font_fontFamily_medium"
         android:lineSpacingMultiplier="1.25"
         android:textColor="@color/primary_text_light"
         android:textColorLink="@color/studip_mobile_dark"

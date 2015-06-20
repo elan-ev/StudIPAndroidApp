@@ -26,6 +26,7 @@
         android:layout_marginTop="@dimen/keyline_1"
         android:ellipsize="end"
         android:maxLines="1"
+        android:fontFamily="@string/font_fontFamily_medium"
         android:textSize="@dimen/text_size_medium"
         android:textStyle="normal"
 
@@ -45,12 +46,12 @@
             android:layout_marginBottom="@dimen/keyline_1"
             android:layout_marginLeft="@dimen/keyline_1"
             android:layout_marginStart="@dimen/keyline_1"
-            android:textSize="@dimen/text_size_xsmall"
-            android:layout_marginRight="4dp"
             android:gravity="center_vertical"
+            android:fontFamily="@string/font_fontFamily_medium"
+            android:textSize="@dimen/text_size_xsmall"
             android:textColor="@color/secondary_text_light"
             android:textStyle="normal"
-            android:text="0"/>
+            tools:text="99+"/>
 
         <ImageView
             android:layout_width="13dp"
