@@ -5,19 +5,28 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.gnu.org/licenses/gpl.html
   -->
-<TextView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/list_item_header_textview"
-    android:background="@android:color/white"
+    android:id="@+id/layout_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
-    android:paddingLeft="@dimen/keyline_1"
-    android:paddingRight="@dimen/keyline_1"
-    android:textSize="@dimen/text_size_medium"
-    android:textColor="@color/primary_text_light"
-    tools:text="Sample Header Text"
-    />
+    android:background="@android:color/white"
+    >
 
+    <TextView
+        android:id="@+id/list_item_header_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="@dimen/keyline_1"
+        android:layout_marginStart="@dimen/keyline_1"
+        android:layout_marginRight="@dimen/keyline_1"
+        android:layout_marginEnd="@dimen/keyline_1"
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/primary_text_light"
+        tools:text="Sample Header Text"
+        />
+
+</FrameLayout>
