@@ -12,7 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,7 +22,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -56,8 +55,7 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
   public static final String NEWS_SELECTOR = "news_selector";
 
   protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
-    @Override
-    public void onChange(boolean selfChange) {
+    @Override public void onChange(boolean selfChange) {
       if (getActivity() == null) {
         return;
       }
@@ -83,34 +81,37 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
     return fragment;
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     getActivity().setTitle(R.string.News);
     int newsSelector = getArguments().getInt(NEWS_SELECTOR);
 
     setEmptyMessage(R.string.no_news);
 
-    mListView.setOnItemClickListener(this);
-    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
-
     mNewsAdapter = new NewsAdapter(mContext);
+    if (newsSelector == NewsTabsAdapter.NEWS_GLOBAL) {
+      mNewsAdapter.setShowSections(false);
+      mListView.setAreHeadersSticky(false);
+    }
+
+    mListView.setOnItemClickListener(this);
     mListView.setAdapter(mNewsAdapter);
+
+    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
     mSwipeRefreshLayoutListView.setRefreshing(true);
+
     SyncHelper.getInstance(mContext).performNewsSync(this);
     // initialize CursorLoader
     getLoaderManager().initLoader(newsSelector, null, this);
   }
 
-  @Override
-  public void onAttach(Activity activity) {
+  @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
     activity.getContentResolver()
         .registerContentObserver(NewsContract.CONTENT_URI, true, mObserver);
   }
 
-  @Override
-  public void onDetach() {
+  @Override public void onDetach() {
     super.onDetach();
     getActivity().getContentResolver().unregisterContentObserver(mObserver);
   }
@@ -204,8 +205,7 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
     mNewsAdapter.swapCursor(null);
   }
 
-  @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+  @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Cursor c = (Cursor) mListView.getItemAtPosition(position);
     String topic = c.getString(c.getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
     String body = c.getString(c.getColumnIndex(NewsContract.Columns.NEWS_BODY));
@@ -311,14 +311,12 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
       super(context);
     }
 
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+    @Override public View newView(Context context, Cursor cursor, ViewGroup parent) {
       return getActivity().getLayoutInflater()
           .inflate(R.layout.list_item_two_text_icon, parent, false);
     }
 
-    @Override
-    public void bindView(View view, Context context, final Cursor cursor) {
+    @Override public void bindView(View view, Context context, final Cursor cursor) {
       final String newsTopic = cursor.getString(cursor.getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
       final Long newsDate = cursor.getLong(cursor.getColumnIndex(NewsContract.Columns.NEWS_MKDATE));
       final String userForename = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
@@ -343,12 +341,8 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
           break;
       }
 
-      try {
-        int tintColor = Color.parseColor(getString(R.color.studip_mobile_dark));
-        icon.setColorFilter(tintColor);
-      } catch (Exception e) {
-        Log.wtf(TAG, e.getMessage());
-      }
+      icon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+          PorterDuff.Mode.SRC_IN);
 
       newsTopicView.setText(newsTopic);
       newsAuthorView.setText(TextTools.getLocalizedAuthorAndDateString(String.format("%s %s",

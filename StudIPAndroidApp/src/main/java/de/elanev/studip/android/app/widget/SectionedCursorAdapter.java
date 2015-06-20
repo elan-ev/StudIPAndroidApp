@@ -23,6 +23,7 @@ public abstract class SectionedCursorAdapter extends CursorAdapter implements St
     protected LayoutInflater mInflater;
     protected List<Section> mSections;
     protected Context mContext;
+    protected boolean mShowSections = true;
 
     public SectionedCursorAdapter(Context context) {
         super(context, null, false);
@@ -51,34 +52,41 @@ public abstract class SectionedCursorAdapter extends CursorAdapter implements St
         notifyDataSetChanged();
     }
 
+    public void setShowSections(boolean showSectio) {
+        this.mShowSections = showSectio;
+    }
+
     @Override
     public View getHeaderView(int position, View view, ViewGroup viewGroup) {
+        if (mSections.isEmpty() || !mShowSections) {
+            View v = new View(mContext);
+            v.setVisibility(View.GONE);
+
+            return v;
+        }
         HeaderViewHolder holder;
 
         if (view == null) {
             holder = new HeaderViewHolder();
             view = mInflater.inflate(R.layout.list_item_header, viewGroup, false);
             holder.text = (TextView) view.findViewById(R.id.list_item_header_textview);
+            holder.layoutContainer = view.findViewById(R.id.layout_container);
             view.setTag(holder);
         } else {
             holder = (HeaderViewHolder) view.getTag();
         }
 
-        if (mSections.size() != 0) {
-            int headerPos = (int) getHeaderId(position);
-            String headerText = mSections.get(headerPos).title;
-            holder.text.setText(headerText);
-            holder.text.setVisibility(View.VISIBLE);
-        } else {
-            holder.text.setVisibility(View.GONE);
-        }
+        int headerPos = (int) getHeaderId(position);
+        String headerText = mSections.get(headerPos).title;
+        holder.text.setText(headerText);
+        holder.layoutContainer.setVisibility(View.VISIBLE);
 
         return view;
     }
 
     @Override
     public long getHeaderId(int position) {
-        if (mSections.isEmpty())
+        if (mSections.isEmpty() || !mShowSections)
             return 0;
 
         for (int i = 0; i < mSections.size(); i++) {
@@ -104,6 +112,7 @@ public abstract class SectionedCursorAdapter extends CursorAdapter implements St
     }
 
     class HeaderViewHolder {
+        View layoutContainer;
         TextView text;
     }
 
