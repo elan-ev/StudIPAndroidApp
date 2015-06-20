@@ -11,15 +11,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical">
 
     <include layout="@layout/toolbar"/>
 
-    <de.elanev.studip.android.app.widget.SlidingTabLayout
+    <android.support.design.widget.TabLayout
         android:id="@+id/sliding_tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/studip_mobile_dark"
+        app:tabTextColor="@color/secondary_text_dark"
+        app:tabSelectedTextColor="@color/primary_text_dark"
         />
 
     <android.support.v4.view.ViewPager
