@@ -37,12 +37,17 @@
     <dimen name="text_size_large">18sp</dimen>
     <dimen name="text_size_xlarge">20sp</dimen>
     <dimen name="text_size_diff_large_small">6sp</dimen>
+    
+    <dimen name="text_line_space">4dp</dimen>
 
     <dimen name="keyline_1">16dp</dimen>
     <dimen name="keyline_2">72dp</dimen>
-    <dimen name="keyline_2_minus_16dp">56dp</dimen>
+    <dimen name="keyline_2_minus_56dp">16dp</dimen>
+    <dimen name="subtitle_height">48dp</dimen>
 
-    <dimen name="rounded_icon_size">32dp</dimen>
+    <dimen name="rounded_icon_size">40dp</dimen>
     <dimen name="user_image_icon_size">40dp</dimen>
+    <dimen name="user_image_crop_size">64dp</dimen>
+    <dimen name="content_area_space">8dp</dimen>
 
 </resources>
