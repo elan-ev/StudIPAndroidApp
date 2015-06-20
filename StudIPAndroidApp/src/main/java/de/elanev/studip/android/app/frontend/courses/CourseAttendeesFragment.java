@@ -86,7 +86,6 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
     setEmptyMessage(R.string.no_attendees);
 
     mListView.setOnItemClickListener(this);
-    mListView.setOnStickyHeaderOffsetChangedListener(this);
     mListView.setAdapter(mUsersAdapter);
 
     mSwipeRefreshLayoutListView.setOnRefreshListener(this);
