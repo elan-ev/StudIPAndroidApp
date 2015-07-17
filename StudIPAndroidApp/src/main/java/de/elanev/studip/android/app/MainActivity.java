@@ -8,6 +8,7 @@
 package de.elanev.studip.android.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -59,27 +60,23 @@ public class MainActivity extends AppCompatActivity {
   private boolean isPaused;
   private Toolbar mToolbar;
 
-  @Override
-  public void onConfigurationChanged(Configuration newConfig) {
+  @Override public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     mDrawerToggle.onConfigurationChanged(newConfig);
   }
 
-  @Override
-  protected void onPause() {
+  @Override protected void onPause() {
     super.onPause();
     isPaused = true;
   }
 
-  @Override
-  protected void onPostCreate(Bundle savedInstanceState) {
+  @Override protected void onPostCreate(Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
     // Sync the toggle state after onRestoreInstanceState has occurred.
     mDrawerToggle.syncState();
   }
 
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
+  @Override protected void onSaveInstanceState(Bundle outState) {
     outState.putInt(ACTIVE_NAVIGATION_ITEM, mPosition);
     super.onSaveInstanceState(outState);
   }
@@ -136,16 +133,14 @@ public class MainActivity extends AppCompatActivity {
     finish();
   }
 
-  @Override
-  public void onBackPressed() {
+  @Override public void onBackPressed() {
     if (!ApiUtils.isOverApi11()) {
       return;
     }
     super.onBackPressed();
   }
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     if (isFinishing()) {
@@ -163,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
     SyncHelper.getInstance(this).requestApiRoutes(null);
 
     setContentView(R.layout.activity_main);
+
+    mUserId = Prefs.getInstance(this).getUserId();
     mAdapter = getNewMenuAdapter();
 
     mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -199,9 +196,6 @@ public class MainActivity extends AppCompatActivity {
 
     if (savedInstanceState == null) changeFragment(mPosition);
     else changeFragment(savedInstanceState.getInt(ACTIVE_NAVIGATION_ITEM));
-
-    mUserId = Prefs.getInstance(this).getUserId();
-
   }
 
   /* Creates a new MenuAdapter with the defined items */
@@ -285,19 +279,12 @@ public class MainActivity extends AppCompatActivity {
             break;
           case R.id.navigation_profile:
             if (mUserId != null) {
-              fragTag = UserDetailsActivity.UserDetailsFragment.class.getName();
-              frag = findFragment(fragTag);
-
-              if (frag == null) {
-                Bundle args = new Bundle();
-                args.putString(UsersContract.Columns.USER_ID, mUserId);
-                frag = UserDetailsActivity.UserDetailsFragment.newInstance(args);
-              }
-            } else {
-              mDrawerLayout.closeDrawers();
-              return;
+              Intent intent = new Intent(this, UserDetailsActivity.class);
+              intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
+              startActivity(intent);
             }
-            break;
+            mDrawerLayout.closeDrawers();
+            return;
           default:
             frag = new NewsListFragment();
         }
@@ -323,8 +310,7 @@ public class MainActivity extends AppCompatActivity {
     return getSupportFragmentManager().findFragmentByTag(tag);
   }
 
-  @Override
-  protected void onStart() {
+  @Override protected void onStart() {
     super.onStart();
     isPaused = false;
   }
