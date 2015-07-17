@@ -7,26 +7,24 @@
  */
 package de.elanev.studip.android.app.widget;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,37 +33,104 @@ import com.squareup.picasso.Picasso;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.frontend.messages.MessageComposeActivity;
+import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
 
 /**
  * @author joern
  */
-public class UserDetailsActivity extends AppCompatActivity {
+public class UserDetailsActivity extends AppCompatActivity implements
+    LoaderManager.LoaderCallbacks<Cursor> {
+
+  private CoordinatorLayout rootLayout;
+  private FloatingActionButton floatingActionButton;
+  private CollapsingToolbarLayout collapsingToolbarLayout;
+  private ImageView userImage;
+
+  protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
+
+    @Override public void onChange(boolean selfChange) {
+      if (isFinishing()) {
+        return;
+      }
+
+      Loader<Cursor> loader = getSupportLoaderManager().getLoader(0);
+      if (loader != null) {
+        loader.forceLoad();
+      }
+    }
+  };
+  private Bundle mData;
+  private String mTitlePre, mTitlePost, mFirstname, mLastname;
+  private String mUserId;
+  private boolean isCurrentUser = false;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_user_details);
 
-    setContentView(R.layout.content_frame);
+    initToolbar();
+    iniInstance();
+
+    getSupportLoaderManager().initLoader(0, mData, this);
+  }
+
+  @Override protected void onStart() {
+    super.onStart();
+    getContentResolver().registerContentObserver(UsersContract.CONTENT_URI, true, mObserver);
+  }
+
+  @Override protected void onStop() {
+    super.onStop();
+    getContentResolver().unregisterContentObserver(mObserver);
+  }
+
+  private void initToolbar() {
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
+  }
 
-    getSupportActionBar().setHomeButtonEnabled(true);
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-    Bundle args = getIntent().getExtras();
-    if (args != null) {
-      FragmentManager fm = getSupportFragmentManager();
-
-      // find exisiting fragment
-      Fragment frag = fm.findFragmentByTag("userDetailsFragment");
-      if (frag == null) {
-        // otherwise create new
-        frag = UserDetailsFragment.instantiate(this, UserDetailsFragment.class.getName());
-        // Set new arguments and replace fragment
-        frag.setArguments(args);
-      }
-
-      fm.beginTransaction().replace(R.id.content_frame, frag, "userDetailsFragment").commit();
+  private void iniInstance() {
+    mData = getIntent().getExtras();
+    if (mData == null) {
+      return;
     }
+    //    String mOwnUserId = Prefs.getInstance(this).getUserId();
+    //    mUserId = mData.getString(UsersContract.Columns.USER_ID);
+    //    if (TextUtils.equals(mOwnUserId, mUserId)) {
+    //      isCurrentUser = true;
+    //    }
+
+    ActionBar actionBar = getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setHomeButtonEnabled(true);
+      actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    rootLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+    floatingActionButton = (FloatingActionButton) findViewById(R.id.floating_action_button);
+    floatingActionButton.setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        //        if (!isCurrentUser) {
+        Intent intent = new Intent(v.getContext(), MessageComposeActivity.class);
+        intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
+        intent.putExtra(UsersContract.Columns.USER_FORENAME, mFirstname);
+        intent.putExtra(UsersContract.Columns.USER_LASTNAME, mLastname);
+        intent.putExtra(UsersContract.Columns.USER_TITLE_POST, mTitlePost);
+        intent.putExtra(UsersContract.Columns.USER_TITLE_PRE, mTitlePre);
+        startActivity(intent);
+        //        } else {
+        //          // TODO: Edit Profile
+        //        }
+      }
+    });
+    //
+    //    if (isCurrentUser) {
+    //      floatingActionButton.setImageResource(R.drawable.ic_action_write);
+    //    }
+
+    collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+    userImage = (ImageView) findViewById(R.id.user_image);
+
 
   }
 
@@ -82,6 +147,108 @@ public class UserDetailsActivity extends AppCompatActivity {
     return super.onOptionsItemSelected(item);
   }
 
+  @Override public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+    String userId = data.getString(UsersContract.Columns.USER_ID);
+
+    return new CursorLoader(this,
+        UsersContract.CONTENT_URI.buildUpon().appendPath(userId).build(),
+        UserQuery.projection,
+        null,
+        null,
+        null);
+  }
+
+  @Override public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+    if (cursor.getCount() != 0) {
+      cursor.moveToFirst();
+      // get infos from cursor
+      mTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
+      mFirstname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
+      mLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
+      mTitlePost = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
+      final String userImageUrl = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
+      final String userEmail = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_EMAIL));
+      final String userPrivAdr = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_PRIVADR));
+      final String userHomepage = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_HOMEPAGE));
+      final String userPhoneNumber = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_PHONE));
+      final String skypeName = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_SKYPE_NAME));
+
+      final TextView emailTextView = (TextView) findViewById(R.id.emailTV);
+      final TextView phoneTextView = (TextView) findViewById(R.id.phoneTV);
+      final TextView homepageTextView = (TextView) findViewById(R.id.homepageTV);
+      final TextView addressTextView = (TextView) findViewById(R.id.privadrTV);
+      final TextView skypeTextView = (TextView) findViewById(R.id.skype_textview);
+
+      final View emailContainer = findViewById(R.id.email);
+      final View phoneContainer = findViewById(R.id.phone);
+      final View homepageContainer = findViewById(R.id.homepage);
+      final View addressContainer = findViewById(R.id.address);
+      final View skypeContainer = findViewById(R.id.skype);
+
+      final ImageView emailIcon = (ImageView) findViewById(R.id.email_icon);
+      final ImageView phoneIcon = (ImageView) findViewById(R.id.phone_icon);
+      final ImageView homepageIcon = (ImageView) findViewById(R.id.homepage_icon);
+      final ImageView addressIcon = (ImageView) findViewById(R.id.address_icon);
+      final ImageView skypeIcon = (ImageView) findViewById(R.id.skype_icon);
+
+      final View emailPhoneDivier = findViewById(R.id.email_phone_devider);
+      final View phoneHomepageDivider = findViewById(R.id.phone_homepage_divider);
+      final View homepageAddressDivider = findViewById(R.id.homepage_address_divider);
+
+      // create fullname string and set the activity title
+      final String fullName = mTitlePre + " " + mFirstname + " " + mLastname + " " + mTitlePost;
+      collapsingToolbarLayout.setTitle(fullName);
+
+      Picasso.with(this)
+          .load(userImageUrl)
+          .transform(new GradientTransformation())
+          .fit()
+          .error(R.drawable.nobody_normal)
+          .centerCrop()
+          .into(userImage);
+
+      // set contact info and make visible
+      if (!TextUtils.isEmpty(userEmail)) {
+        emailTextView.setText(userEmail);
+        emailContainer.setVisibility(View.VISIBLE);
+        emailIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+            PorterDuff.Mode.SRC_IN);
+      }
+      if (!TextUtils.isEmpty(userPhoneNumber)) {
+        phoneTextView.setText(userPhoneNumber);
+        phoneContainer.setVisibility(View.VISIBLE);
+        emailPhoneDivier.setVisibility(View.VISIBLE);
+        phoneIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+            PorterDuff.Mode.SRC_IN);
+      }
+      if (!TextUtils.isEmpty(skypeName)) {
+        skypeTextView.setText(skypeName);
+        skypeContainer.setVisibility(View.VISIBLE);
+        emailPhoneDivier.setVisibility(View.VISIBLE);
+        skypeIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+            PorterDuff.Mode.SRC_IN);
+      }
+      if (!TextUtils.isEmpty(userHomepage)) {
+        homepageTextView.setText(userHomepage);
+        homepageContainer.setVisibility(View.VISIBLE);
+        phoneHomepageDivider.setVisibility(View.VISIBLE);
+        homepageIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+            PorterDuff.Mode.SRC_IN);
+      }
+      if (!TextUtils.isEmpty(userPrivAdr)) {
+        addressTextView.setText(userPrivAdr);
+        addressContainer.setVisibility(View.VISIBLE);
+        homepageAddressDivider.setVisibility(View.VISIBLE);
+        addressIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+            PorterDuff.Mode.SRC_IN);
+      }
+    }
+  }
+
+  @Override public void onLoaderReset(Loader<Cursor> loader) {
+    // Nothing to do here
+  }
+
   private interface UserQuery {
 
     String[] projection = new String[]{
@@ -94,166 +261,8 @@ public class UserDetailsActivity extends AppCompatActivity {
         UsersContract.Columns.USER_EMAIL,
         UsersContract.Columns.USER_HOMEPAGE,
         UsersContract.Columns.USER_PHONE,
-        UsersContract.Columns.USER_PRIVADR
+        UsersContract.Columns.USER_PRIVADR,
+        UsersContract.Columns.USER_SKYPE_NAME
     };
   }
-
-  public static class UserDetailsFragment extends Fragment implements LoaderCallbacks<Cursor> {
-    public static final String TAG = UserDetailsFragment.class.getCanonicalName();
-    protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
-
-      @Override public void onChange(boolean selfChange) {
-        if (getActivity() == null) {
-          return;
-        }
-
-        Loader<Cursor> loader = getLoaderManager().getLoader(0);
-        if (loader != null) {
-          loader.forceLoad();
-        }
-      }
-    };
-    private Bundle mData;
-    private String mTitlePre, mTitlePost, mFirstname, mLastname;
-
-    public UserDetailsFragment() {}
-
-    /**
-     * Creates a new instance of the UserDetails fragment, sets the fragments arguments and
-     * returns it.
-     *
-     * @param arguments The arguments to add to the fragment.
-     * @return The new UserDetails fragment instance.
-     */
-    public static UserDetailsFragment newInstance(Bundle arguments) {
-      UserDetailsFragment fragment = new UserDetailsFragment();
-
-      fragment.setArguments(arguments);
-
-      return fragment;
-    }
-
-    @Override public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      mData = getArguments();
-    }
-
-    @Override public View onCreateView(LayoutInflater inflater,
-        ViewGroup container,
-        Bundle savedInstanceState) {
-      return inflater.inflate(R.layout.fragment_user_details, null);
-
-    }
-
-    @Override public void onActivityCreated(Bundle savedInstanceState) {
-      super.onActivityCreated(savedInstanceState);
-      setHasOptionsMenu(true);
-      // initialize CursorLoader
-      getLoaderManager().initLoader(0, mData, this);
-    }
-
-    @Override public void onAttach(Activity activity) {
-      super.onAttach(activity);
-      activity.getContentResolver()
-          .registerContentObserver(UsersContract.CONTENT_URI, true, mObserver);
-    }
-
-    @Override public void onDetach() {
-      super.onDetach();
-      getActivity().getContentResolver().unregisterContentObserver(mObserver);
-    }
-
-    @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-      inflater.inflate(R.menu.user_detail_menu, menu);
-    }
-
-    @Override public boolean onOptionsItemSelected(MenuItem item) {
-      switch (item.getItemId()) {
-        case R.id.send_message:
-          Intent intent = new Intent(getActivity(), MessageComposeActivity.class);
-          intent.putExtra(UsersContract.Columns.USER_ID,
-              mData.getString(UsersContract.Columns.USER_ID));
-          intent.putExtra(UsersContract.Columns.USER_FORENAME, mFirstname);
-          intent.putExtra(UsersContract.Columns.USER_LASTNAME, mLastname);
-          intent.putExtra(UsersContract.Columns.USER_TITLE_POST, mTitlePost);
-          intent.putExtra(UsersContract.Columns.USER_TITLE_PRE, mTitlePre);
-          startActivity(intent);
-          return true;
-
-        default:
-          return super.onOptionsItemSelected(item);
-      }
-    }
-
-    @Override public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-      String userId = data.getString(UsersContract.Columns.USER_ID);
-
-      return new CursorLoader(getActivity(),
-          UsersContract.CONTENT_URI.buildUpon().appendPath(userId).build(),
-          UserQuery.projection,
-          null,
-          null,
-          null);
-    }
-
-    @Override public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-      View root = getView();
-
-      if (root != null && cursor.getCount() != 0) {
-        cursor.moveToFirst();
-        // get infos from cursor
-        mTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
-        mFirstname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-        mLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
-        mTitlePost = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
-        final String userImageUrl = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-        final String userEmail = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_EMAIL));
-        final String userPrivAdr = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_PRIVADR));
-        final String userHomepage = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_HOMEPAGE));
-        final String userPhoneNumber = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_PHONE));
-
-        // create fullname string and set the activity title
-        final String fullName = mTitlePre + " " + mFirstname + " " + mLastname + " " + mTitlePost;
-        getActivity().setTitle(fullName);
-
-        // find views and set infos
-        final ImageView userImageView = (ImageView) root.findViewById(R.id.user_image);
-
-        Picasso.with(getActivity())
-            .load(userImageUrl)
-            .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
-            .centerCrop()
-            .placeholder(R.drawable.nobody_normal)
-            .into(userImageView);
-
-        final TextView fullnameTextView = (TextView) root.findViewById(R.id.fullname);
-        fullnameTextView.setText(fullName);
-        final TextView emailTextView = (TextView) root.findViewById(R.id.emailTV);
-        emailTextView.setText(userEmail);
-
-        // set contact info and make visible
-        if (!TextUtils.isEmpty(userPrivAdr)) {
-          final TextView privadrTextView = (TextView) root.findViewById(R.id.privadrTV);
-          privadrTextView.setText(userPrivAdr);
-          root.findViewById(R.id.privadr).setVisibility(View.VISIBLE);
-        }
-        if (!TextUtils.isEmpty(userHomepage)) {
-          final TextView homepageTextView = (TextView) root.findViewById(R.id.homepageTV);
-          homepageTextView.setText(userHomepage);
-          root.findViewById(R.id.homepage).setVisibility(View.VISIBLE);
-        }
-        if (!TextUtils.isEmpty(userPhoneNumber)) {
-          final TextView phoneTextView = (TextView) root.findViewById(R.id.phoneTV);
-          phoneTextView.setText(userPhoneNumber);
-          root.findViewById(R.id.phone).setVisibility(View.VISIBLE);
-        }
-      }
-    }
-
-    @Override public void onLoaderReset(Loader<Cursor> loader) {
-      // nothing to do
-    }
-
-  }
-
 }
