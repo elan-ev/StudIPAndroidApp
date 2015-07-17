@@ -11,14 +11,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -172,13 +175,21 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
   @Override
   public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Cursor c = (Cursor) mListView.getItemAtPosition(position);
-
     String userId = c.getString(c.getColumnIndex(UsersContract.Columns.USER_ID));
 
     if (userId != null) {
       Intent intent = new Intent(mContext, UserDetailsActivity.class);
       intent.putExtra(UsersContract.Columns.USER_ID, userId);
-      mContext.startActivity(intent);
+
+      ImageView icon = (ImageView) view.findViewById(R.id.user_image);
+      ActivityOptionsCompat options = ActivityOptionsCompat.
+          makeSceneTransitionAnimation(getActivity(), (View) icon, getString(R.string.Profile));
+      // Start UserDetailActivity with transition if supported
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        mContext.startActivity(intent, options.toBundle());
+      } else {
+        mContext.startActivity(intent);
+      }
     }
   }
 
