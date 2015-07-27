@@ -89,7 +89,7 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
       viewHolder.mAuthorTextView.setText(item.user.getFullName());
     }
 
-    viewHolder.mDateTextView.setText(TextTools.getShortRelativeTime(date, mContext));
+    viewHolder.mDateTextView.setText(TextTools.getShortRelativeTime(date*1000L, mContext));
   }
 
   public ForumEntry getItem(int position) {
@@ -128,7 +128,6 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
     public final TextView mSubjectTextView;
     public final TextView mContentTextView;
     public final TextView mAuthorTextView;
-    public final TextView mCounterTextView;
     public final ViewHolder.ViewHolderClicks mListener;
     public final ImageView mUserImageView;
     public final TextView mDateTextView;
@@ -138,9 +137,8 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
       mListener = clickListener;
       mSubjectTextView = (TextView) itemView.findViewById(R.id.subject);
       mContentTextView = (TextView) itemView.findViewById(R.id.content);
-      mAuthorTextView = (TextView) itemView.findViewById(R.id.entry_author);
-      mDateTextView = (TextView) itemView.findViewById(R.id.entry_date);
-      mCounterTextView = (TextView) itemView.findViewById(R.id.newcounter);
+      mAuthorTextView = (TextView) itemView.findViewById(R.id.text1);
+      mDateTextView = (TextView) itemView.findViewById(R.id.text2);
       mUserImageView = (ImageView) itemView.findViewById(R.id.user_image);
       mContainerView = itemView.findViewById(R.id.list_item);
 
