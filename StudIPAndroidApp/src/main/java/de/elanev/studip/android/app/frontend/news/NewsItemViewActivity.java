@@ -113,9 +113,9 @@ public class NewsItemViewActivity extends AppCompatActivity {
       View v = inflater.inflate(R.layout.fragment_news_details, container, false);
       mTitleTextView = (TextView) v.findViewById(R.id.news_title);
       mBodyTextView = (TextView) v.findViewById(R.id.news_body);
-      mAuthorTextView = (TextView) v.findViewById(R.id.news_author);
+      mAuthorTextView = (TextView) v.findViewById(R.id.text1);
       mUserImageView = (ImageView) v.findViewById(R.id.user_image);
-      mDateTextView = (TextView) v.findViewById(R.id.news_date);
+      mDateTextView = (TextView) v.findViewById(R.id.text2);
       mBodyTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
       return v;
