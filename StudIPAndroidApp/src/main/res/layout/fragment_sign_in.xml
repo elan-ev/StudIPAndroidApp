@@ -18,25 +18,22 @@
         android:layout_height="175dp"
         android:layout_gravity="center_horizontal"
         android:contentDescription="@string/studip_logo"
-        android:paddingLeft="48dp"
-        android:paddingRight="48dp"
+        android:layout_marginLeft="@dimen/keyline_1"
+        android:layout_marginStart="@dimen/keyline_1"
+        android:layout_marginRight="@dimen/keyline_1"
+        android:layout_marginEnd="@dimen/keyline_1"
         android:src="@drawable/logo_studip"/>
 
-    <LinearLayout
-        android:id="@+id/sign_in_form"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
 
         <ListView
             android:id="@android:id/list"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="48dp"
-            android:layout_marginRight="48dp"
             android:layout_weight="1"
+            android:layout_marginLeft="@dimen/keyline_1"
+            android:layout_marginStart="@dimen/keyline_1"
+            android:layout_marginRight="@dimen/keyline_1"
+            android:layout_marginEnd="@dimen/keyline_1"
             android:background="@android:color/background_light"
             android:choiceMode="singleChoice"
             android:listSelector="@drawable/list_item_selector"/>
@@ -57,24 +54,6 @@
             android:textColor="@color/primary_text_light"
             android:textSize="@dimen/text_size_medium"
             android:visibility="gone"/>
-
-        <Button
-            android:id="@+id/sign_in_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="48dp"
-            android:layout_marginRight="48dp"
-            android:layout_marginTop="8dp"
-            android:background="@android:color/background_light"
-            android:drawableLeft="@drawable/ic_key_blue"
-            android:drawablePadding="-48dp"
-            android:gravity="center"
-            android:text="@string/Authorize"
-            />
-
-    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/progress_info"
