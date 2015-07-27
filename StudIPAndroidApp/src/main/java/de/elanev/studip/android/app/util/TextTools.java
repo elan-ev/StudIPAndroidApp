@@ -9,6 +9,7 @@ package de.elanev.studip.android.app.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 
@@ -145,6 +146,10 @@ public class TextTools {
 
   public static String stripImages(String content) {
     return content.replaceAll("\\<img.*?>", "");
+  }
+
+  public static String stripHtml(String html) {
+    return Html.fromHtml(html).toString();
   }
 
   public static String createNameSting(String... parts) {
