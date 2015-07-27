@@ -41,10 +41,10 @@ dependencies {
   compile('com.crashlytics.sdk.android:crashlytics:2.2.3@aar') {
     transitive = true
   }
-  compile 'com.android.support:support-v4:22.2.0'
-  compile 'com.android.support:appcompat-v7:22.2.0'
-  compile 'com.android.support:recyclerview-v7:22.2.0'
-  compile 'com.android.support:design:22.2.0'
+  compile 'com.android.support:support-v4:22.2.1'
+  compile 'com.android.support:appcompat-v7:22.2.1'
+  compile 'com.android.support:recyclerview-v7:22.2.1'
+  compile 'com.android.support:design:22.2.1'
   compile 'org.lucasr.twowayview:core:1.0.0-SNAPSHOT@aar'
   compile 'org.lucasr.twowayview:layouts:1.0.0-SNAPSHOT@aar'
   compile 'com.squareup.okhttp:okhttp:2.2.0'
