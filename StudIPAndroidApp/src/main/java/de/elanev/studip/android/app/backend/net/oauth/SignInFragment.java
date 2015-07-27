@@ -15,7 +15,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
@@ -29,7 +28,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ListView;
@@ -89,7 +87,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   private ArrayAdapter<Server> mAdapter;
   private boolean mSignInFormVisible = false;
   private boolean mMissingBoxShown = false;
-  private View mSignInForm;
   private View mProgressInfo;
   private View mInfoBoxView;
   private TextView mSyncStatusTextView;
@@ -138,7 +135,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     View v = inflater.inflate(R.layout.fragment_sign_in, container, false);
 
     mProgressInfo = v.findViewById(R.id.progress_info);
-    mSignInForm = v.findViewById(R.id.sign_in_form);
     mListView = (ListView) v.findViewById(android.R.id.list);
     mSyncStatusTextView = (TextView) v.findViewById(R.id.sync_status);
     mInfoBoxView = v.findViewById(R.id.info_box);
@@ -155,6 +151,10 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
       }
 
       mSelectedServer = mAdapter.getItem(position);
+      if (mSelectedServer != null) {
+        Prefs.getInstance(getActivity()).setServer(mSelectedServer);
+        authorize(mSelectedServer);
+      }
     }
 
   }
@@ -218,23 +218,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     mListView.setTextFilterEnabled(true);
 
     showLoginForm();
-    Button signInButton = (Button) getView().findViewById(R.id.sign_in_button);
-    signInButton.setOnClickListener(new View.OnClickListener() {
-
-      public void onClick(View v) {
-        if (mSelectedServer != null) {
-          Prefs.getInstance(getActivity()).setServer(mSelectedServer);
-          authorize();
-        }
-      }
-    });
-
-
-    if (!mAdapter.isEmpty() && mSignInFormVisible) {
-      mListView.setSelection(0);
-      mListView.setItemChecked(0, true);
-      mSelectedServer = mAdapter.getItem(0);
-    }
   }
 
   @Override public void onStart() {
@@ -254,7 +237,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   /* Hides the login form and sets the progress indicator as visible */
   private void hideLoginForm() {
     if (getActivity() != null && isAdded()) {
-      mSignInForm.setVisibility(View.GONE);
+      mListView.setVisibility(View.GONE);
       mProgressInfo.setVisibility(View.VISIBLE);
       mSignInFormVisible = false;
       mInfoBoxView.setOnClickListener(null);
@@ -299,7 +282,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   /* Hides the progess indicator and sets the login form as visible */
   private void showLoginForm() {
     if (getActivity() != null && isAdded()) {
-      mSignInForm.setVisibility(View.VISIBLE);
+      mListView.setVisibility(View.VISIBLE);
       mProgressInfo.setVisibility(View.GONE);
       mSignInFormVisible = true;
       mInfoBoxView.setOnClickListener(mMissingServerOnClickListener);
@@ -307,15 +290,14 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     }
   }
 
-  private void authorize() {
+  private void authorize(Server selectedServer) {
     if (NetworkUtils.getConnectivityStatus(mContext) == NetworkUtils.NOT_CONNECTED) {
       Toast.makeText(mContext, "Not connected", Toast.LENGTH_LONG).show();
       return;
     }
     hideLoginForm();
 
-    Server server = Prefs.getInstance(mContext).getServer();
-    OAuthConnector.with(server).getRequestToken(this);
+    OAuthConnector.with(selectedServer).getRequestToken(this);
   }
 
   private void resetSignInActivityState() {
@@ -564,6 +546,10 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     //DEBUG Testing old credential migration behavior
     //Prefs.getInstance(mContext).simulateOldPrefs(mSelectedServer);
     //getActivity().finish();
+
+    if (!isAdded()) {
+      return;
+    }
 
     mSelectedServer.setAccessToken(token);
     mSelectedServer.setAccessTokenSecret(tokenSecret);
