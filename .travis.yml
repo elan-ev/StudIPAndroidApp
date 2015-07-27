@@ -21,6 +21,7 @@ android:
     - android-17
     - android-19
     - android-21
+    - android-22
   licenses:
     - android-sdk-license-5be876d5
     - android-sdk-license-598b93a6
