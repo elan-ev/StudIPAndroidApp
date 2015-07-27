@@ -65,8 +65,7 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     SyncHelper.SyncHelperCallbacks {
   public static final String TAG = MessagesListFragment.class.getSimpleName();
   protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
-    @Override
-    public void onChange(boolean selfChange) {
+    @Override public void onChange(boolean selfChange) {
       if (getActivity() == null) {
         return;
       }
@@ -82,8 +81,7 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
 
   public MessagesListFragment() {}
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     mApiUrl = Prefs.getInstance(getActivity()).getServer().getApiUrl();
@@ -94,8 +92,7 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     setHasOptionsMenu(true);
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     getActivity().setTitle(R.string.Messages);
     setEmptyMessage(R.string.no_messages);
@@ -111,28 +108,24 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     getLoaderManager().initLoader(0, null, this);
   }
 
-  @Override
-  public void onAttach(Activity activity) {
+  @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
 
     activity.getContentResolver()
         .registerContentObserver(MessagesContract.CONTENT_URI_MESSAGE_FOLDERS, true, mObserver);
   }
 
-  @Override
-  public void onDetach() {
+  @Override public void onDetach() {
     super.onDetach();
     getActivity().getContentResolver().unregisterContentObserver(mObserver);
   }
 
-  @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+  @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.messages_list_menu, menu);
     super.onCreateOptionsMenu(menu, inflater);
   }
 
-  @Override
-  public void onPrepareOptionsMenu(Menu menu) {
+  @Override public void onPrepareOptionsMenu(Menu menu) {
     MainActivity activity = (MainActivity) getActivity();
     boolean drawerOpen = activity.mDrawerLayout.isDrawerOpen(activity.mDrawerListView);
     menu.findItem(R.id.compose_icon).setVisible(!drawerOpen);
@@ -140,8 +133,7 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     super.onPrepareOptionsMenu(menu);
   }
 
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
     if (isAdded()) {
       switch (item.getItemId()) {
         case R.id.compose_icon:
@@ -208,8 +200,7 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     mMessagesAdapter.swapCursor(null);
   }
 
-  @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+  @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     if (position != ListView.INVALID_POSITION) {
       Cursor c = (Cursor) mListView.getItemAtPosition(position);
       String messageId = c.getString(c.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_ID));
@@ -321,13 +312,11 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
       super(context);
     }
 
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+    @Override public View newView(Context context, Cursor cursor, ViewGroup parent) {
       return getActivity().getLayoutInflater().inflate(R.layout.list_item_message, parent, false);
     }
 
-    @Override
-    public void bindView(View view, Context context, final Cursor cursor) {
+    @Override public void bindView(View view, Context context, final Cursor cursor) {
 
       final String usertTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
       final String userForename = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
@@ -341,8 +330,10 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
       final TextView messageSenderTimeTextView = (TextView) view.findViewById(R.id.message_sender);
       final TextView messageSubjectTextView = (TextView) view.findViewById(R.id.message_subject);
 
-      messageSenderTimeTextView.setText(
-          usertTitlePre + " " + userForename + " " + userLastname + " " + userTitlePost);
+      messageSenderTimeTextView.setText(TextTools.createNameSting(usertTitlePre,
+          userForename,
+          userLastname,
+          userTitlePost));
       messageSubjectTextView.setText(messageSubject);
 
       if (messageUnread == 1) messageSubjectTextView.setTypeface(null, Typeface.BOLD);
@@ -351,7 +342,8 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
 
       ImageView imageView = (ImageView) view.findViewById(R.id.user_image);
 
-      Picasso.with(context).load(userImageUrl)
+      Picasso.with(context)
+          .load(userImageUrl)
           .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
           .centerCrop()
           .placeholder(R.drawable.nobody_normal)
