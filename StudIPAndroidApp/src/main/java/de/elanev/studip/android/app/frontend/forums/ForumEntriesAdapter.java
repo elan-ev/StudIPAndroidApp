@@ -65,7 +65,7 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
   public void onBindViewHolder(ViewHolder viewHolder, int position) {
     ForumEntry item = getItem(position);
     long date = item.chdate == 0 ? item.mkdate : item.chdate;
-    viewHolder.mSubjectTextView.setText(item.subject);
+    viewHolder.mSubjectTextView.setText(TextTools.stripHtml(item.subject));
 
     //TODO: Activate when the .../set_forum_read route is fixed
     //    if (item.isNew || item.newChildren > 0) {
