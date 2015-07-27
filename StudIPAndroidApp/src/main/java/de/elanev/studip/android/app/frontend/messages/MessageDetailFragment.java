@@ -38,6 +38,8 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -78,7 +80,10 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
   private String mMessageId, mSubject, mMessage, mSenderId, mSenderTitlePre, mSenderForename, mSenderLastname, mSenderTitlePost, mUserImageUrl;
   private long mDate;
   private String mApiUrl;
-  private TextView mMessageSubjectTextView, mMessageDateTextView, mMessageBodyTextView;
+  private TextView mMessageSubjectTextView;
+  private TextView mMessageDateTextView;
+  private TextView mMessageBodyTextView;
+  private TextView mMessageAuthorTextView;
   private ImageView mUserImageView;
   private boolean mDeleteButtonVisible = true;
 
@@ -112,9 +117,10 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
   public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
-    View v = inflater.inflate(R.layout.fragment_message_detail, null);
+    View v = inflater.inflate(R.layout.fragment_message_detail, container, false);
     mMessageSubjectTextView = (TextView) v.findViewById(R.id.message_subject);
-    mMessageDateTextView = (TextView) v.findViewById(R.id.message_sender_and_date);
+    mMessageDateTextView = (TextView) v.findViewById(R.id.text2);
+    mMessageAuthorTextView = (TextView) v.findViewById(R.id.text1);
     mMessageBodyTextView = (TextView) v.findViewById(R.id.message_body);
     mUserImageView = (ImageView) v.findViewById(R.id.user_image);
     return v;
@@ -308,13 +314,12 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
     if (mMessage != null) {
       mMessageBodyTextView.setText(Html.fromHtml(mMessage));
     }
-    mMessageDateTextView.setText(TextTools.getLocalizedAuthorAndDateString(String.format(
-            "%s %s %s %s",
-            mSenderTitlePre,
-            mSenderForename,
-            mSenderLastname,
-            mSenderTitlePost), mDate, mContext
-    ));
+    mMessageAuthorTextView.setText(TextTools.createNameSting(
+        mSenderTitlePre,
+        mSenderForename,
+        mSenderLastname,
+        mSenderTitlePost));
+    mMessageDateTextView.setText(TextTools.getLocalizedTime(mDate, mContext));
 
     Picasso.with(mContext).load(mUserImageUrl)
         .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
