@@ -71,7 +71,7 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
     ForumEntry item = getItem(position);
     long date = item.chdate == 0 ? item.mkdate : item.chdate;
 
-    viewHolder.mSubjectTextView.setText(item.subject);
+    viewHolder.mSubjectTextView.setText(TextTools.stripHtml(item.subject));
     viewHolder.mContentTextView.setMovementMethod(LinkMovementMethod.getInstance());
     //TODO: Activate when the .../set_forum_read route is fixed
     //    if (item.isNew) {
@@ -87,7 +87,7 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
 
     if (item.user != null) {
       viewHolder.mAuthorTextView.setText(item.user.getFullName().trim());
-      viewHolder.mDateTextView.setText(TextTools.getShortRelativeTime(date*1000L, mContext));
+      viewHolder.mDateTextView.setText(TextTools.getShortRelativeTime(date * 1000L, mContext));
 
       mPicasso.load(item.user.avatarNormal)
           .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
