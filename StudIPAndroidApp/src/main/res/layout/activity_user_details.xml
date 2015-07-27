@@ -26,7 +26,7 @@
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:expandedTitleMarginStart="48dp"
+            app:expandedTitleMarginStart="@dimen/keyline_2"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:contentScrim="?attr/colorPrimary">
 
@@ -63,7 +63,7 @@
             android:layout_gravity="fill_vertical"
             android:layout_marginBottom="?attr/actionBarSize"
             android:orientation="vertical"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="40dp"
             >
 
             <LinearLayout
