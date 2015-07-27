@@ -8,7 +8,6 @@ env:
     - ANDROID_TARGET=android-17 ANDROID_ABI=armeabi-v7a
     - ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
     - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
-    - ANDROID_TARGET=android-22 ANDROID_ABI=armeabi-v7a
   global:
     MALLOC_ARENA_MAX=2
 
