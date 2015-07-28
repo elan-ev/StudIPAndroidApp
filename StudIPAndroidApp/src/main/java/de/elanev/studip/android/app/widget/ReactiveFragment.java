@@ -105,7 +105,7 @@ public class ReactiveFragment extends Fragment {
   }
 
   protected <T> Observable<T> bind(Observable<T> observable) {
-    Observable<T> boundObservable = AppObservable.bindFragment(this, observable)
+    Observable<T> boundObservable = AppObservable.bindSupportFragment(this, observable)
         .observeOn(mainThread());
     return LifecycleObservable.bindFragmentLifecycle(lifecycle(), boundObservable);
   }
