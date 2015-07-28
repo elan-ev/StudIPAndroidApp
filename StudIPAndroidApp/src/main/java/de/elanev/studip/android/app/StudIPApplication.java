@@ -112,7 +112,7 @@ public class StudIPApplication extends Application {
     // Create new if no queue is null
     if (mRequestQueue == null)
       mRequestQueue = Volley.newRequestQueue(getApplicationContext(),
-          new OkHttpStack(new OkHttpClient()));
+          new OkHttpStack());
 
     return mRequestQueue;
   }
