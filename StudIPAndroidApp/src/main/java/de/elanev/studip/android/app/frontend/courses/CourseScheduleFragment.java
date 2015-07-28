@@ -5,9 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
-/**
- *
- */
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.app.Activity;
@@ -20,7 +17,8 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.CursorAdapter;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +27,7 @@ import android.widget.TextView;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
+import de.elanev.studip.android.app.util.TextTools;
 
 /**
  * @author joern
@@ -37,8 +36,7 @@ public class CourseScheduleFragment extends ListFragment implements LoaderCallba
   public static final String TAG = CourseScheduleFragment.class.getSimpleName();
   private static final int COURSOR_EVENTS_LIST_LOADER = 102;
   protected final ContentObserver mEventsObserver = new ContentObserver(new Handler()) {
-    @Override
-    public void onChange(boolean selfChange) {
+    @Override public void onChange(boolean selfChange) {
       if (getActivity() == null) {
         return;
       }
@@ -51,7 +49,7 @@ public class CourseScheduleFragment extends ListFragment implements LoaderCallba
   };
   protected Context mContext;
   private Bundle mArgs;
-  private SimpleCursorAdapter mAdapter;
+  private ScheduleAdapter mAdapter;
   private View mListContainerView, mProgressView;
   private TextView mEmptyMessageTextView;
 
@@ -65,12 +63,11 @@ public class CourseScheduleFragment extends ListFragment implements LoaderCallba
     return fragment;
   }
 
-  @Override
-  public View onCreateView(LayoutInflater inflater,
+  @Override public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
 
-    View v = inflater.inflate(R.layout.simple_list, null);
+    View v = inflater.inflate(R.layout.simple_list, container, false);
     mEmptyMessageTextView = (TextView) v.findViewById(R.id.empty_message);
     mListContainerView = v.findViewById(R.id.list_container);
     mProgressView = v.findViewById(R.id.progressbar);
@@ -78,27 +75,16 @@ public class CourseScheduleFragment extends ListFragment implements LoaderCallba
     return v;
   }
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mArgs = getArguments();
     mContext = getActivity();
 
-    String[] from = new String[]{
-        EventsContract.Columns.EVENT_TITLE,
-        EventsContract.Columns.EVENT_ROOM,
-        EventsContract.Columns.EVENT_DESCRIPTION
-    };
-    int[] to = new int[]{R.id.event_title, R.id.event_room, R.id.event_description};
-
-    mAdapter = new SimpleCursorAdapter(mContext, R.layout.list_item_event, null, from, to, 0);
-
+    mAdapter = new ScheduleAdapter(getActivity(), null, 0);
     setListAdapter(mAdapter);
-
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
     setEmptyMessage(R.string.no_appointments);
@@ -115,15 +101,13 @@ public class CourseScheduleFragment extends ListFragment implements LoaderCallba
     mEmptyMessageTextView.setText(messageRes);
   }
 
-  @Override
-  public void onAttach(Activity activity) {
+  @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
     activity.getContentResolver()
         .registerContentObserver(EventsContract.CONTENT_URI, true, mEventsObserver);
   }
 
-  @Override
-  public void onDetach() {
+  @Override public void onDetach() {
     super.onDetach();
     getActivity().getContentResolver().unregisterContentObserver(mEventsObserver);
   }
@@ -138,8 +122,7 @@ public class CourseScheduleFragment extends ListFragment implements LoaderCallba
         CourseEventsListQuery.projection,
         EventsContract.Columns.EVENT_START + " >= strftime('%s','now')",
         null,
-        EventsContract.DEFAULT_SORT_ORDER
-    );
+        EventsContract.DEFAULT_SORT_ORDER);
 
     return loader;
   }
@@ -173,8 +156,75 @@ public class CourseScheduleFragment extends ListFragment implements LoaderCallba
         EventsContract.Columns._ID,
         EventsContract.Columns.EVENT_TITLE,
         EventsContract.Columns.EVENT_ROOM,
-        EventsContract.Columns.EVENT_DESCRIPTION
+        EventsContract.Columns.EVENT_DESCRIPTION,
+        EventsContract.Columns.EVENT_START,
+        EventsContract.Columns.EVENT_END,
+        EventsContract.Columns.EVENT_CATEGORIES
     };
+  }
+
+  private class ScheduleAdapter extends CursorAdapter {
+
+    public ScheduleAdapter(Context context, Cursor c, int flags) {
+      super(context, c, flags);
+    }
+
+    @Override public View newView(Context context, Cursor cursor, ViewGroup parent) {
+      View v = getActivity().getLayoutInflater().inflate(R.layout.list_item_event, parent, false);
+
+      ViewHolder viewHolder = new ViewHolder();
+      viewHolder.eventTitleTextView = (TextView) v.findViewById(R.id.event_title);
+      viewHolder.eventDateTextView = (TextView) v.findViewById(R.id.event_room);
+      viewHolder.eventDescriptionTextView = (TextView) v.findViewById(R.id.event_description);
+
+      v.setTag(viewHolder);
+
+      return v;
+    }
+
+    @Override public void bindView(View view, Context context, Cursor cursor) {
+      String eventTitle = cursor.getString(cursor.getColumnIndex(EventsContract.Columns.EVENT_TITLE));
+      String eventCategory = cursor.getString((cursor.getColumnIndex(EventsContract.Columns.EVENT_CATEGORIES)));
+      long eventStart = cursor.getLong(cursor.getColumnIndex(EventsContract.Columns.EVENT_START));
+      long eventEnd = cursor.getLong(cursor.getColumnIndex(EventsContract.Columns.EVENT_END));
+      String eventDescription = cursor.getString(cursor.getColumnIndex(EventsContract.Columns.EVENT_DESCRIPTION));
+      String eventRoom = cursor.getString(cursor.getColumnIndex(EventsContract.Columns.EVENT_ROOM));
+
+      ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+      String dateString = String.format("%s %s - %s",
+          TextTools.getLocalizedTime(eventStart * 1000L, context),
+          TextTools.get24hTime(eventStart * 1000),
+          TextTools.get24hTime(eventEnd * 1000));
+      String title;
+      String description = "";
+
+      if (TextUtils.isEmpty(eventTitle)) {
+        if (TextUtils.isEmpty(eventRoom) && TextUtils.isEmpty(eventCategory)) {
+          title = dateString;
+          viewHolder.eventDateTextView.setVisibility(View.GONE);
+        } else {
+          title = eventCategory + " (" + eventRoom + ")";
+          viewHolder.eventDateTextView.setText(dateString);
+          viewHolder.eventDateTextView.setVisibility(View.VISIBLE);
+        }
+      } else {
+        title = eventTitle;
+        viewHolder.eventDateTextView.setText(dateString);
+        viewHolder.eventDateTextView.setVisibility(View.VISIBLE);
+        description = eventCategory + " (" + eventRoom + ")\n";
+      }
+      description += eventDescription;
+
+      viewHolder.eventTitleTextView.setText(title.trim());
+      viewHolder.eventDescriptionTextView.setText(description.trim());
+    }
+  }
+
+  static class ViewHolder {
+    TextView eventTitleTextView;
+    TextView eventDescriptionTextView;
+    TextView eventDateTextView;
   }
 
 }
