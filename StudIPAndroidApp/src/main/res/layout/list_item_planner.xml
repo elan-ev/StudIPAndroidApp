@@ -11,8 +11,6 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="@dimen/layout_padding_normal"
-                android:paddingBottom="@dimen/layout_padding_normal"
     >
 
     <TextView
@@ -20,8 +18,11 @@
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/layout_margin_normal"
-        android:layout_marginRight="@dimen/layout_margin_normal"
+        android:layout_marginLeft="@dimen/keyline_1"
+        android:layout_marginStart="@dimen/keyline_1"
+        android:layout_marginRight="@dimen/keyline_1"
+        android:layout_marginEnd="@dimen/keyline_1"
+        android:layout_marginTop="16dp"
 
         android:ellipsize="end"
         android:maxLines="1"
@@ -37,10 +38,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/event_title"
-        android:layout_marginTop="@dimen/layout_margin_small"
-        android:layout_marginLeft="@dimen/layout_margin_normal"
-        android:layout_marginRight="@dimen/layout_margin_normal"
-
+        android:layout_marginLeft="@dimen/keyline_1"
+        android:layout_marginStart="@dimen/keyline_1"
+        android:layout_marginRight="@dimen/keyline_1"
+        android:layout_marginEnd="@dimen/keyline_1"
         android:ellipsize="end"
         android:maxLines="1"
         android:singleLine="true"
@@ -49,21 +50,24 @@
 
         tools:text="Sample Event Room Info 1234"/>
 
+
     <TextView
         android:id="@+id/event_description"
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/event_room"
-        android:layout_marginTop="@dimen/layout_margin_small"
-        android:layout_marginLeft="@dimen/layout_margin_normal"
-        android:layout_marginRight="@dimen/layout_margin_normal"
+        android:layout_marginLeft="@dimen/keyline_1"
+        android:layout_marginStart="@dimen/keyline_1"
+        android:layout_marginRight="@dimen/keyline_1"
+        android:layout_marginEnd="@dimen/keyline_1"
+        android:layout_marginBottom="16dp"
 
         android:ellipsize="end"
         android:maxLines="2"
         android:textColor="@color/primary_text_light"
         android:textSize="@dimen/text_size_small"
 
-        tools:text="Look, just because I don't be givin' no man a foot massage don't make it right for Marsellus to throw Antwone into a glass motherfuckin' house, fuckin' up the way the nigger talks. Motherfucker do that shit to me, he better paralyze my ass, 'cause I'll kill the motherfucker, know what I'm sayin'?"/>
+        tools:text="@string/lipsum_short"/>
 
 </RelativeLayout>

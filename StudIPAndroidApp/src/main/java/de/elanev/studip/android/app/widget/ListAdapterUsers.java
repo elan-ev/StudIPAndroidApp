@@ -10,7 +10,6 @@ package de.elanev.studip.android.app.widget;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -18,7 +17,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 
@@ -60,7 +58,8 @@ public class ListAdapterUsers extends SectionedCursorAdapter {
         final ImageView userImageView = (ImageView) view.findViewById(R.id.user_image);
 
       Picasso.with(mContext).load(userImageUrl)
-                .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+                .noFade()
+                .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
                 .centerCrop()
                 .placeholder(R.drawable.nobody_normal)
                 .into(userImageView);

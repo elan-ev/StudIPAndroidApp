@@ -1145,6 +1145,7 @@ public class SyncHelper {
     builder.withValue(UsersContract.Columns.USER_PHONE, user.phone);
     builder.withValue(UsersContract.Columns.USER_HOMEPAGE, user.homepage);
     builder.withValue(UsersContract.Columns.USER_PRIVADR, user.privadr);
+    builder.withValue(UsersContract.Columns.USER_SKYPE_NAME, user.skype);
 
     return builder.build();
   }

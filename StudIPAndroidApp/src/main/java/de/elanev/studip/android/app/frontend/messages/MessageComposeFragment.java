@@ -16,6 +16,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -248,9 +249,9 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
     menu.findItem(R.id.send_icon).setVisible(mSendButtonVisible);
 
     if (!mSendButtonVisible) {
-      ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+      ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
     } else {
-      ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+      ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
     }
 
 

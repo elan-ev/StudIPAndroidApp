@@ -12,7 +12,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -24,7 +26,7 @@ import de.elanev.studip.android.app.R;
  *
  * @author joern
  */
-public class WebViewActivity extends ActionBarActivity {
+public class WebViewActivity extends AppCompatActivity {
 
     public static final String TAG = WebViewActivity.class.getSimpleName();
     private WebView mWebview;
@@ -32,10 +34,16 @@ public class WebViewActivity extends ActionBarActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        setTitle(android.R.string.cancel);
         setContentView(R.layout.webview_view);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        setTitle(android.R.string.cancel);
 
         mWebview = (WebView) this.findViewById(R.id.webView);
 
@@ -51,6 +59,8 @@ public class WebViewActivity extends ActionBarActivity {
         }
 
     }
+
+
 
     /*
     * Prevent the user from pressing the back button

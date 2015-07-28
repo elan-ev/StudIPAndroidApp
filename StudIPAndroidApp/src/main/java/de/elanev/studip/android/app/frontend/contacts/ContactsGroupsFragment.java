@@ -11,22 +11,25 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -70,7 +73,6 @@ public class ContactsGroupsFragment extends UserListFragment implements
     setEmptyMessage(R.string.no_contacts);
 
     mListView.setOnItemClickListener(this);
-    mListView.setOnStickyHeaderOffsetChangedListener(this);
     mListView.setAdapter(mUserAdapter);
 
     mSwipeRefreshLayoutListView.setOnRefreshListener(this);
@@ -138,11 +140,21 @@ public class ContactsGroupsFragment extends UserListFragment implements
   @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Cursor c = (Cursor) mListView.getItemAtPosition(position);
 
+    ImageView icon = (ImageView) view.findViewById(R.id.user_image);
+
     String userId = c.getString(c.getColumnIndex(UsersContract.Columns.USER_ID));
     if (userId != null) {
       Intent intent = new Intent(mContext, UserDetailsActivity.class);
       intent.putExtra(UsersContract.Columns.USER_ID, userId);
-      mContext.startActivity(intent);
+      ActivityOptionsCompat options = ActivityOptionsCompat.
+          makeSceneTransitionAnimation(getActivity(), (View) icon, getString(R.string.Profile));
+
+      // Start UserDetailActivity with transition if supported
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        mContext.startActivity(intent, options.toBundle());
+      } else {
+        mContext.startActivity(intent);
+      }
     }
   }
 
