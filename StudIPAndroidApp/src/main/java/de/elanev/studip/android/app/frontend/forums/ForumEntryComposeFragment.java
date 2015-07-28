@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -92,7 +93,7 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.create_new_area).setVisible(mSendButtonVisible);
 
-    ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(!mSendButtonVisible);
+    ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(!mSendButtonVisible);
   }
 
   @Override public boolean onOptionsItemSelected(MenuItem item) {
