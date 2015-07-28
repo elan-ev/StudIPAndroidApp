@@ -11,17 +11,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="@dimen/touch_default_site"
-    android:background="?android:attr/activatedBackgroundIndicator">
+    android:background="?android:selectableItemBackground"
+    >
 
     <TextView
         android:id="@android:id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/list_item_vert_margin"
-        android:layout_marginLeft="@dimen/list_item_hor_margin"
-        android:layout_marginRight="@dimen/list_item_hor_margin"
-        android:layout_marginTop="@dimen/list_item_vert_margin"
+        android:layout_margin="@dimen/keyline_1"
         android:ellipsize="end"
         android:maxLines="2"
         android:textColor="@color/primary_text_light"

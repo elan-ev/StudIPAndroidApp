@@ -65,7 +65,7 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
   public void onBindViewHolder(ViewHolder viewHolder, int position) {
     ForumEntry item = getItem(position);
     long date = item.chdate == 0 ? item.mkdate : item.chdate;
-    viewHolder.mSubjectTextView.setText(item.subject);
+    viewHolder.mSubjectTextView.setText(TextTools.stripHtml(item.subject));
 
     //TODO: Activate when the .../set_forum_read route is fixed
     //    if (item.isNew || item.newChildren > 0) {
@@ -82,14 +82,14 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
       Picasso.with(mContext).cancelRequest(viewHolder.mUserImageView);
       Picasso.with(mContext)
           .load(item.user.avatarNormal)
-          .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+          .resizeDimen(R.dimen.user_image_crop_size, R.dimen.user_image_crop_size)
           .centerCrop()
           .placeholder(R.drawable.nobody_normal)
           .into(viewHolder.mUserImageView);
       viewHolder.mAuthorTextView.setText(item.user.getFullName());
     }
 
-    viewHolder.mDateTextView.setText(TextTools.getShortRelativeTime(date, mContext));
+    viewHolder.mDateTextView.setText(TextTools.getShortRelativeTime(date*1000L, mContext));
   }
 
   public ForumEntry getItem(int position) {
@@ -128,7 +128,6 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
     public final TextView mSubjectTextView;
     public final TextView mContentTextView;
     public final TextView mAuthorTextView;
-    public final TextView mCounterTextView;
     public final ViewHolder.ViewHolderClicks mListener;
     public final ImageView mUserImageView;
     public final TextView mDateTextView;
@@ -138,9 +137,8 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
       mListener = clickListener;
       mSubjectTextView = (TextView) itemView.findViewById(R.id.subject);
       mContentTextView = (TextView) itemView.findViewById(R.id.content);
-      mAuthorTextView = (TextView) itemView.findViewById(R.id.entry_author);
-      mDateTextView = (TextView) itemView.findViewById(R.id.entry_date);
-      mCounterTextView = (TextView) itemView.findViewById(R.id.newcounter);
+      mAuthorTextView = (TextView) itemView.findViewById(R.id.text1);
+      mDateTextView = (TextView) itemView.findViewById(R.id.text2);
       mUserImageView = (ImageView) itemView.findViewById(R.id.user_image);
       mContainerView = itemView.findViewById(R.id.list_item);
 

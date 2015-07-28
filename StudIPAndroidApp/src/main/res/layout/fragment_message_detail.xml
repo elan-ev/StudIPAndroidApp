@@ -11,66 +11,46 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    >
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/layout_padding_normal">
+        android:layout_margin="@dimen/keyline_1">
 
-        <ImageView
-            android:id="@+id/user_image"
-            android:layout_width="@dimen/user_image_medium"
-            android:layout_height="@dimen/user_image_medium"
-            android:layout_alignParentLeft="true"
-            android:layout_marginRight="@dimen/layout_margin_normal"
-            android:layout_marginBottom="@dimen/layout_margin_normal"
-            android:contentDescription="@string/user_image"
-            android:scaleType="centerCrop"
-            android:src="@drawable/nobody_normal"/>
+        <include
+            android:id="@+id/info_container"
+            layout="@layout/layout_icon_two_text"/>
 
         <TextView
             android:id="@+id/message_subject"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/user_image"
+            android:layout_below="@id/info_container"
+            android:layout_marginBottom="@dimen/content_area_space"
             android:ellipsize="end"
             android:maxLines="2"
             android:textColor="@color/primary_text_light"
             android:textIsSelectable="true"
-            android:textSize="@dimen/text_size_small"
+            android:textSize="@dimen/text_size_medium"
             android:textStyle="bold"
-            tools:text="Sample test for the subject field to test the layout behavior."/>
-
-        <TextView
-            android:id="@+id/message_sender_and_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/message_subject"
-            android:layout_marginTop="4dp"
-            android:layout_toRightOf="@id/user_image"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:singleLine="true"
-            android:textColor="@color/secondary_text_light"
-            android:textIsSelectable="true"
-            android:textSize="@dimen/text_size_small"
-            tools:text="Dr. Prof. Med. Ing. TempSample Senderson on 14th April"/>
+            tools:text="@string/lipsum_single"/>
 
         <TextView
             android:id="@+id/message_body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/user_image"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_below="@+id/message_subject"
+            android:layout_marginBottom="@dimen/keyline_1"
             android:lineSpacingMultiplier="1.25"
+            android:linksClickable="true"
             android:textColor="@color/primary_text_light"
             android:textColorLink="@color/studip_mobile_dark"
             android:textIsSelectable="true"
             android:textSize="@dimen/text_size_medium"
-            tools:text="Sample message text to show the behavior of the layout whith conent."/>
+            tools:text="@string/lipsum_short"/>
     </RelativeLayout>
 
 </ScrollView>
+

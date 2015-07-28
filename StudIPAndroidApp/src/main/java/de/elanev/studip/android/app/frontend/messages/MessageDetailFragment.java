@@ -18,7 +18,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -38,7 +38,8 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.squareup.picasso.Picasso;
 
-import de.elanev.studip.android.app.BuildConfig;
+import org.w3c.dom.Text;
+
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -79,7 +80,10 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
   private String mMessageId, mSubject, mMessage, mSenderId, mSenderTitlePre, mSenderForename, mSenderLastname, mSenderTitlePost, mUserImageUrl;
   private long mDate;
   private String mApiUrl;
-  private TextView mMessageSubjectTextView, mMessageDateTextView, mMessageBodyTextView;
+  private TextView mMessageSubjectTextView;
+  private TextView mMessageDateTextView;
+  private TextView mMessageBodyTextView;
+  private TextView mMessageAuthorTextView;
   private ImageView mUserImageView;
   private boolean mDeleteButtonVisible = true;
 
@@ -113,9 +117,10 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
   public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
-    View v = inflater.inflate(R.layout.fragment_message_detail, null);
+    View v = inflater.inflate(R.layout.fragment_message_detail, container, false);
     mMessageSubjectTextView = (TextView) v.findViewById(R.id.message_subject);
-    mMessageDateTextView = (TextView) v.findViewById(R.id.message_sender_and_date);
+    mMessageDateTextView = (TextView) v.findViewById(R.id.text2);
+    mMessageAuthorTextView = (TextView) v.findViewById(R.id.text1);
     mMessageBodyTextView = (TextView) v.findViewById(R.id.message_body);
     mUserImageView = (ImageView) v.findViewById(R.id.user_image);
     return v;
@@ -160,9 +165,9 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
     menu.findItem(R.id.delete_message).setVisible(mDeleteButtonVisible);
 
     if (!mDeleteButtonVisible) {
-      ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+      ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
     } else {
-      ((ActionBarActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+      ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
     }
 
     super.onPrepareOptionsMenu(menu);
@@ -309,16 +314,15 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
     if (mMessage != null) {
       mMessageBodyTextView.setText(Html.fromHtml(mMessage));
     }
-    mMessageDateTextView.setText(TextTools.getLocalizedAuthorAndDateString(String.format(
-            "%s %s %s %s",
-            mSenderTitlePre,
-            mSenderForename,
-            mSenderLastname,
-            mSenderTitlePost), mDate, mContext
-    ));
+    mMessageAuthorTextView.setText(TextTools.createNameSting(
+        mSenderTitlePre,
+        mSenderForename,
+        mSenderLastname,
+        mSenderTitlePost));
+    mMessageDateTextView.setText(TextTools.getLocalizedTime(mDate, mContext));
 
     Picasso.with(mContext).load(mUserImageUrl)
-        .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+        .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
         .centerCrop()
         .placeholder(R.drawable.nobody_normal)
         .into(mUserImageView);

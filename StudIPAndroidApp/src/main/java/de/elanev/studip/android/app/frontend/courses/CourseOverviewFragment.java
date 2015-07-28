@@ -31,13 +31,11 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.util.DebugFragment;
 import de.elanev.studip.android.app.util.TextTools;
 
 /**
@@ -49,7 +47,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
   private static final int COURSE_EVENTS_LOADER = 102;
   private static final int COURSE_NEWS_LOADER = 103;
   private static final int COURSE_TEACHERS_LOADER = 104;
-  private TextView mTitleTextView, mTeacherNameTextView, mDescriptionTextView, mNewsTitleTextView, mNewsAuthorTextView, mNewsTextTextView, mNewsShowMoreTextView, mTeacherCountTextView;
+  private TextView mTitleTextView, mTeacherNameTextView, mDescriptionTextView, mNewsTitleTextView, mNewsAuthorTextView, mNewsTextTextView, mNewsShowMoreTextView;
   private ImageView mUserImageView;
   private Context mContext;
   public static Bundle mArgs;
@@ -97,6 +95,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
     }
   };
   private TextView mNextAppointmentTextView;
+  private TextView mTeacherCountTextView;
 
 
   public CourseOverviewFragment() {}
@@ -125,8 +124,8 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
 
     mTitleTextView = (TextView) view.findViewById(R.id.course_title);
     mDescriptionTextView = (TextView) view.findViewById(R.id.course_description);
-    mTeacherNameTextView = (TextView) view.findViewById(R.id.course_teacher_name);
-    mTeacherCountTextView = (TextView) view.findViewById(R.id.course_teacher_count);
+    mTeacherNameTextView = (TextView) view.findViewById(R.id.text1);
+    mTeacherCountTextView = (TextView) view.findViewById(R.id.text2);
     mNewsTitleTextView = (TextView) view.findViewById(R.id.news_title);
     mNewsAuthorTextView = (TextView) view.findViewById(R.id.news_author);
     mNewsTextTextView = (TextView) view.findViewById(R.id.news_text);
@@ -302,26 +301,26 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
         }
         break;
       case COURSE_TEACHERS_LOADER:
+        String teachersString;
         if (!cursor.isAfterLast()) {
           String teacherAvatarUrl = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-          mTeacherNameTextView.setText(
-              cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE)) + " " +
-                  cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME)) +
-                  " " +
-                  cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME)) +
-                  " " +
-                  cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
+          teachersString =  TextTools.createNameSting(cursor.getString(cursor.getColumnIndex(UsersContract.Columns
+              .USER_TITLE_PRE)), cursor.getString(cursor.getColumnIndex(UsersContract.Columns
+              .USER_FORENAME)), cursor.getString(cursor.getColumnIndex(UsersContract.Columns
+              .USER_LASTNAME)), cursor.getString(cursor.getColumnIndex(UsersContract.Columns
+              .USER_TITLE_POST)));
+          mTeacherNameTextView.setText(teachersString);
+
           int teacherCount = cursor.getCount();
           if (teacherCount > 1) {
-            mTeacherCountTextView.setText(String.format(getString(R.string.and_more_teachers,
-                    (teacherCount - 1))
-                )
-            );
+            teacherCount -= 1;
+            mTeacherCountTextView.setText(String.format(getString(R.string.and_more_teachers),
+                teacherCount));
             mTeacherCountTextView.setVisibility(View.VISIBLE);
           }
 
           Picasso.with(mContext).load(teacherAvatarUrl)
-              .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+              .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
               .centerCrop()
               .placeholder(R.drawable.nobody_normal)
               .into(mUserImageView);

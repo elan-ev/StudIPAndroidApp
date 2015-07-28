@@ -9,7 +9,8 @@
 package de.elanev.studip.android.app.frontend.forums;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Window;
 
 import de.elanev.studip.android.app.R;
@@ -17,17 +18,21 @@ import de.elanev.studip.android.app.R;
 /**
  * @author joern
  */
-public class ForumEntryComposeActivity extends ActionBarActivity {
+public class ForumEntryComposeActivity extends AppCompatActivity {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
-    Bundle args = getIntent().getExtras();
     setContentView(R.layout.content_frame);
-    setTitle(R.string.Create_new_entry);
+    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+
     getSupportActionBar().setHomeButtonEnabled(true);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+    Bundle args = getIntent().getExtras();
+    setTitle(R.string.Create_new_entry);
 
     if (savedInstanceState == null) {
       ForumEntryComposeFragment forumEntryComposeFragment = ForumEntryComposeFragment.newInstance(

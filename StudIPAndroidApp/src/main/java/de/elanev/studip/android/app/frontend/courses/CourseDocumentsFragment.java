@@ -20,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -82,8 +83,7 @@ public class CourseDocumentsFragment extends Fragment {
    */
   protected final BroadcastReceiver mDownloadManagerReceiver = new BroadcastReceiver() {
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
+    @Override public void onReceive(Context context, Intent intent) {
       DownloadManager mgr = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
       String action = intent.getAction();
 
@@ -118,16 +118,14 @@ public class CourseDocumentsFragment extends Fragment {
     return fragment;
   }
 
-  @Override
-  public void onAttach(Activity activity) {
+  @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
     // registering the broadcast receiver for completed downloads
     activity.registerReceiver(mDownloadManagerReceiver,
         new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
   }
 
-  @Override
-  public View onCreateView(LayoutInflater inflater,
+  @Override public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
 
@@ -139,8 +137,7 @@ public class CourseDocumentsFragment extends Fragment {
     return wrapperLayout;
   }
 
-  @Override
-  public void onViewCreated(View view, Bundle savedInstanceState) {
+  @Override public void onViewCreated(View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
     DocumentsListFragment frag = DocumentsListFragment.newInstance(getArguments());
@@ -148,14 +145,12 @@ public class CourseDocumentsFragment extends Fragment {
 
   }
 
-  @Override
-  public void onSaveInstanceState(Bundle outState) {
+  @Override public void onSaveInstanceState(Bundle outState) {
     outState.putAll(getArguments());
     super.onSaveInstanceState(outState);
   }
 
-  @Override
-  public void onDetach() {
+  @Override public void onDetach() {
     super.onDetach();
     // unregister the broadcast receiver to save resources
     getActivity().unregisterReceiver(mDownloadManagerReceiver);
@@ -236,16 +231,14 @@ public class CourseDocumentsFragment extends Fragment {
 
     public DocumentsListFragment() {}
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+    @Override public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       mCourseId = getArguments().getString(CoursesContract.Columns.Courses.COURSE_ID);
       mServer = Prefs.getInstance(getActivity()).getServer();
       mAdapter = new DocumentsAdapter(getActivity(), new ArrayList<Object>());
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    @Override public void onActivityCreated(Bundle savedInstanceState) {
       super.onActivityCreated(savedInstanceState);
       setEmptyMessage(R.string.no_documents);
 
@@ -257,8 +250,7 @@ public class CourseDocumentsFragment extends Fragment {
 
     }
 
-    @Override
-    public void onStart() {
+    @Override public void onStart() {
       super.onStart();
       mFolderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
       mFolderName = getArguments().getString(FOLDER_NAME);
@@ -337,8 +329,7 @@ public class CourseDocumentsFragment extends Fragment {
       }
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
       Object obj = mAdapter.getItem(position);
       if (obj instanceof BackButtonListEntry) {
         getActivity().onBackPressed();
@@ -394,8 +385,7 @@ public class CourseDocumentsFragment extends Fragment {
       WarningDialog.newInstance(args).show(ft, "warning_dialog");
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void downloadDocument(Document document) {
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB) private void downloadDocument(Document document) {
       String fileId = document.document_id;
       String fileName = document.filename;
       String fileDescription = document.description;
@@ -459,8 +449,9 @@ public class CourseDocumentsFragment extends Fragment {
             downloadManager.enqueue(request);
           } catch (IllegalArgumentException e) {
             if (getActivity() != null) {
-              Toast.makeText(getActivity(), R.string.error_downloadmanager_disabled, Toast.LENGTH_LONG)
-                  .show();
+              Toast.makeText(getActivity(),
+                  R.string.error_downloadmanager_disabled,
+                  Toast.LENGTH_LONG).show();
             }
           }
 
@@ -476,8 +467,7 @@ public class CourseDocumentsFragment extends Fragment {
       }
     }
 
-    @Override
-    public void onHeaderClick(StickyListHeadersListView stickyListHeadersListView,
+    @Override public void onHeaderClick(StickyListHeadersListView stickyListHeadersListView,
         View view,
         int i,
         long l,
@@ -514,8 +504,7 @@ public class CourseDocumentsFragment extends Fragment {
         return fragment;
       }
 
-      @Override
-      public Dialog onCreateDialog(Bundle savedInstanceState) {
+      @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         // Get url and title res from arguments
         mDialogTitleRes = getArguments().getInt(DIALOG_TITLE_RES);
@@ -544,8 +533,7 @@ public class CourseDocumentsFragment extends Fragment {
         this.mObjects = objects;
       }
 
-      @Override
-      public View getHeaderView(int position, View view, ViewGroup viewGroup) {
+      @Override public View getHeaderView(int position, View view, ViewGroup viewGroup) {
 
         if (view == null) {
           view = mInflater.inflate(R.layout.list_item_header, viewGroup, false);
@@ -566,29 +554,24 @@ public class CourseDocumentsFragment extends Fragment {
         return view;
       }
 
-      @Override
-      public long getHeaderId(int position) {
+      @Override public long getHeaderId(int position) {
         return 0;
       }
 
-      @Override
-      public int getCount() {
+      @Override public int getCount() {
         return mObjects == null ? 0 : mObjects.size();
 
       }
 
-      @Override
-      public Object getItem(int position) {
+      @Override public Object getItem(int position) {
         return mObjects.get(position);
       }
 
-      @Override
-      public long getItemId(int position) {
+      @Override public long getItemId(int position) {
         return position;
       }
 
-      @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      @Override public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
         Object entry = mObjects.get(position);
 
@@ -605,12 +588,12 @@ public class CourseDocumentsFragment extends Fragment {
         if (entry instanceof BackButtonListEntry) {
           holder.title.setText(R.string.back);
           holder.icon.setImageResource(R.drawable.ic_arrow_left_blue);
-          holder.icon.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+          //          holder.icon.setBackgroundColor(getResources().getColor(android.R.color.transparent));
           holder.subtitle.setVisibility(View.GONE);
         } else if (entry instanceof DocumentFolder) {
           DocumentFolder f = (DocumentFolder) entry;
           holder.icon.setImageResource(R.drawable.ic_folder);
-          holder.icon.setBackgroundColor(getResources().getColor(R.color.studip_mobile_dark));
+          //          holder.icon.setBackgroundColor(getResources().getColor(R.color.studip_mobile_dark));
           holder.title.setText(f.name);
           String subText = String.format(getString(R.string.last_updated),
               TextTools.getTimeAgo(f.chdate, mContext));
@@ -621,18 +604,19 @@ public class CourseDocumentsFragment extends Fragment {
           String docName = "Unnamed";
           docName = TextUtils.isEmpty(doc.name) ? doc.filename : doc.name;
           holder.icon.setImageResource(R.drawable.ic_file_generic);
-          holder.icon.setBackgroundColor(getResources().getColor(R.color.studip_mobile_dark));
+          //          holder.icon.setBackgroundColor(getResources().getColor(R.color.studip_mobile_dark));
           holder.title.setText(docName);
           String subText = String.format(getString(R.string.downloads), doc.downloads);
           holder.subtitle.setText(subText + "\t\t\t" + TextTools.readableFileSize(doc.filesize));
           holder.subtitle.setVisibility(View.VISIBLE);
         }
 
+        holder.icon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+            PorterDuff.Mode.SRC_IN);
         return row;
       }
 
-      @Override
-      public boolean isEmpty() {
+      @Override public boolean isEmpty() {
         return mObjects.isEmpty();
       }
 
