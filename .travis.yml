@@ -4,13 +4,11 @@ cache: false
 sudo: false
 env:
   matrix:
-    - ANDROID_TARGET=android-10 ANDROID_ABI=armeabi
-    - ANDROID_TARGET=android-17 ANDROID_ABI=armeabi-v7a
-    - ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
-    - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
-  global:
-    MALLOC_ARENA_MAX=2
-
+  - ANDROID_TARGET=android-10 ANDROID_ABI=armeabi
+  - ANDROID_TARGET=android-17 ANDROID_ABI=armeabi-v7a
+  - ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
+  - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
+  global: MALLOC_ARENA_MAX=2
 android:
   components:
     - tools
@@ -23,15 +21,15 @@ android:
     - android-19
     - android-21
     - android-22
-  licenses:
-    - android-sdk-license-5be876d5
-    - android-sdk-license-598b93a6
-
+licenses:
+  - android-sdk-license-5be876d5
+  - android-sdk-license-598b93a6
 before_script:
-  # Create and start emulator
-  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - adb wait-for-device
-  - adb shell input keyevent 82 &
-
-script: ./gradlew connectedCheck
+- echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
+- emulator -avd test -no-skin -no-audio -no-window &
+- adb wait-for-device
+- adb shell input keyevent 82 &
+script: "./gradlew connectedCheck"
+notifications:
+  slack:
+    secure: Ov7XJdmH5SB1zQlVVT7gozs42Ju1XIONyC2B8+dwKqAxdXEjscTUFkKOPOLVGtfloAd2/8t70LeB1CxIByBMy/WMU4VNYloGMD2FrwFasGhveXCVubKla33miE/Iq+4/R3TXxWffk4Pvvj6BE3D0rQJw8+0RvbBzLsh928USj7E=
