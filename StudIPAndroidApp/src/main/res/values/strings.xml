@@ -117,7 +117,7 @@
 
     <!-- About app Activity -->
     <string name="version_and_copyright" translatable="false">Version: %1$s
-        (%2$s) \n © 2014 ELAN e.V. Oldenburg</string>
+        (%2$s) \n © %3$s ELAN e.V. Oldenburg</string>
     <string name="privacy_policy">Privacy policy</string>
     <string name="licenses">Licenses</string>
     <string name="about_studip_mobile">About Stud.IP mobil</string>
