@@ -56,8 +56,7 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
     }
   }
 
-  @Override
-  public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+  @Override public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
     View v = LayoutInflater.from(viewGroup.getContext())
         .inflate(R.layout.list_item_forum_entry_full, viewGroup, false);
 
@@ -68,37 +67,35 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
     });
   }
 
-  @Override
-  public void onBindViewHolder(ViewHolder viewHolder, int position) {
+  @Override public void onBindViewHolder(ViewHolder viewHolder, int position) {
     ForumEntry item = getItem(position);
     long date = item.chdate == 0 ? item.mkdate : item.chdate;
 
-    viewHolder.mSubjectTextView.setText(item.subject);
+    viewHolder.mSubjectTextView.setText(TextTools.stripHtml(item.subject));
     viewHolder.mContentTextView.setMovementMethod(LinkMovementMethod.getInstance());
     //TODO: Activate when the .../set_forum_read route is fixed
     //    if (item.isNew) {
     //      viewHolder.mSubjectTextView.setTypeface(null, Typeface.BOLD);
-    //      viewHolder.mAuthorDateTextView.setTypeface(null, Typeface.BOLD);
+    //      viewHolder.mAuthorTextView.setTypeface(null, Typeface.BOLD);
     //    } else {
     //      viewHolder.mSubjectTextView.setTypeface(null, Typeface.NORMAL);
-    //      viewHolder.mAuthorDateTextView.setTypeface(null, Typeface.NORMAL);
+    //      viewHolder.mAuthorTextView.setTypeface(null, Typeface.NORMAL);
     //    }
     if (!TextUtils.isEmpty(item.content)) {
       viewHolder.mContentTextView.setText(Html.fromHtml(TextTools.stripImages(item.content)));
     }
 
     if (item.user != null) {
-      viewHolder.mAuthorDateTextView.setText(TextTools.getLocalizedAuthorAndDateString(item.user.getFullName(),
-          date,
-          mContext));
+      viewHolder.mAuthorTextView.setText(item.user.getFullName().trim());
+      viewHolder.mDateTextView.setText(TextTools.getShortRelativeTime(date * 1000L, mContext));
 
       mPicasso.load(item.user.avatarNormal)
-          .resizeDimen(R.dimen.user_image_medium, R.dimen.user_image_medium)
+          .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
           .centerCrop()
           .placeholder(R.drawable.nobody_normal)
           .into(viewHolder.mUserImageView);
     } else {
-      viewHolder.mAuthorDateTextView.setText(TextTools.getShortRelativeTime(date, mContext));
+      viewHolder.mAuthorTextView.setText(TextTools.getShortRelativeTime(date, mContext));
     }
   }
 
@@ -141,16 +138,18 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
       View.OnClickListener {
     public final TextView mSubjectTextView;
     public final TextView mContentTextView;
-    public final TextView mAuthorDateTextView;
+    public final TextView mAuthorTextView;
     public final ViewHolder.ViewHolderClicks mListener;
     public final ImageView mUserImageView;
+    public final TextView mDateTextView;
 
     public ViewHolder(View itemView, ViewHolder.ViewHolderClicks clickListener) {
       super(itemView);
       mListener = clickListener;
       mSubjectTextView = (TextView) itemView.findViewById(R.id.entry_subject);
       mContentTextView = (TextView) itemView.findViewById(R.id.content);
-      mAuthorDateTextView = (TextView) itemView.findViewById(R.id.entry_date);
+      mAuthorTextView = (TextView) itemView.findViewById(R.id.text1);
+      mDateTextView = (TextView) itemView.findViewById(R.id.text2);
       mUserImageView = (ImageView) itemView.findViewById(R.id.user_image);
     }
 

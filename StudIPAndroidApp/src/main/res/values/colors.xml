@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2013 ELAN e.V.
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the GNU Public License v3.0
-  which accompanies this distribution, and is available at
-  http://www.gnu.org/licenses/gpl.html
--->
+  ~ Copyright (c) 2015 ELAN e.V.
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the GNU Public License v3.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.gnu.org/licenses/gpl.html
+  -->
 <resources>
 
-    <color name="studip_mobile_dark">#34598f</color>
+    <color name="studip_mobile_dark">#FF34598f</color>
     <color name="studip_mobile_dark_alpha">#af34598f</color>
     <color name="studip_mobile_darker">#243E63</color>
     <color name="studip_mobile_light">#899AB9</color>
     <color name="primary_text_light">#c000</color>
     <color name="secondary_text_light">#6000</color>
     <color name="primary_text_dark">#fff</color>
+    <color name="secondary_text_dark">#ababab</color>
     <color name="studip_mobile_red">#cb1800</color>
 
 </resources>

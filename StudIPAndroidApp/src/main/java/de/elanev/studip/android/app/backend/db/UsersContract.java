@@ -71,6 +71,7 @@ public class UsersContract extends AbstractContract {
 		public static final String USER_PHONE = "phone";
 		public static final String USER_HOMEPAGE = "homepage";
 		public static final String USER_PRIVADR = "privadr";
+	  	public static final String USER_SKYPE_NAME = "skype";
 	}
 
 	public interface Qualified {
@@ -105,5 +106,7 @@ public class UsersContract extends AbstractContract {
 				+ Columns.USER_HOMEPAGE;
 		public static final String USERS_USER_PRIVADR = TABLE + "."
 				+ Columns.USER_PRIVADR;
+	  	public static final String USERS_USER_SKYPE_NAME = TABLE + "."
+	      			+ Columns.USER_SKYPE_NAME;
 	}
 }

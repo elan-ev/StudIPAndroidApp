@@ -9,56 +9,59 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight">
+    android:layout_height="wrap_content"
+    >
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_image"
-
-        android:layout_width="@dimen/user_image_medium"
-        android:layout_height="@dimen/user_image_medium"
+        android:layout_width="@dimen/user_image_icon_size"
+        android:layout_height="@dimen/user_image_icon_size"
+        android:layout_marginLeft="@dimen/keyline_1"
+        android:layout_marginStart="@dimen/keyline_1"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/nobody_normal"
         android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginRight="8dp"
 
         android:contentDescription="@string/user_image"
         android:scaleType="centerCrop"
-        />
+        android:layout_marginBottom="16dp"/>
 
-    <TextView
-        android:id="@+id/message_sender"
-
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="6dip"
-        android:layout_toRightOf="@+id/user_image"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:orientation="vertical"
+        android:layout_centerVertical="true">
 
+        <TextView
+            android:id="@+id/message_sender"
 
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:maxLines="1"
-        android:textColor="@color/secondary_text_light"
-        android:textSize="@dimen/text_size_small"
-        tools:Text="Doozy Testerson"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/keyline_2"
+            android:layout_marginStart="@dimen/keyline_2"
+            android:layout_marginRight="@dimen/keyline_1"
+            android:layout_marginEnd="@dimen/keyline_1"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/primary_text_light"
+            android:textIsSelectable="false"
+            android:textSize="@dimen/text_size_medium"
+            tools:text="Dr. Prof. Test Testerson"
+            android:gravity="center_vertical"/>
 
-    <TextView
-        android:id="@+id/message_subject"
+        <TextView
+            android:id="@+id/message_subject"
 
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dip"
-        android:layout_above="@+id/message_sender"
-        android:layout_toRightOf="@id/user_image"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignWithParentIfMissing="true"
-
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:gravity="center_vertical"
-        android:textColor="@color/primary_text_light"
-        android:textSize="@dimen/text_size_medium"
-        tools:text="Sample message subject test"/>
-
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/keyline_2"
+            android:layout_marginStart="@dimen/keyline_2"
+            android:layout_marginRight="@dimen/keyline_1"
+            android:layout_marginEnd="@dimen/keyline_1"
+            android:layout_marginBottom="16dp"
+            android:textColor="@color/secondary_text_light"
+            android:textIsSelectable="false"
+            android:textSize="@dimen/text_size_medium"
+            tools:text="@string/lipsum_single"
+            android:gravity="center_vertical"/>
+    </LinearLayout>
 </RelativeLayout>

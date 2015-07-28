@@ -12,7 +12,8 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -72,14 +73,17 @@ public class WebAuthFragment extends Fragment {
       Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.webview_view, container, false);
     mWebView = (WebView) v.findViewById(R.id.webView);
+    v.findViewById(R.id.toolbar).setVisibility(View.GONE); // Hide doubled toolbar
     return v;
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getActivity().setTitle(android.R.string.cancel);
+    ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setDisplayHomeAsUpEnabled(true);
+    }
     setHasOptionsMenu(true);
 
     String url = getArguments().getString(AUTH_URL);
@@ -117,8 +121,7 @@ public class WebAuthFragment extends Fragment {
   private class LoginWebViewClient extends WebViewClient {
     private final String TAG = LoginWebViewClient.class.getCanonicalName();
 
-    @Override
-    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+    @Override public void onPageStarted(WebView view, String url, Bitmap favicon) {
       Log.i(TAG, url);
       if (url.contains("user")) {
         if (mCallbacks != null) {

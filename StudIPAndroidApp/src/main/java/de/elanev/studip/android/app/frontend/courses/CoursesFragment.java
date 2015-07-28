@@ -14,11 +14,13 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
@@ -58,8 +60,7 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
   private static final String SEMESTER_TITLE = SemestersContract.Columns.SEMESTER_TITLE;
 
   protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
-    @Override
-    public void onChange(boolean selfChange) {
+    @Override public void onChange(boolean selfChange) {
       if (getActivity() == null) {
         return;
       }
@@ -74,15 +75,13 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
 
   public CoursesFragment() {}
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = getActivity();
 
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     getActivity().setTitle(R.string.Courses);
 
@@ -98,21 +97,18 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
     getLoaderManager().initLoader(0, null, this);
   }
 
-  @Override
-  public void onAttach(Activity activity) {
+  @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
     activity.getContentResolver()
         .registerContentObserver(CoursesContract.CONTENT_URI, true, mObserver);
   }
 
-  @Override
-  public void onDetach() {
+  @Override public void onDetach() {
     super.onDetach();
     getActivity().getContentResolver().unregisterContentObserver(mObserver);
   }
 
-  @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+  @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Cursor cursor = (Cursor) mListView.getItemAtPosition(position);
     String courseId = cursor.getString(cursor.getColumnIndex(COURSE_ID));
     long cid = cursor.getLong(cursor.getColumnIndex(ID));
@@ -247,30 +243,34 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
       // get holder and update views with positions informations
       ViewHolder holder = (ViewHolder) view.getTag();
       holder.title.setText(title);
+
+      // Load study group icon if course type is set to 99
       if (type == 99) {
-        if (TextUtils.equals(color, "#ffffff"))
-          holder.icon.setImageResource(R.drawable.ic_studygroup_blue);
-        else holder.icon.setImageResource(R.drawable.ic_studygroup);
+         holder.icon.setImageResource(R.drawable.ic_studygroup);
       } else {
-        if (TextUtils.equals(color, "#ffffff"))
-          holder.icon.setImageResource(R.drawable.ic_seminar_blue);
-        else holder.icon.setImageResource(R.drawable.ic_menu_courses);
+         holder.icon.setImageResource(R.drawable.ic_menu_courses);
       }
 
-      if (color != null) try {
-        int c = Color.parseColor(color);
-        holder.icon.setBackgroundColor(c);
-      } catch (Exception e) {
-        Log.wtf(TAG, e.getMessage());
+      if (color != null) {
+        try {
+          int tintColor = Color.parseColor(color);
+          if (tintColor == -1) {
+            tintColor = Color.parseColor("#ff000000");
+          }
+          holder.icon.setColorFilter(tintColor);
+        } catch (Exception e) {
+          Log.wtf(TAG, e.getMessage());
+        }
       }
-    }
 
-    private class ViewHolder {
-      ImageView icon;
-      TextView title;
     }
   }
 
+  private static class ViewHolder {
+    ImageView icon;
+    TextView title;
+  }
 }
+
 
 

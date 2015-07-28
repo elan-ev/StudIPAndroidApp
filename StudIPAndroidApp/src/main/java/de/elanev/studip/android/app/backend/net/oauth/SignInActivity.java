@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.ApiUtils;
@@ -21,7 +23,7 @@ import de.elanev.studip.android.app.util.ApiUtils;
  *
  * @author joern
  */
-public class SignInActivity extends ActionBarActivity implements
+public class SignInActivity extends AppCompatActivity implements
     WebAuthFragment.OnWebViewAuthListener, SignInFragment.OnRequestTokenReceived {
 
   private static final String TAG = SignInActivity.class.getSimpleName();
@@ -37,6 +39,8 @@ public class SignInActivity extends ActionBarActivity implements
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.setContentView(R.layout.content_frame);
+    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
 
     if (savedInstanceState == null) {
       SignInFragment signInFragment = SignInFragment.newInstance();

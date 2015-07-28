@@ -7,9 +7,7 @@
  ******************************************************************************/
 package de.elanev.studip.android.app.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -23,8 +21,7 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.ApiUtils;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
-public class ProgressListFragment extends Fragment implements
-    StickyListHeadersListView.OnStickyHeaderOffsetChangedListener {
+public class ProgressListFragment extends Fragment {
 
   private static final String TAG = ProgressListFragment.class.getSimpleName();
   protected Context mContext;
@@ -34,15 +31,13 @@ public class ProgressListFragment extends Fragment implements
 
   public ProgressListFragment() {}
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = getActivity();
 
   }
 
-  @Override
-  public View onCreateView(LayoutInflater inflater,
+  @Override public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
 
@@ -61,12 +56,10 @@ public class ProgressListFragment extends Fragment implements
     if (!ApiUtils.isOverApi11()) {
       mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
-        @Override
-        public void onScrollStateChanged(AbsListView view, int scrollState) {
+        @Override public void onScrollStateChanged(AbsListView view, int scrollState) {
         }
 
-        @Override
-        public void onScroll(AbsListView view,
+        @Override public void onScroll(AbsListView view,
             int firstVisibleItem,
             int visibleItemCount,
             int totalItemCount) {
@@ -89,13 +82,11 @@ public class ProgressListFragment extends Fragment implements
     return v;
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
     mListView.setDrawingListUnderStickyHeader(true);
     mListView.setAreHeadersSticky(true);
-    mListView.setOnStickyHeaderOffsetChangedListener(this);
   }
 
   /**
@@ -114,13 +105,6 @@ public class ProgressListFragment extends Fragment implements
    */
   protected void setLoadingViewVisible(boolean visible) {
     //TODO: REMOVE, NOT USED ANYMORE
-  }
-
-  @TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override
-  public void onStickyHeaderOffsetChanged(StickyListHeadersListView stickyListHeadersListView,
-      View view,
-      int offset) {
-    if (ApiUtils.isOverApi11()) view.setAlpha(1 - (offset / (float) view.getMeasuredHeight()));
   }
 
 }

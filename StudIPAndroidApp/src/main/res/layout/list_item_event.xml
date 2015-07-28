@@ -11,7 +11,12 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/layout_margin_normal">
+                android:paddingTop="@dimen/content_area_space"
+                android:paddingBottom="@dimen/content_area_space"
+                android:paddingLeft="@dimen/keyline_1"
+                android:paddingStart="@dimen/keyline_1"
+                android:paddingRight="@dimen/keyline_1"
+                android:paddingEnd="@dimen/keyline_1">
 
     <TextView
         android:id="@+id/event_title"
@@ -30,7 +35,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/event_title"
-        android:layout_marginTop="@dimen/layout_margin_small"
         android:ellipsize="end"
         android:maxLines="1"
         android:singleLine="true"
@@ -44,7 +48,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/event_room"
-        android:layout_marginTop="@dimen/layout_margin_small"
         android:ellipsize="end"
         android:maxLines="2"
         android:textColor="@android:color/black"

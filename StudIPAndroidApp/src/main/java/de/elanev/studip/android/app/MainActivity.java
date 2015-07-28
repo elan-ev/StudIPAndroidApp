@@ -1,21 +1,23 @@
-/*******************************************************************************
- * Copyright (c) 2013 ELAN e.V.
+/*
+ * Copyright (c) 2015 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
- ******************************************************************************/
+ */
 package de.elanev.studip.android.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -46,7 +48,7 @@ import de.elanev.studip.android.app.widget.UserDetailsActivity;
  *         Activity holding the navigation drawer and content frame.
  *         It manages the navigation and content fragments.
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
   public static final String TAG = MainActivity.class.getSimpleName();
   public static final String ACTIVE_NAVIGATION_ITEM = "active_navi_item";
   private static int mPosition = 0;
@@ -56,28 +58,25 @@ public class MainActivity extends ActionBarActivity {
   private String mUserId;
   private MenuAdapter mAdapter;
   private boolean isPaused;
+  private Toolbar mToolbar;
 
-  @Override
-  public void onConfigurationChanged(Configuration newConfig) {
+  @Override public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     mDrawerToggle.onConfigurationChanged(newConfig);
   }
 
-  @Override
-  protected void onPause() {
+  @Override protected void onPause() {
     super.onPause();
     isPaused = true;
   }
 
-  @Override
-  protected void onPostCreate(Bundle savedInstanceState) {
+  @Override protected void onPostCreate(Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
     // Sync the toggle state after onRestoreInstanceState has occurred.
     mDrawerToggle.syncState();
   }
 
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
+  @Override protected void onSaveInstanceState(Bundle outState) {
     outState.putInt(ACTIVE_NAVIGATION_ITEM, mPosition);
     super.onSaveInstanceState(outState);
   }
@@ -134,16 +133,14 @@ public class MainActivity extends ActionBarActivity {
     finish();
   }
 
-  @Override
-  public void onBackPressed() {
+  @Override public void onBackPressed() {
     if (!ApiUtils.isOverApi11()) {
       return;
     }
     super.onBackPressed();
   }
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     if (isFinishing()) {
@@ -161,14 +158,17 @@ public class MainActivity extends ActionBarActivity {
     SyncHelper.getInstance(this).requestApiRoutes(null);
 
     setContentView(R.layout.activity_main);
+
+    mUserId = Prefs.getInstance(this).getUserId();
     mAdapter = getNewMenuAdapter();
 
     mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
     mDrawerListView = (ListView) findViewById(R.id.left_drawer);
-
+    mToolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(mToolbar);
     mDrawerToggle = new ActionBarDrawerToggle(this,
         mDrawerLayout,
-        R.drawable.ic_navigation_drawer,
+        mToolbar,
         R.string.open_drawer,
         R.string.close_drawer) {
 
@@ -196,9 +196,6 @@ public class MainActivity extends ActionBarActivity {
 
     if (savedInstanceState == null) changeFragment(mPosition);
     else changeFragment(savedInstanceState.getInt(ACTIVE_NAVIGATION_ITEM));
-
-    mUserId = Prefs.getInstance(this).getUserId();
-
   }
 
   /* Creates a new MenuAdapter with the defined items */
@@ -282,19 +279,12 @@ public class MainActivity extends ActionBarActivity {
             break;
           case R.id.navigation_profile:
             if (mUserId != null) {
-              fragTag = UserDetailsActivity.UserDetailsFragment.class.getName();
-              frag = findFragment(fragTag);
-
-              if (frag == null) {
-                Bundle args = new Bundle();
-                args.putString(UsersContract.Columns.USER_ID, mUserId);
-                frag = UserDetailsActivity.UserDetailsFragment.newInstance(args);
-              }
-            } else {
-              mDrawerLayout.closeDrawers();
-              return;
+              Intent intent = new Intent(this, UserDetailsActivity.class);
+              intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
+              startActivity(intent);
             }
-            break;
+            mDrawerLayout.closeDrawers();
+            return;
           default:
             frag = new NewsListFragment();
         }
@@ -320,8 +310,7 @@ public class MainActivity extends ActionBarActivity {
     return getSupportFragmentManager().findFragmentByTag(tag);
   }
 
-  @Override
-  protected void onStart() {
+  @Override protected void onStart() {
     super.onStart();
     isPaused = false;
   }
