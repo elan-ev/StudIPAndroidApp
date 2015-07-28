@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import java.util.Calendar;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
@@ -55,10 +56,10 @@ public class AboutFragment extends Fragment {
     super.onActivityCreated(savedInstanceState);
     getActivity().setTitle(R.string.about_studip_mobile);
 
-    // Set current app build code and version name
     mVersionTextView.setText(String.format(getString(R.string.version_and_copyright),
         BuildConfig.VERSION_NAME,
-        BuildConfig.VERSION_CODE));
+        BuildConfig.VERSION_CODE,
+        Calendar.getInstance().get(Calendar.YEAR)));
 
     // Make TextView links clickable
     mHomepageTextView.setMovementMethod(LinkMovementMethod.getInstance());
