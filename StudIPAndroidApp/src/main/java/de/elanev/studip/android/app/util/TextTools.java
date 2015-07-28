@@ -14,6 +14,7 @@ import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import de.elanev.studip.android.app.R;
@@ -134,6 +135,18 @@ public class TextTools {
         DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_WEEKDAY);
   }
 
+  /**
+   * Creates a 24h formatted time string from a timestamp.
+   *
+   * @param time Timestamp to convert to 24h time String
+   * @return 24h formatted time String
+   */
+  public static String get24hTime(long time) {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:MM", Locale.getDefault());
+
+    return simpleDateFormat.format(time);
+  }
+
   public static String buildLocalizedTimeString(Long time, Context ctx) {
     return DateFormat.getTimeFormat(ctx).format(time);
   }
@@ -144,14 +157,33 @@ public class TextTools {
     return str;
   }
 
+  /**
+   * Removes all <img /> HTML tags from a String.
+   *
+   * @param content the String the <img /> tags should be removed from.
+   * @return a String without any <img /> tags
+   */
   public static String stripImages(String content) {
     return content.replaceAll("\\<img.*?>", "");
   }
 
+  /**
+   * Removes all HTML tags from the passed String.
+   *
+   * @param html the String the HTML tags should be removed from
+   * @return a HTML tag free String
+   */
   public static String stripHtml(String html) {
     return Html.fromHtml(html).toString();
   }
 
+  /**
+   * Takes an arbitrary number of name parts and created a full name String with all parts
+   * concatenated. The parts must be passed in the correct order.
+   *
+   * @param parts Parts of a name to concatenate to a full name String
+   * @return Full name string
+   */
   public static String createNameSting(String... parts) {
     StringBuilder builder = new StringBuilder();
     for (int i = 0; i < parts.length; i++) {
