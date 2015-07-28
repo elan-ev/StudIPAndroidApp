@@ -94,8 +94,8 @@ public class UserDetailsActivity extends AppCompatActivity implements
     if (mData == null) {
       return;
     }
+    mUserId = mData.getString(UsersContract.Columns.USER_ID);
     //    String mOwnUserId = Prefs.getInstance(this).getUserId();
-    //    mUserId = mData.getString(UsersContract.Columns.USER_ID);
     //    if (TextUtils.equals(mOwnUserId, mUserId)) {
     //      isCurrentUser = true;
     //    }
