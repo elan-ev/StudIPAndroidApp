@@ -16,9 +16,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.text.TextUtils;
 
-import de.elanev.studip.android.app.backend.datamodel.Routes;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.db.AuthenticationContract;
 
@@ -39,6 +37,7 @@ public class Prefs {
   private static final String CURRENT_SEMESTER_ID = "currentSemesterId";
   private static final String RECORDINGS_ENABLED = "recordingsEnabled";
   private static final String FORUM_IS_ACTIVATED = "activeRoutes";
+  private static final String API_SETTINGS_STRING = "apiSettingsString";
   private static Prefs sInstance;
   private Context mContext;
   private SharedPreferences mPrefs;
@@ -281,10 +280,33 @@ public class Prefs {
    * @param value Indicates an activated forum.
    */
   public void setForumIsActivated(boolean value) {
-      mPrefs.edit().putBoolean(FORUM_IS_ACTIVATED, value).apply();
+    mPrefs.edit().putBoolean(FORUM_IS_ACTIVATED, value).apply();
   }
 
+  /**
+   * Checks if the forum route is activated on the API.
+   *
+   * @return true if the forum route is active on the API, false otherwise
+   */
   public boolean isForumActivated() {
     return mPrefs.getBoolean(FORUM_IS_ACTIVATED, false);
+  }
+
+  /**
+   * Saves a String representation of the API settings in the shared preferences.
+   *
+   * @param apiSettings JSON String representation of the API settings to save
+   */
+  public void setApiSettings(String apiSettings) {
+    mPrefs.edit().putString(API_SETTINGS_STRING, apiSettings).apply();
+  }
+
+  /**
+   * Returns the stored API settings JSON String representation
+   *
+   * @return JSON String of the API settings
+   */
+  public String getApiSettings() {
+    return mPrefs.getString(API_SETTINGS_STRING, "");
   }
 }
