@@ -60,6 +60,7 @@ import de.elanev.studip.android.app.backend.datamodel.Routes;
 import de.elanev.studip.android.app.backend.datamodel.Semester;
 import de.elanev.studip.android.app.backend.datamodel.Semesters;
 import de.elanev.studip.android.app.backend.datamodel.Server;
+import de.elanev.studip.android.app.backend.datamodel.Settings;
 import de.elanev.studip.android.app.backend.datamodel.UnizensusItem;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
@@ -75,11 +76,11 @@ import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.services.CustomJsonConverterApiService;
 import de.elanev.studip.android.app.backend.net.services.DiscoveryRouteJsonConverter;
+import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.DocumentsHandler;
 import de.elanev.studip.android.app.backend.net.sync.MessagesHandler;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
-import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -117,8 +118,7 @@ public class SyncHelper {
         .maximumSize(1000)
         .expireAfterWrite(5, TimeUnit.MINUTES)
         .build(new CacheLoader<String, User>() {
-          @Override
-          public User load(String key) throws Exception {
+          @Override public User load(String key) throws Exception {
             return dbQueryForUser(key);
           }
         });
@@ -219,8 +219,7 @@ public class SyncHelper {
         InstitutesContainer.class,
         null,
         new Listener<InstitutesContainer>() {
-          @Override
-          public void onResponse(InstitutesContainer response) {
+          @Override public void onResponse(InstitutesContainer response) {
             try {
               mContext.getContentResolver()
                   .applyBatch(AbstractContract.CONTENT_AUTHORITY,
@@ -237,8 +236,7 @@ public class SyncHelper {
           }
         },
         new ErrorListener() {
-          @Override
-          public void onErrorResponse(VolleyError error) {
+          @Override public void onErrorResponse(VolleyError error) {
             if (callbacks != null) {
               callbacks.onSyncError(SyncHelperCallbacks.ERROR_INSTITUTES_SYNC, error);
             }
@@ -739,7 +737,7 @@ public class SyncHelper {
    */
   public void loadUsersForCourse(String courseId, SyncHelperCallbacks callbacks) {
     try {
-      if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
         new UserLoadTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, courseId, callbacks);
       } else {
         new UserLoadTask().execute(courseId, callbacks);
@@ -1394,7 +1392,7 @@ public class SyncHelper {
     }
     ops.add(builder.build());
 
-    if(course.getAdditionalData() != null) {
+    if (course.getAdditionalData() != null) {
 
 
       // Parse the course recordings, if existing
@@ -1436,7 +1434,8 @@ public class SyncHelper {
   }
 
   public void requestApiRoutes(final SyncHelperCallbacks callbacks) {
-    CustomJsonConverterApiService apiService = new CustomJsonConverterApiService(mContext, mServer,
+    CustomJsonConverterApiService apiService = new CustomJsonConverterApiService(mContext,
+        mServer,
         new DiscoveryRouteJsonConverter());
 
     mCompositeSubscription.add(apiService.discoverApi()
@@ -1459,6 +1458,28 @@ public class SyncHelper {
 
           @Override public void onNext(Routes routes) {
             Prefs.getInstance(mContext).setForumIsActivated(routes.isForumActivated);
+          }
+        }));
+  }
+
+  public void getSettings(final SyncHelperCallbacks callbacks) {
+    StudIpLegacyApiService apiService = new StudIpLegacyApiService(mServer, mContext);
+
+    mCompositeSubscription.add(apiService.getSettings()
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<Settings>() {
+          @Override public void onCompleted() {
+          }
+
+          @Override public void onError(Throwable e) {
+            Log.e(TAG, e.getLocalizedMessage());
+          }
+
+          @Override public void onNext(Settings settings) {
+            String serialized = settings.toJson();
+            Log.d(TAG, "Storing following settings in the Prefs:\n" + serialized);
+            Prefs.getInstance(mContext).setApiSettings(serialized);
           }
         }));
   }
@@ -1567,8 +1588,7 @@ public class SyncHelper {
       mUserRoleCol = CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE;
     }
 
-    @Override
-    protected Void doInBackground(Object... params) {
+    @Override protected Void doInBackground(Object... params) {
 
       String courseId = (String) params[0];
       int role = (Integer) params[1];

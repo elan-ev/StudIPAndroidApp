@@ -3,7 +3,13 @@ package de.elanev.studip.android.app.backend.net.services;
 import android.content.Context;
 import android.database.Cursor;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import org.apache.http.HttpStatus;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
@@ -12,6 +18,7 @@ import de.elanev.studip.android.app.backend.datamodel.ForumCategory;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntries;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntry;
 import de.elanev.studip.android.app.backend.datamodel.Server;
+import de.elanev.studip.android.app.backend.datamodel.Settings;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.datamodel.UserItem;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -227,6 +234,10 @@ public class StudIpLegacyApiService {
     mService.setForumRead(courseId, callback);
   }
 
+  public Observable<Settings> getSettings() {
+    return mService.getSettings();
+  }
+
   public interface RestIPLegacyService {
     @PUT("/courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
         Callback<ForumCategory> cb);
@@ -251,6 +262,8 @@ public class StudIpLegacyApiService {
         @Field("content") String entryContent);
 
     @GET("/user/{user_id}") Observable<UserItem> getUser(@Path("user_id") String userId);
+
+    @GET("/studip/settings") Observable<Settings> getSettings();
   }
 
   public static class UserNotFoundException extends RuntimeException {
