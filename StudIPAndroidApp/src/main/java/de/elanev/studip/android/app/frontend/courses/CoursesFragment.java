@@ -14,13 +14,11 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
@@ -37,9 +35,11 @@ import com.android.volley.VolleyError;
 import java.util.ArrayList;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.datamodel.Settings;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.SemestersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
+import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 
@@ -78,7 +78,6 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = getActivity();
-
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
@@ -216,17 +215,20 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
 
   private static class CoursesCursorAdapter extends SectionedCursorAdapter {
     private LayoutInflater mInflater;
+    private Settings mSettings;
 
     public CoursesCursorAdapter(Context context) {
       super(context);
       mInflater = LayoutInflater.from(context);
+      mSettings = Settings.fromJson(Prefs.getInstance(context).getApiSettings());
     }
 
     @Override public View newView(Context context, Cursor cursor, ViewGroup parent) {
-      View row = mInflater.inflate(R.layout.list_item_single_text_icon, parent, false);
+      View row = mInflater.inflate(R.layout.list_item_two_text_icon, parent, false);
       ViewHolder holder = new ViewHolder();
       holder.title = (TextView) row.findViewById(R.id.text1);
-      holder.icon = (ImageView) row.findViewById(R.id.icon1);
+      holder.courseTyp = (TextView) row.findViewById(R.id.text2);
+      holder.icon = (ImageView) row.findViewById(R.id.icon);
       row.setTag(holder);
       return row;
     }
@@ -239,16 +241,18 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
       String title = cursor.getString(courseTitleColIdx);
       int type = cursor.getInt(courseTypeColIdx);
       String color = cursor.getString(courseColorColIdx);
+      String typeTitle = mSettings.semTypes.get(type).name;
 
       // get holder and update views with positions informations
       ViewHolder holder = (ViewHolder) view.getTag();
       holder.title.setText(title);
+      holder.courseTyp.setText(typeTitle);
 
       // Load study group icon if course type is set to 99
       if (type == 99) {
-         holder.icon.setImageResource(R.drawable.ic_studygroup);
+        holder.icon.setImageResource(R.drawable.ic_studygroup);
       } else {
-         holder.icon.setImageResource(R.drawable.ic_menu_courses);
+        holder.icon.setImageResource(R.drawable.ic_menu_courses);
       }
 
       if (color != null) {
@@ -269,6 +273,7 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
   private static class ViewHolder {
     ImageView icon;
     TextView title;
+    TextView courseTyp;
   }
 }
 
