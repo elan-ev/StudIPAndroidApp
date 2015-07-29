@@ -32,10 +32,12 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.datamodel.Settings;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
 
 /**
@@ -48,14 +50,14 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
   private static final int COURSE_NEWS_LOADER = 103;
   private static final int COURSE_TEACHERS_LOADER = 104;
   private TextView mTitleTextView, mTeacherNameTextView, mDescriptionTextView, mNewsTitleTextView, mNewsAuthorTextView, mNewsTextTextView, mNewsShowMoreTextView;
+  private TextView mCourseTypeTextView;
   private ImageView mUserImageView;
   private Context mContext;
   public static Bundle mArgs;
 
   protected final ContentObserver mObserverCourse = new ContentObserver(new Handler()) {
 
-    @Override
-    public void onChange(boolean selfChange) {
+    @Override public void onChange(boolean selfChange) {
       if (getActivity() == null) {
         return;
       }
@@ -68,8 +70,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
   };
   protected final ContentObserver mObserverEvents = new ContentObserver(new Handler()) {
 
-    @Override
-    public void onChange(boolean selfChange) {
+    @Override public void onChange(boolean selfChange) {
       if (getActivity() == null) {
         return;
       }
@@ -82,8 +83,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
   };
   protected final ContentObserver mObserverNews = new ContentObserver(new Handler()) {
 
-    @Override
-    public void onChange(boolean selfChange) {
+    @Override public void onChange(boolean selfChange) {
       if (getActivity() == null) {
         return;
       }
@@ -108,15 +108,13 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
     return fragment;
   }
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mArgs = getArguments();
     mContext = getActivity();
   }
 
-  @Override
-  public View onCreateView(LayoutInflater inflater,
+  @Override public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
 
@@ -132,11 +130,11 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
     mNewsShowMoreTextView = (TextView) view.findViewById(R.id.show_news_body);
     mUserImageView = (ImageView) view.findViewById(R.id.user_image);
     mNextAppointmentTextView = (TextView) view.findViewById(R.id.course_next_appointment);
+    mCourseTypeTextView = (TextView) view.findViewById(R.id.course_type);
     return view;
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
     // initialize CursorLoaders with IDs
@@ -175,8 +173,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
     }
   }
 
-  @Override
-  public void onAttach(Activity activity) {
+  @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
     final ContentResolver contentResolver = activity.getContentResolver();
 
@@ -187,8 +184,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
     contentResolver.registerContentObserver(NewsContract.CONTENT_URI, true, mObserverNews);
   }
 
-  @Override
-  public void onDetach() {
+  @Override public void onDetach() {
     super.onDetach();
     final ContentResolver contentResolver = getActivity().getContentResolver();
     contentResolver.unregisterContentObserver(mObserverCourse);
@@ -198,7 +194,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
 
   public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 
-    if(data == null) {
+    if (data == null) {
       throw new IllegalStateException("Bundle data must not be null!");
     }
 
@@ -212,8 +208,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
             CourseItemQuery.projection,
             null,
             null,
-            CoursesContract.DEFAULT_SORT_ORDER
-        );
+            CoursesContract.DEFAULT_SORT_ORDER);
 
       case COURSE_EVENTS_LOADER:
         return new CursorLoader(mContext,
@@ -222,8 +217,7 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
             EventsContract.Columns.EVENT_START + " >= strftime" +
                 "('%s','now')",
             null,
-            EventsContract.DEFAULT_SORT_ORDER + " LIMIT 1"
-        );
+            EventsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
 
       case COURSE_NEWS_LOADER:
         return new CursorLoader(mContext,
@@ -231,16 +225,14 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
             CourseNewsQuery.projection,
             null,
             null,
-            NewsContract.DEFAULT_SORT_ORDER + " LIMIT 1"
-        );
+            NewsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
       case COURSE_TEACHERS_LOADER:
         return new CursorLoader(mContext,
             UsersContract.CONTENT_URI.buildUpon().appendPath("course").appendPath(cid).build(),
             CourseUsersQuery.projection,
             CourseUsersQuery.selection,
             CourseUsersQuery.selectionArgs,
-            CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_ID + " ASC"
-        );
+            CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_ID + " ASC");
     }
     return null;
 
@@ -260,9 +252,14 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
         if (!cursor.isAfterLast()) {
           String courseTitle = cursor.getString(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
           String courseDescription = cursor.getString(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
+          int courseTyp = cursor.getInt(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TYPE));
+
+
           mTitleTextView.setText(courseTitle);
           getActivity().setTitle(courseTitle);
-
+          String courseTypeString = Settings.fromJson(Prefs.getInstance(getActivity())
+              .getApiSettings()).semTypes.get(courseTyp).name;
+          mCourseTypeTextView.setText(courseTypeString);
           if (!TextUtils.isEmpty(courseDescription)) {
             mDescriptionTextView.setText(courseDescription);
             mDescriptionTextView.setMovementMethod(new ScrollingMovementMethod());
@@ -290,10 +287,9 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
 
           mNewsTitleTextView.setText(newsTopic);
           mNewsAuthorTextView.setText(TextTools.getLocalizedAuthorAndDateString(String.format(
-                  "%s %s",
-                  userForename,
-                  userLastname), newsDate, getActivity()
-          ));
+              "%s %s",
+              userForename,
+              userLastname), newsDate, getActivity()));
           mNewsAuthorTextView.setVisibility(View.VISIBLE);
           mNewsShowMoreTextView.setVisibility(View.VISIBLE);
           mNewsTextTextView.setText(Html.fromHtml(newsBody));
@@ -304,11 +300,11 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
         String teachersString;
         if (!cursor.isAfterLast()) {
           String teacherAvatarUrl = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-          teachersString =  TextTools.createNameSting(cursor.getString(cursor.getColumnIndex(UsersContract.Columns
-              .USER_TITLE_PRE)), cursor.getString(cursor.getColumnIndex(UsersContract.Columns
-              .USER_FORENAME)), cursor.getString(cursor.getColumnIndex(UsersContract.Columns
-              .USER_LASTNAME)), cursor.getString(cursor.getColumnIndex(UsersContract.Columns
-              .USER_TITLE_POST)));
+          teachersString = TextTools.createNameSting(cursor.getString(cursor.getColumnIndex(
+                  UsersContract.Columns.USER_TITLE_PRE)),
+              cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME)),
+              cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME)),
+              cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
           mTeacherNameTextView.setText(teachersString);
 
           int teacherCount = cursor.getCount();
@@ -319,7 +315,8 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
             mTeacherCountTextView.setVisibility(View.VISIBLE);
           }
 
-          Picasso.with(mContext).load(teacherAvatarUrl)
+          Picasso.with(mContext)
+              .load(teacherAvatarUrl)
               .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
               .centerCrop()
               .placeholder(R.drawable.nobody_normal)
@@ -337,7 +334,8 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
   private interface CourseItemQuery {
     String[] projection = {
         CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
-        CoursesContract.Qualified.Courses.COURSES_COURSE_DESCIPTION
+        CoursesContract.Qualified.Courses.COURSES_COURSE_DESCIPTION,
+        CoursesContract.Qualified.Courses.COURSES_COURSE_TYPE
     };
   }
 
