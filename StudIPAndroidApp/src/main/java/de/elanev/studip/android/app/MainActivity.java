@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
     // Verify that the forum routes are still activated
     //TODO: Move this and other API checks to a Service or something, but not here
     SyncHelper.getInstance(this).requestApiRoutes(null);
+    SyncHelper.getInstance(this).getSettings(null);
 
     setContentView(R.layout.activity_main);
 
