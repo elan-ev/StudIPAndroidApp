@@ -190,46 +190,45 @@ public class OAuthConnector {
     /*
      * AsyncTask for requesting the request token from the API
      */
-    private class RequestTokenTask extends AsyncTask<String, Integer, String> {
-
+    private class RequestTokenTask extends AsyncTask<String, Integer, RequestResult> {
         OAuthCallbacks mCallbacks;
-
         RequestTokenTask(OAuthCallbacks callbacks) {
             this.mCallbacks = callbacks;
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected RequestResult doInBackground(String... params) {
             mProvider = new CommonsHttpOAuthProvider(
                     mServer.getRequestUrl(),
                     mServer.getAccessUrl(),
                     mServer.getAuthorizationUrl());
 
             try {
-                return mProvider.retrieveRequestToken(mConsumer, OAuth.OUT_OF_BAND);
-            } catch (OAuthMessageSignerException e) {
-                e.printStackTrace();
-            } catch (OAuthNotAuthorizedException e) {
-                e.printStackTrace();
-            } catch (OAuthExpectationFailedException e) {
-                e.printStackTrace();
-            } catch (OAuthCommunicationException e) {
-                e.printStackTrace();
-            }
+                String requestToken = mProvider.retrieveRequestToken(mConsumer, OAuth.OUT_OF_BAND);
+                if (!requestToken.isEmpty()) {
 
-            return null;
+                  return new RequestResult(new String[] {requestToken}, null);
+                }
+
+              return new RequestResult(null, new EmptyRequestTokenException("Received empty RequestToken response"));
+            } catch (Exception e) {
+              e.printStackTrace();
+
+              return new RequestResult(null, e);
+            }
         }
 
         @Override
-        protected void onPostExecute(String result) {
-
-            // If the RequestToken request was successful, show the
-            // permission prompt
-            if (mCallbacks != null)
-                if (result != null) {
-                    mCallbacks.onRequestTokenReceived(result);
+        protected void onPostExecute(RequestResult result) {
+            // If the RequestToken request was successful, show the permission prompt
+            if (mCallbacks != null && result != null)
+                if (result.getResult() != null) {
+                    mCallbacks.onRequestTokenReceived(result.getResult()[0]);
+                } else if (result.getException() != null){
+                    Exception exception = result.getException();
+                    mCallbacks.onRequestTokenRequestError(new OAuthCallbacks.OAuthError(exception.getLocalizedMessage()));
                 } else {
-                    mCallbacks.onRequestTokenRequestError(new OAuthCallbacks.OAuthError("Something went wrong"));
+                    mCallbacks.onRequestTokenRequestError(new OAuthCallbacks.OAuthError("Unknown error"));
                 }
         }
     }
@@ -237,7 +236,7 @@ public class OAuthConnector {
     /*
      * AsyncTask for requesting the access token from the API
      */
-    private class AccessTokenTask extends AsyncTask<String, Integer, String[]> {
+    private class AccessTokenTask extends AsyncTask<String, Integer, RequestResult> {
         OAuthCallbacks mCallbacks;
 
         AccessTokenTask(OAuthCallbacks callbacks) {
@@ -245,34 +244,84 @@ public class OAuthConnector {
         }
 
         @Override
-        protected String[] doInBackground(String... arg0) {
-            if (mProvider != null)
+        protected RequestResult doInBackground(String... arg0) {
+                if (mProvider == null) {
+
+                  return new RequestResult(null, new InvalidStateException("Provider must not be null"));
+                }
+
                 try {
                     mProvider.retrieveAccessToken(mConsumer, OAuth.OUT_OF_BAND);
+                    if (!mConsumer.getToken().isEmpty() && !mConsumer.getTokenSecret().isEmpty()) {
 
-                    return new String[]{mConsumer.getToken(), mConsumer.getTokenSecret()};
-                } catch (OAuthMessageSignerException e) {
+                      return new RequestResult(new String[]{mConsumer.getToken(), mConsumer.getTokenSecret()}, null);
+                    }
+
+                    return new RequestResult(null, new AccessTokenRequestException("No AccessToken received"));
+                } catch (Exception e) {
                     e.printStackTrace();
-                } catch (OAuthNotAuthorizedException e) {
-                    e.printStackTrace();
-                } catch (OAuthExpectationFailedException e) {
-                    e.printStackTrace();
-                } catch (OAuthCommunicationException e) {
-                    e.printStackTrace();
+
+                    return new RequestResult(null, e);
                 }
-            return null;
         }
 
         @Override
-        protected void onPostExecute(String[] result) {
-
+        protected void onPostExecute(RequestResult result) {
             // If the access token was requested successfully, start the prefetching
-            if (mCallbacks != null)
-                if (result != null) {
-                    mCallbacks.onAccessTokenReceived(result[0], result[1]);
-                } else {
-                    mCallbacks.onAccesTokenRequestError(new OAuthCallbacks.OAuthError("AccessToken error"));
-                }
+            if (mCallbacks != null && result != null) {
+              if (result.getResult() != null) {
+                mCallbacks.onAccessTokenReceived(result.getResult()[0], result.getResult()[1]);
+              } else if (result.getException() != null) {
+                mCallbacks.onAccesTokenRequestError(new OAuthCallbacks.OAuthError(result.getException()
+                    .getLocalizedMessage()));
+              } else {
+                mCallbacks.onAccesTokenRequestError(new OAuthCallbacks.OAuthError("Unkown error"));
+              }
+            }
         }
     }
+
+    private static class RequestResult {
+      private String[] mResult;
+      private Exception mException;
+
+      RequestResult(String[] result, Exception exception) {
+        mResult = result;
+        mException = exception;
+      }
+
+      public String[] getResult() {
+        return mResult;
+      }
+
+      public void setResult(String[] result) {
+        mResult = result;
+      }
+
+      public Exception getException() {
+        return mException;
+      }
+
+      public void setException(Exception exception) {
+        mException = exception;
+      }
+    }
+
+  public class EmptyRequestTokenException extends Exception {
+    public EmptyRequestTokenException(String detailMessage) {
+      super(detailMessage);
+    }
+  }
+
+  private class AccessTokenRequestException extends Exception {
+    public AccessTokenRequestException(String detailMessage) {
+      super(detailMessage);
+    }
+  }
+
+  private class InvalidStateException extends Exception {
+    public InvalidStateException(String detailMessage) {
+      super(detailMessage);
+    }
+  }
 }
