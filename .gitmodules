@@ -6,3 +6,6 @@
 [submodule "libs/signpost-retrofit"]
 	path = libs/signpost-retrofit
 	url = https://github.com/mndfcked/signpost-retrofit.git
+[submodule "libs/twoway-view"]
+	path = libs/twoway-view
+	url = https://github.com/elan-ev/twoway-view.git
