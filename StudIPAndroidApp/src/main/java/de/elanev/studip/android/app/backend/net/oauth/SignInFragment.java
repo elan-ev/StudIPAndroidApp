@@ -611,12 +611,12 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   }
 
   @Override public void onRequestTokenRequestError(OAuthError e) {
-    Toast.makeText(mContext, e.errorMessage, Toast.LENGTH_LONG).show();
+    Toast.makeText(mContext, "RequestToken error: " + e.errorMessage, Toast.LENGTH_LONG).show();
     showLoginForm();
   }
 
   @Override public void onAccesTokenRequestError(OAuthError e) {
-    Toast.makeText(mContext, e.errorMessage, Toast.LENGTH_LONG).show();
+    Toast.makeText(mContext, "AccessToken error: " + e.errorMessage, Toast.LENGTH_LONG).show();
     showLoginForm();
   }
 
