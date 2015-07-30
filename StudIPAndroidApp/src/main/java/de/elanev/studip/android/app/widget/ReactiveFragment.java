@@ -17,8 +17,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
-import org.lucasr.twowayview.widget.TwoWayView;
-
 import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
 import rx.Observable;
 import rx.android.app.AppObservable;
@@ -36,7 +34,7 @@ public class ReactiveFragment extends Fragment {
   private static final String TAG = ReactiveListFragment.class.getSimpleName();
   protected final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
   private final BehaviorSubject<LifecycleEvent> lifecycleSubject = BehaviorSubject.create();
-  protected TwoWayView mRecyclerView;
+  protected RecyclerView mRecyclerView;
   protected TextView mEmptyView;
   protected SwipeRefreshLayout mSwipeRefreshLayout;
   protected RecyclerView.AdapterDataObserver mObserver;
