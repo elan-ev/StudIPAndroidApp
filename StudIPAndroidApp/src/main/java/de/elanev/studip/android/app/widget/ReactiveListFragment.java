@@ -8,20 +8,16 @@
 
 package de.elanev.studip.android.app.widget;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import org.lucasr.twowayview.TwoWayLayoutManager;
-import org.lucasr.twowayview.widget.DividerItemDecoration;
-import org.lucasr.twowayview.widget.TwoWayView;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -35,7 +31,7 @@ import rx.subscriptions.CompositeSubscription;
 public abstract class ReactiveListFragment extends ReactiveFragment {
   private static final String TAG = ReactiveListFragment.class.getSimpleName();
   protected final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-  protected TwoWayView mRecyclerView;
+  protected RecyclerView mRecyclerView;
   protected TextView mEmptyView;
   protected SwipeRefreshLayout mSwipeRefreshLayout;
   protected RecyclerView.AdapterDataObserver mObserver;
@@ -62,8 +58,8 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.recyclerview_list, container, false);
-    mRecyclerView = (TwoWayView) v.findViewById(R.id.list);
-    mEmptyView = (TextView) v.findViewById(R.id.empty);
+    mRecyclerView = (RecyclerView) v.findViewById(R.id.list);
+        mEmptyView = (TextView) v.findViewById(R.id.empty);
     mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
 
     return v;
@@ -76,11 +72,10 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     toggleEmptyView(true);
 
     // Set RecyclerView up
+    mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     mRecyclerView.setHasFixedSize(true);
     mRecyclerView.setLongClickable(true);
-    final Drawable divider = getResources().getDrawable(R.drawable.divider);
-    mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
-    mRecyclerView.setOrientation(TwoWayLayoutManager.Orientation.VERTICAL);
+    mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity().getApplicationContext()));
 
     // Set SwipeRefreshLayout up
     mSwipeRefreshLayout.setColorSchemeResources(R.color.studip_mobile_dark,
