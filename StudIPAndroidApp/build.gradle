@@ -45,8 +45,6 @@ dependencies {
   compile 'com.android.support:appcompat-v7:22.2.1'
   compile 'com.android.support:recyclerview-v7:22.2.1'
   compile 'com.android.support:design:22.2.1'
-  compile 'org.lucasr.twowayview:core:1.0.0-SNAPSHOT@aar'
-  compile 'org.lucasr.twowayview:layouts:1.0.0-SNAPSHOT@aar'
   compile 'com.squareup.okhttp:okhttp:2.4.0'
   compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
   compile 'io.reactivex:rxandroid:0.25.0'
