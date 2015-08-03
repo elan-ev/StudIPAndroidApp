@@ -55,7 +55,6 @@
 }
 -keepclassmembers class **.R$* {public static <fields>;}
 -keep class **.R$*
--keep class org.lucasr.twowayview.** { *; }
 -keep class retrofit.http.** { *; }
 -keep class com.squareup.okhttp.** { *; }
 -keep interface com.squareup.okhttp.** { *; }
