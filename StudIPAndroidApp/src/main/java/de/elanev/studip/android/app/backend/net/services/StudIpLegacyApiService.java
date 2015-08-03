@@ -3,13 +3,7 @@ package de.elanev.studip.android.app.backend.net.services;
 import android.content.Context;
 import android.database.Cursor;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import org.apache.http.HttpStatus;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
@@ -230,7 +224,7 @@ public class StudIpLegacyApiService {
     return mService.createForumEntry(topicId, entrySubject, entryContent);
   }
 
-  public void setForumRead(final String courseId, final Callback callback) {
+  public void setForumRead(final String courseId, final Callback<ForumCategory> callback) {
     mService.setForumRead(courseId, callback);
   }
 
