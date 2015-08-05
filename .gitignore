@@ -107,8 +107,7 @@ gradle.xml
 .idea/libraries
 dictionaries
 .idea/misc.xml
-StudIPAndroidApp.iml
-
+.idea/vcs.xml
 
 # Unwanted binaries
 *.db
