@@ -46,9 +46,9 @@ public class Recording {
   @JsonProperty("start")
   private String start;
   @JsonProperty("duration")
-  private String duration;
+  private long duration;
   @JsonProperty("description")
-  private Object description;
+  private String description;
   @JsonProperty("author")
   private String author;
   @JsonProperty("preview")
@@ -95,12 +95,12 @@ public class Recording {
   }
 
   @JsonProperty("duration")
-  public String getDuration() {
+  public long getDuration() {
     return duration;
   }
 
   @JsonProperty("duration")
-  public void setDuration(String duration) {
+  public void setDuration(long duration) {
     this.duration = duration;
   }
 
@@ -110,7 +110,7 @@ public class Recording {
   }
 
   @JsonProperty("description")
-  public void setDescription(Object description) {
+  public void setDescription(String description) {
     this.description = description;
   }
 
