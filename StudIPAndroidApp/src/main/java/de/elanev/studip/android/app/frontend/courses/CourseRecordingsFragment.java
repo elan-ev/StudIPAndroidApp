@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2015 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -9,66 +9,57 @@
 package de.elanev.studip.android.app.frontend.courses;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.squareup.picasso.Picasso;
+
+import org.apache.http.HttpException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.datamodel.Recording;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
-import de.elanev.studip.android.app.backend.db.RecordingsContract;
-import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.widget.ProgressListFragment;
-import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
+import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
+import de.elanev.studip.android.app.widget.ReactiveListFragment;
+import retrofit.RetrofitError;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Fragment that loads the list of recordings for a specific course and displays it.
  *
  * @author Jörn
  */
-public class CourseRecordingsFragment extends ProgressListFragment implements
-    LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class CourseRecordingsFragment extends ReactiveListFragment implements
+    ReactiveListFragment.ListItemClicks {
   public static final String TAG = CourseRecordingsFragment.class.getSimpleName();
 
-  private ListAdapterRecordings mAdapter;
+  private RecordingsAdapter mAdapter;
   private String mCourseId;
-
-  private final ContentObserver mObserver = new ContentObserver(new Handler()) {
-    @Override
-    public void onChange(boolean selfChange) {
-      if (getActivity() == null) {
-        return;
-      }
-
-      Loader<Cursor> loader = getLoaderManager().getLoader(0);
-      if (loader != null) {
-        loader.forceLoad();
-      }
-    }
-  };
+  private RecyclerView.AdapterDataObserver mObserver;
 
   public CourseRecordingsFragment() {}
 
@@ -80,171 +71,214 @@ public class CourseRecordingsFragment extends ProgressListFragment implements
     return fragment;
   }
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    mContext = getActivity();
-    mAdapter = new ListAdapterRecordings(mContext);
+    mAdapter = new RecordingsAdapter(null, this, getActivity());
     mCourseId = getArguments().getString(CoursesContract.Columns.Courses.COURSE_ID);
-  }
+    mObserver = new RecyclerView.AdapterDataObserver() {
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
+      @Override public void onChanged() {
+        super.onChanged();
 
-    setEmptyMessage(R.string.no_recordings);
-    mListView.setAdapter(mAdapter);
-    mListView.setOnItemClickListener(this);
-    getLoaderManager().initLoader(0, getArguments(), this);
-  }
-
-  @Override public void onStart() {
-    super.onStart();
-
-    SyncHelper.getInstance(mContext).requestRecordingsForCourse(mCourseId, null);
-  }
-
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-
-    activity.getContentResolver()
-        .registerContentObserver(RecordingsContract.CONTENT_URI, true, mObserver);
-  }
-
-  @Override public void onDetach() {
-    super.onDetach();
-
-    getActivity().getContentResolver().unregisterContentObserver(mObserver);
-  }
-
-  @Override public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-    setLoadingViewVisible(true);
-    return new CursorLoader(mContext,
-        CoursesContract.CONTENT_URI.buildUpon()
-            .appendPath(RecordingsContract.PATH_RECORDINGS)
-            .appendPath(mCourseId)
-            .build(),
-        RecordingsQuery.projection,
-        null,
-        null,
-        RecordingsContract.DEFAULT_SORT_ORDER
-    );
-  }
-
-  @Override public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-    if (getActivity() != null) {
-      mAdapter.swapCursor(cursor);
-      setLoadingViewVisible(false);
-    }
-  }
-
-  @Override public void onLoaderReset(Loader<Cursor> cursorLoader) {
-    mAdapter.swapCursor(null);
-  }
-
-  @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    Cursor c = (Cursor) mAdapter.getItem(position);
-    String url = c.getString(c.getColumnIndex(RecordingsContract.Columns.Recordings.RECORDING_PRESENTATION_DOWNLOAD));
-if (!TextUtils.isEmpty(url)) {
-  Intent intent = new Intent(Intent.ACTION_VIEW);
-  intent.setDataAndType(Uri.parse(url), "video/*");
-  startActivity(Intent.createChooser(intent, mContext.getString(R.string.recordings_chooser_title)));
-} else  {
-  Toast.makeText(getActivity(), R.string.recording_no_available, Toast.LENGTH_LONG).show();
-}
-  }
-
-  private interface RecordingsQuery {
-    String[] projection = {
-        RecordingsContract.Qualified.Recordings.RECORDINGS_ID,
-        RecordingsContract.Qualified.Recordings.RECORDINGS_RECORDING_TITLE,
-        RecordingsContract.Qualified.Recordings.RECORDINGS_RECORDING_START,
-        RecordingsContract.Qualified.Recordings.RECORDINGS_RECORDING_PRESENTATION_DOWNLOAD,
-        RecordingsContract.Qualified.Recordings.RECORDINGS_RECORDING_AUTHOR,
-        RecordingsContract.Qualified.Recordings.RECORDINGS_RECORDING_PREVIEW,
-        RecordingsContract.Qualified.Recordings.RECORDINGS_RECORDING_DURATION
+        toggleEmptyView(mAdapter.isEmpty());
+      }
     };
+
+    mAdapter.registerAdapterDataObserver(mObserver);
   }
 
-  private class ListAdapterRecordings extends SectionedCursorAdapter {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    mRecyclerView.setAdapter(mAdapter);
+    removeDividerItemDecoratior();
+    mEmptyView.setText(R.string.no_recordings);
 
-    SimpleDateFormat mDateParser = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ss'Z'");
+    if (!mRecreated) {
+      updateItems();
+    }
+  }
 
-    public ListAdapterRecordings(Context context) {
-      super(context);
+  @Override protected void updateItems() {
+    // Return immediately when no course id is set
+    if (TextUtils.isEmpty(mCourseId)) {
+      return;
     }
 
-    @Override public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-      View v = LayoutInflater.from(mContext)
-          .inflate(R.layout.list_item_recording, viewGroup, false);
-      RecordingHolder holder = new RecordingHolder();
-      holder.preview = (ImageView) v.findViewById(R.id.preview_image);
-      holder.author = (TextView) v.findViewById(R.id.author);
-      holder.title = (TextView) v.findViewById(R.id.title);
-      holder.duration = (TextView) v.findViewById(R.id.duration);
-      holder.date = (TextView) v.findViewById(R.id.date);
+    mCompositeSubscription.add(bind(mApiService.getRecordings(mCourseId)).subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<ArrayList<Recording>>() {
+          @Override public void onCompleted() {
+            mRecyclerView.setBackgroundColor(getResources().getColor(R.color.backgroud_grey_light));
+            setRefreshing(false);
+          }
 
-      v.setTag(holder);
-      return v;
+          @Override public void onError(Throwable e) {
+            if (e instanceof TimeoutException) {
+              Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT).show();
+            } else if (e instanceof RetrofitError || e instanceof HttpException) {
+              Toast.makeText(getActivity(), "Retrofit error or http exception", Toast.LENGTH_LONG)
+                  .show();
+              Log.e(TAG, e.getLocalizedMessage());
+            } else {
+              e.printStackTrace();
+              throw new RuntimeException("See inner exception");
+            }
+
+            setRefreshing(false);
+          }
+
+          @Override public void onNext(ArrayList<Recording> recordings) {
+            if (recordings == null) {
+              return;
+            }
+            mAdapter.setData(recordings);
+          }
+        }));
+  }
+
+  @Override public void onListItemClicked(View v, int position) {
+    Recording recording = mAdapter.getItem(position);
+    if (recording == null) {
+      return;
     }
 
-    @Override public void bindView(View view, Context context, Cursor cursor) {
-      final String author = cursor.getString(cursor.getColumnIndex(RecordingsContract.Columns.Recordings.RECORDING_AUTHOR));
-      final long duration = cursor.getLong(cursor.getColumnIndex(RecordingsContract.Columns.Recordings.RECORDING_DURATION));
-      final String title = cursor.getString(cursor.getColumnIndex(RecordingsContract.Columns.Recordings.RECORDING_TITLE));
-      final String previewUrl = cursor.getString(cursor.getColumnIndex(RecordingsContract.Columns.Recordings.RECORDING_PREVIEW));
-      final String start = cursor.getString(cursor.getColumnIndex(RecordingsContract.Columns.Recordings.RECORDING_START));
+    String url = recording.getPresentationDownload();
+    if (!TextUtils.isEmpty(url)) {
+      Intent intent = new Intent(Intent.ACTION_VIEW);
+      intent.setDataAndType(Uri.parse(url), "video/*");
+      startActivity(Intent.createChooser(intent,
+          getActivity().getString(R.string.recordings_chooser_title)));
+    } else {
+      Toast.makeText(getActivity(), R.string.recording_no_available, Toast.LENGTH_LONG).show();
+    }
+  }
 
-      RecordingHolder holder = (RecordingHolder) view.getTag();
+  private static class RecordingsAdapter extends
+      RecyclerView.Adapter<RecordingsAdapter.ViewHolder> {
 
-      holder.author.setText(author);
-      holder.title.setText(title);
-      String durationString = String.format("%02d:%02d:%02d",
-          TimeUnit.MILLISECONDS.toHours(duration),
-          TimeUnit.MILLISECONDS.toMinutes(duration)
-              - TimeUnit.HOURS.toMinutes((TimeUnit.MILLISECONDS).toHours(duration)),
-          TimeUnit.MILLISECONDS.toSeconds(duration)
-              - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration))
-      );
-      holder.duration.setText(durationString);
+    private List<Recording> mData;
+    private ReactiveListFragment.ListItemClicks mFragmentClickListener;
+    private Context mContext;
+    private ISO8601DateFormat mDateFormat = new ISO8601DateFormat();
+    SimpleDateFormat mDateParser = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ss'Z'",
+        Locale.getDefault());
+
+
+    public RecordingsAdapter(List<Recording> data,
+        ReactiveListFragment.ListItemClicks callback,
+        Context context) {
+      if (mData == null) {
+        mData = new ArrayList<>();
+      } else {
+        mData = data;
+      }
+      mFragmentClickListener = callback;
+      mContext = context;
+    }
+
+    public void setData(ArrayList<Recording> data) {
+      mData.clear();
+      mData.addAll(data);
+      notifyDataSetChanged();
+    }
+
+    @Override public RecordingsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+        int viewType) {
+      View v = LayoutInflater.from(parent.getContext())
+          .inflate(R.layout.list_item_recording, parent, false);
+
+      return new ViewHolder(v, new ViewHolder.ViewHolderClicks() {
+        @Override public void onListItemClicked(View caller, int position) {
+          mFragmentClickListener.onListItemClicked(caller, position);
+        }
+      });
+    }
+
+    @Override public void onBindViewHolder(RecordingsAdapter.ViewHolder holder, int position) {
+      Recording item = getItem(position);
+
+      if (item == null) {
+        return;
+      }
+      Picasso.with(mContext)
+          .load(item.getPreview())
+          .fit()
+          .centerCrop()
+          .placeholder(R.drawable.nobody_normal)
+          .transform(new GradientTransformation())
+          .into(holder.mPreviewImageView);
+
+      holder.mTitleTextView.setText(item.getTitle());
 
       try {
-        Date startDate = mDateParser.parse(start);
-        holder.date.setText(DateUtils.formatDateTime(mContext,
+        Date startDate = mDateFormat.parse(item.getStart());
+        String date = TextTools.getLocalizedAuthorAndDateString(item.getAuthor(),
             startDate.getTime(),
-            DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_NUMERIC_DATE
-                | DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY
-        ));
+            mContext);
+        holder.mDateTextView.setText(date);
       } catch (ParseException e) {
         e.printStackTrace();
       }
 
-      Picasso.with(mContext).load(previewUrl)
-          .resizeDimen(R.dimen.preview_image_width, R.dimen.preview_image_height)
-          .centerCrop()
-          .placeholder(R.drawable.nobody_normal)
-          .into(holder.preview);
+      String durationString = String.format("%02d:%02d:%02d",
+          TimeUnit.MILLISECONDS.toHours(item.getDuration()),
+          TimeUnit.MILLISECONDS.toMinutes(item.getDuration())
+              - TimeUnit.HOURS.toMinutes((TimeUnit.MILLISECONDS).toHours(item.getDuration())),
+          TimeUnit.MILLISECONDS.toSeconds(item.getDuration())
+              - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(item.getDuration())));
+      holder.mDurationTextView.setText(durationString);
     }
 
-    @Override public View getHeaderView(int position, View view, ViewGroup viewGroup) {
-      if (view == null) {
-        view = LayoutInflater.from(mContext).inflate(R.layout.list_item_header, viewGroup, false);
+    private Recording getItem(int position) {
+      if (position == RecyclerView.NO_POSITION) {
+        return null;
       }
-      view.findViewById(R.id.list_item_header_textview).setVisibility(View.GONE);
-      return view;
+      return mData.get(position);
     }
 
-    @Override public long getHeaderId(int position) {
-      return 0;
+    @Override public int getItemCount() {
+      if (mData == null || mData.size() < 0) {
+        return 0;
+      }
+      return mData.size();
     }
 
-    private class RecordingHolder {
-      ImageView preview;
-      TextView title;
-      TextView author;
-      TextView date;
-      TextView duration;
+    public boolean isEmpty() {
+      return mData == null || mData.isEmpty();
     }
+
+
+    public static final class ViewHolder extends RecyclerView.ViewHolder implements
+        View.OnClickListener {
+      public final View mContainerView;
+      public final ImageView mPreviewImageView;
+      public final TextView mTitleTextView;
+      public final TextView mDateTextView;
+      public final TextView mDurationTextView;
+      public final ViewHolder.ViewHolderClicks mListener;
+
+      public ViewHolder(View itemView, ViewHolder.ViewHolderClicks clickListener) {
+        super(itemView);
+        mListener = clickListener;
+        mPreviewImageView = (ImageView) itemView.findViewById(R.id.preview_image);
+        mTitleTextView = (TextView) itemView.findViewById(R.id.title);
+        mDateTextView = (TextView) itemView.findViewById(R.id.date);
+        mDurationTextView = (TextView) itemView.findViewById(R.id.duration);
+
+        mContainerView = itemView.findViewById(R.id.card_view);
+        mContainerView.setOnClickListener(this);
+      }
+
+      @Override public void onClick(View v) {
+        mListener.onListItemClicked(v, getLayoutPosition());
+      }
+
+      public interface ViewHolderClicks {
+        void onListItemClicked(View caller, int position);
+      }
+    }
+
+
   }
 }

@@ -98,15 +98,15 @@ public class Course {
 
     //Opencast Course Recordings
     @JsonProperty("oc_recordings")
-    private List<Recording> recordings = new ArrayList<Recording>();
+    private ArrayList<Recording> recordings = new ArrayList<Recording>();
 
     @JsonProperty("oc_recordings")
-    public List<Recording> getRecordings() {
+    public ArrayList<Recording> getRecordings() {
       return recordings;
     }
 
     @JsonProperty("oc_recordings")
-    public void setRecordings(List<Recording> recordings) {
+    public void setRecordings(ArrayList<Recording> recordings) {
       this.recordings = recordings;
     }
 
