@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2015 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.TextUtils;
@@ -66,14 +65,13 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
  */
 public class MessageComposeFragment extends Fragment implements LoaderCallbacks<Cursor> {
   public static final String TAG = MessageComposeFragment.class.getSimpleName();
-  private static final int MESSAGE_REPLY = 1000;
-  private static final int MESSAGE_FORWARD = 1001;
   private Context mContext;
   private Bundle mArgs;
   private String mSubject, mMessage;
   private UserItem mUserItem;
   private long mDate;
-  private int mMessageFlag = -1;
+  private int mMessageTypeFlag = -1;
+  private int mMessageActionFlag = -1;
   private AutoCompleteTextView mAutoCompleteTextView;
   private UserAdapter mAdapter;
   private EditText mSubjectEditTextView, mMessageEditTextView;
@@ -96,13 +94,7 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
     return fragment;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-   */
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mArgs = getArguments();
     mContext = getActivity();
@@ -113,7 +105,9 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
       mSubject = mArgs.getString(MessagesContract.Columns.Messages.MESSAGE_SUBJECT);
       mDate = mArgs.getLong(MessagesContract.Columns.Messages.MESSAGE_MKDATE);
       mMessage = mArgs.getString(MessagesContract.Columns.Messages.MESSAGE);
-      mMessageFlag = mArgs.getInt("MessageFlag");
+      mMessageTypeFlag = mArgs.getInt(MessageComposeActivity.MESSAGE_TYPE_FLAG);
+      mMessageActionFlag = mArgs.getInt(MessageComposeActivity.MESSAGE_ACTION_FLAG);
+
 
       String senderId = mArgs.getString(UsersContract.Columns.USER_ID);
       String senderTitlePre = mArgs.getString(UsersContract.Columns.USER_TITLE_PRE);
@@ -129,8 +123,7 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
     }
   }
 
-  @Override
-  public View onCreateView(LayoutInflater inflater,
+  @Override public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.fragment_message_compose, null);
@@ -141,13 +134,7 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
     return v;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-   */
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     // initialize CursorLoader
     getLoaderManager().initLoader(0, mArgs, this);
@@ -155,35 +142,39 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
     setHasOptionsMenu(true);
 
     // fill the views with message details from the arguments if existing
-    if (mUserItem != null && mMessageFlag != MESSAGE_FORWARD) {
+    if (mUserItem != null && mMessageTypeFlag == MessageComposeActivity.MESSAGE_FLAG_SENDTO) {
       mAutoCompleteTextView.setText(mUserItem.getFullname());
       mAutoCompleteTextView.setTag(mUserItem);
       mAutoCompleteTextView.setEnabled(false);
     }
 
     // set message subject and fragment title according to the messageFlag
-    if (mSubject != null) {
-      switch (mMessageFlag) {
-        case MESSAGE_FORWARD:
+    if (!TextUtils.isEmpty(mSubject)) {
+      switch (mMessageActionFlag) {
+        case MessageComposeActivity.MESSAGE_ACTION_FORWARD:
           mSubject = String.format("%s: %s", getString(R.string.message_forward_string), mSubject);
-          getActivity().setTitle(TextTools.capitalizeFirstLetter(getString(R.string.forward_message))
-          );
+          getActivity().setTitle(TextTools.capitalizeFirstLetter(getString(R.string.forward_message)));
           break;
-        case MESSAGE_REPLY:
+        case MessageComposeActivity.MESSAGE_ACTION_REPLY:
           mSubject = String.format("%s: %s", getString(R.string.message_reply_string), mSubject);
-          getActivity().setTitle(TextTools.capitalizeFirstLetter(getString(R.string.reply_message))
-          );
+          getActivity().setTitle(TextTools.capitalizeFirstLetter(getString(R.string.reply_message)));
           break;
       }
 
       mSubjectEditTextView.setText(mSubject);
     }
 
-    if (mMessage != null) mMessageEditTextView.setText(String.format("\n%s %s:\n%s",
-        getString(R.string.original_message),
-        TextTools.getLocalizedAuthorAndDateString(mUserItem.getFullname(), mDate, mContext),
-        Html.fromHtml(mMessage)
-    ));
+    if (!TextUtils.isEmpty(mMessage)) {
+      if (mMessageActionFlag == MessageComposeActivity.MESSAGE_ACTION_FORWARD
+          || mMessageActionFlag == MessageComposeActivity.MESSAGE_ACTION_REPLY) {
+        mMessageEditTextView.setText(String.format("\n%s %s:\n%s",
+            getString(R.string.original_message),
+            TextTools.getLocalizedAuthorAndDateString(mUserItem.getFullname(), mDate, mContext),
+            Html.fromHtml(mMessage)));
+      } else {
+        mMessageEditTextView.setText(Html.fromHtml(mMessage));
+      }
+    }
 
     mAutoCompleteTextView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -220,32 +211,18 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
 
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see android.support.v4.app.Fragment#onResume()
-   */
-  @Override
-  public void onResume() {
+  @Override public void onResume() {
     super.onResume();
     // prevent the dropDown to show up on start
     mAutoCompleteTextView.dismissDropDown();
   }
 
-  /*
-       * (non-Javadoc)
-       *
-       * @see com.actionbarsherlock.app.SherlockFragment#onCreateOptionsMenu(com.
-       * actionbarsherlock.view.Menu, com.actionbarsherlock.view.MenuInflater)
-       */
-  @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+  @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.message_compose_menu, menu);
     super.onCreateOptionsMenu(menu, inflater);
   }
 
-  @Override
-  public void onPrepareOptionsMenu(Menu menu) {
+  @Override public void onPrepareOptionsMenu(Menu menu) {
     menu.findItem(R.id.send_icon).setVisible(mSendButtonVisible);
 
     if (!mSendButtonVisible) {
@@ -258,15 +235,7 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
     super.onPrepareOptionsMenu(menu);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * com.actionbarsherlock.app.SherlockFragment#onOptionsItemSelected(com.
-   * actionbarsherlock.view.MenuItem)
-   */
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case android.R.id.home:
         getActivity().onBackPressed();
@@ -336,8 +305,7 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
 
                 }
               },
-              Method.POST
-          );
+              Method.POST);
 
           // Set parameters
           request.addParam("user_id", user.userId);
@@ -371,13 +339,6 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
 
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-   * android.os.Bundle)
-   */
   public Loader<Cursor> onCreateLoader(int id, Bundle data) {
     return new CursorLoader(mContext,
         UsersContract.CONTENT_URI,
@@ -387,13 +348,6 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
         UsersContract.DEFAULT_SORT_ORDER);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-   * .support.v4.content.Loader, java.lang.Object)
-   */
   public void onLoadFinished(Loader<Cursor> laoder, Cursor cursor) {
     ArrayList<UserItem> items = new ArrayList<UserItem>();
     cursor.moveToFirst();
@@ -418,13 +372,6 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
     return new UserItem(userId, userTitlePre, userForename, userLastname, userTitlePost);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-   * .support.v4.content.Loader)
-   */
   public void onLoaderReset(Loader<Cursor> loader) {
   }
 
@@ -478,8 +425,7 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
       originalItems.addAll(data);
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @Override public View getView(int position, View convertView, ViewGroup parent) {
       View row = convertView;
 
       if (row == null) {
@@ -494,17 +440,10 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
       return row;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.widget.ArrayAdapter#getFilter()
-     */
-    @Override
-    public Filter getFilter() {
+    @Override public Filter getFilter() {
       Filter userItemFilter = new Filter() {
 
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
+        @Override protected FilterResults performFiltering(CharSequence constraint) {
           FilterResults filterResults = new FilterResults();
           ArrayList<MessageComposeFragment.UserItem> localItems = new ArrayList<MessageComposeFragment.UserItem>();
           ArrayList<MessageComposeFragment.UserItem> result = new ArrayList<MessageComposeFragment.UserItem>();
@@ -558,12 +497,10 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
           return filterResults;
         }
 
-        @Override
-        protected void publishResults(CharSequence contraint, FilterResults results) {
+        @Override protected void publishResults(CharSequence contraint, FilterResults results) {
           // if there are any results, add them back
           if (results != null && results.count > 0) {
-            @SuppressWarnings("unchecked")
-            final ArrayList<MessageComposeFragment.UserItem> localItems = (ArrayList<MessageComposeFragment.UserItem>) results.values;
+            @SuppressWarnings("unchecked") final ArrayList<MessageComposeFragment.UserItem> localItems = (ArrayList<MessageComposeFragment.UserItem>) results.values;
             notifyDataSetChanged();
             clear();
             for (UserItem item : localItems) {
@@ -574,14 +511,7 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
           }
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.widget.Filter#convertResultToString(java.lang.Object)
-         */
-        @Override
-        public CharSequence convertResultToString(Object resultValue) {
+        @Override public CharSequence convertResultToString(Object resultValue) {
           return ((UserItem) resultValue).getFullname();
         }
       };
