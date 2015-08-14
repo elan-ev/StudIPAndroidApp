@@ -12,6 +12,7 @@
     <string name="not_supported">Not supported</string>
     <string name="back">Back</string>
     <string name="last_updated">Last updated %1$s</string>
+    <string name="share">Share</string>
 
     <!-- Content descriptions -->
     <string name="studip_logo" translatable="false">StudIP Logo</string>
@@ -239,6 +240,7 @@ aliqua.</string>
     <string name="New_entry">New entry</string>
     <string name="Enter_content">Enter content</string>
     <string name="no_forum_categories">No forum categories</string>
+    <string name="oc_recording">OpenCast recording</string>
 
     <!-- Time Strings -->
     <plurals name="seconds_abbrev">

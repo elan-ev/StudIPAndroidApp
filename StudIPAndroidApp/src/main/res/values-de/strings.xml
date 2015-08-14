@@ -10,6 +10,7 @@
     <string name="not_supported">Nicht unterstützt</string>
     <string name="back">Zurück</string>
     <string name="last_updated">Letzte Änderung %1$s</string>
+    <string name="share">Teilen</string>
 
     <!-- Content descriptions -->
     <string name="user_image">Benutzerbild</string>
@@ -235,6 +236,7 @@
     <string name="New_entry">Neuer Beitrag</string>
     <string name="Enter_content">Forebeitrag verfassen</string>
     <string name="no_forum_categories">Keine Kategorien vorhanden</string>
+    <string name="oc_recording">OpenCast recording</string>
 
     <!-- Time Strings -->
     <plurals name="seconds_abbrev">

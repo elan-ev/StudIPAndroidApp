@@ -32,6 +32,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -40,9 +41,14 @@ import java.util.concurrent.TimeoutException;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Recording;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
+import de.elanev.studip.android.app.backend.net.services.UrlShortenerApiService;
+import de.elanev.studip.android.app.frontend.messages.MessageComposeActivity;
+import de.elanev.studip.android.app.util.GoogleApiKey;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
+import retrofit.RequestInterceptor;
+import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -138,20 +144,80 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
   }
 
   @Override public void onListItemClicked(View v, int position) {
-    Recording recording = mAdapter.getItem(position);
+    final Recording recording = mAdapter.getItem(position);
     if (recording == null) {
       return;
     }
 
-    String url = recording.getPresentationDownload();
-    if (!TextUtils.isEmpty(url)) {
-      Intent intent = new Intent(Intent.ACTION_VIEW);
-      intent.setDataAndType(Uri.parse(url), "video/*");
-      startActivity(Intent.createChooser(intent,
-          getActivity().getString(R.string.recordings_chooser_title)));
-    } else {
-      Toast.makeText(getActivity(), R.string.recording_no_available, Toast.LENGTH_LONG).show();
+    switch (v.getId()) {
+      case R.id.share_icon:
+        handleShareIconClick(recording);
+        return;
+      default:
+        String url = recording.getPresentationDownload();
+        if (!TextUtils.isEmpty(url)) {
+          Intent intent = new Intent(Intent.ACTION_VIEW);
+          intent.setDataAndType(Uri.parse(url), "video/*");
+          startActivity(Intent.createChooser(intent,
+              getActivity().getString(R.string.recordings_chooser_title)));
+        } else {
+          Toast.makeText(getActivity(), R.string.recording_no_available, Toast.LENGTH_LONG).show();
+        }
+        return;
     }
+  }
+
+  private void handleShareIconClick(final Recording recording) {
+    setRefreshing(true);
+
+    final String googleApiKey = GoogleApiKey.getApiKeyFromManifest(getActivity().getBaseContext());
+
+    if (googleApiKey == null) {
+      // No API key, don't even try to shorten url
+      startSharingIntent(recording, recording.getPresentationDownload());
+      return;
+    }
+
+    RestAdapter.Builder builder = new RestAdapter.Builder().setLogLevel(RestAdapter.LogLevel.FULL)
+        .setEndpoint("https://www.googleapis.com/urlshortener/v1");
+    builder.setRequestInterceptor(new RequestInterceptor() {
+      @Override public void intercept(RequestFacade request) {
+        request.addQueryParam("key", googleApiKey);
+      }
+    });
+    UrlShortenerApiService.GoogleUrlShortenerService service = builder.build()
+        .create(UrlShortenerApiService.GoogleUrlShortenerService.class);
+    HashMap<String, String> body = new HashMap<>();
+    body.put("longUrl", recording.getPresentationDownload());
+
+    mCompositeSubscription.add(bind(service.shortenUrl(body)).subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<UrlShortenerApiService.GoogleUrlShortenerResponse>() {
+          @Override public void onCompleted() {
+            setRefreshing(false);
+          }
+
+          @Override public void onError(Throwable e) {
+            startSharingIntent(recording, recording.getPresentationDownload());
+            setRefreshing(false);
+          }
+
+          @Override public void onNext(UrlShortenerApiService.GoogleUrlShortenerResponse googleUrlShortenerResponse) {
+            startSharingIntent(recording, googleUrlShortenerResponse.id);
+          }
+        }));
+  }
+
+  private void startSharingIntent(Recording recording, String presentationUrl) {
+    String subject = getString(R.string.oc_recording) + ": " + recording.getTitle();
+    String body = presentationUrl;
+    //Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+    Intent sharingIntent = new Intent(getActivity(), MessageComposeActivity.class);
+    sharingIntent.setAction(Intent.ACTION_SEND);
+    sharingIntent.setType("text/plain");
+    sharingIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+    sharingIntent.putExtra(Intent.EXTRA_TEXT, body);
+    startActivity(sharingIntent);
   }
 
   private static class RecordingsAdapter extends
@@ -257,6 +323,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
       public final TextView mDateTextView;
       public final TextView mDurationTextView;
       public final ViewHolder.ViewHolderClicks mListener;
+      private final ImageView mShareIconImageView;
 
       public ViewHolder(View itemView, ViewHolder.ViewHolderClicks clickListener) {
         super(itemView);
@@ -265,6 +332,9 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         mTitleTextView = (TextView) itemView.findViewById(R.id.title);
         mDateTextView = (TextView) itemView.findViewById(R.id.date);
         mDurationTextView = (TextView) itemView.findViewById(R.id.duration);
+        mShareIconImageView = (ImageView) itemView.findViewById(R.id.share_icon);
+        mShareIconImageView.setOnClickListener(this);
+
 
         mContainerView = itemView.findViewById(R.id.card_view);
         mContainerView.setOnClickListener(this);
