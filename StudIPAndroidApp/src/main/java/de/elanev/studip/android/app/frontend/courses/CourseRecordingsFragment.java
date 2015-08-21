@@ -9,10 +9,15 @@
 package de.elanev.studip.android.app.frontend.courses;
 
 
+import android.annotation.TargetApi;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -153,6 +158,9 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
       case R.id.share_icon:
         handleShareIconClick(recording);
         return;
+      case R.id.download_icon:
+        handleDownloadIconClick(recording);
+        return;
       default:
         String url = recording.getPresentationDownload();
         if (!TextUtils.isEmpty(url)) {
@@ -163,7 +171,65 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         } else {
           Toast.makeText(getActivity(), R.string.recording_no_available, Toast.LENGTH_LONG).show();
         }
-        return;
+    }
+  }
+
+  private void handleDownloadIconClick(Recording recording) {
+    downloadRecording(recording);
+  }
+
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB) private void downloadRecording(Recording recording) {
+    String recordingId = recording.getId();
+    Uri presentationDownloadUri = Uri.parse(recording.getPresentationDownload());
+    String description = recording.getDescription();
+    String fileName = presentationDownloadUri.getLastPathSegment();
+
+    DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+    boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        .mkdirs();
+
+    // Query DownloadManager and check of file is already being downloaded
+    boolean isDownloading = false;
+
+    if (externalDownloadsDir) {
+      DownloadManager.Query query = new DownloadManager.Query();
+      query.setFilterByStatus(DownloadManager.STATUS_PAUSED |
+          DownloadManager.STATUS_PENDING |
+          DownloadManager.STATUS_RUNNING |
+          DownloadManager.STATUS_SUCCESSFUL);
+      Cursor cur = downloadManager.query(query);
+      int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+      for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+        isDownloading = (TextUtils.equals(Environment.DIRECTORY_DOWNLOADS + fileName,
+            cur.getString(col)));
+      }
+      cur.close();
+    }
+
+    if (!isDownloading) {
+      // Create the download request
+      DownloadManager.Request request = new DownloadManager.Request(presentationDownloadUri).setAllowedNetworkTypes(
+          DownloadManager.Request.NETWORK_WIFI
+              | DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
+          .setAllowedOverRoaming(false)                   // Disallow roaming downloading
+          .setTitle(fileName)                             // Title of this download
+          .setDescription(description);               // Description of this download
+      if (externalDownloadsDir)
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+      // download location and file name
+
+      //Allowing the scanning by MediaScanner
+      request.allowScanningByMediaScanner();
+      request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+      try {
+        downloadManager.enqueue(request);
+      } catch (IllegalArgumentException e) {
+        if (getActivity() != null) {
+          Toast.makeText(getActivity(), R.string.error_downloadmanager_disabled, Toast.LENGTH_LONG)
+              .show();
+        }
+      }
     }
   }
 
@@ -207,6 +273,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
           }
         }));
   }
+
 
   private void startSharingIntent(Recording recording, String presentationUrl) {
     String subject = getString(R.string.oc_recording) + ": " + recording.getTitle();
@@ -324,6 +391,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
       public final TextView mDurationTextView;
       public final ViewHolder.ViewHolderClicks mListener;
       private final ImageView mShareIconImageView;
+      private final ImageView mDownloadIconImageView;
 
       public ViewHolder(View itemView, ViewHolder.ViewHolderClicks clickListener) {
         super(itemView);
@@ -334,7 +402,8 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         mDurationTextView = (TextView) itemView.findViewById(R.id.duration);
         mShareIconImageView = (ImageView) itemView.findViewById(R.id.share_icon);
         mShareIconImageView.setOnClickListener(this);
-
+        mDownloadIconImageView = (ImageView) itemView.findViewById(R.id.download_icon);
+        mDownloadIconImageView.setOnClickListener(this);
 
         mContainerView = itemView.findViewById(R.id.card_view);
         mContainerView.setOnClickListener(this);
