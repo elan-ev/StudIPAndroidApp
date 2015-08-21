@@ -105,7 +105,7 @@ public class Recording {
   }
 
   @JsonProperty("description")
-  public Object getDescription() {
+  public String getDescription() {
     return description;
   }
 
