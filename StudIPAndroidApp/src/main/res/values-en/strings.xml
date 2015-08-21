@@ -213,6 +213,7 @@
     <string name="recordings_chooser_title">Play recording with</string>
     <string name="recording_no_available">Recording currently not available.</string>
     <string name="duration">Duration</string>
+    <string name="Download">Download</string>
 
     <!-- Tab Unizensus -->
     <string name="unizensus">Unicensus</string>
