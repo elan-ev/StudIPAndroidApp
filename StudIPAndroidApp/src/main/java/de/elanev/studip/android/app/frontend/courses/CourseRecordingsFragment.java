@@ -12,12 +12,14 @@ package de.elanev.studip.android.app.frontend.courses;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,12 +36,10 @@ import com.squareup.picasso.Picasso;
 import org.apache.http.HttpException;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -68,6 +68,9 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     ReactiveListFragment.ListItemClicks {
   public static final String TAG = CourseRecordingsFragment.class.getSimpleName();
 
+  private static final int RECORDING_PRESENTATION = 0;
+  private static final int RECORDING_PRESENTER = 1;
+  private static final int RECORDING_AUDIO = 2;
   private RecordingsAdapter mAdapter;
   private String mCourseId;
   private RecyclerView.AdapterDataObserver mObserver;
@@ -162,72 +165,181 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         handleDownloadIconClick(recording);
         return;
       default:
-        String url = recording.getPresentationDownload();
-        if (!TextUtils.isEmpty(url)) {
-          Intent intent = new Intent(Intent.ACTION_VIEW);
-          intent.setDataAndType(Uri.parse(url), "video/*");
-          startActivity(Intent.createChooser(intent,
-              getActivity().getString(R.string.recordings_chooser_title)));
-        } else {
-          Toast.makeText(getActivity(), R.string.recording_no_available, Toast.LENGTH_LONG).show();
-        }
+        handleStreamingClick(recording);
     }
   }
 
-  private void handleDownloadIconClick(Recording recording) {
-    downloadRecording(recording);
+  private void handleStreamingClick(final Recording recording) {
+    final ArrayList<String> dialogOptions = getDialogOptions(recording);
+    if (dialogOptions.isEmpty()) {
+      showErrorToast(R.string.recording_no_available);
+    }
+    String[] options = dialogOptions.toArray(new String[dialogOptions.size()]);
+
+    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    builder.setTitle(R.string.choose_recording_type)
+        .setItems(options, new DialogInterface.OnClickListener() {
+          @Override public void onClick(DialogInterface dialog, int which) {
+            String option = dialogOptions.get(which);
+            if (option.equals("Presentation")) {
+              streamUrl(recording.getPresentationDownload());
+            }
+            if (option.equals("Presenter")) {
+              streamUrl(recording.getPresenterDownload());
+            }
+            if (option.equals("Audio")) {
+              streamUrl(recording.getPresenterDownload());
+            }
+          }
+        })
+        .setCancelable(true)
+        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+          @Override public void onCancel(DialogInterface dialog) {
+            dialog.dismiss();
+          }
+        })
+        .create()
+        .show();
   }
 
-  @TargetApi(Build.VERSION_CODES.HONEYCOMB) private void downloadRecording(Recording recording) {
-    String recordingId = recording.getId();
-    Uri presentationDownloadUri = Uri.parse(recording.getPresentationDownload());
-    String description = recording.getDescription();
-    String fileName = presentationDownloadUri.getLastPathSegment();
+  private void streamUrl(String url) {
+    if (!TextUtils.isEmpty(url)) {
+      Uri uri = Uri.parse(url);
 
-    DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-    boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        .mkdirs();
-
-    // Query DownloadManager and check of file is already being downloaded
-    boolean isDownloading = false;
-
-    if (externalDownloadsDir) {
-      DownloadManager.Query query = new DownloadManager.Query();
-      query.setFilterByStatus(DownloadManager.STATUS_PAUSED |
-          DownloadManager.STATUS_PENDING |
-          DownloadManager.STATUS_RUNNING |
-          DownloadManager.STATUS_SUCCESSFUL);
-      Cursor cur = downloadManager.query(query);
-      int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
-      for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-        isDownloading = (TextUtils.equals(Environment.DIRECTORY_DOWNLOADS + fileName,
-            cur.getString(col)));
+      if (uri.getScheme().equalsIgnoreCase("http") || uri.getScheme().equalsIgnoreCase("https")) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "video/*");
+        startActivity(Intent.createChooser(intent,
+            getActivity().getString(R.string.recordings_chooser_title)));
+      } else {
+        showErrorToast(R.string.recording_no_available);
       }
-      cur.close();
+
+    } else {
+      showErrorToast(R.string.recording_no_available);
+    }
+  }
+
+  private void handleDownloadIconClick(final Recording recording) {
+    final ArrayList<String> dialogOptions = getDialogOptions(recording);
+    if (dialogOptions.isEmpty()) {
+      showErrorToast(R.string.recording_no_available);
     }
 
-    if (!isDownloading) {
-      // Create the download request
-      DownloadManager.Request request = new DownloadManager.Request(presentationDownloadUri).setAllowedNetworkTypes(
-          DownloadManager.Request.NETWORK_WIFI
-              | DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
-          .setAllowedOverRoaming(false)                   // Disallow roaming downloading
-          .setTitle(fileName)                             // Title of this download
-          .setDescription(description);               // Description of this download
-      if (externalDownloadsDir)
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-      // download location and file name
+    final ArrayList<Integer> selectedItems = new ArrayList<>();
+    String[] options = dialogOptions.toArray(new String[dialogOptions.size()]);
 
-      //Allowing the scanning by MediaScanner
-      request.allowScanningByMediaScanner();
-      request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    builder.setTitle(R.string.choose_recording_type)
+        .setMultiChoiceItems(options, null, new DialogInterface.OnMultiChoiceClickListener() {
+          @Override public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+            if (isChecked) {
+              selectedItems.add(which);
+            } else if (selectedItems.contains(which)) {
+              selectedItems.remove(which);
+            }
+          }
+        })
+        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+          @Override public void onClick(DialogInterface dialog, int which) {
+            for (int item : selectedItems) {
+              if (dialogOptions.get(item).equals("Presentation")) {
+                downloadUrl(recording.getPresentationDownload());
+              }
+              if (dialogOptions.get(item).equals("Presenter")) {
+                downloadUrl(recording.getPresenterDownload());
+              }
+              if (dialogOptions.get(item).equals("Audio")) {
+                downloadUrl(recording.getPresenterDownload());
+              }
+            }
+          }
+        })
+        .setCancelable(true)
+        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+          @Override public void onCancel(DialogInterface dialog) {
+            dialog.dismiss();
+          }
+        })
+        .create()
+        .show();
+  }
 
-      try {
-        downloadManager.enqueue(request);
-      } catch (IllegalArgumentException e) {
-        if (getActivity() != null) {
-          Toast.makeText(getActivity(), R.string.error_downloadmanager_disabled, Toast.LENGTH_LONG)
-              .show();
+  private void showErrorToast(int errorTextRes) {
+    Toast.makeText(getActivity(), errorTextRes, Toast.LENGTH_LONG).show();
+  }
+
+  private ArrayList<String> getDialogOptions(Recording recording) {
+    ArrayList<String> dialogOptions = new ArrayList<>();
+
+    if (!TextUtils.isEmpty(recording.getPresentationDownload())) {
+      dialogOptions.add("Presentation");
+    }
+    if (!TextUtils.isEmpty(recording.getPresenterDownload())) {
+      dialogOptions.add("Presenter");
+    }
+    if (!TextUtils.isEmpty(recording.getAudioDownload())) {
+      dialogOptions.add("Audio");
+    }
+
+    return dialogOptions;
+  }
+
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB) private void downloadUrl(String downloadUrl) {
+    if (TextUtils.isEmpty(downloadUrl)) {
+      return;
+    }
+
+    Uri url = Uri.parse(downloadUrl);
+    if (url.getScheme().equalsIgnoreCase("http") || url.getScheme().equalsIgnoreCase("https")) {
+      String fileName = url.getLastPathSegment();
+
+      DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+      boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+          .mkdirs();
+
+      // Query DownloadManager and check of file is already being downloaded
+      boolean isDownloading = false;
+
+      if (externalDownloadsDir) {
+        DownloadManager.Query query = new DownloadManager.Query();
+        query.setFilterByStatus(DownloadManager.STATUS_PAUSED |
+            DownloadManager.STATUS_PENDING |
+            DownloadManager.STATUS_RUNNING |
+            DownloadManager.STATUS_SUCCESSFUL);
+        Cursor cur = downloadManager.query(query);
+        int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+        for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+          isDownloading = (TextUtils.equals(Environment.DIRECTORY_DOWNLOADS + fileName,
+              cur.getString(col)));
+        }
+        cur.close();
+      }
+
+      if (!isDownloading) {
+        // Create the download request
+        DownloadManager.Request request = new DownloadManager.Request(url).setAllowedNetworkTypes(
+            DownloadManager.Request.NETWORK_WIFI
+                | DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
+            .setAllowedOverRoaming(false)                   // Disallow roaming downloading
+            .setTitle(fileName);                       // Title of this download
+        if (externalDownloadsDir) {
+          request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+        }
+
+        // Allowing the scanning by MediaScanner
+        request.allowScanningByMediaScanner();
+        // Set download visibility
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        try {
+          downloadManager.enqueue(request);
+        } catch (IllegalArgumentException e) {
+          if (getActivity() != null) {
+            Toast.makeText(getActivity(),
+                R.string.error_downloadmanager_disabled,
+                Toast.LENGTH_LONG).show();
+          }
         }
       }
     }
@@ -294,9 +406,6 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     private ReactiveListFragment.ListItemClicks mFragmentClickListener;
     private Context mContext;
     private ISO8601DateFormat mDateFormat = new ISO8601DateFormat();
-    SimpleDateFormat mDateParser = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ss'Z'",
-        Locale.getDefault());
-
 
     public RecordingsAdapter(List<Recording> data,
         ReactiveListFragment.ListItemClicks callback,
