@@ -96,7 +96,7 @@
             tools:text="01. Aug 2015 by Dr. Dirk Dirkson"/>
 
         <ImageView
-            android:id="@+id/share_icon"
+            android:id="@+id/download_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/date"
@@ -108,23 +108,7 @@
             android:paddingLeft="@dimen/content_area_space"
             android:paddingStart="@dimen/content_area_space"
             android:paddingBottom="@dimen/keyline_1"
-            android:src="@drawable/ic_action_share"
-            android:contentDescription="@string/share" />
-
-        <ImageView
-            android:id="@+id/download_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/date"
-            android:layout_toLeftOf="@id/share_icon"
-            android:layout_toStartOf="@id/share_icon"
-            android:paddingTop="@dimen/content_area_space"
-            android:paddingRight="@dimen/content_area_space"
-            android:paddingEnd="@dimen/content_area_space"
-            android:paddingLeft="@dimen/content_area_space"
-            android:paddingStart="@dimen/content_area_space"
-            android:paddingBottom="@dimen/keyline_1"
             android:src="@drawable/ic_action_download"
-            android:contentDescription="@string/Download"/>
+            android:contentDescription="@string/Download" />
     </RelativeLayout>
 </android.support.v7.widget.CardView>
