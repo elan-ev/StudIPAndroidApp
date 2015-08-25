@@ -1,88 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2014 ELAN e.V.
+  ~ Copyright (c) 2015 ELAN e.V.
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the GNU Public License v3.0
   ~ which accompanies this distribution, and is available at
   ~ http://www.gnu.org/licenses/gpl.html
   -->
-<RelativeLayout
+<android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_view"
+    android:layout_gravity="center"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/content_area_space"
+    android:padding="@dimen/content_area_space"
+    android:clickable="true"
+    card_view:cardCornerRadius="2dp"
+    card_view:cardElevation="2dp">
 
-    <FrameLayout
-        android:layout_width="@dimen/preview_image_width"
-        android:layout_height="@dimen/preview_image_height"
-        android:id="@+id/preview_image_container">
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/preview_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|center"
+            android:layout_width="fill_parent"
+            android:layout_height="250dp"
+            android:layout_alignParentTop="true"
             android:scaleType="centerCrop"
             android:src="@drawable/nobody_normal"
             android:contentDescription="@string/preview_image"/>
 
         <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/keyline_1"
+            android:textColor="@color/primary_text_dark"
+            android:textSize="@dimen/text_size_medium"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="Computergrafik (Di., 22.04.2014, 10:00 - 12:00, Ort: 31/E06)"
+            android:layout_alignBottom="@+id/preview_image"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"/>
+
+
+        <TextView
+            android:id="@+id/durationText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/preview_image"
+            android:layout_marginTop="@dimen/content_area_space"
+            android:layout_marginLeft="@dimen/keyline_1"
+            android:layout_marginStart="@dimen/keyline_1"
+            android:layout_marginRight="@dimen/content_area_space"
+            android:layout_marginEnd="@dimen/content_area_space"
+            android:textColor="@color/primary_text_light"
+            android:textSize="@dimen/text_size_medium"
+            android:text="@string/duration"
+            />
+
+        <TextView
             android:id="@+id/duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:gravity="bottom|right"
-            android:paddingRight="@dimen/layout_padding_normal"
-            android:textColor="@color/primary_text_dark"
+            android:layout_below="@id/preview_image"
+            android:layout_toRightOf="@id/durationText"
+            android:layout_toEndOf="@id/durationText"
+            android:layout_marginTop="@dimen/content_area_space"
+            android:layout_marginRight="@dimen/keyline_1"
+            android:layout_marginEnd="@dimen/keyline_1"
+            android:textColor="@color/primary_text_light"
+            android:textSize="@dimen/text_size_medium"
+            tools:text="02:22:01"/>
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/durationText"
+            android:layout_marginTop="@dimen/content_area_space"
+            android:layout_marginLeft="@dimen/keyline_1"
+            android:layout_marginStart="@dimen/keyline_1"
+            android:layout_marginRight="@dimen/keyline_1"
+            android:layout_marginEnd="@dimen/keyline_1"
+            android:textColor="@color/primary_text_light"
             android:textSize="@dimen/text_size_small"
-            android:background="#80000000"
-            tools:text="12:00"/>
-    </FrameLayout>
+            android:maxLines="1"
+            android:singleLine="true"
+            android:ellipsize="end"
+            tools:text="01. Aug 2015 by Dr. Dirk Dirkson"/>
 
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/layout_margin_small"
-        android:paddingLeft="@dimen/layout_padding_normal"
-        android:textColor="@color/primary_text_light"
-        android:textSize="@dimen/text_size_medium"
-        android:maxLines="2"
-        android:ellipsize="end"
-        tools:text="Computergrafik (Di., 22.04.2014, 10:00 - 12:00, Ort: 31/E06)"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/preview_image_container"/>
-
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/preview_image_width"
-        android:layout_marginBottom="@dimen/layout_margin_small"
-        android:layout_below="@id/title"
-        android:paddingLeft="@dimen/layout_padding_normal"
-        android:textColor="@color/secondary_text_light"
-        android:textSize="@dimen/text_size_small"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:ellipsize="end"
-        tools:text="22.04.2014"/>
-
-    <TextView
-        android:id="@+id/author"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/preview_image_width"
-        android:layout_marginBottom="@dimen/layout_margin_small"
-        android:layout_below="@id/date"
-        android:paddingLeft="@dimen/layout_padding_normal"
-        android:textColor="@color/secondary_text_light"
-        android:textSize="@dimen/text_size_small"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:ellipsize="end"
-        tools:text="Prof.Dr. Oliver Vornberger , Nils Haldenwang, M.Sc.)"
-        />
-
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/download_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/date"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:paddingTop="@dimen/content_area_space"
+            android:paddingRight="@dimen/keyline_1"
+            android:paddingEnd="@dimen/keyline_1"
+            android:paddingLeft="@dimen/content_area_space"
+            android:paddingStart="@dimen/content_area_space"
+            android:paddingBottom="@dimen/keyline_1"
+            android:src="@drawable/ic_action_download"
+            android:contentDescription="@string/Download"/>
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

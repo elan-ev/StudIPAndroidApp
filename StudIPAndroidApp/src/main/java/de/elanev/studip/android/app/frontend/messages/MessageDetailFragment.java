@@ -60,8 +60,6 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
  */
 public class MessageDetailFragment extends Fragment implements LoaderCallbacks<Cursor> {
   public static final String TAG = MessageDetailFragment.class.getSimpleName();
-  private static final int MESSAGE_REPLY = 1000;
-  private static final int MESSAGE_FORWARD = 1001;
   protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
     @Override
     public void onChange(boolean selfChange) {
@@ -244,11 +242,13 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
         return true;
 
       case R.id.forward_message:
-        startMessageComposeActivityWithFlag(MESSAGE_FORWARD);
+        startMessageComposeActivityWithFlag(MessageComposeActivity.MESSAGE_ACTION_FORWARD,
+            MessageComposeActivity.MESSAGE_FLAG_SEND);
         return true;
 
       case R.id.reply_message:
-        startMessageComposeActivityWithFlag(MESSAGE_REPLY);
+        startMessageComposeActivityWithFlag(MessageComposeActivity.MESSAGE_ACTION_REPLY,
+            MessageComposeActivity.MESSAGE_FLAG_SENDTO);
         return true;
 
       default:
@@ -257,7 +257,7 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
 
   }
 
-  private void startMessageComposeActivityWithFlag(int flag) {
+  private void startMessageComposeActivityWithFlag(int actionFlag, int typeFlag) {
 
     Intent intent = new Intent(mContext, MessageComposeActivity.class);
 
@@ -269,7 +269,10 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
     intent.putExtra(UsersContract.Columns.USER_FORENAME, mSenderForename);
     intent.putExtra(UsersContract.Columns.USER_LASTNAME, mSenderLastname);
     intent.putExtra(UsersContract.Columns.USER_TITLE_POST, mSenderTitlePost);
-    intent.putExtra("MessageFlag", flag);
+    intent.putExtra(MessageComposeActivity.MESSAGE_TYPE_FLAG, MessageComposeActivity
+        .MESSAGE_FLAG_SENDTO);
+    intent.putExtra(MessageComposeActivity.MESSAGE_ACTION_FLAG, actionFlag);
+    intent.putExtra(MessageComposeActivity.MESSAGE_TYPE_FLAG, typeFlag);
 
     startActivity(intent);
 

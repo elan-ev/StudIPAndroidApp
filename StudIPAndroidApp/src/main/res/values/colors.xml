@@ -18,5 +18,6 @@
     <color name="secondary_text_dark">#ababab</color>
     <color name="studip_mobile_red">#cb1800</color>
     <color name="divider">#e6e6e6</color>
+    <color name="backgroud_grey_light">#dfdfdf</color>
 
 </resources>
