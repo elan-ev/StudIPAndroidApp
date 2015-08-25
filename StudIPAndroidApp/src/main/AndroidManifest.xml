@@ -91,7 +91,14 @@
         </activity>
         <activity
             android:name=".frontend.messages.MessageComposeActivity"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+
+        </activity>
 
         <!-- user details view activity -->
         <activity
@@ -108,17 +115,17 @@
 
         <!-- forum areas view activity -->
         <activity
-            android:name=".frontend.forums.ForumAreasActivity" />
+            android:name=".frontend.forums.ForumAreasActivity"/>
 
         <!-- forum entries view activity -->
         <activity
-            android:name=".frontend.forums.ForumEntriesActivity" />
+            android:name=".frontend.forums.ForumEntriesActivity"/>
         <activity
-            android:name=".frontend.forums.ForumEntryActivity" />
+            android:name=".frontend.forums.ForumEntryActivity"/>
 
         <!-- forum area compose activity -->
         <activity
-            android:name=".frontend.forums.ForumEntryComposeActivity" />
+            android:name=".frontend.forums.ForumEntryComposeActivity"/>
 
         <!-- RestIpProvider for rest API calls -->
         <provider

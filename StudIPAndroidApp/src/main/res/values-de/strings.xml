@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  Copyright (c) 2014 ELAN e.V.
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2015 ELAN e.V.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v3.0
   which accompanies this distribution, and is available at
@@ -10,6 +11,11 @@
     <string name="not_supported">Nicht unterstützt</string>
     <string name="back">Zurück</string>
     <string name="last_updated">Letzte Änderung %1$s</string>
+    <string name="share">Teilen</string>
+    <string name="remember_decision">Entscheidung merken</string>
+    <string name="dialog_load_via_mobile_title">Über mobile Datennetz laden</string>
+    <string name="dialog_load_via_mobile_text">Sie sind über das mobile Datennetz verbinden
+        . Dies kann zusätzliche Datenkosten verursachen. Möchten Sie fortfahren?</string>
 
     <!-- Content descriptions -->
     <string name="user_image">Benutzerbild</string>
@@ -223,6 +229,9 @@
     <string name="preview_image">Preview image</string>
     <string name="recordings_chooser_title">Aufzeichnung abspielen mit</string>
     <string name="recording_no_available">Aufzeichnung zur Zeit in der App nicht verfügbar.</string>
+    <string name="duration">Dauer</string>
+    <string name="Download">Herunterladen</string>
+    <string name="choose_recording_type">Aufnahme auswählen</string>
 
     <!-- Tab Unizensus -->
     <string name="unizensus">Unizensus</string>
@@ -234,6 +243,7 @@
     <string name="New_entry">Neuer Beitrag</string>
     <string name="Enter_content">Forebeitrag verfassen</string>
     <string name="no_forum_categories">Keine Kategorien vorhanden</string>
+    <string name="oc_recording">OpenCast recording</string>
 
     <!-- Time Strings -->
     <plurals name="seconds_abbrev">

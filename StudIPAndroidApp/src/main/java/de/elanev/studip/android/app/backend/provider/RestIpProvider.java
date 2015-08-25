@@ -1245,14 +1245,20 @@ public class RestIpProvider extends ContentProvider {
           for (ContentValues value : values) {
             insertEvent.bindString(1, value.getAsString(eventIdCol));
             insertEvent.bindString(2, value.getAsString(eventCourseIdCol));
-            String val = value.getAsString(eventTitleCol);
-            if (val != null) {
-              insertEvent.bindString(3, val);
+            String title = value.getAsString(eventTitleCol);
+            if (!TextUtils.isEmpty(title)) {
+              insertEvent.bindString(3, title);
             }
             insertEvent.bindLong(4, value.getAsLong(eventStartCol));
             insertEvent.bindLong(5, value.getAsLong(eventEndCol));
-            insertEvent.bindString(6, value.getAsString(eventDescriptionCol));
-            insertEvent.bindString(7, value.getAsString(eventRoomCol));
+            String description = value.getAsString(eventDescriptionCol);
+            if (!TextUtils.isEmpty(description)) {
+              insertEvent.bindString(6, description);
+            }
+            String room = value.getAsString(eventRoomCol);
+            if (!TextUtils.isEmpty(room)) {
+              insertEvent.bindString(7, room);
+            }
             insertEvent.bindString(8, value.getAsString(eventCategoriesCol));
             insertEvent.execute();
           }
@@ -1416,8 +1422,7 @@ public class RestIpProvider extends ContentProvider {
     return affectedRows;
   }
 
-  @Override
-  public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+  @Override public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
     final SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
         .getWritableDatabase(Config.PRIVATE_KEY);
     db.beginTransaction();
