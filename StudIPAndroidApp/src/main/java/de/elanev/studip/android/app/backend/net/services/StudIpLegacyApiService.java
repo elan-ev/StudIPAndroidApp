@@ -5,12 +5,18 @@ import android.database.Cursor;
 
 import org.apache.http.HttpStatus;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import de.elanev.studip.android.app.backend.datamodel.Course;
+import de.elanev.studip.android.app.backend.datamodel.CourseItem;
 import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
 import de.elanev.studip.android.app.backend.datamodel.ForumCategories;
 import de.elanev.studip.android.app.backend.datamodel.ForumCategory;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntries;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntry;
+import de.elanev.studip.android.app.backend.datamodel.Recording;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.Settings;
 import de.elanev.studip.android.app.backend.datamodel.User;
@@ -232,6 +238,17 @@ public class StudIpLegacyApiService {
     return mService.getSettings();
   }
 
+  public Observable<ArrayList<Recording>> getRecordings(String courseId) {
+    Observable<CourseItem> courseObservable = mService.getCourse(courseId);
+    Observable<ArrayList<Recording>> recordingsObservable = courseObservable.flatMap(new Func1<CourseItem, Observable<ArrayList<Recording>>>() {
+      @Override public Observable<ArrayList<Recording>> call(CourseItem course) {
+        return Observable.just(course.course.getAdditionalData().getRecordings());
+      }
+    });
+
+    return recordingsObservable;
+  }
+
   public interface RestIPLegacyService {
     @PUT("/courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
         Callback<ForumCategory> cb);
@@ -258,6 +275,8 @@ public class StudIpLegacyApiService {
     @GET("/user/{user_id}") Observable<UserItem> getUser(@Path("user_id") String userId);
 
     @GET("/studip/settings") Observable<Settings> getSettings();
+
+    @GET("/courses/{course_id}") Observable<CourseItem> getCourse(@Path("course_id") String courseId);
   }
 
   public static class UserNotFoundException extends RuntimeException {

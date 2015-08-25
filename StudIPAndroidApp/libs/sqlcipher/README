@@ -1,0 +1,28 @@
+Changes included in the v3.3.1 release of SQLCipher for Android:
+
+ * Use libcrypto.a based on 1.0.2d tag
+ * Use OpenSSL 1.0.2d tag
+ * Use SQLCipher 3.3.1
+ * Change return type on  executeUpdateDelete
+ * Merge pull request #181 from sschuberth/master
+ * Not only keep public classes, but all of them
+ * Remove the superfluous ProGuard rule for the database package
+ * Merge branch 'brodybits-fix-small-memleak-and-mark-more-exceptions'
+ * Mark more exceptions that may be thrown (#176); safeguard SQLiteDatabase.yieldIfContended* against closed database; some missing Javadoc in SQLiteDatabase.java
+ * Fix leak in SQLiteDatabase.ActiveDatabases
+ * Merge branch 'brodybits-Brody-SQLiteDatabase-fixes'
+ * Merge branch 'Brody-SQLiteDatabase-fixes' of https://github.com/brodybits/android-database-sqlcipher into brodybits-Brody-SQLiteDatabase-fixes
+ * Merge branch 'brodybits-native-db-error-check'
+ * Merge branch 'native-db-error-check' of https://github.com/brodybits/android-database-sqlcipher into brodybits-native-db-error-check
+ * Merge branch 'icu-loading-adjustments'
+ * Improve ICU data expansion process
+ * Native SQLiteDatabase check read/write database and specific exception messages
+ * Merge branch 'brodybits-fix-build-target'
+ * Merge branch 'fix-build-target' of https://github.com/brodybits/android-database-sqlcipher into brodybits-fix-build-target
+ * Merge branch 'brodybits-workaround-ndk-gold-linker-bug'
+ * Merge branch 'workaround-ndk-gold-linker-bug' of https://github.com/brodybits/android-database-sqlcipher into brodybits-workaround-ndk-gold-linker-bug
+ * Honor flags in all versions of SQLiteDatabase.openDatabase() (#142)
+ * Add contributions section to README
+ * Workaround bug in NDK gold linker thanks to @lkjh654 (#151) and @guardianproject see: https://code.google.com/p/android/issues/detail?id=109071
+ * Change default project target to android-19 in project.properties
+ * Update link to download latest community binaries, version support

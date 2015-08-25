@@ -32,6 +32,7 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
   private static final String TAG = ReactiveListFragment.class.getSimpleName();
   protected final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
   protected RecyclerView mRecyclerView;
+  protected RecyclerView.ItemDecoration mDividerItemDecoration;
   protected TextView mEmptyView;
   protected SwipeRefreshLayout mSwipeRefreshLayout;
   protected RecyclerView.AdapterDataObserver mObserver;
@@ -75,7 +76,8 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     mRecyclerView.setHasFixedSize(true);
     mRecyclerView.setLongClickable(true);
-    mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity().getApplicationContext()));
+    mDividerItemDecoration = new SimpleDividerItemDecoration(getActivity().getApplicationContext());
+    mRecyclerView.addItemDecoration(mDividerItemDecoration);
 
     // Set SwipeRefreshLayout up
     mSwipeRefreshLayout.setColorSchemeResources(R.color.studip_mobile_dark,
@@ -96,6 +98,10 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     } else {
       mEmptyView.setVisibility(View.GONE);
     }
+  }
+
+  public void removeDividerItemDecoratior() {
+    mRecyclerView.removeItemDecoration(mDividerItemDecoration);
   }
 
   protected abstract void updateItems();

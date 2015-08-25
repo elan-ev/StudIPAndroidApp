@@ -1,14 +1,11 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2015 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
 
-/**
- *
- */
 package de.elanev.studip.android.app.util;
 
 import android.content.ContentValues;
@@ -31,13 +28,14 @@ public class Prefs {
   // TODO do DB operations in AsyncTask
   private static final String APP_PREFS_NAME = "prefs";
   private static final String APP_FIRST_START = "appFirstStart";
-  private static final String APP_SYMC_COMPLETE = "appSyncComplete";
+  private static final String APP_SYNC_COMPLETE = "appSyncComplete";
   private static final String USER_ID = "userId";
   private static final String TAG = Prefs.class.getSimpleName();
   private static final String CURRENT_SEMESTER_ID = "currentSemesterId";
   private static final String RECORDINGS_ENABLED = "recordingsEnabled";
   private static final String FORUM_IS_ACTIVATED = "activeRoutes";
   private static final String API_SETTINGS_STRING = "apiSettingsString";
+  private static final String ALLOW_MOBILE_DATA = "allowMobileData";
   private static Prefs sInstance;
   private Context mContext;
   private SharedPreferences mPrefs;
@@ -226,7 +224,7 @@ public class Prefs {
    * Sets the preference that indicates that the initial sync operation was successful.
    */
   public void setAppSynced() {
-    mPrefs.edit().putBoolean(APP_SYMC_COMPLETE, true).apply();
+    mPrefs.edit().putBoolean(APP_SYNC_COMPLETE, true).apply();
   }
 
   /**
@@ -235,7 +233,7 @@ public class Prefs {
    * @return true if the initial sync operation was successful. Otherwise false.
    */
   public boolean isAppSynced() {
-    return mPrefs.getBoolean(APP_SYMC_COMPLETE, false);
+    return mPrefs.getBoolean(APP_SYNC_COMPLETE, false);
   }
 
   /**
@@ -308,5 +306,23 @@ public class Prefs {
    */
   public String getApiSettings() {
     return mPrefs.getString(API_SETTINGS_STRING, "");
+  }
+
+  /**
+   * Returns whether the user allowed downloading via mobile data connection previously
+   *
+   * @return true if the user allowed downloading via mobile data, false otherwise
+   */
+  public boolean isAllowMobileData() {
+    return mPrefs.getBoolean(ALLOW_MOBILE_DATA, false);
+  }
+
+  /**
+   * Store the users decision to allow downloading via mobile data connection
+   *
+   * @param isAllowed the value to store
+   */
+  public void setAllowMobile(boolean isAllowed) {
+    mPrefs.edit().putBoolean(ALLOW_MOBILE_DATA, isAllowed).apply();
   }
 }

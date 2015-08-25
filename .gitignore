@@ -107,8 +107,7 @@ gradle.xml
 .idea/libraries
 dictionaries
 .idea/misc.xml
-StudIPAndroidApp.iml
-
+.idea/vcs.xml
 
 # Unwanted binaries
 *.db
@@ -122,6 +121,7 @@ StudIPAndroidApp/src/main/assets/crashlytics-build.properties
 
 # Project
 StudIPAndroidApp/src/release/AndroidManifest.xml
+StudIPAndroidApp/src/debug/AndroidManifest.xml
 StudIPAndroidApp/src/release/java/de/elanev/studip/android/app/util/Config.java
 StudIPAndroidApp/src/release/java/de/elanev/studip/android/app/util/ServerData.java
 StudIPAndroidApp/src/debug/java/de/elanev/studip/android/app/util/ServerData.java
