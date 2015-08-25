@@ -210,6 +210,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     final ArrayList<String> dialogOptions = getDialogOptions(recording);
     if (dialogOptions.isEmpty()) {
       showErrorToast(R.string.recording_no_available);
+      return;
     }
     String[] options = dialogOptions.toArray(new String[dialogOptions.size()]);
 
@@ -261,6 +262,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     final ArrayList<String> dialogOptions = getDialogOptions(recording);
     if (dialogOptions.isEmpty()) {
       showErrorToast(R.string.recording_no_available);
+      return;
     }
 
     final ArrayList<Integer> selectedItems = new ArrayList<>();
