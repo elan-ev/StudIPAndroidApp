@@ -26,6 +26,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +47,8 @@ import java.util.concurrent.TimeoutException;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Recording;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
+import de.elanev.studip.android.app.util.Connectivity;
+import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
@@ -145,13 +149,55 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         }));
   }
 
-  @Override public void onListItemClicked(View v, int position) {
+  @Override public void onListItemClicked(final View v, int position) {
     final Recording recording = mAdapter.getItem(position);
     if (recording == null) {
       return;
     }
 
-    switch (v.getId()) {
+    // Check if we are connected to the mobile data network and whether the user previously allowed
+    // mobile data downlands
+    if (Connectivity.isConnectedMobile(getActivity().getApplicationContext())) {
+      if (!Prefs.getInstance(getActivity()).isAllowMobileData()) {
+
+        // Inflate dialog checkbox and set onChangeListener to capture changes
+        View checkboxView = LayoutInflater.from(getActivity())
+            .inflate(R.layout.dialog_connectivity, null);
+        final CheckBox checkBox = (CheckBox) checkboxView.findViewById(R.id.checkbox);
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            Prefs.getInstance(getActivity()).setAllowMobile(isChecked);
+          }
+        });
+
+        // Create and show mobile data warning dialog with previously inflated checkbox
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.dialog_load_via_mobile_title)
+            .setMessage(R.string.dialog_load_via_mobile_text)
+            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+              @Override public void onClick(DialogInterface dialog, int which) {
+                handleDialogClick(v.getId(), recording);
+              }
+            })
+            .setCancelable(true)
+            .setOnCancelListener(new DialogInterface.OnCancelListener() {
+              @Override public void onCancel(DialogInterface dialog) {
+                dialog.dismiss();
+              }
+            })
+            .setView(checkboxView)
+            .create()
+            .show();
+        return;
+      }
+    }
+
+    // We are connected to wifi or mobile data is allowed
+    handleDialogClick(v.getId(), recording);
+  }
+
+  private void handleDialogClick(int id, Recording recording) {
+    switch (id) {
       case R.id.download_icon:
         handleDownloadIconClick(recording);
         return;
