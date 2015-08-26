@@ -127,8 +127,8 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
 
   @Override public void onPrepareOptionsMenu(Menu menu) {
     MainActivity activity = (MainActivity) getActivity();
-    boolean drawerOpen = activity.mDrawerLayout.isDrawerOpen(activity.mDrawerListView);
-    menu.findItem(R.id.compose_icon).setVisible(!drawerOpen);
+//    boolean drawerOpen = activity.mDrawerLayout.isDrawerOpen(drawerOpen);
+//    menu.findItem(R.id.compose_icon).setVisible(!drawerOpen);
 
     super.onPrepareOptionsMenu(menu);
   }
