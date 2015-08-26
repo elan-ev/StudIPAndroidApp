@@ -13,6 +13,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -108,14 +109,32 @@ public class MainActivity extends AppCompatActivity {
       case R.id.menu_sign_out:
         logout();
         return true;
+      case R.id.menu_invite:
+        startInviteIntent(createInviteIntent());
+        return true;
     }
 
     return super.onOptionsItemSelected(item);
   }
 
+  private void startInviteIntent(Intent intent) {
+    if (intent.resolveActivity(getPackageManager()) != null) {
+      startActivity(intent);
+    }
+  }
+
+  private Intent createInviteIntent() {
+
+    return ShareCompat.IntentBuilder.from(this)
+        .setSubject(getString(R.string.invite_subject))
+        .setText(getString(R.string.invite_text))
+        .setHtmlText(getString(R.string.invite_text_html))
+        .getIntent();
+  }
+
   /*
-     * Deletes the preferences and database to logout of the service
-     */
+   * Deletes the preferences and database to logout of the service
+   */
   private void logout() {
     //Cancel all pending network requests
     StudIPApplication.getInstance().cancelAllPendingRequests(SyncHelper.TAG);
