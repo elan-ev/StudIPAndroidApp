@@ -10,7 +10,6 @@ package de.elanev.studip.android.app;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -56,8 +55,6 @@ public class MainActivity extends AppCompatActivity implements
   private String mUserId;
   private User mCurrentUser;
   private boolean isPaused;
-  private Toolbar mToolbar;
-  private CoordinatorLayout mCoordinatorLayout;
   private NavigationView mNavigationView;
   private View mHeaderView;
 
@@ -159,7 +156,6 @@ public class MainActivity extends AppCompatActivity implements
     mCurrentUser = User.fromJson(Prefs.getInstance(this)
                                      .getUserInfo());
 
-
     initToolbar();
     initNavigation();
     setNavHeaderInformation();
@@ -189,8 +185,8 @@ public class MainActivity extends AppCompatActivity implements
   }
 
   private void initToolbar() {
-    mToolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(mToolbar);
+    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
 
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
@@ -206,7 +202,6 @@ public class MainActivity extends AppCompatActivity implements
                                               R.string.open_drawer, R.string.close_drawer);
     mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-    mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.root_layout);
     mNavigationView = (NavigationView) findViewById(R.id.navigation);
     mHeaderView = findViewById(R.id.navigation_header);
     mHeaderView.setOnClickListener(this);
@@ -295,16 +290,18 @@ public class MainActivity extends AppCompatActivity implements
   }
 
   @Override public boolean onNavigationItemSelected(android.view.MenuItem menuItem) {
-    menuItem.setChecked(true);
-    mSelectedNavItem = menuItem.getItemId();
-    setFragment(mSelectedNavItem);
-    mDrawerLayout.closeDrawers();
+    if (!isPaused) {
+      menuItem.setChecked(true);
+      mSelectedNavItem = menuItem.getItemId();
+      setFragment(mSelectedNavItem);
+      mDrawerLayout.closeDrawers();
+    }
 
     return false;
   }
 
   @Override public void onClick(View v) {
-    if (mUserId != null) {
+    if (mUserId != null && !isPaused) {
       Intent intent = new Intent(this, UserDetailsActivity.class);
       intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
       startActivity(intent);
