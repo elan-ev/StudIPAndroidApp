@@ -20,7 +20,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
@@ -41,38 +47,19 @@ import de.elanev.studip.android.app.widget.UserDetailsActivity;
  *         It manages the navigation and content fragments.
  */
 public class MainActivity extends AppCompatActivity implements
-    NavigationView.OnNavigationItemSelectedListener {
+    NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
   public static final String TAG = MainActivity.class.getSimpleName();
   public static final String ACTIVE_NAVIGATION_ITEM = "active_navi_item";
-  private static int mPosition = 0;
+  private static int mSelectedNavItem = R.id.navigation_news;
   public DrawerLayout mDrawerLayout;
   public ActionBarDrawerToggle mDrawerToggle;
   private String mUserId;
+  private User mCurrentUser;
   private boolean isPaused;
   private Toolbar mToolbar;
   private CoordinatorLayout mCoordinatorLayout;
   private NavigationView mNavigationView;
-
-  @Override public void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    mDrawerToggle.onConfigurationChanged(newConfig);
-  }
-
-  @Override protected void onPause() {
-    super.onPause();
-    isPaused = true;
-  }
-
-  @Override protected void onPostCreate(Bundle savedInstanceState) {
-    super.onPostCreate(savedInstanceState);
-    // Sync the toggle state after onRestoreInstanceState has occurred.
-    mDrawerToggle.syncState();
-  }
-
-  @Override protected void onSaveInstanceState(Bundle outState) {
-    outState.putInt(ACTIVE_NAVIGATION_ITEM, mPosition);
-    super.onSaveInstanceState(outState);
-  }
+  private View mHeaderView;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.main, menu);
@@ -85,7 +72,8 @@ public class MainActivity extends AppCompatActivity implements
 
     switch (item.getItemId()) {
       case R.id.menu_feedback:
-        StuffUtil.startFeedback(this, Prefs.getInstance(this).getServer());
+        StuffUtil.startFeedback(this, Prefs.getInstance(this)
+            .getServer());
         return true;
       case R.id.menu_about:
         StuffUtil.startAbout(this);
@@ -99,17 +87,20 @@ public class MainActivity extends AppCompatActivity implements
   }
 
   /*
-     * Deletes the preferences and database to logout of the service
-     */
+   * Deletes the preferences and database to logout of the service
+   */
   private void logout() {
     //Cancel all pending network requests
-    StudIPApplication.getInstance().cancelAllPendingRequests(SyncHelper.TAG);
+    StudIPApplication.getInstance()
+        .cancelAllPendingRequests(SyncHelper.TAG);
 
     // Resetting the SyncHelper
-    SyncHelper.getInstance(this).resetSyncHelper();
+    SyncHelper.getInstance(this)
+        .resetSyncHelper();
 
     // Clear the app preferences
-    Prefs.getInstance(this).clearPrefs();
+    Prefs.getInstance(this)
+        .clearPrefs();
 
     // Delete the app database
     getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
@@ -125,6 +116,21 @@ public class MainActivity extends AppCompatActivity implements
     super.onBackPressed();
   }
 
+  @Override protected void onPause() {
+    super.onPause();
+    isPaused = true;
+  }
+
+  @Override protected void onSaveInstanceState(Bundle outState) {
+    outState.putInt(ACTIVE_NAVIGATION_ITEM, mSelectedNavItem);
+    super.onSaveInstanceState(outState);
+  }
+
+  @Override protected void onStart() {
+    super.onStart();
+    isPaused = false;
+  }
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
@@ -132,7 +138,8 @@ public class MainActivity extends AppCompatActivity implements
       return;
     }
 
-    if (!Prefs.getInstance(this).isAppAuthorized()) {
+    if (!Prefs.getInstance(this)
+        .isAppAuthorized()) {
       StuffUtil.startSignInActivity(this);
       finish();
       return;
@@ -140,32 +147,45 @@ public class MainActivity extends AppCompatActivity implements
 
     // Verify that the forum routes are still activated
     //TODO: Move this and other API checks to a Service or something, but not here
-    SyncHelper.getInstance(this).requestApiRoutes(null);
-    SyncHelper.getInstance(this).getSettings(null);
+    SyncHelper.getInstance(this)
+        .requestApiRoutes(null);
+    SyncHelper.getInstance(this)
+        .getSettings(null);
 
-    setContentView(R.layout.activity_new_main);
+    setContentView(R.layout.activity_main);
 
-    mUserId = Prefs.getInstance(this).getUserId();
+    mUserId = Prefs.getInstance(this)
+        .getUserId();
+    mCurrentUser = User.fromJson(Prefs.getInstance(this)
+                                     .getUserInfo());
+
 
     initToolbar();
     initNavigation();
+    setNavHeaderInformation();
 
-    //    if (savedInstanceState == null) changeFragment(mPosition);
-    //    else changeFragment(savedInstanceState.getInt(ACTIVE_NAVIGATION_ITEM));
+    if (savedInstanceState == null) {
+      setFragment(mSelectedNavItem);
+      mNavigationView.getMenu()
+          .findItem(mSelectedNavItem)
+          .setChecked(true);
+    } else {
+      setFragment(mSelectedNavItem);
+      mNavigationView.getMenu()
+          .findItem(savedInstanceState.getInt(ACTIVE_NAVIGATION_ITEM))
+          .setChecked(true);
+    }
   }
 
-  private void initNavigation() {
-    mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+  @Override protected void onPostCreate(Bundle savedInstanceState) {
+    super.onPostCreate(savedInstanceState);
+    // Sync the toggle state after onRestoreInstanceState has occurred.
+    mDrawerToggle.syncState();
+  }
 
-    mDrawerToggle = new ActionBarDrawerToggle(MainActivity.this,
-        mDrawerLayout,
-        R.string.open_drawer,
-        R.string.close_drawer);
-    mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-    mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.root_layout);
-    mNavigationView = (NavigationView) findViewById(R.id.navigation);
-    mNavigationView.setNavigationItemSelectedListener(this);
+  @Override public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    mDrawerToggle.onConfigurationChanged(newConfig);
   }
 
   private void initToolbar() {
@@ -179,27 +199,42 @@ public class MainActivity extends AppCompatActivity implements
     }
   }
 
-  /*
-   * Searches for a fragment for the given tag
-   *
-   * @return the found fragment or null
-   *
-   */
-  private Fragment findFragment(String tag) {
-    return getSupportFragmentManager().findFragmentByTag(tag);
+  private void initNavigation() {
+    mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+    mDrawerToggle = new ActionBarDrawerToggle(MainActivity.this, mDrawerLayout,
+                                              R.string.open_drawer, R.string.close_drawer);
+    mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+    mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.root_layout);
+    mNavigationView = (NavigationView) findViewById(R.id.navigation);
+    mHeaderView = findViewById(R.id.navigation_header);
+    mHeaderView.setOnClickListener(this);
+    mNavigationView.setNavigationItemSelectedListener(this);
   }
 
-  @Override protected void onStart() {
-    super.onStart();
-    isPaused = false;
+  private void setNavHeaderInformation() {
+    if (mCurrentUser != null) {
+      TextView userNameTextView = (TextView) mHeaderView.findViewById(R.id.user_name);
+      TextView userEmailTextView = (TextView) mHeaderView.findViewById(R.id.user_email);
+      ImageView userImageView = (ImageView) mHeaderView.findViewById(R.id.user_image);
+
+      userNameTextView.setText(mCurrentUser.getFullName());
+      userEmailTextView.setText(mCurrentUser.email);
+
+      Picasso.with(this)
+          .load(mCurrentUser.avatarNormal)
+          .fit()
+          .into(userImageView);
+    } else {
+      mHeaderView.setVisibility(View.GONE);
+    }
   }
 
-  @Override public boolean onNavigationItemSelected(android.view.MenuItem menuItem) {
-    menuItem.setChecked(true);
-    Fragment frag;
+  private void setFragment(int itemId) {
     String fragTag;
-
-    switch (menuItem.getItemId()) {
+    Fragment frag;
+    switch (itemId) {
       case R.id.navigation_news:
         fragTag = NewsTabsFragment.class.getName();
         frag = findFragment(fragTag);
@@ -235,27 +270,45 @@ public class MainActivity extends AppCompatActivity implements
           frag = new PlannerFragment();
         }
         break;
-      case R.id.navigation_profile:
-        if (mUserId != null) {
-          Intent intent = new Intent(this, UserDetailsActivity.class);
-          intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
-          startActivity(intent);
-        }
       default:
         frag = new NewsTabsFragment();
     }
     changeFragment(frag);
-    mDrawerLayout.closeDrawers();
-    return false;
   }
 
+  /*
+   * Searches for a fragment for the given tag
+   *
+   * @return the found fragment or null
+   *
+   */
+  private Fragment findFragment(String tag) {
+    return getSupportFragmentManager().findFragmentByTag(tag);
+  }
 
   private void changeFragment(Fragment frag) {
     FragmentManager fragmentManager = getSupportFragmentManager();
     fragmentManager.beginTransaction()
-        .replace(R.id.content_frame, frag, frag.getClass().getName())
+        .replace(R.id.content_frame, frag, frag.getClass()
+            .getName())
         .commit();
   }
 
+  @Override public boolean onNavigationItemSelected(android.view.MenuItem menuItem) {
+    menuItem.setChecked(true);
+    mSelectedNavItem = menuItem.getItemId();
+    setFragment(mSelectedNavItem);
+    mDrawerLayout.closeDrawers();
 
+    return false;
+  }
+
+  @Override public void onClick(View v) {
+    if (mUserId != null) {
+      Intent intent = new Intent(this, UserDetailsActivity.class);
+      intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
+      startActivity(intent);
+      mDrawerLayout.closeDrawers();
+    }
+  }
 }
