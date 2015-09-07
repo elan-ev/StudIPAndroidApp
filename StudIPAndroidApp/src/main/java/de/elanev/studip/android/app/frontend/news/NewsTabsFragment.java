@@ -9,6 +9,7 @@
 package de.elanev.studip.android.app.frontend.news;
 
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -22,24 +23,34 @@ import de.elanev.studip.android.app.R;
  * Created by joern on 12.04.14.
  */
 public class NewsTabsFragment extends Fragment {
+  private ViewPager mPager;
+  private TabLayout mTabLayout;
 
   public NewsTabsFragment() {}
 
-  @Override
-  public View onCreateView(LayoutInflater inflater,
+  @Override public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
-    View layout = inflater.inflate(R.layout.title_strip_viewpager, container, false);
+    View layout = inflater.inflate(R.layout.viewpager_without_toolbar, container, false);
 
-    ViewPager pager = (ViewPager) layout.findViewById(R.id.pager);
-    pager.setAdapter(buildAdapter());
+    mPager = (ViewPager) layout.findViewById(R.id.pager);
+    mTabLayout = (TabLayout) layout.findViewById(R.id.sliding_tabs);
+    mTabLayout.setTabMode(TabLayout.MODE_FIXED);
+    mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
     return layout;
   }
 
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+
+    mPager.setAdapter(buildAdapter());
+    mTabLayout.setupWithViewPager(mPager);
+  }
+
   /*
-   * Creates a new NewsTabsAdapter
-   */
+     * Creates a new NewsTabsAdapter
+     */
   private PagerAdapter buildAdapter() {
     return new NewsTabsAdapter(getActivity(), getChildFragmentManager());
   }
