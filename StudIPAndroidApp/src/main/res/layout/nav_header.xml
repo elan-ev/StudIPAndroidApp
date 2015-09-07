@@ -17,13 +17,6 @@
     android:background="@color/studip_mobile_dark"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <!--<ImageView-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:scaleType="centerCrop"-->
-    <!--android:src="@drawable/logo_studip"-->
-    <!--android:contentDescription="@string/background_image"/>-->
-
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_image"
         app:border_width="0.5dp"
