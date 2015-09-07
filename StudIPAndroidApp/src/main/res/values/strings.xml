@@ -247,6 +247,7 @@ aliqua.</string>
     <string name="Enter_content">Enter content</string>
     <string name="no_forum_categories">No forum categories</string>
     <string name="oc_recording">OpenCast recording</string>
+    <string name="background_image">background image</string>
 
     <!-- Time Strings -->
     <plurals name="seconds_abbrev">
