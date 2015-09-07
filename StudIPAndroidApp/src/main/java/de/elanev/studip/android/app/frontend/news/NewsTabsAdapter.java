@@ -27,7 +27,6 @@ public class NewsTabsAdapter extends FragmentPagerAdapter {
   private static final int[] NEWS_PAGE_SELECTORS = {
       NEWS_GLOBAL, NEWS_COURSES, NEWS_INSTITUTES
   };
-  private static final String TAG = NewsTabsAdapter.class.getSimpleName();
 
   private Context mContext;
 
