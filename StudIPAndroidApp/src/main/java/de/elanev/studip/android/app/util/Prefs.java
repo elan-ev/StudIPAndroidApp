@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import de.elanev.studip.android.app.backend.datamodel.Server;
+import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AuthenticationContract;
 
 
@@ -36,6 +37,7 @@ public class Prefs {
   private static final String FORUM_IS_ACTIVATED = "activeRoutes";
   private static final String API_SETTINGS_STRING = "apiSettingsString";
   private static final String ALLOW_MOBILE_DATA = "allowMobileData";
+  private static final String USER_INFO = "currentUserInfo";
   private static Prefs sInstance;
   private Context mContext;
   private SharedPreferences mPrefs;
@@ -255,6 +257,26 @@ public class Prefs {
   }
 
   /**
+   * Returns the user profile information which is currently signed in. The return value is a JSON
+   * formatted String which has be parsed with {@link User}
+   *
+   * @return User info JSON String
+   */
+  public String getUserInfo() {
+    return mPrefs.getString(USER_INFO, null);
+  }
+
+  /**
+   * Takes a JSON formatted String containing the profile information of the currently signed in
+   * user. The string needs the be parsable by {@link User}
+   *
+   * @param userInfoJson JSON formatted User info string
+   */
+  public void setUserInfo(String userInfoJson) {
+    mPrefs.edit().putString(USER_INFO, userInfoJson).apply();
+  }
+
+  /**
    * Returns the Stud.IP id String of the current semester
    *
    * @return Stud.IP id String of the current semester.
@@ -291,21 +313,21 @@ public class Prefs {
   }
 
   /**
-   * Saves a String representation of the API settings in the shared preferences.
-   *
-   * @param apiSettings JSON String representation of the API settings to save
-   */
-  public void setApiSettings(String apiSettings) {
-    mPrefs.edit().putString(API_SETTINGS_STRING, apiSettings).apply();
-  }
-
-  /**
    * Returns the stored API settings JSON String representation
    *
    * @return JSON String of the API settings
    */
   public String getApiSettings() {
     return mPrefs.getString(API_SETTINGS_STRING, "");
+  }
+
+  /**
+   * Saves a String representation of the API settings in the shared preferences.
+   *
+   * @param apiSettings JSON String representation of the API settings to save
+   */
+  public void setApiSettings(String apiSettings) {
+    mPrefs.edit().putString(API_SETTINGS_STRING, apiSettings).apply();
   }
 
   /**

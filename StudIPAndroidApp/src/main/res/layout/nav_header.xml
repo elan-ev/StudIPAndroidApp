@@ -7,38 +7,71 @@
   ~ http://www.gnu.org/licenses/gpl.html
   -->
 
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="192dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/studip_mobile_dark"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"/>
+    <!--<ImageView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:scaleType="centerCrop"-->
+    <!--android:src="@drawable/logo_studip"-->
+    <!--android:contentDescription="@string/background_image"/>-->
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_image"
-        app:border_width="1dp"
+        app:border_width="0.5dp"
         app:border_color="#fff5f5f5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/user_image_icon_size"
+        android:layout_height="@dimen/user_image_icon_size"
         android:src="@drawable/nobody_normal"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="36dp"
+        android:layout_margin="@dimen/keyline_1"
         android:contentDescription="@string/user_image"
         android:scaleType="centerCrop"
         />
 
     <TextView
+        android:id="@+id/user_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_margin="@dimen/keyline_1"
-        android:text="Joern"
+        android:layout_marginLeft="@dimen/keyline_1"
+        android:layout_marginStart="@dimen/keyline_1"
+        android:layout_marginRight="@dimen/keyline_1"
+        android:layout_below="@id/user_image"
+        android:layout_marginEnd="@dimen/keyline_1"
+        android:textColor="@color/primary_text_dark"
+        android:textSize="@dimen/text_size_medium"
+        android:textStyle="bold"
+        tools:text="Dr. Prof. Singlebart"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/user_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="@dimen/keyline_1"
+        android:layout_marginStart="@dimen/keyline_1"
+        android:layout_marginRight="@dimen/keyline_1"
+        android:layout_marginEnd="@dimen/keyline_1"
+        android:layout_marginBottom="@dimen/content_area_space"
+        android:layout_below="@id/user_name"
+        android:textColor="@color/primary_text_dark"
+        android:textSize="@dimen/text_size_medium"
+        tools:text="singlebart@uni-testuniversity.com"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+
+    <View
+        android:layout_height="1dp"
+        android:layout_width="match_parent"
+        android:layout_below="@id/user_email"
+        android:background="@color/divider"/>
+</RelativeLayout>
