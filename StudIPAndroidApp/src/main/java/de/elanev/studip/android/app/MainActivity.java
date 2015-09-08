@@ -48,10 +48,10 @@ import de.elanev.studip.android.app.widget.UserDetailsActivity;
 public class MainActivity extends AppCompatActivity implements
     NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
   public static final String TAG = MainActivity.class.getSimpleName();
-  public static final String ACTIVE_NAVIGATION_ITEM = "active_navi_item";
+  private static final String ACTIVE_NAVIGATION_ITEM = "active_navi_item";
   private static int mSelectedNavItem = R.id.navigation_news;
-  public DrawerLayout mDrawerLayout;
-  public ActionBarDrawerToggle mDrawerToggle;
+  private DrawerLayout mDrawerLayout;
+  private ActionBarDrawerToggle mDrawerToggle;
   private String mUserId;
   private User mCurrentUser;
   private boolean isPaused;
