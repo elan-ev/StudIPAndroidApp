@@ -80,7 +80,14 @@ def buildTime() {
   return df.format(new Date())
 }
 
+def isTravis = "true".equals(System.getenv("TRAVIS"))
+def preDexEnabled = "true".equals(System.getProperty("pre-dex", "true"))
 android {
+
+  dexOptions {
+    // Skip pre-dexing when running on Travis CI or when disabled via -Dpre-dex=false.
+    preDexLibraries = preDexEnabled && !isTravis
+  }
 
   testBuildType "staging"
 
