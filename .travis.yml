@@ -24,12 +24,8 @@ android:
     - sys-img-armeabi-v7a-android-21
     - sys-img-armeabi-v7a-android-22
     - sys-img-armeabi-v7a-android-23
-licenses:
-  - android-sdk-license-5be876d5
-  - android-sdk-license-598b93a6
 before_install:
   - export TERM=dumb
-  - gradle --version
 before_script:
 - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
 - emulator -avd test -no-skin -no-audio -no-window &
