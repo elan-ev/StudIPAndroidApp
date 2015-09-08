@@ -1,11 +1,11 @@
 language: android
 jdk: oraclejdk7
 cache: false
-sudo: false
+sudo: require
 env:
   matrix:
   - ANDROID_TARGET=android-10 ANDROID_ABI=armeabi
-  - ANDROID_TARGET=android-17 ANDROID_ABI=armeabi-v7a
+  - ANDROID_TARGET=android-16 ANDROID_ABI=armeabi-v7a
   - ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
   - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
   - ANDROID_TARGET=android-22 ANDROID_ABI=armeabi-v7a
@@ -19,7 +19,7 @@ android:
     - extra-android-support
     - extra-android-m2repository
     - android-10
-    - android-17
+    - android-16
     - android-19
     - android-21
     - android-22
@@ -29,6 +29,9 @@ android:
 licenses:
   - android-sdk-license-5be876d5
   - android-sdk-license-598b93a6
+before_install:
+  - export TERM=dumb
+  - gradle --version
 before_script:
 - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
 - emulator -avd test -no-skin -no-audio -no-window &
