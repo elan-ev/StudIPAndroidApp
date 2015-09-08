@@ -1,7 +1,7 @@
 language: android
 jdk: oraclejdk7
 cache: false
-sudo: require
+sudo: false
 env:
   matrix:
   - ANDROID_TARGET=android-10 ANDROID_ABI=armeabi
