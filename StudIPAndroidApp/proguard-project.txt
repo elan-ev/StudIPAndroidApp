@@ -55,13 +55,16 @@
 }
 -keepclassmembers class **.R$* {public static <fields>;}
 -keep class **.R$*
--keep class retrofit.http.** { *; }
+-keep class retrofit.** { *; }
+-keep interface retrofit.** { *; }
 -keep class com.squareup.okhttp.** { *; }
 -keep interface com.squareup.okhttp.** { *; }
 -keep public class * extends android.support.v4.app.Fragment
 -keepclassmembers class * extends android.support.v4.app.Fragment{
  public *** newInstance(android.os.Bundle);
 }
+-keep class com.android.volley.** { *; }
+-keep interface com.android.volley.** { *; }
 
 -dontwarn android.support.**
 -dontwarn org.apache.**
@@ -71,4 +74,5 @@
 -dontwarn com.squareup.okhttp.**
 -dontwarn okio.**
 -dontwarn rx.**
--dontwarn retrofit.appengine.UrlFetchClient
+-dontwarn retrofit.**
+-dontwarn com.android.volley.**
