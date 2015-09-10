@@ -34,9 +34,4 @@
         <item name="android:windowContentTransitions">true</item>
     </style>
 
-    <!-- Style for the TwoWayView -->
-    <style name="TwoWayViewBase">
-        <item name="android:background">@android:color/transparent</item>
-    </style>
-
 </resources>
