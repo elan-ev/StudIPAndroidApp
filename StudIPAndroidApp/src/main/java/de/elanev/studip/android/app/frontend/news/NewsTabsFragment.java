@@ -35,7 +35,7 @@ public class NewsTabsFragment extends Fragment {
 
     mPager = (ViewPager) layout.findViewById(R.id.pager);
     mTabLayout = (TabLayout) layout.findViewById(R.id.sliding_tabs);
-    mTabLayout.setTabMode(TabLayout.MODE_FIXED);
+    mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
     mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
     return layout;
