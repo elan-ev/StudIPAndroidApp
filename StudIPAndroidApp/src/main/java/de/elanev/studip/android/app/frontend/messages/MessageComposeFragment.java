@@ -52,6 +52,7 @@ import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
+import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
@@ -169,7 +170,7 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
           || mMessageActionFlag == MessageComposeActivity.MESSAGE_ACTION_REPLY) {
         mMessageEditTextView.setText(String.format("\n%s %s:\n%s",
             getString(R.string.original_message),
-            TextTools.getLocalizedAuthorAndDateString(mUserItem.getFullname(), mDate, mContext),
+            DateTools.getLocalizedAuthorAndDateString(mUserItem.getFullname(), mDate, mContext),
             Html.fromHtml(mMessage)));
       } else {
         mMessageEditTextView.setText(Html.fromHtml(mMessage));

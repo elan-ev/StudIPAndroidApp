@@ -37,6 +37,7 @@ import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
 
@@ -286,10 +287,8 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
           final String userLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
 
           mNewsTitleTextView.setText(newsTopic);
-          mNewsAuthorTextView.setText(TextTools.getLocalizedAuthorAndDateString(String.format(
-              "%s %s",
-              userForename,
-              userLastname), newsDate, getActivity()));
+          mNewsAuthorTextView.setText(DateTools.getLocalizedAuthorAndDateString(
+              String.format("%s %s", userForename, userLastname), newsDate, getActivity()));
           mNewsAuthorTextView.setVisibility(View.VISIBLE);
           mNewsShowMoreTextView.setVisibility(View.VISIBLE);
           mNewsTextTextView.setText(Html.fromHtml(newsBody));
