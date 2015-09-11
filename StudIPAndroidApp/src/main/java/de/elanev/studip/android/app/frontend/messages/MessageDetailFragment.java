@@ -38,8 +38,6 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -47,6 +45,7 @@ import de.elanev.studip.android.app.backend.db.MessagesContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.StringRequest;
+import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
@@ -317,12 +316,10 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
     if (mMessage != null) {
       mMessageBodyTextView.setText(Html.fromHtml(mMessage));
     }
-    mMessageAuthorTextView.setText(TextTools.createNameSting(
-        mSenderTitlePre,
-        mSenderForename,
-        mSenderLastname,
-        mSenderTitlePost));
-    mMessageDateTextView.setText(TextTools.getLocalizedTime(mDate, mContext));
+    mMessageAuthorTextView.setText(TextTools.createNameSting(mSenderTitlePre, mSenderForename,
+        mSenderLastname, mSenderTitlePost));
+    String test = DateTools.getShortLocalizedTime(mDate, mContext);
+    mMessageDateTextView.setText(test);
 
     Picasso.with(mContext).load(mUserImageUrl)
         .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)

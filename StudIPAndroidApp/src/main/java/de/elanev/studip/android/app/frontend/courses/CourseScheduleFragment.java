@@ -27,7 +27,7 @@ import android.widget.TextView;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.db.EventsContract;
-import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.util.DateTools;
 
 /**
  * @author joern
@@ -193,9 +193,9 @@ public class CourseScheduleFragment extends ListFragment implements LoaderCallba
       ViewHolder viewHolder = (ViewHolder) view.getTag();
 
       String dateString = String.format("%s %s - %s",
-          TextTools.getLocalizedTime(eventStart * 1000L, context),
-          TextTools.get24hTime(eventStart * 1000),
-          TextTools.get24hTime(eventEnd * 1000));
+          DateTools.getShortLocalizedTime(eventStart * 1000L, context),
+          DateTools.get24hTime(eventStart * 1000),
+          DateTools.get24hTime(eventEnd * 1000));
       String title;
       String description = "";
 
