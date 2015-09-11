@@ -185,11 +185,10 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
     }
   }
 
-  @Override public void onSyncError(int status, VolleyError error) {
-    if (status == SyncHelper.SyncHelperCallbacks.ERROR_NEWS_SYNC && error != null
-        && error.networkResponse != null && error.networkResponse.statusCode != 404) {
+  @Override public void onSyncError(int status, String errorMsg, int errorCode) {
+    if (status == SyncHelper.SyncHelperCallbacks.ERROR_NEWS_SYNC && errorCode != 404) {
       if (getActivity() != null) {
-        Toast.makeText(mContext, R.string.sync_error_generic, Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, R.string.sync_error_default, Toast.LENGTH_LONG).show();
       }
       mSwipeRefreshLayoutListView.setRefreshing(false);
     }
