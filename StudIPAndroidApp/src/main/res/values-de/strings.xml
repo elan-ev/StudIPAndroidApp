@@ -207,10 +207,16 @@
     <string name="Invite">Einladen</string>
     <string name="invite_subject">Stud.IP Android App Einladung</string>
     <string
-        name="invite_text_html"><![CDATA["Hallo,<br />%1$s möchte dich zu Stud.IP Mobil für Android einladen. Solltest du Interesse haben, kannst du sie direkt im Google Play Store laden. Weitere Informationen sind unter <a href=\"http://http://mlearning.elan-ev.de/\">http://mlearning.elan-ev.de</a> verfügbar."]]></string>
-    <string name="invite_text">Hallo, ich möchte dich zur Stud.IP Mobil für Android einladen.
-        Solltest du Interesse haben, kannst du sie direkt im Google Play Store laden. Weitere
-        Informationen sind unter http://mlearning.elan-ev.de verfügbar.</string>
+        name="invite_text_html"><![CDATA["Hallo,<br /> ich möchte Dich zu Stud.IP Mobil für Android einladen.
+Ich nutze die App bereits für den Stud.IP Standort %1$s und
+habe nun jederzeit und überall Zugriff auf meine Daten. Solltest du
+Interesse haben, kannst du sie direkt im Google Play Store laden.
+Weitere Informationen sind unter <a href="https://goo.gl/AKQXve">https://goo.gl/AKQXve</a> verfügbar."]]></string>
+    <string name="invite_text">Hallo, ich möchte Dich zu Stud.IP Mobil für Android einladen.
+Ich nutze die App bereits für den Stud.IP Standort %1$s und
+habe nun jederzeit und überall Zugriff auf meine Daten. Solltest du
+Interesse haben, kannst du sie direkt im Google Play Store laden.
+Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
 
     <!-- Planner -->
     <string name="Planner">Planer</string>
