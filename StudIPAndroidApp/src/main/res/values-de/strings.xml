@@ -45,13 +45,6 @@
     <string name="no_data">Keine Daten</string>
     <string name="Overview">Übersicht</string>
     <string name="Global">Global</string>
-    <string name="just_now">gerade eben</string>
-    <string name="a_minute_ago">vor einer Minute</string>
-    <string name="minutes_ago">vor %d Minuten</string>
-    <string name="an_hour_ago">vor einer Stunde</string>
-    <string name="hours_ago">vor %d Stunden"</string>
-    <string name="yesterday">gestern</string>
-    <string name="days_ago">vor %d Tagen</string>
     <string name="by">von</string>
     <string name="Menu">Menü</string>
     <string name="internal_error">Interner Server Fehler</string>
@@ -259,24 +252,5 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="Enter_content">Forebeitrag verfassen</string>
     <string name="no_forum_categories">Keine Kategorien vorhanden</string>
     <string name="oc_recording">OpenCast recording</string>
-
-    <!-- Time Strings -->
-    <plurals name="seconds_abbrev">
-        <item quantity="one">Sek.</item>
-        <item quantity="other">Sek.</item>
-    </plurals>
-
-    <plurals name="minutes_abbrev">
-        <item quantity="one">Min.</item>
-        <item quantity="other">Min.</item>
-    </plurals>
-    <plurals name="hours_abbrev">
-        <item quantity="one">Std.</item>
-        <item quantity="other">Std.</item>
-    </plurals>
-    <plurals name="days_abbrev">
-        <item quantity="one">Tag</item>
-        <item quantity="other">Tage</item>
-    </plurals>
 
 </resources>
