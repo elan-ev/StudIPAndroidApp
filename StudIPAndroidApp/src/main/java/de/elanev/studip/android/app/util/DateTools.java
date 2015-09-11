@@ -25,7 +25,7 @@ public class DateTools {
    * @return True if both timestamps point to the same day, false if the days are different.
    */
   public static boolean isSameDay(long dateMillies1, long dateMillies2) {
-    SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+    SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
 
     String fmtDate1 = fmt.format(new Date(dateMillies1));
     String fmtDate2 = fmt.format(new Date(dateMillies2));
@@ -34,7 +34,7 @@ public class DateTools {
   }
 
   /**
-   * Returns a String containing the relative time like @link{getShortRelativeTimeString} amd the
+   * Returns a String containing the relative time like @link{getLocalizedRelativeTimeString} amd the
    * passed author.
    *
    * @param author The author for the String
@@ -78,6 +78,13 @@ public class DateTools {
 
   }
 
+  /**
+   * Creates and returns a localized, abbreviated String representation of the passed time.
+   *
+   * @param time Time to generate the String representation from
+   * @param ctx  The context to run this method in
+   * @return A localized and abbreviated String representation of the passed timestamp
+   */
   public static String getShortLocalizedTime(final long time, Context ctx) {
     long timeMillis = normalizeTimestamp(time);
 
