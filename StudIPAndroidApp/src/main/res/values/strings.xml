@@ -205,9 +205,16 @@
     <string name="Invite">Invite</string>
     <string name="invite_subject">Stud.IP Android App Invitation</string>
     <string
-        name="invite_text_html"><![CDATA["Hello,<br />%1$s wants to invite you to use Stud.IP Mobil for Android. If you want to give it a try, get it in the Google Play Store. For more information visit <a href=\"http://http://mlearning.elan-ev.de/\"http://mlearning.elan-ev.de</a>"]]></string>
-    <string name="invite_text">Hello, I want you to invite you to use Stud.IP Mobil for Android.
-        If you want to give it a try, get it in the Play Store. For more information visit http://mlearning.elan-ev.de</string>
+        name="invite_text_html"><![CDATA["Hello,<br /> I want to invite you to use Stud.IP Mobil for Android.
+I\'m already using this app for the Stud.IP of %1$s having
+access to my data anytime, anywhere now. If you want to give it a try,
+get it in the Play Store. For more
+information visit https://goo.gl/AKQXve."]]></string>
+    <string name="invite_text">Hello, I want to invite you to use Stud.IP Mobil for Android.
+I\'m already using this app for the Stud.IP of %1$s having
+access to my data anytime, anywhere now. If you want to give it a try,
+get it in the Play Store. For more
+information visit https://goo.gl/AKQXve.</string>
 
     <!-- Planner -->
     <string name="Planner">Planner</string>
