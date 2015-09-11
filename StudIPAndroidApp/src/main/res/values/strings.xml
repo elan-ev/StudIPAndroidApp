@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2015 ELAN e.V.
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the GNU Public License v3.0
-  which accompanies this distribution, and is available at
-  http://www.gnu.org/licenses/gpl.html
--->
+  ~ Copyright (c) 2015 ELAN e.V.
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the GNU Public License v3.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.gnu.org/licenses/gpl.html
+  -->
 <resources>
 
     <!-- General -->
@@ -201,6 +201,20 @@
     <string name="About">About</string>
     <string name="Logout">Logout</string>
     <string name="Feedback">Feedback</string>
+    <string name="invite_users">Invite other users</string>
+    <string name="Invite">Invite</string>
+    <string name="invite_subject">Stud.IP Android App Invitation</string>
+    <string
+        name="invite_text_html"><![CDATA["Hello,<br /> I want to invite you to use Stud.IP Mobil for Android.
+I\'m already using this app for the Stud.IP of %1$s having
+access to my data anytime, anywhere now. If you want to give it a try,
+get it in the Play Store. For more
+information visit https://goo.gl/AKQXve."]]></string>
+    <string name="invite_text">Hello, I want to invite you to use Stud.IP Mobil for Android.
+I\'m already using this app for the Stud.IP of %1$s having
+access to my data anytime, anywhere now. If you want to give it a try,
+get it in the Play Store. For more
+information visit https://goo.gl/AKQXve.</string>
 
     <!-- Planner -->
     <string name="Planner">Planner</string>

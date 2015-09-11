@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -78,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements
       case R.id.menu_sign_out:
         logout();
         return true;
+      case R.id.menu_invite:
+        startInviteIntent(createInviteIntent());
+        return true;
     }
 
     return super.onOptionsItemSelected(item);
@@ -104,6 +109,34 @@ public class MainActivity extends AppCompatActivity implements
 
     StuffUtil.startSignInActivity(this);
     finish();
+  }
+
+  private void startInviteIntent(Intent intent) {
+    // Check if intent resolves to an activity to prevent ActivityNotFoundException
+    if (intent.resolveActivity(getPackageManager()) != null) {
+      startActivity(intent);
+    }
+  }
+
+  private Intent createInviteIntent() {
+
+    Server server  = Prefs.getInstance(this).getServer();
+    String inviteText = "";
+    String inviteTextHtml = "";
+    if (server == null) {
+      inviteText = String.format(getString(R.string.invite_text), "");
+      inviteTextHtml = String.format(getString(R.string.invite_text_html), "");
+    } else {
+      inviteText = String.format(getString(R.string.invite_text), server.getName());
+      inviteTextHtml = String.format(getString(R.string.invite_text_html), server.getName());
+    }
+
+    return ShareCompat.IntentBuilder.from(this)
+        .setSubject(getString(R.string.invite_subject))
+        .setText(inviteText)
+        .setHtmlText(inviteTextHtml)
+        .setType("text/plain")
+        .createChooserIntent();
   }
 
   @Override public void onBackPressed() {
