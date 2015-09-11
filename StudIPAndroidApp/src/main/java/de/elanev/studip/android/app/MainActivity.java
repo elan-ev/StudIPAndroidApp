@@ -148,13 +148,16 @@ public class MainActivity extends AppCompatActivity implements
         .requestApiRoutes(null);
     SyncHelper.getInstance(this)
         .getSettings(null);
+    SyncHelper.getInstance(this)
+        .requestCurrentUserInfo(null);
 
     setContentView(R.layout.activity_main);
 
-    mUserId = Prefs.getInstance(this)
-        .getUserId();
     mCurrentUser = User.fromJson(Prefs.getInstance(this)
-                                     .getUserInfo());
+        .getUserInfo());
+    if (mCurrentUser != null) {
+      mUserId = mCurrentUser.userId;
+    }
 
     initToolbar();
     initNavigation();
@@ -199,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements
     mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
     mDrawerToggle = new ActionBarDrawerToggle(MainActivity.this, mDrawerLayout,
-                                              R.string.open_drawer, R.string.close_drawer);
+        R.string.open_drawer, R.string.close_drawer);
     mDrawerLayout.setDrawerListener(mDrawerToggle);
 
     mNavigationView = (NavigationView) findViewById(R.id.navigation);
@@ -220,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements
       Picasso.with(this)
           .load(mCurrentUser.avatarNormal)
           .fit()
+          .centerCrop()
           .into(userImageView);
     } else {
       mHeaderView.setVisibility(View.GONE);

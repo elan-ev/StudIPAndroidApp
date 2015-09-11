@@ -6,9 +6,7 @@ import android.database.Cursor;
 import org.apache.http.HttpStatus;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.CourseItem;
 import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
@@ -119,8 +117,7 @@ public class StudIpLegacyApiService {
         })
         .flatMap(new Func1<ForumEntry, Observable<ForumEntry>>() {
           @Override public Observable<ForumEntry> call(ForumEntry entry) {
-            return Observable.zip(Observable.just(entry),
-                getUser(entry.userId),
+            return Observable.zip(Observable.just(entry), getUser(entry.userId),
                 new Func2<ForumEntry, User, ForumEntry>() {
                   @Override public ForumEntry call(ForumEntry entry, User user) {
                     entry.user = user;
@@ -148,21 +145,8 @@ public class StudIpLegacyApiService {
       }
     }).onErrorReturn(new Func1<Throwable, User>() {
       @Override public User call(Throwable throwable) {
-        return new User(null,
-            null,
-            null,
-            null,
-            "Deleted",
-            "User",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            0);
+        return new User(null, null, null, null, "Deleted", "User", null, null, null, null, null,
+            null, null, null, 0);
       }
     });
   }
@@ -249,6 +233,15 @@ public class StudIpLegacyApiService {
     return recordingsObservable;
   }
 
+  public Observable<User> getCurrentUserInfo() {
+    return mService.getCurrentUserInfo()
+        .flatMap(new Func1<UserItem, Observable<? extends User>>() {
+          @Override public Observable<? extends User> call(UserItem userItem) {
+            return Observable.just(userItem.user);
+          }
+        });
+  }
+
   public interface RestIPLegacyService {
     @PUT("/courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
         Callback<ForumCategory> cb);
@@ -277,6 +270,8 @@ public class StudIpLegacyApiService {
     @GET("/studip/settings") Observable<Settings> getSettings();
 
     @GET("/courses/{course_id}") Observable<CourseItem> getCourse(@Path("course_id") String courseId);
+
+    @GET("/user") Observable<UserItem> getCurrentUserInfo();
   }
 
   public static class UserNotFoundException extends RuntimeException {
