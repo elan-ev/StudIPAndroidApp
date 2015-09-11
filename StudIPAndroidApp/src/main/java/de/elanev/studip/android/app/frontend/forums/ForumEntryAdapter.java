@@ -26,6 +26,7 @@ import java.util.List;
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntry;
+import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 
@@ -87,7 +88,7 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
 
     if (item.user != null) {
       viewHolder.mAuthorTextView.setText(item.user.getFullName().trim());
-      viewHolder.mDateTextView.setText(TextTools.getShortRelativeTime(date * 1000L, mContext));
+      viewHolder.mDateTextView.setText(DateTools.getLocalizedRelativeTimeString(date));
 
       mPicasso.load(item.user.avatarNormal)
           .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
@@ -95,7 +96,7 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
           .placeholder(R.drawable.nobody_normal)
           .into(viewHolder.mUserImageView);
     } else {
-      viewHolder.mAuthorTextView.setText(TextTools.getShortRelativeTime(date, mContext));
+      viewHolder.mAuthorTextView.setText(DateTools.getLocalizedRelativeTimeString(date));
     }
   }
 

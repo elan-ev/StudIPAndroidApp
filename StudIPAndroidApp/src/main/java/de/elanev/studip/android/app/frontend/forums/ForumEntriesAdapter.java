@@ -24,6 +24,7 @@ import java.util.List;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntry;
+import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 
@@ -89,7 +90,7 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
       viewHolder.mAuthorTextView.setText(item.user.getFullName());
     }
 
-    viewHolder.mDateTextView.setText(TextTools.getShortRelativeTime(date*1000L, mContext));
+    viewHolder.mDateTextView.setText(DateTools.getLocalizedRelativeTimeString(date));
   }
 
   public ForumEntry getItem(int position) {

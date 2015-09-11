@@ -48,8 +48,8 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Recording;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.util.Connectivity;
+import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import retrofit.RetrofitError;
@@ -444,9 +444,8 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
 
       try {
         Date startDate = mDateFormat.parse(item.getStart());
-        String date = TextTools.getLocalizedAuthorAndDateString(item.getAuthor(),
-            startDate.getTime(),
-            mContext);
+        String date = DateTools.getLocalizedAuthorAndDateString(item.getAuthor(),
+            startDate.getTime(), mContext);
         holder.mDateTextView.setText(date);
       } catch (ParseException e) {
         e.printStackTrace();

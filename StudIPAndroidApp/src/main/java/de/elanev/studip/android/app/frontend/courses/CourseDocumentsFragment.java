@@ -61,6 +61,7 @@ import de.elanev.studip.android.app.backend.db.DocumentsContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.ApiUtils;
+import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
@@ -596,7 +597,7 @@ public class CourseDocumentsFragment extends Fragment {
           //          holder.icon.setBackgroundColor(getResources().getColor(R.color.studip_mobile_dark));
           holder.title.setText(f.name);
           String subText = String.format(getString(R.string.last_updated),
-              TextTools.getTimeAgo(f.chdate, mContext));
+              DateTools.getLocalizedRelativeTimeString(f.chdate));
           holder.subtitle.setText(subText);
           holder.subtitle.setVisibility(View.VISIBLE);
         } else {
