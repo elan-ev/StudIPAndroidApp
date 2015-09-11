@@ -34,10 +34,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -53,16 +49,11 @@ import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.DatabaseHandler;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.backend.net.util.JacksonRequest;
 import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.ServerData;
 import de.elanev.studip.android.app.util.StuffUtil;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * The fragment that is holding the actual sign in and authorization logic.
@@ -274,9 +265,17 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
 
   /* Simply triggers the prefetching at the SyncHelper */
   private void performPrefetchSync() {
-    String userId = Prefs.getInstance(mContext).getUserId();
-    SyncHelper.getInstance(mContext).requestInstitutesForUserID(userId, this);
-    SyncHelper.getInstance(mContext).requestApiRoutes(this);
+    User currentUser = User.fromJson(Prefs.getInstance(mContext).getUserInfo());
+
+    if (currentUser != null) {
+      SyncHelper.getInstance(mContext)
+          .requestInstitutesForUserID(currentUser.userId, this);
+      SyncHelper.getInstance(mContext)
+          .requestApiRoutes(this);
+    } else {
+      showLoginForm();
+    }
+
   }
 
   /* Hides the progess indicator and sets the login form as visible */
@@ -456,6 +455,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         //          SyncHelper.getInstance(mContext).performPendingUserSync(this);
         break;
       case SyncHelper.SyncHelperCallbacks.FINISHED_USER_SYNC:
+        performPrefetchSync();
         break;
       case SyncHelper.SyncHelperCallbacks.FINISHED_INSTITUTES_SYNC:
         mInstitutesSynced = true;
@@ -481,53 +481,58 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     }
   }
 
-  @Override public void onSyncError(int status, VolleyError error) {
-    if (getActivity() == null || error == null || error.networkResponse == null
-        || error.networkResponse.statusCode == 404) return;
-    Log.wtf(TAG, "Sync error " + status);
+  @Override public void onSyncError(int status, String errorMsg, int errorCode) {
+    if (getActivity() == null || errorCode == 404) {
+      return;
+    }
+    Log.wtf(TAG, "Sync error " + status + ". Message: " + errorMsg + ". StatusCode: " + errorCode);
 
+    String errorMessage;
+    String defaultError = getString(R.string.sync_error_default);
     String genericErrorMessage = getString(R.string.sync_error_generic);
     String finalErrorMessage;
-    switch (status) {
-      case SyncHelper.SyncHelperCallbacks.ERROR_CONTACTS_SYNC:
-        finalErrorMessage = String.format(genericErrorMessage, getString(R.string.contacts));
-        break;
-      case SyncHelper.SyncHelperCallbacks.ERROR_USER_SYNC:
-        finalErrorMessage = String.format(genericErrorMessage,
-            getString(R.string.user_profile_data));
-        break;
-      case SyncHelper.SyncHelperCallbacks.ERROR_SEMESTER_SYNC:
-        finalErrorMessage = String.format(genericErrorMessage, getString(R.string.semesters));
-        break;
-      case SyncHelper.SyncHelperCallbacks.ERROR_NEWS_SYNC:
-        finalErrorMessage = String.format(genericErrorMessage, getString(R.string.news));
-        break;
-      case SyncHelper.SyncHelperCallbacks.ERROR_COURSES_SYNC:
-        finalErrorMessage = String.format(genericErrorMessage, getString(R.string.courses));
-        break;
-      case SyncHelper.SyncHelperCallbacks.ERROR_INSTITUTES_SYNC:
-        finalErrorMessage = String.format(genericErrorMessage, getString(R.string.institutes));
-        break;
-      case SyncHelper.SyncHelperCallbacks.ERROR_MESSAGES_SYNC:
-        finalErrorMessage = String.format(genericErrorMessage, getString(R.string.messages));
-        break;
-      case SyncHelper.SyncHelperCallbacks.ERROR_ROUTES_SYNC:
-        finalErrorMessage = String.format(genericErrorMessage, "routes");
-        break;
-      default:
-        finalErrorMessage = getString(R.string.sync_error_default);
-    }
 
-    StringBuilder builder = new StringBuilder(finalErrorMessage);
-
-    String errMesg = error.getLocalizedMessage();
-    if (errMesg != null) {
-      builder.append(errMesg);
+    if (TextUtils.isEmpty(errorMsg) || errorCode == 0) {
+      finalErrorMessage = defaultError;
     } else {
-      builder.append("HTTP-Code: ").append(error.networkResponse.statusCode);
+      switch (status) {
+        case SyncHelper.SyncHelperCallbacks.ERROR_CONTACTS_SYNC:
+          errorMessage = String.format(genericErrorMessage, getString(R.string.contacts));
+          break;
+        case SyncHelper.SyncHelperCallbacks.ERROR_USER_SYNC:
+          errorMessage = String.format(genericErrorMessage, getString(R.string.user_profile_data));
+          break;
+        case SyncHelper.SyncHelperCallbacks.ERROR_SEMESTER_SYNC:
+          errorMessage = String.format(genericErrorMessage, getString(R.string.semesters));
+          break;
+        case SyncHelper.SyncHelperCallbacks.ERROR_NEWS_SYNC:
+          errorMessage = String.format(genericErrorMessage, getString(R.string.news));
+          break;
+        case SyncHelper.SyncHelperCallbacks.ERROR_COURSES_SYNC:
+          errorMessage = String.format(genericErrorMessage, getString(R.string.courses));
+          break;
+        case SyncHelper.SyncHelperCallbacks.ERROR_INSTITUTES_SYNC:
+          errorMessage = String.format(genericErrorMessage, getString(R.string.institutes));
+          break;
+        case SyncHelper.SyncHelperCallbacks.ERROR_MESSAGES_SYNC:
+          errorMessage = String.format(genericErrorMessage, getString(R.string.messages));
+          break;
+        case SyncHelper.SyncHelperCallbacks.ERROR_ROUTES_SYNC:
+          errorMessage = String.format(genericErrorMessage, "routes");
+          break;
+        default:
+          errorMessage = getString(R.string.sync_error_default);
+      }
+
+      StringBuilder builder = new StringBuilder(errorMessage);
+      finalErrorMessage = builder.append(errorMsg)
+          .append("HTTP-Code: ")
+          .append(errorCode)
+          .toString();
     }
 
-    Toast.makeText(mContext, builder.toString(), Toast.LENGTH_LONG).show();
+    Toast.makeText(mContext, finalErrorMessage, Toast.LENGTH_LONG)
+        .show();
 
     resetSignInActivityState();
     showLoginForm();
@@ -554,60 +559,9 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     mSelectedServer.setAccessToken(token);
     mSelectedServer.setAccessTokenSecret(tokenSecret);
     Prefs.getInstance(mContext).setServer(mSelectedServer);
-
-    String url = String.format(getString(R.string.restip_user), mSelectedServer.getApiUrl());
-
-    JacksonRequest<User> request = new JacksonRequest<User>(url,
-        User.class,
-        null,
-        new Response.Listener<User>() {
-          @Override public void onResponse(User response) {
-            Prefs.getInstance(getActivity()).setUserId(response.userId);
-            performPrefetchSync();
-          }
-        },
-        new Response.ErrorListener() {
-          @Override public void onErrorResponse(VolleyError error) {
-            if (error != null && error.networkResponse != null) {
-              VolleyLog.wtf("Error requesting user details: %s, " + "ErrorCode: %d",
-                  error.getLocalizedMessage(),
-                  error.networkResponse.statusCode);
-
-
-              // Build error message
-              String genericMessage = getString(R.string.sync_error_generic);
-              String errorPosition = getString(R.string.your_user_data);
-              StringBuilder sb = new StringBuilder(String.format(genericMessage, errorPosition));
-              String err = error.getLocalizedMessage();
-              if (err != null) {
-                sb.append(err);
-              } else {
-                sb.append("ErrorCode: ").append(error.networkResponse.statusCode);
-              }
-
-
-              // Toast error and display login form
-              Toast.makeText(getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
-            }
-            resetSignInActivityState();
-            showLoginForm();
-          }
-        },
-        Request.Method.GET);
-
-    try {
-      OAuthConnector.with(mSelectedServer).sign(request);
-      StudIPApplication.getInstance().addToRequestQueue(request, TAG);
-    } catch (OAuthCommunicationException e) {
-      e.printStackTrace();
-    } catch (OAuthExpectationFailedException e) {
-      e.printStackTrace();
-    } catch (OAuthMessageSignerException e) {
-      e.printStackTrace();
-    } catch (OAuthNotAuthorizedException e) {
-      e.printStackTrace();
-    }
-
+    SyncHelper.getInstance(mContext).requestApiRoutes(this);
+    SyncHelper.getInstance(mContext).getSettings(this);
+    SyncHelper.getInstance(mContext).requestCurrentUserInfo(this);
   }
 
   @Override public void onRequestTokenRequestError(OAuthError e) {

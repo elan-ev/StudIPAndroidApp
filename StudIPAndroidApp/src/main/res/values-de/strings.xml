@@ -16,6 +16,8 @@
     <string name="dialog_load_via_mobile_title">Über mobile Datennetz laden</string>
     <string name="dialog_load_via_mobile_text">Sie sind über das mobile Datennetz verbinden
         . Dies kann zusätzliche Datenkosten verursachen. Möchten Sie fortfahren?</string>
+    <string name="background_image">Hintergrundbild</string>
+
 
     <!-- Content descriptions -->
     <string name="user_image">Benutzerbild</string>

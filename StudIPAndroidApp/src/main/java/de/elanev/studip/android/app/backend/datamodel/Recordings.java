@@ -8,6 +8,7 @@
 
 package de.elanev.studip.android.app.backend.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
  *
  * @author Jörn
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Recordings {
   private ArrayList<Recording> recordings = new ArrayList<Recording>();
 

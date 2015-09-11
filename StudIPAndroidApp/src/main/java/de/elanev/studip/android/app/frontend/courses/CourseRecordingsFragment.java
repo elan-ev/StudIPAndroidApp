@@ -127,7 +127,11 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
 
           @Override public void onError(Throwable e) {
             if (e instanceof TimeoutException) {
-              Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT).show();
+              Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
+                  .show();
+            } else if (e instanceof RetrofitError
+                && ((RetrofitError) e).getKind() == RetrofitError.Kind.CONVERSION) {
+              Log.e(TAG, e.getLocalizedMessage());
             } else if (e instanceof RetrofitError || e instanceof HttpException) {
               Toast.makeText(getActivity(), "Retrofit error or http exception", Toast.LENGTH_LONG)
                   .show();
