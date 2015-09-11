@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -111,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements
   }
 
   private void startInviteIntent(Intent intent) {
+    // Check if intent resolves to an activity to prevent ActivityNotFoundException
     if (intent.resolveActivity(getPackageManager()) != null) {
       startActivity(intent);
     }
@@ -118,11 +120,23 @@ public class MainActivity extends AppCompatActivity implements
 
   private Intent createInviteIntent() {
 
+    Server server  = Prefs.getInstance(this).getServer();
+    String inviteText = "";
+    String inviteTextHtml = "";
+    if (server == null) {
+      inviteText = String.format(getString(R.string.invite_text), "");
+      inviteTextHtml = String.format(getString(R.string.invite_text_html), "");
+    } else {
+      inviteText = String.format(getString(R.string.invite_text), server.getName());
+      inviteTextHtml = String.format(getString(R.string.invite_text_html), server.getName());
+    }
+
     return ShareCompat.IntentBuilder.from(this)
         .setSubject(getString(R.string.invite_subject))
-        .setText(getString(R.string.invite_text))
-        .setHtmlText(getString(R.string.invite_text_html))
-        .getIntent();
+        .setText(inviteText)
+        .setHtmlText(inviteTextHtml)
+        .setType("text/plain")
+        .createChooserIntent();
   }
 
   @Override public void onBackPressed() {
