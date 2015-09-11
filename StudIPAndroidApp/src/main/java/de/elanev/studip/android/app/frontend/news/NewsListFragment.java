@@ -29,8 +29,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.VolleyError;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +38,7 @@ import de.elanev.studip.android.app.backend.db.InstitutesContract;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 
@@ -344,9 +342,8 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
           PorterDuff.Mode.SRC_IN);
 
       newsTopicView.setText(newsTopic);
-      newsAuthorView.setText(TextTools.getLocalizedAuthorAndDateString(String.format("%s %s",
-          userForename,
-          userLastname), newsDate, getActivity()));
+      newsAuthorView.setText(DateTools.getLocalizedAuthorAndDateString(
+          String.format("%s %s", userForename, userLastname), newsDate, getActivity()));
     }
 
   }

@@ -49,7 +49,6 @@ import de.elanev.studip.android.app.frontend.courses.CourseViewActivity;
 import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
-import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ProgressListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -353,7 +352,7 @@ public class PlannerFragment extends ProgressListFragment implements
 
         // Create new section for every day
         if (!DateTools.isSameDay(currentDateMillies, prevDay)) {
-          String title = TextTools.getLocalizedTime(currentDateMillies, getActivity());
+          String title = DateTools.getShortLocalizedTime(currentDateMillies, getActivity());
           sections.add(new EventsAdapter.Section(i, title));
         }
 
