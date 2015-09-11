@@ -211,8 +211,7 @@ public class SyncHelper {
     }
 
     String institutesUrl = String.format(mContext.getString(R.string.restip_user_institutes),
-        mServer.getApiUrl(),
-        userId);
+                                         mServer.getApiUrl(), userId);
 
     JacksonRequest<InstitutesContainer> institutesRequest = new JacksonRequest<InstitutesContainer>(
         institutesUrl,
@@ -234,15 +233,18 @@ public class SyncHelper {
               e.printStackTrace();
             }
           }
-        },
-        new ErrorListener() {
-          @Override public void onErrorResponse(VolleyError error) {
-            if (callbacks != null) {
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_INSTITUTES_SYNC, error);
-            }
+        }, new ErrorListener() {
+      public void onErrorResponse(VolleyError error) {
+        if (error != null && error.getLocalizedMessage() != null && error.networkResponse != null) {
+          Log.wtf(TAG, error.getMessage());
+
+          if (callbacks != null) {
+            callbacks.onSyncError(SyncHelperCallbacks.ERROR_INSTITUTES_SYNC,
+                error.getLocalizedMessage(), error.networkResponse.statusCode);
           }
-        },
-        Method.GET);
+        }
+      }
+    }, Method.GET);
 
     institutesRequest.setRetryPolicy(mRetryPolicy);
     institutesRequest.setPriority(Request.Priority.NORMAL);
@@ -362,10 +364,15 @@ public class SyncHelper {
           },
           new ErrorListener() {
             public void onErrorResponse(VolleyError error) {
-              if (callbacks != null)
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC, error);
+              if (error != null && error.getLocalizedMessage() != null
+                  && error.networkResponse != null) {
+                Log.wtf(TAG, error.getMessage());
 
-              if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+                if (callbacks != null) {
+                  callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC,
+                      error.getLocalizedMessage(), error.networkResponse.statusCode);
+                }
+              }
             }
           },
           Method.GET);
@@ -394,10 +401,15 @@ public class SyncHelper {
           },
           new ErrorListener() {
             public void onErrorResponse(VolleyError error) {
-              if (callbacks != null)
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC, error);
+              if (error != null && error.getLocalizedMessage() != null
+                  && error.networkResponse != null) {
+                Log.wtf(TAG, error.getMessage());
 
-              if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+                if (callbacks != null) {
+                  callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC,
+                      error.getLocalizedMessage(), error.networkResponse.statusCode);
+                }
+              }
             }
           },
           Method.GET);
@@ -499,10 +511,15 @@ public class SyncHelper {
         },
         new ErrorListener() {
           public void onErrorResponse(VolleyError error) {
-            if (callbacks != null)
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_COURSES_SYNC, error);
+            if (error != null && error.getLocalizedMessage() != null
+                && error.networkResponse != null) {
+              Log.wtf(TAG, error.getMessage());
 
-            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_COURSES_SYNC,
+                    error.getLocalizedMessage(), error.networkResponse.statusCode);
+              }
+            }
           }
         },
         Method.GET);
@@ -532,7 +549,8 @@ public class SyncHelper {
   private static ArrayList<ContentProviderOperation> parseCourses(Courses courses) {
     ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
     // First delete any existing courses
-    operations.add(ContentProviderOperation.newDelete(CoursesContract.CONTENT_URI).build());
+    operations.add(ContentProviderOperation.newDelete(CoursesContract.CONTENT_URI)
+        .build());
 
     // Then add new course information
     for (Course c : courses.courses) {
@@ -681,13 +699,18 @@ public class SyncHelper {
         null,
         listener,
         new ErrorListener() {
-          public void onErrorResponse(VolleyError error) {
-            if (callbacks != null)
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_NEWS_SYNC, error);
+      public void onErrorResponse(VolleyError error) {
+        if (error != null && error.getLocalizedMessage() != null
+            && error.networkResponse != null) {
+          Log.wtf(TAG, error.getMessage());
 
-            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+          if (callbacks != null) {
+            callbacks.onSyncError(SyncHelperCallbacks.ERROR_NEWS_SYNC,
+                error.getLocalizedMessage(), error.networkResponse.statusCode);
           }
-        },
+        }
+      }
+    },
         Method.GET);
     newsRequest.setRetryPolicy(mRetryPolicy);
 
@@ -786,10 +809,15 @@ public class SyncHelper {
         },
         new ErrorListener() {
           public void onErrorResponse(VolleyError error) {
-            if (callbacks != null)
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_SEMESTER_SYNC, error);
+            if (error != null && error.getLocalizedMessage() != null
+                && error.networkResponse != null) {
+              Log.wtf(TAG, error.getMessage());
 
-            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_SEMESTER_SYNC,
+                    error.getLocalizedMessage(), error.networkResponse.statusCode);
+              }
+            }
           }
         },
         Method.GET);
@@ -958,10 +986,15 @@ public class SyncHelper {
         },
         new ErrorListener() {
           public void onErrorResponse(VolleyError error) {
-            if (callbacks != null)
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_MESSAGES_SYNC, error);
+            if (error != null && error.getLocalizedMessage() != null
+                && error.networkResponse != null) {
+              Log.wtf(TAG, error.getMessage());
 
-            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_MESSAGES_SYNC,
+                    error.getLocalizedMessage(), error.networkResponse.statusCode);
+              }
+            }
           }
         },
         Method.GET);
@@ -999,9 +1032,7 @@ public class SyncHelper {
 
     Log.i(TAG, "SYNCING MESSAGES FOR FOLDER " + folder);
     String folderUrl = String.format(mContext.getString(R.string.restip_messages_box_folderid),
-        mServer.getApiUrl(),
-        box,
-        folder);
+                                     mServer.getApiUrl(), box, folder);
 
     JacksonRequest<Messages> messagesRequest = new JacksonRequest<Messages>(folderUrl,
         Messages.class,
@@ -1009,10 +1040,15 @@ public class SyncHelper {
         listener,
         new ErrorListener() {
           public void onErrorResponse(VolleyError error) {
-            if (callbacks != null)
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_MESSAGES_SYNC, error);
+            if (error != null && error.getLocalizedMessage() != null
+                && error.networkResponse != null) {
+              Log.wtf(TAG, error.getMessage());
 
-            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_MESSAGES_SYNC,
+                    error.getLocalizedMessage(), error.networkResponse.statusCode);
+              }
+            }
           }
         },
         Method.GET);
@@ -1113,12 +1149,16 @@ public class SyncHelper {
         new ErrorListener() {
 
           public void onErrorResponse(VolleyError error) {
-            if (callbacks != null)
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, error);
+            if (error != null && error.getLocalizedMessage() != null
+                && error.networkResponse != null) {
+              Log.wtf(TAG, error.getMessage());
 
-            if (error.getMessage() != null) Log.wtf(TAG, error.getMessage());
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC,
+                    error.getLocalizedMessage(), error.networkResponse.statusCode);
+              }
+            }
           }
-
         },
         Method.GET);
 
@@ -1310,12 +1350,13 @@ public class SyncHelper {
         },
         new ErrorListener() {
           @Override public void onErrorResponse(VolleyError error) {
-            if (callbacks != null) {
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_RECORDINGS_SYNC, error);
-            }
             if (error != null && error.networkResponse != null) {
-              Log.e(TAG,
-                  String.format("Network request error %d", error.networkResponse.statusCode));
+              int statusCode = error.networkResponse.statusCode;
+              Log.e(TAG, String.format("Network request error %d", statusCode));
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_RECORDINGS_SYNC,
+                    error.getLocalizedMessage(), statusCode);
+              }
             }
           }
         },
@@ -1449,10 +1490,9 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            VolleyError error = new VolleyError();
-            error.setStackTrace(e.getStackTrace());
             if (callbacks != null) {
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_ROUTES_SYNC, error);
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_ROUTES_SYNC, e.getLocalizedMessage
+                  (), 0);
             }
           }
 
@@ -1480,6 +1520,35 @@ public class SyncHelper {
             String serialized = settings.toJson();
             Log.d(TAG, "Storing following settings in the Prefs:\n" + serialized);
             Prefs.getInstance(mContext).setApiSettings(serialized);
+          }
+        }));
+  }
+
+  public void requestCurrentUserInfo(final SyncHelperCallbacks callbacks) {
+    StudIpLegacyApiService apiService = new StudIpLegacyApiService(mServer, mContext);
+
+    mCompositeSubscription.add(apiService.getCurrentUserInfo()
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<User>() {
+          @Override public void onCompleted() {
+            if (callbacks != null) {
+              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_USER_SYNC);
+            }
+          }
+
+          @Override public void onError(Throwable e) {
+            String errMsg = e.getLocalizedMessage();
+            Log.e(TAG, errMsg);
+
+            if (callbacks != null) {
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, errMsg, 0);
+            }
+          }
+
+          @Override public void onNext(User user) {
+            Prefs.getInstance(mContext)
+                .setUserInfo(User.toJson(user));
           }
         }));
   }
@@ -1522,7 +1591,7 @@ public class SyncHelper {
 
     public void onSyncFinished(int status);
 
-    public void onSyncError(int status, VolleyError error);
+    public void onSyncError(int status, String errorMsg, int errorCode);
 
   }
 

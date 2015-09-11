@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
   ~ Copyright (c) 2015 ELAN e.V.
   ~ All rights reserved. This program and the accompanying materials
@@ -7,22 +6,22 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.gnu.org/licenses/gpl.html
   -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical">
-
-    <include layout="@layout/toolbar"/>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <android.support.design.widget.TabLayout
         android:id="@+id/sliding_tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/studip_mobile_dark"
-        app:tabTextColor="@color/secondary_text_dark"
+        app:tabTextColor="@color/primary_text_dark"
         app:tabSelectedTextColor="@color/primary_text_dark"
+        app:tabIndicatorColor="@color/tab_indicator"
+        app:tabTextAppearance="@android:style/TextAppearance.Small"
         />
 
     <android.support.v4.view.ViewPager

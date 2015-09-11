@@ -30,7 +30,6 @@ import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.frontend.forums.ForumCategoriesListFragment;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.widget.SlidingTabLayout;
 
 /**
  * Activity for displaying a ViewPager with tabs for course overview,
@@ -47,7 +46,7 @@ public class CourseViewActivity extends AppCompatActivity {
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.pager);
+    setContentView(R.layout.viewpager_with_toolbar);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);

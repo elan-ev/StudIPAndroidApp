@@ -1,23 +1,21 @@
-Stud.IP Android App
-===================
+# Stud.IP Android App
 [![Build Status](https://travis-ci.org/elan-ev/StudIPAndroidApp.svg?branch=master)](https://travis-ci.org/elan-ev/StudIPAndroidApp)
 
 A mobile Stud.IP client application for the Android plattform which utilizes the studip-rest.ip Rest-API Plugin [studip/studip-rest.ip][2]
 for communication with a Stud.IP backend.
 
-NOTE: This app is in beta stadium. Use at own risk.
+## Setup
+If you want to contribute to this project, feel free to do so. At first you need to fork the repository into your own account. This will change the clone URL listed in Step 1. For more information on contributions, have a look at the [contributing](#Contributing) section below.
 
-If you want to contribute to this project, feel free to do so. For more information on how to do this read the Contributing section below.
+1. Clone the repo with ```git clone --recursive https://github.com/elan-ev/StudIPAndroidApp.git```. This ensures that the submodules are initialized as well.
 
-Setup
------
-1. Android Studio
+2. Android Studio
   * Under Quick Start click ```Import Project..``` and choose the cloned project root
   * Choose ```Use gradle wrapper (recommended)```
   * Press Ok and let Gradle do the rest
   * If you want to learn more about Gradle and Android Studio, you can find further information [here][9]
 
-2. Server setup
+3. Server setup
   * The app now expects a static servers String variable in ```de.elanev.studip.android.app.util.ServerData.java```.
   Formatted as followed:
   
@@ -44,29 +42,29 @@ Setup
   
   * Since the OAuth credentials are stored in a 256-bit AES encrypted database you need to set the PRIVATE_KEY String    constant in ```de.elanev.studip.android.app.util.Config.java``` adequately.
 
-Contributing
-------------
+## Contributing
 * Improve the code
-	* Fork it, make your changes, commit them and open a Pull Request. We will take care of the rest.
+	* Fork it, make your changes, commit them and open a Pull Request. We will take care of the rest. You can find more information on the general workflow of this project [here][13].
 * Create issues for bugs, feature requests and other ideas
 * Contribute to the wiki
 * Help translating the app into other languages [here][12].
 
-Libs
----------
+## Libs
 * [oauth-signpost][4]
 * [Jackson JSON Processor][5]
 * [Google Volley HTTP][7]
 * [Square Picasso][10]
+* [Square Retrofit][14]
+* [RXJava][15]
+* [stickylistheaders][16]
+* [circleimageview][17]
 * [SQLCipher][11]
 
-Developed By
-------------
+## Developed By
 * [ELAN e.V][8]
 
-License
--------
-    Copyright (c) 2014 ELAN e.V.
+## License
+    Copyright (c) 2015 ELAN e.V.
 
 	All rights reserved. This program and the accompanying materials
     are made available under the terms of the GNU Public License v3.0
@@ -84,3 +82,8 @@ License
 [10]: http://square.github.io/picasso/
 [11]: http://sqlcipher.net/
 [12]: https://www.transifex.com/organization/elan-ev/dashboard/studip-mobil
+[13]: https://guides.github.com/introduction/flow/
+[14]: https://github.com/square/retrofit
+[15]: https://github.com/ReactiveX/RxJava
+[16]: https://github.com/emilsjolander/StickyListHeaders
+[17]: https://github.com/hdodenhof/CircleImageView
