@@ -31,9 +31,4 @@
         <item name="android:textColor">@color/primary_text_light</item>
     </style>
 
-    <!-- Style for the TwoWayView -->
-    <style name="TwoWayViewBase">
-        <item name="android:background">@android:color/transparent</item>
-    </style>
-
 </resources>
