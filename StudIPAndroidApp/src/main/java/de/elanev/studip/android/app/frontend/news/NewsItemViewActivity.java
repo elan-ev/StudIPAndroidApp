@@ -28,7 +28,7 @@ import com.squareup.picasso.Picasso;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.NewsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.util.DateTools;
 
 /**
  * @author joern
@@ -127,7 +127,7 @@ public class NewsItemViewActivity extends AppCompatActivity {
 
       mTitleTextView.setText(mTitle);
       mAuthorTextView.setText(mAuthor.trim());
-      mDateTextView.setText(TextTools.getShortRelativeTime(mTimestamp, mContext));
+      mDateTextView.setText(DateTools.getLocalizedRelativeTimeString(mTimestamp));
       mBodyTextView.setText(Html.fromHtml(mBody));
 
       Picasso.with(mContext)

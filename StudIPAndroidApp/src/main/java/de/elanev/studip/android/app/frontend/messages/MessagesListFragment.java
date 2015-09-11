@@ -180,7 +180,7 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
         currentDay = cursor.getLong(cursor.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_MKDATE));
         if (!DateTools.isSameDay(previousDay * 1000L, currentDay * 1000L)) {
           sections.add(new SectionedCursorAdapter.Section(cursor.getPosition(),
-              TextTools.getLocalizedTime(currentDay * 1000L, mContext)));
+              DateTools.getShortLocalizedTime(currentDay * 1000L, mContext)));
         }
 
         previousDay = currentDay;
