@@ -208,11 +208,10 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
     mSwipeRefreshLayoutListView.setRefreshing(false);
   }
 
-  @Override public void onSyncError(int status, VolleyError error) {
+  @Override public void onSyncError(int status, String errorMsg, int errorCode) {
     mSwipeRefreshLayoutListView.setRefreshing(false);
-    if (getActivity() != null && error != null &&
-        error.networkResponse != null && error.networkResponse.statusCode != 404) {
-      Toast.makeText(mContext, R.string.sync_error_generic, Toast.LENGTH_LONG).show();
+    if (getActivity() != null && errorCode != 404) {
+      Toast.makeText(mContext, R.string.sync_error_default, Toast.LENGTH_LONG).show();
     }
   }
 

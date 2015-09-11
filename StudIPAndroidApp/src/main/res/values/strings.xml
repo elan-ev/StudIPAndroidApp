@@ -17,6 +17,7 @@
     <string name="dialog_load_via_mobile_title">Load vial mobile data</string>
     <string name="dialog_load_via_mobile_text">You are connected via mobile data. This may cause
         additional mobile data charges. Do you want to continue?</string>
+    <string name="background_image">background image</string>
 
     <!-- Content descriptions -->
     <string name="studip_logo" translatable="false">StudIP Logo</string>
