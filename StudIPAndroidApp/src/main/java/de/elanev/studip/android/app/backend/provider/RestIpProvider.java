@@ -135,7 +135,7 @@ public class RestIpProvider extends ContentProvider {
     matcher.addURI(authority, "courses/events/*", COURSES_ID_EVENTS);
     matcher.addURI(authority, "courses/userids/*", COURSE_USER_ID);
     matcher.addURI(authority, "courses/recordings/*", COURSES_ID_RECORDINGS);
-    matcher.addURI(authority, "courses/#", COURSES_ID);
+    matcher.addURI(authority, "courses/*", COURSES_ID);
     matcher.addURI(authority, "course/#", COURSE_ID);
 
     // matches for users
@@ -355,10 +355,10 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-        long courseId = ContentUris.parseId(uri);
+        String courseId = uri.getLastPathSegment();
         c = db.query(CoursesContract.TABLE_COURSES,
             projection,
-            CoursesContract.Qualified.Courses.COURSES_ID + " = " + courseId +
+            CoursesContract.Qualified.Courses.COURSES_COURSE_ID + " = '" + courseId + "'" +
                 (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
             selectionArgs,
             null,
@@ -373,10 +373,10 @@ public class RestIpProvider extends ContentProvider {
         } else {
           orderBy = sortOrder;
         }
-        long courseId = ContentUris.parseId(uri);
+        String courseId = uri.getLastPathSegment();
         c = db.query(CoursesContract.COURSES_JOIN_USERS_SEMESTERS,
             projection,
-            CoursesContract.Qualified.Courses.COURSES_ID + " = " + courseId +
+            CoursesContract.Qualified.Courses.COURSES_COURSE_ID + " = '" + courseId + "'" +
                 (!TextUtils.isEmpty(selection) ? " AND (" + selection + ")" : ""),
             selectionArgs,
             null,

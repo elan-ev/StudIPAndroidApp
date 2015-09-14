@@ -200,12 +200,11 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
     }
 
     String cid = data.getString(CoursesContract.Columns.Courses.COURSE_ID);
-    long dbId = data.getLong(CoursesContract.Columns.Courses._ID);
     // Create loaders based on id
     switch (id) {
       case COURSE_LOADER:
         return new CursorLoader(mContext,
-            CoursesContract.CONTENT_URI.buildUpon().appendPath(Long.toString(dbId)).build(),
+            CoursesContract.CONTENT_URI.buildUpon().appendPath(cid).build(),
             CourseItemQuery.projection,
             null,
             null,
