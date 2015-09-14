@@ -18,14 +18,12 @@
 
         <ImageView
             android:id="@+id/sign_in_imageview"
-            android:layout_width="wrap_content"
-            android:layout_height="175dp"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/main_logo_height"
             android:layout_gravity="center_horizontal"
             android:background="@color/studip_mobile_dark"
             android:contentDescription="@string/studip_logo"
-            android:paddingLeft="48dp"
-            android:paddingRight="48dp"
-            android:src="@drawable/logo_studip"/>
+            />
 
         <TextView
             android:id="@+id/version_text"

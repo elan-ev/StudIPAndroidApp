@@ -8,13 +8,18 @@
 package de.elanev.studip.android.app.frontend;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
 import java.util.Calendar;
 
 import de.elanev.studip.android.app.BuildConfig;
@@ -27,6 +32,7 @@ import de.elanev.studip.android.app.widget.WebViewActivity;
 public class AboutFragment extends Fragment {
 
   TextView mVersionTextView, mHomepageTextView, mLicensesTextView, mPrivacyTextView, mLegalTextView, mFaqTextView;
+  private ImageView mLogoImageView;
 
   public AboutFragment() {}
 
@@ -41,6 +47,7 @@ public class AboutFragment extends Fragment {
 
     View v = inflater.inflate(R.layout.fragment_about_app, container, false);
 
+    mLogoImageView = (ImageView) v.findViewById(R.id.sign_in_imageview);
     mVersionTextView = (TextView) v.findViewById(R.id.version_text);
     mHomepageTextView = (TextView) v.findViewById(R.id.homepage_text);
     mLicensesTextView = (TextView) v.findViewById(R.id.licenses);
@@ -55,6 +62,13 @@ public class AboutFragment extends Fragment {
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     getActivity().setTitle(R.string.about_studip_mobile);
+
+    Picasso.with(getActivity())
+        .load(R.drawable.logo)
+        .config(Bitmap.Config.RGB_565)
+        .fit()
+        .centerCrop()
+        .into(mLogoImageView);
 
     mVersionTextView.setText(String.format(getString(R.string.version_and_copyright),
         BuildConfig.VERSION_NAME,

@@ -14,15 +14,11 @@
 
     <ImageView
         android:id="@+id/sign_in_imageview"
-        android:layout_width="wrap_content"
-        android:layout_height="175dp"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/main_logo_height"
         android:layout_gravity="center_horizontal"
         android:contentDescription="@string/studip_logo"
-        android:layout_marginLeft="@dimen/keyline_1"
-        android:layout_marginStart="@dimen/keyline_1"
-        android:layout_marginRight="@dimen/keyline_1"
-        android:layout_marginEnd="@dimen/keyline_1"
-        android:src="@drawable/logo_studip"/>
+        />
 
 
         <ListView
