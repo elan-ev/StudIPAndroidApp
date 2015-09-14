@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.backend.net.oauth;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -30,12 +31,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,6 +98,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   };
 
   private OnRequestTokenReceived mCallbacks;
+  private ImageView mLogoImageView;
 
   public SignInFragment() {}
 
@@ -130,6 +134,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     mSyncStatusTextView = (TextView) v.findViewById(R.id.sync_status);
     mInfoBoxView = v.findViewById(R.id.info_box);
     mInfoBoxTextView = (TextView) v.findViewById(R.id.info_box_message);
+    mLogoImageView = (ImageView) v.findViewById(R.id.sign_in_imageview);
     return v;
   }
 
@@ -177,6 +182,14 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(false);
     getActivity().setTitle(R.string.app_name);
+
+    Picasso.with(getActivity())
+        .load(R.drawable.logo)
+        .config(Bitmap.Config.RGB_565)
+        .fit()
+        .centerCrop()
+        .into(mLogoImageView);
+
     hideLoginForm();
     if (savedInstanceState != null) {
       mRequestTokenReceived = savedInstanceState.getBoolean(REQUEST_TOKEN_RECEIVED);
