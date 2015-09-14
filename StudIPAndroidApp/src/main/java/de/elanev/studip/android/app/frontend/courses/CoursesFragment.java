@@ -51,7 +51,6 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
     SyncHelper.SyncHelperCallbacks {
   public static final String TAG = CoursesFragment.class.getSimpleName();
 
-  private static final String ID = CoursesContract.Columns.Courses._ID;
   private static final String COURSE_ID = CoursesContract.Columns.Courses.COURSE_ID;
   private static final String COLOR = CoursesContract.Columns.Courses.COURSE_COLOR;
   private static final String TYPE = CoursesContract.Columns.Courses.COURSE_TYPE;
@@ -110,13 +109,11 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
   @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Cursor cursor = (Cursor) mListView.getItemAtPosition(position);
     String courseId = cursor.getString(cursor.getColumnIndex(COURSE_ID));
-    long cid = cursor.getLong(cursor.getColumnIndex(ID));
     String modules = cursor.getString(cursor.getColumnIndex(MODULES));
 
     Intent intent = new Intent();
     intent.setClass(getActivity(), CourseViewActivity.class);
     intent.putExtra(CoursesContract.Columns.Courses.COURSE_ID, courseId);
-    intent.putExtra(CoursesContract.Columns.Courses._ID, cid);
     intent.putExtra(CoursesContract.Columns.Courses.COURSE_MODULES, modules);
 
     mContext.startActivity(intent);
