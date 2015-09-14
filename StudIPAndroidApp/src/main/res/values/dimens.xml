@@ -50,4 +50,5 @@
     <dimen name="user_image_crop_size">64dp</dimen>
     <dimen name="content_area_space">8dp</dimen>
 
+    <dimen name="main_logo_height">175dp</dimen>
 </resources>
