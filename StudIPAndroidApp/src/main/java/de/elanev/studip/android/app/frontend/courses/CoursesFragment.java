@@ -237,7 +237,11 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
       String title = cursor.getString(courseTitleColIdx);
       int type = cursor.getInt(courseTypeColIdx);
       String color = cursor.getString(courseColorColIdx);
-      String typeTitle = mSettings.semTypes.get(type).name;
+
+      String typeTitle = "";
+      if (mSettings != null && mSettings.semTypes != null) {
+        typeTitle = mSettings.semTypes.get(type).name;
+      }
 
       // get holder and update views with positions informations
       ViewHolder holder = (ViewHolder) view.getTag();
