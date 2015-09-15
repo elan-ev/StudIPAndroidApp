@@ -131,8 +131,9 @@ public class CourseDocumentsFragment extends Fragment {
       Bundle savedInstanceState) {
 
     final FrameLayout wrapperLayout = new FrameLayout(getActivity());
-    wrapperLayout.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-        FrameLayout.LayoutParams.MATCH_PARENT));
+    wrapperLayout.setLayoutParams(
+        new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT));
     wrapperLayout.setId(R.id.document_list_wrapper);
 
     return wrapperLayout;
@@ -229,6 +230,7 @@ public class CourseDocumentsFragment extends Fragment {
     private String mCourseId;
     private String mFolderId;
     private String mFolderName;
+    private DownloadManager mDownloadManager;
 
     public DocumentsListFragment() {}
 
@@ -249,6 +251,7 @@ public class CourseDocumentsFragment extends Fragment {
       mListView.setOnHeaderClickListener(this);
       mListView.setAdapter(mAdapter);
 
+      mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
     }
 
     @Override public void onStart() {
@@ -390,7 +393,6 @@ public class CourseDocumentsFragment extends Fragment {
       String fileId = document.document_id;
       String fileName = document.filename;
       String fileDescription = document.description;
-      DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
       String apiUrl = Prefs.getInstance(getActivity()).getServer().getApiUrl();
 
       boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -405,7 +407,7 @@ public class CourseDocumentsFragment extends Fragment {
             DownloadManager.STATUS_PENDING |
             DownloadManager.STATUS_RUNNING |
             DownloadManager.STATUS_SUCCESSFUL);
-        Cursor cur = downloadManager.query(query);
+        Cursor cur = mDownloadManager.query(query);
         int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
         for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
           isDownloading = (Environment.DIRECTORY_DOWNLOADS + fileName == cur.getString(col));
@@ -421,10 +423,6 @@ public class CourseDocumentsFragment extends Fragment {
               apiUrl,
               fileId);
 
-          if (!ApiUtils.isOverApi14()) {
-            downloadUrl = downloadUrl.replace("https://", "http://");
-          }
-
           // Sign the download URL with the OAuth credentials and parse the URI
           Server server = Prefs.getInstance(mContext).getServer();
           String signedDownloadUrl = OAuthConnector.with(server).sign(downloadUrl);
@@ -432,22 +430,21 @@ public class CourseDocumentsFragment extends Fragment {
 
 
           // Create the download request
-          DownloadManager.Request request = new DownloadManager.Request(Uri.parse(signedDownloadUrl)).setAllowedNetworkTypes(
+          DownloadManager.Request request = new DownloadManager.Request(downloadUri).setAllowedNetworkTypes(
               DownloadManager.Request.NETWORK_WIFI
                   | DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
               .setAllowedOverRoaming(false)                   // Disallow roaming downloading
               .setTitle(fileName)                             // Title of this download
-              .setDescription(fileDescription);               // Description of this download
-          if (externalDownloadsDir)
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-          // download location and file name
+              .setDescription(fileDescription)               // Description of this download
+              .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+              // download location and file name
 
           //Allowing the scanning by MediaScanner
           request.allowScanningByMediaScanner();
           request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
           try {
-            downloadManager.enqueue(request);
+            mDownloadManager.enqueue(request);
           } catch (IllegalArgumentException e) {
             if (getActivity() != null) {
               Toast.makeText(getActivity(),
