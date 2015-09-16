@@ -8,6 +8,7 @@ import org.apache.http.HttpStatus;
 import java.util.ArrayList;
 
 import de.elanev.studip.android.app.backend.datamodel.CourseItem;
+import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
 import de.elanev.studip.android.app.backend.datamodel.ForumCategories;
@@ -242,6 +243,14 @@ public class StudIpLegacyApiService {
         });
   }
 
+  public Observable<DocumentFolders> getCourseDocuments(String courseId) {
+    return mService.getCourseDocuments(courseId);
+  }
+
+  public Observable<DocumentFolders> getCourseDocumentsFolders(String courseId, String folderId) {
+    return mService.getCourseDocumentsFolders(courseId, folderId);
+  }
+
   public interface RestIPLegacyService {
     @PUT("/courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
         Callback<ForumCategory> cb);
@@ -272,6 +281,12 @@ public class StudIpLegacyApiService {
     @GET("/courses/{course_id}") Observable<CourseItem> getCourse(@Path("course_id") String courseId);
 
     @GET("/user") Observable<UserItem> getCurrentUserInfo();
+
+    @GET("/documents/{course_id}/folder") Observable<DocumentFolders> getCourseDocuments(
+        @Path("course_id") String courseId);
+
+    @GET("/documents/{course_id}/folder/{folder_id}") Observable<DocumentFolders> getCourseDocumentsFolders(
+        @Path("course_id") String courseId, @Path("folder_id") String folderId);
   }
 
   public static class UserNotFoundException extends RuntimeException {
