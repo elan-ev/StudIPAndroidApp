@@ -114,8 +114,7 @@ public class CourseDocumentsFragment extends Fragment {
         new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
   }
 
-  @Override public View onCreateView(LayoutInflater inflater,
-      ViewGroup container,
+  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
 
     final FrameLayout wrapperLayout = new FrameLayout(getActivity());
@@ -131,7 +130,9 @@ public class CourseDocumentsFragment extends Fragment {
     super.onViewCreated(view, savedInstanceState);
 
     DocumentsListFragment frag = DocumentsListFragment.newInstance(getArguments());
-    getChildFragmentManager().beginTransaction().replace(R.id.document_list_wrapper, frag).commit();
+    getChildFragmentManager().beginTransaction()
+        .replace(R.id.document_list_wrapper, frag)
+        .commit();
 
   }
 
@@ -171,7 +172,8 @@ public class CourseDocumentsFragment extends Fragment {
   }
 
   private void showToastMessage(int stringRes) {
-    if (isAdded()) Toast.makeText(getActivity(), stringRes, Toast.LENGTH_SHORT).show();
+    if (isAdded()) Toast.makeText(getActivity(), stringRes, Toast.LENGTH_SHORT)
+        .show();
   }
 
   private static int getDownloadFailedReason(int queryReason) {
@@ -221,8 +223,8 @@ public class CourseDocumentsFragment extends Fragment {
       super.onCreate(savedInstanceState);
 
       Bundle args = getArguments();
-      if (args == null || args.isEmpty() || !args.containsKey(CoursesContract.Columns.Courses
-          .COURSE_ID)) {
+      if (args == null || args.isEmpty() || !args.containsKey(
+          CoursesContract.Columns.Courses.COURSE_ID)) {
         throw new IllegalStateException("Arguments must not be null and must contain a course_id");
       }
       mCourseId = args.getString(CoursesContract.Columns.Courses.COURSE_ID);
@@ -231,36 +233,35 @@ public class CourseDocumentsFragment extends Fragment {
       mFolderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
       mFolderName = getArguments().getString(FOLDER_NAME);
 
-      mAdapter = new DocumentsAdapter(new ArrayList<>(), getActivity(),
-          new ListItemClicks() {
-            @Override public void onListItemClicked(View caller, int position) {
-              Object obj = mAdapter.getItem(position);
+      mAdapter = new DocumentsAdapter(new ArrayList<>(), getActivity(), new ListItemClicks() {
+        @Override public void onListItemClicked(View caller, int position) {
+          Object obj = mAdapter.getItem(position);
 
-              if (obj == null) {
-                return;
-              }
+          if (obj == null) {
+            return;
+          }
 
-              if (obj instanceof BackButtonListEntry) {
-                getActivity().onBackPressed();
-              } else if (obj instanceof DocumentFolder) {
-                String folderName = ((DocumentFolder) obj).name;
-                String folderId = ((DocumentFolder) obj).folder_id;
-                Bundle args = new Bundle();
-                args.putString(CoursesContract.Columns.Courses.COURSE_ID, mCourseId);
-                args.putString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID, folderId);
-                args.putString(FOLDER_NAME, folderName);
+          if (obj instanceof BackButtonListEntry) {
+            getActivity().onBackPressed();
+          } else if (obj instanceof DocumentFolder) {
+            String folderName = ((DocumentFolder) obj).name;
+            String folderId = ((DocumentFolder) obj).folder_id;
+            Bundle args = new Bundle();
+            args.putString(CoursesContract.Columns.Courses.COURSE_ID, mCourseId);
+            args.putString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID, folderId);
+            args.putString(FOLDER_NAME, folderName);
 
-                DocumentsListFragment frag = DocumentsListFragment.newInstance(args);
-                getParentFragment().getChildFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.document_list_wrapper, frag)
-                    .addToBackStack(null)
-                    .commit();
-              } else if (obj instanceof Document) {
-                downloadDocument((Document) obj);
-              }
-            }
-          });
+            DocumentsListFragment frag = DocumentsListFragment.newInstance(args);
+            getParentFragment().getChildFragmentManager()
+                .beginTransaction()
+                .replace(R.id.document_list_wrapper, frag)
+                .addToBackStack(null)
+                .commit();
+          } else if (obj instanceof Document) {
+            downloadDocument((Document) obj);
+          }
+        }
+      });
 
       mObserver = new RecyclerView.AdapterDataObserver() {
         @Override public void onChanged() {
@@ -285,12 +286,6 @@ public class CourseDocumentsFragment extends Fragment {
       downloadDocumentsForFolder(mCourseId, mFolderId, mFolderName);
     }
 
-    @Override public void onStart() {
-      super.onStart();
-
-      downloadDocumentsForFolder(mCourseId, mFolderId, mFolderName);
-    }
-
     private void downloadDocumentsForFolder(String courseId, final String folderId,
         final String folderName) {
       setRefreshing(true);
@@ -305,34 +300,34 @@ public class CourseDocumentsFragment extends Fragment {
       if (observable != null) {
         mCompositeSubscription.add(bind(observable).subscribeOn(Schedulers.newThread())
             .subscribe(new Subscriber<DocumentFolders>() {
-                  @Override public void onCompleted() {
-                    setRefreshing(false);
-                  }
+              @Override public void onCompleted() {
+                setRefreshing(false);
+              }
 
-                  @Override public void onError(Throwable e) {
-                    if (e instanceof TimeoutException) {
-                      Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
-                          .show();
-                    } else if (e instanceof RetrofitError || e instanceof HttpException) {
-                      Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
-                          .show();
-                      Log.e(TAG, e.getLocalizedMessage());
-                    } else {
-                      e.printStackTrace();
-                      throw new RuntimeException("See inner exception");
-                    }
+              @Override public void onError(Throwable e) {
+                if (e instanceof TimeoutException) {
+                  Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
+                      .show();
+                } else if (e instanceof RetrofitError || e instanceof HttpException) {
+                  Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
+                      .show();
+                  Log.e(TAG, e.getLocalizedMessage());
+                } else {
+                  e.printStackTrace();
+                  throw new RuntimeException("See inner exception");
+                }
 
-                    setRefreshing(false);
-                  }
+                setRefreshing(false);
+              }
 
-                  @Override public void onNext(DocumentFolders documentFolders) {
-                    final List<Object> list = new ArrayList<>();
-                    list.addAll(documentFolders.folders);
-                    list.addAll(documentFolders.documents);
+              @Override public void onNext(DocumentFolders documentFolders) {
+                final List<Object> list = new ArrayList<>();
+                list.addAll(documentFolders.folders);
+                list.addAll(documentFolders.documents);
 
-                    mAdapter.updateData(list, folderName);
-                  }
-                }));
+                mAdapter.updateData(list, folderName);
+              }
+            }));
       }
     }
 
@@ -355,9 +350,12 @@ public class CourseDocumentsFragment extends Fragment {
       String fileId = document.document_id;
       String fileName = document.filename;
       String fileDescription = document.description;
-      String apiUrl = Prefs.getInstance(getActivity()).getServer().getApiUrl();
+      String apiUrl = Prefs.getInstance(getActivity())
+          .getServer()
+          .getApiUrl();
 
-      boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+      boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
+          Environment.DIRECTORY_DOWNLOADS)
           .mkdirs();
 
       // Query DownloadManager and check of file is already being downloaded
@@ -382,37 +380,39 @@ public class CourseDocumentsFragment extends Fragment {
       if (!isDownloading) {
         try {
           // Create the download URI
-          String downloadUrl = String.format(getString(R.string.restip_documents_documentid_download),
-              apiUrl,
-              fileId);
+          String downloadUrl = String.format(
+              getString(R.string.restip_documents_documentid_download), apiUrl, fileId);
 
           // Sign the download URL with the OAuth credentials and parse the URI
-          Server server = Prefs.getInstance(getActivity()).getServer();
-          String signedDownloadUrl = OAuthConnector.with(server).sign(downloadUrl);
+          Server server = Prefs.getInstance(getActivity())
+              .getServer();
+          String signedDownloadUrl = OAuthConnector.with(server)
+              .sign(downloadUrl);
           Uri downloadUri = Uri.parse(signedDownloadUrl);
 
 
           // Create the download request
-          DownloadManager.Request request = new DownloadManager.Request(downloadUri).setAllowedNetworkTypes(
-              DownloadManager.Request.NETWORK_WIFI
+          DownloadManager.Request request = new DownloadManager.Request(
+              downloadUri).setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI
                   | DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
               .setAllowedOverRoaming(false)                   // Disallow roaming downloading
               .setTitle(fileName)                             // Title of this download
               .setDescription(fileDescription)               // Description of this download
               .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-              // download location and file name
+          // download location and file name
 
           //Allowing the scanning by MediaScanner
           request.allowScanningByMediaScanner();
-          request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+          request.setNotificationVisibility(
+              DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
           try {
             mDownloadManager.enqueue(request);
           } catch (IllegalArgumentException e) {
             if (getActivity() != null) {
-              Toast.makeText(getActivity(),
-                  R.string.error_downloadmanager_disabled,
-                  Toast.LENGTH_LONG).show();
+              Toast.makeText(getActivity(), R.string.error_downloadmanager_disabled,
+                  Toast.LENGTH_LONG)
+                  .show();
             }
           }
 
@@ -426,6 +426,12 @@ public class CourseDocumentsFragment extends Fragment {
           StuffUtil.startSignInActivity(getActivity());
         }
       }
+    }
+
+    @Override public void onStart() {
+      super.onStart();
+
+      downloadDocumentsForFolder(mCourseId, mFolderId, mFolderName);
     }
 
     private static class BackButtonListEntry {}
@@ -525,7 +531,8 @@ public class CourseDocumentsFragment extends Fragment {
         return mData.isEmpty();
       }
 
-      public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+      public static class ViewHolder extends RecyclerView.ViewHolder implements
+          View.OnClickListener {
         TextView mTitleTextView;
         TextView mSubtitleTextView;
         ImageView mIconImageView;
