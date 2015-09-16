@@ -28,6 +28,8 @@ public class Document {
   public String mime_type;
   public String icon;
 
+  public Document() {}
+
   public Document(String document_id, String user_id, String name, String description, long mkdate,
       long chdate, String filename, long filesize, int downloads, boolean file_protected,
       String mime_type, String icon) {
