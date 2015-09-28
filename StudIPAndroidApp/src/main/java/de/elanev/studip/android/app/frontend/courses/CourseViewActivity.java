@@ -7,6 +7,7 @@
  */
 package de.elanev.studip.android.app.frontend.courses;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -102,7 +103,7 @@ public class CourseViewActivity extends AppCompatActivity {
     if (mModules.forum && Prefs.getInstance(this).isForumActivated()) {
       tabs.add(new Tab(getString(R.string.forum), ForumCategoriesListFragment.class, sExtras));
     }
-    if (mModules.documents) {
+    if (mModules.documents && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
       tabs.add(new Tab(getString(R.string.Documents), CourseDocumentsFragment.class, sExtras));
     }
     if (mModules.recordings) {
