@@ -157,7 +157,7 @@ public class ForumEntriesListFragment extends ReactiveListFragment {
         super.onChanged();
 
         mEmptyView.setText(R.string.no_entries);
-        toggleEmptyView(mAdapter.isEmpty());
+        setEmptyViewVisible(mAdapter.isEmpty());
       }
     };
 

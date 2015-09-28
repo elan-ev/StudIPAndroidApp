@@ -70,7 +70,7 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     super.onActivityCreated(savedInstanceState);
 
     mEmptyView.setText(R.string.loading);
-    toggleEmptyView(true);
+    setEmptyViewVisible(true);
 
     // Set RecyclerView up
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -92,11 +92,13 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     setRefreshing(true);
   }
 
-  public void toggleEmptyView(boolean toggle) {
+  public void setEmptyViewVisible(boolean toggle) {
     if (toggle) {
       mEmptyView.setVisibility(View.VISIBLE);
+      mSwipeRefreshLayout.setVisibility(View.GONE);
     } else {
       mEmptyView.setVisibility(View.GONE);
+      mSwipeRefreshLayout.setVisibility(View.VISIBLE);
     }
   }
 

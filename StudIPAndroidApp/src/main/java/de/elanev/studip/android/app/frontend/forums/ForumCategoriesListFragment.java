@@ -64,7 +64,7 @@ public class ForumCategoriesListFragment extends ReactiveListFragment {
       @Override public void onChanged() {
         super.onChanged();
         mEmptyView.setText(R.string.no_forum_categories);
-        toggleEmptyView(mAdapter.isEmpty());
+        setEmptyViewVisible(mAdapter.isEmpty());
       }
     };
     mAdapter.registerAdapterDataObserver(mObserver);
