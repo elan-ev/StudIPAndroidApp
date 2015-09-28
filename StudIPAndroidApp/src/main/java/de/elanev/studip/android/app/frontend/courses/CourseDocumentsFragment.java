@@ -277,68 +277,6 @@ public class CourseDocumentsFragment extends Fragment {
 
     }
 
-    @Override public void onActivityCreated(Bundle savedInstanceState) {
-      super.onActivityCreated(savedInstanceState);
-
-      setTitle(getString(R.string.Documents));
-      mRecyclerView.setAdapter(mAdapter);
-      mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-
-      if (!TextUtils.isEmpty(mFolderName)) {
-        mFolderTextView.setText(mFolderName);
-        mFolderTextView.setVisibility(View.VISIBLE);
-      }
-    }
-
-    @Override protected void updateItems() {
-      downloadDocumentsForFolder(mCourseId, mFolderId, mFolderName);
-    }
-
-    private void downloadDocumentsForFolder(String courseId, final String folderId,
-        final String folderName) {
-      setRefreshing(true);
-
-      Observable<DocumentFolders> observable;
-      if (folderId == null) {
-        observable = mApiService.getCourseDocuments(courseId);
-      } else {
-        observable = mApiService.getCourseDocumentsFolders(courseId, folderId);
-      }
-
-      if (observable != null) {
-        mCompositeSubscription.add(bind(observable).subscribeOn(Schedulers.newThread())
-            .subscribe(new Subscriber<DocumentFolders>() {
-              @Override public void onCompleted() {
-                setRefreshing(false);
-              }
-
-              @Override public void onError(Throwable e) {
-                if (e instanceof TimeoutException) {
-                  Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
-                      .show();
-                } else if (e instanceof RetrofitError || e instanceof HttpException) {
-                  Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
-                      .show();
-                  Log.e(TAG, e.getLocalizedMessage());
-                } else {
-                  e.printStackTrace();
-                  throw new RuntimeException("See inner exception");
-                }
-
-                setRefreshing(false);
-              }
-
-              @Override public void onNext(DocumentFolders documentFolders) {
-                final List<Object> list = new ArrayList<>();
-                list.addAll(documentFolders.folders);
-                list.addAll(documentFolders.documents);
-
-                mAdapter.updateData(list, folderName);
-              }
-            }));
-      }
-    }
-
     /**
      * Returns a new instance of DocumentsListFragment and sets its arguments with the passed
      * bundle.
@@ -402,7 +340,7 @@ public class CourseDocumentsFragment extends Fragment {
           // Create the download request
           DownloadManager.Request request = new DownloadManager.Request(
               downloadUri).setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI
-                  | DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
+              | DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
               .setAllowedOverRoaming(false)                   // Disallow roaming downloading
               .setTitle(fileName)                             // Title of this download
               .setDescription(fileDescription)               // Description of this download
@@ -436,8 +374,7 @@ public class CourseDocumentsFragment extends Fragment {
       }
     }
 
-    @Override public View onCreateView(LayoutInflater inflater,
-        @Nullable ViewGroup container,
+    @Override public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
         @Nullable Bundle savedInstanceState) {
       View v = inflater.inflate(R.layout.documents_recyclerview_list, container, false);
       mRecyclerView = (RecyclerView) v.findViewById(R.id.list);
@@ -446,6 +383,68 @@ public class CourseDocumentsFragment extends Fragment {
       mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
 
       return v;
+    }
+
+    @Override public void onActivityCreated(Bundle savedInstanceState) {
+      super.onActivityCreated(savedInstanceState);
+
+      setTitle(getString(R.string.Documents));
+      mRecyclerView.setAdapter(mAdapter);
+      mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+
+      if (!TextUtils.isEmpty(mFolderName)) {
+        mFolderTextView.setText(mFolderName);
+        mFolderTextView.setVisibility(View.VISIBLE);
+      }
+    }
+
+    @Override protected void updateItems() {
+      downloadDocumentsForFolder(mCourseId, mFolderId, mFolderName);
+    }
+
+    private void downloadDocumentsForFolder(String courseId, final String folderId,
+        final String folderName) {
+      setRefreshing(true);
+
+      Observable<DocumentFolders> observable;
+      if (folderId == null) {
+        observable = mApiService.getCourseDocuments(courseId);
+      } else {
+        observable = mApiService.getCourseDocumentsFolders(courseId, folderId);
+      }
+
+      if (observable != null) {
+        mCompositeSubscription.add(bind(observable).subscribeOn(Schedulers.newThread())
+            .subscribe(new Subscriber<DocumentFolders>() {
+              @Override public void onCompleted() {
+                setRefreshing(false);
+              }
+
+              @Override public void onError(Throwable e) {
+                if (e instanceof TimeoutException) {
+                  Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
+                      .show();
+                } else if (e instanceof RetrofitError || e instanceof HttpException) {
+                  Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
+                      .show();
+                  Log.e(TAG, e.getLocalizedMessage());
+                } else {
+                  e.printStackTrace();
+                  throw new RuntimeException("See inner exception");
+                }
+
+                setRefreshing(false);
+              }
+
+              @Override public void onNext(DocumentFolders documentFolders) {
+                final List<Object> list = new ArrayList<>();
+                list.addAll(documentFolders.folders);
+                list.addAll(documentFolders.documents);
+
+                mAdapter.updateData(list, folderName);
+              }
+            }));
+      }
     }
 
     @Override public void onStart() {
