@@ -57,12 +57,12 @@ public class ListAdapterUsers extends SectionedCursorAdapter {
 
         final ImageView userImageView = (ImageView) view.findViewById(R.id.user_image);
 
-      Picasso.with(mContext).load(userImageUrl)
-                .noFade()
-                .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
-                .centerCrop()
-                .placeholder(R.drawable.nobody_normal)
-                .into(userImageView);
+      Picasso.with(mContext)
+          .load(userImageUrl)
+          .fit()
+          .centerCrop()
+          .placeholder(R.drawable.nobody_normal)
+          .into(userImageView);
     }
 
     /*

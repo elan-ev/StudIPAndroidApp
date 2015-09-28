@@ -93,7 +93,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
       @Override public void onChanged() {
         super.onChanged();
 
-        toggleEmptyView(mAdapter.isEmpty());
+        setEmptyViewVisible(mAdapter.isEmpty());
       }
     };
 
