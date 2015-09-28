@@ -21,7 +21,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -216,6 +218,7 @@ public class CourseDocumentsFragment extends Fragment {
     private String mFolderId;
     private String mFolderName;
     private DownloadManager mDownloadManager;
+    private TextView mFolderTextView;
 
     public DocumentsListFragment() {}
 
@@ -267,7 +270,7 @@ public class CourseDocumentsFragment extends Fragment {
         @Override public void onChanged() {
           super.onChanged();
           mEmptyView.setText(R.string.no_documents);
-          toggleEmptyView(mAdapter.isEmpty());
+          setEmptyViewVisible(mAdapter.isEmpty());
         }
       };
       mAdapter.registerAdapterDataObserver(mObserver);
@@ -280,6 +283,11 @@ public class CourseDocumentsFragment extends Fragment {
       setTitle(getString(R.string.Documents));
       mRecyclerView.setAdapter(mAdapter);
       mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+
+      if (!TextUtils.isEmpty(mFolderName)) {
+        mFolderTextView.setText(mFolderName);
+        mFolderTextView.setVisibility(View.VISIBLE);
+      }
     }
 
     @Override protected void updateItems() {
@@ -426,6 +434,18 @@ public class CourseDocumentsFragment extends Fragment {
           StuffUtil.startSignInActivity(getActivity());
         }
       }
+    }
+
+    @Override public View onCreateView(LayoutInflater inflater,
+        @Nullable ViewGroup container,
+        @Nullable Bundle savedInstanceState) {
+      View v = inflater.inflate(R.layout.documents_recyclerview_list, container, false);
+      mRecyclerView = (RecyclerView) v.findViewById(R.id.list);
+      mEmptyView = (TextView) v.findViewById(R.id.empty);
+      mFolderTextView = (TextView) v.findViewById(R.id.folder_title);
+      mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
+
+      return v;
     }
 
     @Override public void onStart() {
