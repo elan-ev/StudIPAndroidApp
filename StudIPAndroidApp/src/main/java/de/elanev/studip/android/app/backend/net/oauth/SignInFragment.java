@@ -188,6 +188,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         .config(Bitmap.Config.RGB_565)
         .fit()
         .centerCrop()
+        .noFade()
         .into(mLogoImageView);
 
     hideLoginForm();
