@@ -388,7 +388,6 @@ public class CourseDocumentsFragment extends Fragment {
     @Override public void onActivityCreated(Bundle savedInstanceState) {
       super.onActivityCreated(savedInstanceState);
 
-      setTitle(getString(R.string.Documents));
       mRecyclerView.setAdapter(mAdapter);
       mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
 
