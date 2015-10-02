@@ -232,14 +232,15 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
         senden.</string>
 
     <!-- Course Recordings -->
-    <string name="Recordings">Aufnahmen</string>
+    <string name="Recordings">Aufzeichnungen</string>
     <string name="no_recordings">Keine Aufzeichnungen verfügbar</string>
-    <string name="preview_image">Preview image</string>
+    <string name="preview_image">Vorschaubild</string>
     <string name="recordings_chooser_title">Aufzeichnung abspielen mit</string>
     <string name="recording_no_available">Aufzeichnung zur Zeit in der App nicht verfügbar.</string>
     <string name="duration">Dauer</string>
     <string name="Download">Herunterladen</string>
-    <string name="choose_recording_type">Aufnahme auswählen</string>
+    <string name="choose_recording_type">Aufzeichnung auswählen</string>
+    <string name="oc_recording">OpenCast Aufzeichnung</string>
 
     <!-- Tab Unizensus -->
     <string name="unizensus">Unizensus</string>
@@ -251,6 +252,5 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="New_entry">Neuer Beitrag</string>
     <string name="Enter_content">Forebeitrag verfassen</string>
     <string name="no_forum_categories">Keine Kategorien vorhanden</string>
-    <string name="oc_recording">OpenCast recording</string>
 
 </resources>
