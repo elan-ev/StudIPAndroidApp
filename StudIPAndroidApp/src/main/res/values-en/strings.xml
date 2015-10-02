@@ -228,6 +228,7 @@ information visit https://goo.gl/AKQXve.</string>
     <string name="duration">Duration</string>
     <string name="Download">Download</string>
     <string name="choose_recording_type">Choose recording type</string>
+    <string name="oc_recording">OpenCast recording</string>
 
     <!-- Tab Unizensus -->
     <string name="unizensus">Unicensus</string>
@@ -239,6 +240,5 @@ information visit https://goo.gl/AKQXve.</string>
     <string name="New_entry">New entry</string>
     <string name="Enter_content">Enter content</string>
     <string name="no_forum_categories">No categories</string>
-    <string name="oc_recording">OpenCast recording</string>
 
 </resources>
