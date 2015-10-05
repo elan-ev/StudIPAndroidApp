@@ -117,40 +117,43 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
       return;
     }
 
-    mCompositeSubscription.add(bind(mApiService.getRecordings(mCourseId)).subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<ArrayList<Recording>>() {
-          @Override public void onCompleted() {
-            mRecyclerView.setBackgroundColor(getResources().getColor(R.color.backgroud_grey_light));
-            setRefreshing(false);
-          }
+    mCompositeSubscription.add(
+        bind(mApiService.getRecordings(mCourseId)).subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(new Subscriber<ArrayList<Recording>>() {
+              @Override public void onCompleted() {
+                mRecyclerView.setBackgroundColor(
+                    getResources().getColor(R.color.backgroud_grey_light));
+                setRefreshing(false);
+              }
 
-          @Override public void onError(Throwable e) {
-            if (e instanceof TimeoutException) {
-              Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
-                  .show();
-            } else if (e instanceof RetrofitError
-                && ((RetrofitError) e).getKind() == RetrofitError.Kind.CONVERSION) {
-              Log.e(TAG, e.getLocalizedMessage());
-            } else if (e instanceof RetrofitError || e instanceof HttpException) {
-              Toast.makeText(getActivity(), "Retrofit error or http exception", Toast.LENGTH_LONG)
-                  .show();
-              Log.e(TAG, e.getLocalizedMessage());
-            } else {
-              e.printStackTrace();
-              throw new RuntimeException("See inner exception");
-            }
+              @Override public void onError(Throwable e) {
+                if (e instanceof TimeoutException) {
+                  Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
+                      .show();
+                } else if (e instanceof RetrofitError
+                    && ((RetrofitError) e).getKind() == RetrofitError.Kind.CONVERSION) {
+                  Log.e(TAG, e.getLocalizedMessage());
+                } else if (e instanceof RetrofitError || e instanceof HttpException) {
+                  Toast.makeText(getActivity(), "Retrofit error or http exception",
+                      Toast.LENGTH_LONG)
+                      .show();
+                  Log.e(TAG, e.getLocalizedMessage());
+                } else {
+                  e.printStackTrace();
+                  throw new RuntimeException("See inner exception");
+                }
 
-            setRefreshing(false);
-          }
+                setRefreshing(false);
+              }
 
-          @Override public void onNext(ArrayList<Recording> recordings) {
-            if (recordings == null) {
-              return;
-            }
-            mAdapter.setData(recordings);
-          }
-        }));
+              @Override public void onNext(ArrayList<Recording> recordings) {
+                if (recordings == null) {
+                  return;
+                }
+                mAdapter.setData(recordings);
+              }
+            }));
   }
 
   @Override public void onListItemClicked(final View v, int position) {
@@ -162,7 +165,8 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     // Check if we are connected to the mobile data network and whether the user previously allowed
     // mobile data downlands
     if (Connectivity.isConnectedMobile(getActivity().getApplicationContext())) {
-      if (!Prefs.getInstance(getActivity()).isAllowMobileData()) {
+      if (!Prefs.getInstance(getActivity())
+          .isAllowMobileData()) {
 
         // Inflate dialog checkbox and set onChangeListener to capture changes
         View checkboxView = LayoutInflater.from(getActivity())
@@ -170,7 +174,8 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         final CheckBox checkBox = (CheckBox) checkboxView.findViewById(R.id.checkbox);
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
           @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            Prefs.getInstance(getActivity()).setAllowMobile(isChecked);
+            Prefs.getInstance(getActivity())
+                .setAllowMobile(isChecked);
           }
         });
 
@@ -210,58 +215,6 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     }
   }
 
-  private void handleStreamingClick(final Recording recording) {
-    final ArrayList<String> dialogOptions = getDialogOptions(recording);
-    if (dialogOptions.isEmpty()) {
-      showErrorToast(R.string.recording_no_available);
-      return;
-    }
-    String[] options = dialogOptions.toArray(new String[dialogOptions.size()]);
-
-    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-    builder.setTitle(R.string.choose_recording_type)
-        .setItems(options, new DialogInterface.OnClickListener() {
-          @Override public void onClick(DialogInterface dialog, int which) {
-            String option = dialogOptions.get(which);
-            if (option.equals("Presentation")) {
-              streamUrl(recording.getPresentationDownload());
-            }
-            if (option.equals("Presenter")) {
-              streamUrl(recording.getPresenterDownload());
-            }
-            if (option.equals("Audio")) {
-              streamUrl(recording.getPresenterDownload());
-            }
-          }
-        })
-        .setCancelable(true)
-        .setOnCancelListener(new DialogInterface.OnCancelListener() {
-          @Override public void onCancel(DialogInterface dialog) {
-            dialog.dismiss();
-          }
-        })
-        .create()
-        .show();
-  }
-
-  private void streamUrl(String url) {
-    if (!TextUtils.isEmpty(url)) {
-      Uri uri = Uri.parse(url);
-
-      if (uri.getScheme().equalsIgnoreCase("http") || uri.getScheme().equalsIgnoreCase("https")) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(uri, "video/*");
-        startActivity(Intent.createChooser(intent,
-            getActivity().getString(R.string.recordings_chooser_title)));
-      } else {
-        showErrorToast(R.string.recording_no_available);
-      }
-
-    } else {
-      showErrorToast(R.string.recording_no_available);
-    }
-  }
-
   private void handleDownloadIconClick(final Recording recording) {
     final ArrayList<String> dialogOptions = getDialogOptions(recording);
     if (dialogOptions.isEmpty()) {
@@ -286,13 +239,16 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
           @Override public void onClick(DialogInterface dialog, int which) {
             for (int item : selectedItems) {
-              if (dialogOptions.get(item).equals("Presentation")) {
+              if (dialogOptions.get(item)
+                  .equals(getString(R.string.Presentation))) {
                 downloadUrl(recording.getPresentationDownload());
               }
-              if (dialogOptions.get(item).equals("Presenter")) {
+              if (dialogOptions.get(item)
+                  .equals(getString(R.string.presenter))) {
                 downloadUrl(recording.getPresenterDownload());
               }
-              if (dialogOptions.get(item).equals("Audio")) {
+              if (dialogOptions.get(item)
+                  .equals(getString(R.string.audio_only))) {
                 downloadUrl(recording.getPresenterDownload());
               }
             }
@@ -308,24 +264,59 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         .show();
   }
 
-  private void showErrorToast(int errorTextRes) {
-    Toast.makeText(getActivity(), errorTextRes, Toast.LENGTH_LONG).show();
+  private void handleStreamingClick(final Recording recording) {
+    final ArrayList<String> dialogOptions = getDialogOptions(recording);
+    if (dialogOptions.isEmpty()) {
+      showErrorToast(R.string.recording_no_available);
+      return;
+    }
+    String[] options = dialogOptions.toArray(new String[dialogOptions.size()]);
+
+    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    builder.setTitle(R.string.choose_recording_type)
+        .setItems(options, new DialogInterface.OnClickListener() {
+          @Override public void onClick(DialogInterface dialog, int which) {
+            String option = dialogOptions.get(which);
+            if (option.equals(getString(R.string.Presentation))) {
+              streamUrl(recording.getPresentationDownload());
+            }
+            if (option.equals(getString(R.string.presenter))) {
+              streamUrl(recording.getPresenterDownload());
+            }
+            if (option.equals(getString(R.string.audio_only))) {
+              streamUrl(recording.getPresenterDownload());
+            }
+          }
+        })
+        .setCancelable(true)
+        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+          @Override public void onCancel(DialogInterface dialog) {
+            dialog.dismiss();
+          }
+        })
+        .create()
+        .show();
   }
 
   private ArrayList<String> getDialogOptions(Recording recording) {
     ArrayList<String> dialogOptions = new ArrayList<>();
 
     if (!TextUtils.isEmpty(recording.getPresentationDownload())) {
-      dialogOptions.add("Presentation");
+      dialogOptions.add(getString(R.string.Presentation));
     }
     if (!TextUtils.isEmpty(recording.getPresenterDownload())) {
-      dialogOptions.add("Presenter");
+      dialogOptions.add(getString(R.string.presenter));
     }
     if (!TextUtils.isEmpty(recording.getAudioDownload())) {
-      dialogOptions.add("Audio");
+      dialogOptions.add(getString(R.string.audio_only));
     }
 
     return dialogOptions;
+  }
+
+  private void showErrorToast(int errorTextRes) {
+    Toast.makeText(getActivity(), errorTextRes, Toast.LENGTH_LONG)
+        .show();
   }
 
   @TargetApi(Build.VERSION_CODES.HONEYCOMB) private void downloadUrl(String downloadUrl) {
@@ -334,11 +325,15 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     }
 
     Uri url = Uri.parse(downloadUrl);
-    if (url.getScheme().equalsIgnoreCase("http") || url.getScheme().equalsIgnoreCase("https")) {
+    if (url.getScheme()
+        .equalsIgnoreCase("http") || url.getScheme()
+        .equalsIgnoreCase("https")) {
       String fileName = url.getLastPathSegment();
 
-      DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-      boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+      DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(
+          Context.DOWNLOAD_SERVICE);
+      boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
+          Environment.DIRECTORY_DOWNLOADS)
           .mkdirs();
 
       // Query DownloadManager and check of file is already being downloaded
@@ -373,18 +368,39 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         // Allowing the scanning by MediaScanner
         request.allowScanningByMediaScanner();
         // Set download visibility
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setNotificationVisibility(
+            DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
         try {
           downloadManager.enqueue(request);
         } catch (IllegalArgumentException e) {
           if (getActivity() != null) {
-            Toast.makeText(getActivity(),
-                R.string.error_downloadmanager_disabled,
-                Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), R.string.error_downloadmanager_disabled,
+                Toast.LENGTH_LONG)
+                .show();
           }
         }
       }
+    }
+  }
+
+  private void streamUrl(String url) {
+    if (!TextUtils.isEmpty(url)) {
+      Uri uri = Uri.parse(url);
+
+      if (uri.getScheme()
+          .equalsIgnoreCase("http") || uri.getScheme()
+          .equalsIgnoreCase("https")) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "video/*");
+        startActivity(Intent.createChooser(intent,
+            getActivity().getString(R.string.recordings_chooser_title)));
+      } else {
+        showErrorToast(R.string.recording_no_available);
+      }
+
+    } else {
+      showErrorToast(R.string.recording_no_available);
     }
   }
 
@@ -396,8 +412,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     private Context mContext;
     private ISO8601DateFormat mDateFormat = new ISO8601DateFormat();
 
-    public RecordingsAdapter(List<Recording> data,
-        ReactiveListFragment.ListItemClicks callback,
+    public RecordingsAdapter(List<Recording> data, ReactiveListFragment.ListItemClicks callback,
         Context context) {
       if (mData == null) {
         mData = new ArrayList<>();
@@ -453,10 +468,10 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
 
       String durationString = String.format("%02d:%02d:%02d",
           TimeUnit.MILLISECONDS.toHours(item.getDuration()),
-          TimeUnit.MILLISECONDS.toMinutes(item.getDuration())
-              - TimeUnit.HOURS.toMinutes((TimeUnit.MILLISECONDS).toHours(item.getDuration())),
-          TimeUnit.MILLISECONDS.toSeconds(item.getDuration())
-              - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(item.getDuration())));
+          TimeUnit.MILLISECONDS.toMinutes(item.getDuration()) - TimeUnit.HOURS.toMinutes(
+              (TimeUnit.MILLISECONDS).toHours(item.getDuration())),
+          TimeUnit.MILLISECONDS.toSeconds(item.getDuration()) - TimeUnit.MINUTES.toSeconds(
+              TimeUnit.MILLISECONDS.toMinutes(item.getDuration())));
       holder.mDurationTextView.setText(durationString);
     }
 
