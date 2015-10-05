@@ -235,6 +235,9 @@ information visit https://goo.gl/AKQXve.</string>
     <string name="Download">Download</string>
     <string name="choose_recording_type">Choose recording type</string>
     <string name="oc_recording">OpenCast recording</string>
+    <string name="Presentation">Presentation</string>
+    <string name="presenter">Presenter</string>
+    <string name="audio_only">Audio only</string>
 
     <!-- Tab Unizensus -->
     <string name="unizensus">Unicensus</string>
@@ -255,5 +258,6 @@ aliqua.</string>
     <string name="New_entry">New entry</string>
     <string name="Enter_content">Enter content</string>
     <string name="no_forum_categories">No forum categories</string>
+
 
 </resources>
