@@ -241,6 +241,9 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="Download">Herunterladen</string>
     <string name="choose_recording_type">Aufzeichnung auswählen</string>
     <string name="oc_recording">OpenCast Aufzeichnung</string>
+    <string name="Presentation">Präsentation</string>
+    <string name="presenter">Präsentator</string>
+    <string name="audio_only">Nur Audio</string>
 
     <!-- Tab Unizensus -->
     <string name="unizensus">Unizensus</string>
@@ -252,5 +255,6 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="New_entry">Neuer Beitrag</string>
     <string name="Enter_content">Forebeitrag verfassen</string>
     <string name="no_forum_categories">Keine Kategorien vorhanden</string>
+
 
 </resources>
