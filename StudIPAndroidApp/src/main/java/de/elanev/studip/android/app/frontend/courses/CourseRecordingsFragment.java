@@ -249,7 +249,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
               }
               if (dialogOptions.get(item)
                   .equals(getString(R.string.audio_only))) {
-                downloadUrl(recording.getPresenterDownload());
+                downloadUrl(recording.getAudioDownload());
               }
             }
           }
@@ -284,7 +284,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
               streamUrl(recording.getPresenterDownload());
             }
             if (option.equals(getString(R.string.audio_only))) {
-              streamUrl(recording.getPresenterDownload());
+              streamUrl(recording.getAudioDownload());
             }
           }
         })
