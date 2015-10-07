@@ -352,7 +352,7 @@ public class PlannerFragment extends ProgressListFragment implements
 
         // Create new section for every day
         if (!DateTools.isSameDay(currentDateMillies, prevDay)) {
-          String title = DateTools.getShortLocalizedTime(currentDateMillies, getActivity());
+          String title = DateTools.getShortLocalizedTime(currentDateMillies, mContext);
           sections.add(new EventsAdapter.Section(i, title));
         }
 
