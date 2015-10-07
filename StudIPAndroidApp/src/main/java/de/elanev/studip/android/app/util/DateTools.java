@@ -86,6 +86,10 @@ public class DateTools {
    * @return A localized and abbreviated String representation of the passed timestamp
    */
   public static String getShortLocalizedTime(final long time, Context ctx) {
+    if(time <= 0L || ctx == null) {
+      return "";
+    }
+    
     long timeMillis = normalizeTimestamp(time);
 
     int formatter = DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_YEAR;
