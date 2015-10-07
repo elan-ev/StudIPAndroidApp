@@ -257,8 +257,12 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
 
           mTitleTextView.setText(courseTitle);
           getActivity().setTitle(courseTitle);
-          String courseTypeString = Settings.fromJson(Prefs.getInstance(getActivity())
-              .getApiSettings()).semTypes.get(courseTyp).name;
+          String courseTypeString = "";
+          Settings settings = Settings.fromJson(Prefs.getInstance(getActivity())
+              .getApiSettings());
+          if(settings != null && settings.semTypes != null) {
+            courseTypeString = settings.semTypes.get(courseTyp).name;
+          }
           mCourseTypeTextView.setText(courseTypeString);
           if (!TextUtils.isEmpty(courseDescription)) {
             mDescriptionTextView.setText(courseDescription);
