@@ -1490,9 +1490,11 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
+            String errMsg = (e.getMessage() == null ? "Routes load failed!" : e.getMessage());
+            Log.e(TAG, errMsg);
+
             if (callbacks != null) {
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_ROUTES_SYNC, e.getLocalizedMessage
-                  (), 0);
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_ROUTES_SYNC, errMsg, 0);
             }
           }
 
@@ -1513,7 +1515,12 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            Log.e(TAG, e.getLocalizedMessage());
+            String errMsg = (e.getMessage() == null ? "Settings load failed!" : e.getMessage());
+            Log.e(TAG, errMsg);
+
+            if (callbacks != null) {
+              callbacks.onSyncError(SyncHelperCallbacks.ERROR_SETTINGS_SYNC, errMsg, 0);
+            }
           }
 
           @Override public void onNext(Settings settings) {
@@ -1538,7 +1545,7 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            String errMsg = e.getLocalizedMessage();
+            String errMsg = (e.getMessage() == null ? "User load failed!" : e.getMessage());
             Log.e(TAG, errMsg);
 
             if (callbacks != null) {
@@ -1584,6 +1591,7 @@ public class SyncHelper {
     int ERROR_INSTITUTES_SYNC = 307;
     int ERROR_RECORDINGS_SYNC = 308;
     int ERROR_ROUTES_SYNC = 309;
+    int ERROR_SETTINGS_SYNC = 310;
 
     public void onSyncStarted();
 
