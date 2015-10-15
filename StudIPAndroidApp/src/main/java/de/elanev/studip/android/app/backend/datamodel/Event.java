@@ -25,6 +25,7 @@ public class Event {
     public String description;
     public String categories;
     public String room;
+    public String color;
 
     public Event() {
     }

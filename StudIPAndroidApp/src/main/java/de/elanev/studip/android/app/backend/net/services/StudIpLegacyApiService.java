@@ -5,10 +5,14 @@ import android.database.Cursor;
 
 import org.apache.http.HttpStatus;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.elanev.studip.android.app.backend.datamodel.CourseItem;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
+import de.elanev.studip.android.app.backend.datamodel.Event;
+import de.elanev.studip.android.app.backend.datamodel.Events;
 import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
 import de.elanev.studip.android.app.backend.datamodel.ForumCategories;
@@ -251,6 +255,10 @@ public class StudIpLegacyApiService {
     return mService.getCourseDocumentsFolders(courseId, folderId);
   }
 
+  public Observable<Events> getEvents() {
+    return mService.getEvents();
+  }
+
   public interface RestIPLegacyService {
     @PUT("/courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
         Callback<ForumCategory> cb);
@@ -287,6 +295,8 @@ public class StudIpLegacyApiService {
 
     @GET("/documents/{course_id}/folder/{folder_id}") Observable<DocumentFolders> getCourseDocumentsFolders(
         @Path("course_id") String courseId, @Path("folder_id") String folderId);
+
+    @GET("/events") Observable<Events> getEvents();
   }
 
   public static class UserNotFoundException extends RuntimeException {

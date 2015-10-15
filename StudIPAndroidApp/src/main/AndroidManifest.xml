@@ -17,8 +17,8 @@
     <!-- General application settings -->
     <application
         android:name="de.elanev.studip.android.app.StudIPApplication"
-        android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
+        android:allowBackup="true"
         android:installLocation="preferExternal"
         android:label="@string/app_name"
         android:logo="@drawable/ic_home_transparent"
