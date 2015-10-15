@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
 // Production-Release versioning
 def versionMajor = 1  // max. 9
 def versionMinor = 0  // max. 99
-def versionPatch = 15 // max. 99
+def versionPatch = 16 // max. 99
 
 // Beta- and Alpha-Release versioning
 def versionMajorBeta = 1 // max. 9
