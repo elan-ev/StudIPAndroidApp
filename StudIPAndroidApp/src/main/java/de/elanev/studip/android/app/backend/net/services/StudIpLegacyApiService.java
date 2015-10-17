@@ -5,13 +5,11 @@ import android.database.Cursor;
 
 import org.apache.http.HttpStatus;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
+import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.backend.datamodel.CourseItem;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
-import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.datamodel.Events;
 import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
@@ -45,41 +43,45 @@ import se.akerfeldt.signpost.retrofit.RetrofitHttpOAuthConsumer;
 import se.akerfeldt.signpost.retrofit.SigningOkClient;
 
 /**
+ * API service providing methodes to interact with the legacy implementation of the Stud.IP REST
+ * API aka. Rest.IP
+ *
  * @author joern
  */
 public class StudIpLegacyApiService {
 
+  //region LOCAL CONSTANTS -------------------------------------------------------------------------
+  public static final String TAG = StudIpLegacyApiService.class.getSimpleName();
+  //endregion --------------------------------------------------------------------------------------
+
+  //region INSTANCE VARIABLES ----------------------------------------------------------------------
   private RestIPLegacyService mService;
   private Context mContext;
+  //endregion --------------------------------------------------------------------------------------
 
+  //region CONSTRUCTOR
+  // -----------------------------------------------------------------------------------------------
   public StudIpLegacyApiService(Server server, Context context) {
-    //        RequestInterceptor requestInterceptor = new RequestInterceptor() {
-    //          @Override public void intercept(RequestFacade request) {
-    //            request.
-    //          }
-    //        };
-    //    // TODO: unwrap root elements for messages, users and courses
-    //    // TODO: Auth
-    //        ObjectMapper mapper = new ObjectMapper();
-    //        if (clazz.equals(User.class) || clazz.equals(Message.class) || clazz.equals(Course
-    //            .class)) {
-    //          mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
-    //        }
-
     RetrofitHttpOAuthConsumer oAuthConsumer = new RetrofitHttpOAuthConsumer(server.getConsumerKey(),
         server.getConsumerSecret());
     oAuthConsumer.setTokenWithSecret(server.getAccessToken(), server.getAccessTokenSecret());
 
+    // Set log request log level based on BuildConfig
+    RestAdapter.LogLevel logLevel = (BuildConfig.DEBUG)
+        ? RestAdapter.LogLevel.FULL
+        : RestAdapter.LogLevel.BASIC;
+
+    // Set up the RestAdapter with the appropriate configuration options
     RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(server.getApiUrl())
-        //        .setRequestInterceptor(requestInterceptor)
-        .setLogLevel(RestAdapter.LogLevel.FULL)
+        .setLogLevel(logLevel)
         .setConverter(new JacksonConverter())
         .setClient(new SigningOkClient(oAuthConsumer))
         .setErrorHandler(new ErrorHandler() {
           @Override public Throwable handleError(RetrofitError cause) {
             Response response = cause.getResponse();
-            if (response.getUrl().contains("user")
-                && cause.getResponse().getStatus() == HttpStatus.SC_NOT_FOUND) {
+            if (response.getUrl()
+                .contains("user") && cause.getResponse()
+                .getStatus() == HttpStatus.SC_NOT_FOUND) {
               return new UserNotFoundException(cause);
             }
             return cause;
@@ -90,28 +92,50 @@ public class StudIpLegacyApiService {
     mService = restAdapter.create(RestIPLegacyService.class);
     mContext = context.getApplicationContext();
   }
+  //endregion --------------------------------------------------------------------------------------
 
+  //region PUBLIC API ------------------------------------------------------------------------------
+
+  /**
+   * Takes a course id as parameter and returns an {@link Observable} containing all {@link
+   * ForumCategory} for the course identified by the passed course id.
+   *
+   * @param courseId String of the course id to load the {@link ForumCategory} for.
+   * @return An {@link Observable} for all {@link ForumCategory} corresponding to the course id.
+   */
   public Observable<ForumCategory> getForumCategories(final String courseId) {
     return mService.getForumCategories(courseId)
         .flatMap(new Func1<ForumCategories, Observable<? extends ForumCategory>>() {
-          @Override public Observable<? extends ForumCategory> call(ForumCategories forumCategories) {
+          @Override public Observable<? extends ForumCategory> call(
+              ForumCategories forumCategories) {
             return Observable.from(forumCategories.forumCategories);
           }
         });
   }
 
-  public Observable<ForumAreas> getForumAreas(final String categoryId, int offset) {
-    return mService.getForumAreas(categoryId, offset, 10);
+  /**
+   * Takes an id of a forum category and a offset. It returns an {@link Observable} for every
+   * {@link ForumArea} corresponding to the forum category id and is within the range selected by
+   * the offset. By default 10 items from the offset on are returned.
+   *
+   * @param forumCategoryId The String id of the forum category to load the forum areas for.
+   * @param offset          An int which indicates from where to load the next 10 items from.
+   * @return An {@link Observable} for all {@link ForumArea} corresponding to the forum category
+   * id and is within the range of the offset.
+   */
+  public Observable<ForumAreas> getForumAreas(final String forumCategoryId, final int offset) {
+    return mService.getForumAreas(forumCategoryId, offset, 10);
   }
 
-  public Observable<ForumEntry> getForumEntry(final String entryId) {
-    return mService.getForumEntry(entryId);
-  }
-
-  public Observable<ForumEntries> getAreaTopics(final String areaId) {
-    return mService.getForumAreaTopics(areaId);
-  }
-
+  /**
+   * Takes a topic id and an offset as argument. The offset indicates the starting point from
+   * where to load the next 10 entries form.
+   *
+   * @param topicId String topic id identifing the topic the load the entries from.
+   * @param offset  int value indicating the offset from where the next 10 entries are loaded
+   * @return An {@link Observable} for every {@link ForumEntry} corresponding to the passed
+   * parameters.
+   */
   public Observable<ForumEntry> getForumTopicEntries(final String topicId, final int offset) {
     return mService.getForumTopicEntries(topicId, offset, 10)
         .flatMap(new Func1<ForumEntries, Observable<? extends ForumEntry>>() {
@@ -129,31 +153,36 @@ public class StudIpLegacyApiService {
                     return entry;
                   }
                 });
-            //            if (!TextUtils.isEmpty(entry.userId)) {
-            //              User user = getUser(entry.userId);
-            //              entry.user = user;
-            //            }
-            //
           }
         });
   }
 
+  /**
+   * Takes a user id as argument and returns an {@link Observable} wrapping the user correspondig
+   * to the {@link User}.
+   *
+   * @param userId String id identifying the user to load the info for.
+   * @return An {@link Observable} wrapping an {@link User} object corresponding to the passed
+   * user id.
+   */
   public Observable<User> getUser(final String userId) {
     User u = getUserFromContentProvider(userId);
     if (u != null) {
       return Observable.just(u);
     }
 
-    return mService.getUser(userId).flatMap(new Func1<UserItem, Observable<? extends User>>() {
-      @Override public Observable<? extends User> call(UserItem userItem) {
-        return Observable.just(userItem.user);
-      }
-    }).onErrorReturn(new Func1<Throwable, User>() {
-      @Override public User call(Throwable throwable) {
-        return new User(null, null, null, null, "Deleted", "User", null, null, null, null, null,
-            null, null, null, 0);
-      }
-    });
+    return mService.getUser(userId)
+        .flatMap(new Func1<UserItem, Observable<? extends User>>() {
+          @Override public Observable<? extends User> call(UserItem userItem) {
+            return Observable.just(userItem.user);
+          }
+        })
+        .onErrorReturn(new Func1<Throwable, User>() {
+          @Override public User call(Throwable throwable) {
+            return new User(null, null, null, null, "Deleted", "User", null, null, null, null, null,
+                null, null, null, 0);
+          }
+        });
   }
 
   private User getUserFromContentProvider(final String userId) {
@@ -168,76 +197,100 @@ public class StudIpLegacyApiService {
     String selection = UsersContract.Columns.USER_ID + " = ?";
 
     Cursor cursor = mContext.getContentResolver()
-        .query(UsersContract.CONTENT_URI,
-            projection,
-            selection,
-            new String[]{userId},
+        .query(UsersContract.CONTENT_URI, projection, selection, new String[]{userId},
             UsersContract.DEFAULT_SORT_ORDER);
 
-    cursor.moveToFirst();
-    if (cursor.isAfterLast()) {
+    String userTitlePre = "";
+    String userTitlePost = "";
+    String userForename = "";
+    String userLastname = "";
+    String userAvatarUrl = "";
+
+    if (cursor != null) {
+
+      cursor.moveToFirst();
+      if (cursor.isAfterLast()) {
+        cursor.close();
+        return null;
+      }
+
+      userTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
+      userTitlePost = cursor.getString(
+          cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
+      userForename = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
+      userLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
+      userAvatarUrl = cursor.getString(
+          cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
+
       cursor.close();
-      return null;
     }
-
-    String userTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
-    String userTitlePost = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
-    String userForename = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-    String userLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
-    String userAvatar = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-    cursor.close();
-
-    return new User(userId,
-        null,
-        null,
-        userTitlePre,
-        userForename,
-        userLastname,
-        userTitlePost,
-        null,
-        null,
-        null,
-        userAvatar,
-        null,
-        null,
-        null,
-        0);
+    return new User(userId, null, null, userTitlePre, userForename, userLastname, userTitlePost,
+        null, null, null, userAvatarUrl, null, null, null, 0);
   }
 
-  public Observable<ForumEntry> getForumEntryChildren(final String entryId) {
-    return mService.getForumAreaTopics(entryId)
-        .flatMap(new Func1<ForumEntries, Observable<? extends ForumEntry>>() {
-          @Override public Observable<? extends ForumEntry> call(ForumEntries forumEntries) {
-            return Observable.from(forumEntries.entries);
-          }
-        });
-  }
-
-  public Observable<ForumArea> createForumEntry(final String topicId,
-      final String entrySubject,
+  /**
+   * Creates a new forum entry for a specific forum topic and returns the new {@link ForumEntry}
+   * wrapped in an {@link Observable}.
+   *
+   * @param topicId      String with the id of the topic under which the new entry should be created.
+   * @param entrySubject The subject of the new entry as a String.
+   * @param entryContent A String with the content of the new entry.
+   * @return An {@link Observable} wrapping the newly created {@link ForumEntry}.
+   */
+  public Observable<ForumArea> createForumEntry(final String topicId, final String entrySubject,
       final String entryContent) {
     return mService.createForumEntry(topicId, entrySubject, entryContent);
   }
 
+  /**
+   * Marks the whole forum of a course as read. With the legacy API, this is currently the only way
+   * to mark anything in the forum as read. It takes a String containing the course id and a
+   * callback, which is called when the action was completed.
+   *
+   * @param courseId String containing the course id to mark the forum for as read.
+   * @param callback A {@link Callback} which is executed upon completion of the action.
+   */
   public void setForumRead(final String courseId, final Callback<ForumCategory> callback) {
     mService.setForumRead(courseId, callback);
   }
 
+  /**
+   * Gets various settings of the API and the underlying Stud.IP installation.
+   *
+   * @return An {@link Observable} wrapping a {@link Settings} object containing various setting
+   * information.
+   */
   public Observable<Settings> getSettings() {
     return mService.getSettings();
   }
 
+  /**
+   * Get the OpenCast Matterhorn recordings for a specific course. This is a Stud.IP plugin and
+   * is not available everywhere.
+   *
+   * @param courseId String with the course id to load the OC recordings for.
+   * @return An {@link Observable} wrapping an ArrayList containing a list of {@link Recording}
+   * objects corresponding to the passed course id.
+   */
   public Observable<ArrayList<Recording>> getRecordings(String courseId) {
     Observable<CourseItem> courseObservable = mService.getCourse(courseId);
-    Observable<ArrayList<Recording>> recordingsObservable = courseObservable.flatMap(new Func1<CourseItem, Observable<ArrayList<Recording>>>() {
-      @Override public Observable<ArrayList<Recording>> call(CourseItem course) {
-        return Observable.just(course.course.getAdditionalData().getRecordings());
-      }
-    });
+    Observable<ArrayList<Recording>> recordingsObservable = courseObservable.flatMap(
+        new Func1<CourseItem, Observable<ArrayList<Recording>>>() {
+          @Override public Observable<ArrayList<Recording>> call(CourseItem course) {
+            return Observable.just(course.course.getAdditionalData()
+                .getRecordings());
+          }
+        });
 
     return recordingsObservable;
   }
 
+  /**
+   * Gets information of the currently signed in user.
+   *
+   * @return An {@link User} wrapped in qn {@link Observable} containing information about the
+   * currently signed in user.
+   */
   public Observable<User> getCurrentUserInfo() {
     return mService.getCurrentUserInfo()
         .flatMap(new Func1<UserItem, Observable<? extends User>>() {
@@ -247,58 +300,94 @@ public class StudIpLegacyApiService {
         });
   }
 
+  /**
+   * Get all {@link DocumentFolders} for the course id passed as an argument. The {@link
+   * DocumentFolders} object contains more folders as well es the {@link de.elanev.studip.android
+   * .app.backend.datamodel.Documents} of the current folder.
+   *
+   * @param courseId A course id String identifying the course for which the folders should be
+   *                 requested.
+   * @return An {@link Observable} containing the {@link DocumentFolders} of the requested course.
+   */
   public Observable<DocumentFolders> getCourseDocuments(String courseId) {
     return mService.getCourseDocuments(courseId);
   }
 
+  /**
+   * Get the subfolder of a give folder and course id. After getting the first course folders
+   * with {@link #getCourseDocuments(String)} the folder hierarchy can be traversed deeper with
+   * this method.
+   *
+   * @param courseId A course id String identifying the course for which the folders should be
+   *                 requested.
+   * @param folderId The id of the current folder from which the subfolder are requested.
+   * @return An {@link Observable} containing the {@link DocumentFolders} of the requested course
+   * and folder.
+   */
   public Observable<DocumentFolders> getCourseDocumentsFolders(String courseId, String folderId) {
     return mService.getCourseDocumentsFolders(courseId, folderId);
   }
 
+  /**
+   * Requests the events planned for the user. The time span is set by the API to two weeks.
+   *
+   * @return An {@link Observable} containing the user's {@link Events} for the next two weeks.
+   */
   public Observable<Events> getEvents() {
     return mService.getEvents();
   }
+  //endregion --------------------------------------------------------------------------------------
 
+  //region INTERFACES ------------------------------------------------------------------------------
   public interface RestIPLegacyService {
-    @PUT("/courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
-        Callback<ForumCategory> cb);
+    /*
+     * Forums
+     */
+    @PUT("/courses/{course_id}/set_forum_read") void setForumRead(
+        @Path("course_id") String courseId, Callback<ForumCategory> cb);
 
-    @GET("/courses/{course_id}/forum_categories") Observable<ForumCategories> getForumCategories(@Path(
-        "course_id") String courseId);
+    @GET("/courses/{course_id}/forum_categories") Observable<ForumCategories> getForumCategories(
+        @Path("course_id") String courseId);
 
     @GET("/forum_category/{category_id}/areas") Observable<ForumAreas> getForumAreas(@Path(
         "category_id") String categoryId, @Query("offset") int offset, @Query("limit") int limit);
 
-    @GET("/forum_entry/area_id}/children") Observable<ForumEntries> getForumAreaTopics(@Path(
-        "area_id") String areaId);
-
     @GET("/forum_entry/{topic_id}/children") Observable<ForumEntries> getForumTopicEntries(@Path(
         "topic_id") String topicId, @Query("offset") int offset, @Query("limit") int limit);
 
-    @GET("/forum_entry/{entry_id}") Observable<ForumEntry> getForumEntry(@Path("entry_id") String entryId);
-
     @FormUrlEncoded @POST("/forum_entry/{topic_id}") Observable<ForumArea> createForumEntry(@Path(
-        "topic_id") String topicId,
-        @Field("subject") String entrySubject,
+        "topic_id") String topicId, @Field("subject") String entrySubject,
         @Field("content") String entryContent);
 
+    /*
+     * User specific
+     */
     @GET("/user/{user_id}") Observable<UserItem> getUser(@Path("user_id") String userId);
 
+    @GET("/user") Observable<UserItem> getCurrentUserInfo();
+
+    @GET("/events") Observable<Events> getEvents();
+
+    /*
+     * Generally Stud.IP specifix
+     */
     @GET("/studip/settings") Observable<Settings> getSettings();
 
-    @GET("/courses/{course_id}") Observable<CourseItem> getCourse(@Path("course_id") String courseId);
-
-    @GET("/user") Observable<UserItem> getCurrentUserInfo();
+    /*
+     * Course specific
+     */
+    @GET("/courses/{course_id}") Observable<CourseItem> getCourse(
+        @Path("course_id") String courseId);
 
     @GET("/documents/{course_id}/folder") Observable<DocumentFolders> getCourseDocuments(
         @Path("course_id") String courseId);
 
     @GET("/documents/{course_id}/folder/{folder_id}") Observable<DocumentFolders> getCourseDocumentsFolders(
         @Path("course_id") String courseId, @Path("folder_id") String folderId);
-
-    @GET("/events") Observable<Events> getEvents();
   }
+  //endregion --------------------------------------------------------------------------------------
 
+  //region INNER CLASSES ---------------------------------------------------------------------------
   public static class UserNotFoundException extends RuntimeException {
     RetrofitError cause;
 
@@ -306,4 +395,5 @@ public class StudIpLegacyApiService {
       this.cause = cause;
     }
   }
+  //endregion --------------------------------------------------------------------------------------
 }
