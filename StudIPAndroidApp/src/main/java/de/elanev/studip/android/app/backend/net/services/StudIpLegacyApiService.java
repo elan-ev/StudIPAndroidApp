@@ -2,14 +2,17 @@ package de.elanev.studip.android.app.backend.net.services;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Pair;
 
 import org.apache.http.HttpStatus;
 
 import java.util.ArrayList;
 
 import de.elanev.studip.android.app.BuildConfig;
+import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.CourseItem;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
+import de.elanev.studip.android.app.backend.datamodel.Event;
 import de.elanev.studip.android.app.backend.datamodel.Events;
 import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
@@ -333,8 +336,36 @@ public class StudIpLegacyApiService {
    *
    * @return An {@link Observable} containing the user's {@link Events} for the next two weeks.
    */
-  public Observable<Events> getEvents() {
-    return mService.getEvents();
+  public Observable<Pair<Event, Course>> getEvents() {
+    // First get the events
+    return mService.getEvents()
+        // Then unwrap the events
+        .flatMap(new Func1<Events, Observable<Event>>() {
+          @Override public Observable<Event> call(Events events) {
+            return Observable.from(events.events);
+          }
+        })
+            // Then for every event get the course and emit it as Pair
+        .flatMap(new Func1<Event, Observable<Pair<Event, Course>>>() {
+          @Override public Observable<Pair<Event, Course>> call(Event event) {
+
+            // Create Observable for course
+            final Observable<Course> courseObservable = mService.getCourse(event.course_id)
+                .flatMap(new Func1<CourseItem, Observable<Course>>() {
+                  @Override public Observable<Course> call(CourseItem courseItem) {
+                    return Observable.just(courseItem.course);
+                  }
+                });
+
+            // Zip courseObservable and the event to emit the Pair of them.
+            return Observable.zip(Observable.just(event), courseObservable,
+                new Func2<Event, Course, Pair<Event, Course>>() {
+                  @Override public Pair<Event, Course> call(Event event, Course course) {
+                    return new Pair<>(event, course);
+                  }
+                });
+          }
+        });
   }
   //endregion --------------------------------------------------------------------------------------
 
