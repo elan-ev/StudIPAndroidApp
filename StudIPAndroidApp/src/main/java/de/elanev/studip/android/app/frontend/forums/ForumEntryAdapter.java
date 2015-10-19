@@ -41,8 +41,7 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
   Picasso mPicasso;
 
   public ForumEntryAdapter(final List<ForumEntry> items,
-      ReactiveListFragment.ListItemClicks fragmentClickListener,
-      Context context) {
+      ReactiveListFragment.ListItemClicks fragmentClickListener, Context context) {
     if (items == null) {
       throw new IllegalStateException("Data items must not be null");
     }
@@ -86,8 +85,14 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
       viewHolder.mContentTextView.setText(Html.fromHtml(TextTools.stripImages(item.content)));
     }
 
+    String username = mContext.getString(android.R.string.unknownName);
     if (item.user != null) {
-      viewHolder.mAuthorTextView.setText(item.user.getFullName().trim());
+      if (item.anonymous == 1) {
+        username = mContext.getString(R.string.anonymous);
+      } else {
+        username = item.user.getFullName()
+            .trim();
+      }
       viewHolder.mDateTextView.setText(DateTools.getLocalizedRelativeTimeString(date));
 
       mPicasso.load(item.user.avatarNormal)
@@ -96,8 +101,10 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
           .placeholder(R.drawable.nobody_normal)
           .into(viewHolder.mUserImageView);
     } else {
-      viewHolder.mAuthorTextView.setText(DateTools.getLocalizedRelativeTimeString(date));
+      username = DateTools.getLocalizedRelativeTimeString(date);
     }
+
+    viewHolder.mAuthorTextView.setText(username);
   }
 
   public ForumEntry getItem(int position) {
