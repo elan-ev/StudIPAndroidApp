@@ -6,3 +6,6 @@
 [submodule "libs/signpost-retrofit"]
 	path = libs/signpost-retrofit
 	url = https://github.com/mndfcked/signpost-retrofit.git
+[submodule "libs/Android-Week-View"]
+	path = libs/Android-Week-View
+	url = https://github.com/mndfcked/Android-Week-View.git
