@@ -87,7 +87,12 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
           .centerCrop()
           .placeholder(R.drawable.nobody_normal)
           .into(viewHolder.mUserImageView);
-      viewHolder.mAuthorTextView.setText(item.user.getFullName());
+
+      if (item.anonymous == 1) {
+        viewHolder.mAuthorTextView.setText(R.string.anonymous);
+      } else {
+        viewHolder.mAuthorTextView.setText(item.user.getFullName());
+      }
     }
 
     viewHolder.mDateTextView.setText(DateTools.getLocalizedRelativeTimeString(date));
