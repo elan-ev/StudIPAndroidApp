@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
 // Production-Release versioning
 def versionMajor = 1  // max. 9
 def versionMinor = 0  // max. 99
-def versionPatch = 15 // max. 99
+def versionPatch = 19 // max. 99
 
 // Beta- and Alpha-Release versioning
 def versionMajorBeta = 1 // max. 9
@@ -20,7 +20,7 @@ def versionPatchBeta = 10 // max. 99
 buildscript {
 
   repositories {
-    maven { url 'https://maven.fabric.io/repo' }
+    maven { url 'https://maven.fabric.io/public' }
   }
   dependencies {
     classpath 'io.fabric.tools:gradle:1.19.2'
@@ -31,15 +31,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 repositories {
-  maven { url 'https://maven.fabric.io/repo' }
   maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven { url 'https://maven.fabric.io/public' }
 }
 
 dependencies {
-  // SQLCipher jars
-  compile fileTree(dir: 'libs/sqlcipher', include: '*.jar')
   // Crashlytics Kit
-  compile('com.crashlytics.sdk.android:crashlytics:2.5.0@aar') {
+  compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
     transitive = true
   }
   // Android Support Libs
@@ -72,6 +70,7 @@ dependencies {
   compile 'com.google.guava:guava:18.0'
   compile 'com.mcxiaoke.volley:library:1.0.18@aar'
   compile 'de.hdodenhof:circleimageview:1.3.0'
+  compile 'net.zetetic:android-database-sqlcipher:3.3.1-1@aar'
 }
 
 def buildTime() {

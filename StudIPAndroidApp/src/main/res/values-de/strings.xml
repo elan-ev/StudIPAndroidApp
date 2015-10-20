@@ -255,6 +255,7 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="New_entry">Neuer Beitrag</string>
     <string name="Enter_content">Forebeitrag verfassen</string>
     <string name="no_forum_categories">Keine Kategorien vorhanden</string>
+    <string name="anonymous">Anonym</string>
 
 
 </resources>
