@@ -133,18 +133,20 @@ public class ForumEntriesListFragment extends ReactiveListFragment {
         args.putString(User.NAME, item.user.getFullName());
         args.putString(User.AVATAR, item.user.avatarNormal);
 
-        if (item.isNew) {
-          mApiService.setForumRead(mCourseId, new Callback() {
-            @Override public void success(Object o, Response response) {}
-
-            @Override public void failure(RetrofitError error) {
-              if (getActivity() != null) {
-                Toast.makeText(getActivity(), error.getLocalizedMessage(), Toast.LENGTH_LONG)
-                    .show();
-              }
-            }
-          });
-        }
+// FIXME: Currently throws more errors than anything else. Marking the whole forum for the course
+// is useless anyway. Has to be fixed when the route is actually usable
+//        if (item.isNew) {
+//          mApiService.setForumRead(mCourseId, new Callback() {
+//            @Override public void success(Object o, Response response) {}
+//
+//            @Override public void failure(RetrofitError error) {
+//              if (getActivity() != null) {
+//                Toast.makeText(getActivity(), error.getLocalizedMessage(), Toast.LENGTH_LONG)
+//                    .show();
+//              }
+//            }
+//          });
+//        }
 
         startActivity(args);
       }
