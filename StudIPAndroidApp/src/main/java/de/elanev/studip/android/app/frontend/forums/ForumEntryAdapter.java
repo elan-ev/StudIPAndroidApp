@@ -92,14 +92,14 @@ class ForumEntryAdapter extends RecyclerView.Adapter<ForumEntryAdapter.ViewHolde
       } else {
         username = item.user.getFullName()
             .trim();
+        mPicasso.load(item.user.avatarNormal)
+            .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
+            .centerCrop()
+            .placeholder(R.drawable.nobody_normal)
+            .into(viewHolder.mUserImageView);
       }
       viewHolder.mDateTextView.setText(DateTools.getLocalizedRelativeTimeString(date));
 
-      mPicasso.load(item.user.avatarNormal)
-          .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
-          .centerCrop()
-          .placeholder(R.drawable.nobody_normal)
-          .into(viewHolder.mUserImageView);
     } else {
       username = DateTools.getLocalizedRelativeTimeString(date);
     }
