@@ -73,10 +73,13 @@ public class StudIpLegacyApiService {
         .setClient(new SigningOkClient(oAuthConsumer))
         .setErrorHandler(new ErrorHandler() {
           @Override public Throwable handleError(RetrofitError cause) {
-            Response response = cause.getResponse();
-            if (response.getUrl().contains("user")
-                && cause.getResponse().getStatus() == HttpStatus.SC_NOT_FOUND) {
-              return new UserNotFoundException(cause);
+            if (cause != null) {
+              Response response = cause.getResponse();
+              if (response != null && response.getUrl()
+                  .contains("user") && cause.getResponse()
+                  .getStatus() == HttpStatus.SC_NOT_FOUND) {
+                return new UserNotFoundException(cause);
+              }
             }
             return cause;
           }
@@ -252,6 +255,8 @@ public class StudIpLegacyApiService {
   }
 
   public interface RestIPLegacyService {
+    // FIXME: Setting the whole forum as read, is useless. Fix when there is a better route
+    // available.
     @PUT("/courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
         Callback<ForumCategory> cb);
 
