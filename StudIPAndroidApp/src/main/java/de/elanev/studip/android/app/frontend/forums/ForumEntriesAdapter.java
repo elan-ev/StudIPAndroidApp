@@ -80,18 +80,19 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
     }
 
     if (item.user != null) {
-      Picasso.with(mContext).cancelRequest(viewHolder.mUserImageView);
-      Picasso.with(mContext)
-          .load(item.user.avatarNormal)
-          .resizeDimen(R.dimen.user_image_crop_size, R.dimen.user_image_crop_size)
-          .centerCrop()
-          .placeholder(R.drawable.nobody_normal)
-          .into(viewHolder.mUserImageView);
+
 
       if (item.anonymous == 1) {
         viewHolder.mAuthorTextView.setText(R.string.anonymous);
       } else {
         viewHolder.mAuthorTextView.setText(item.user.getFullName());
+        Picasso.with(mContext).cancelRequest(viewHolder.mUserImageView);
+        Picasso.with(mContext)
+            .load(item.user.avatarNormal)
+            .resizeDimen(R.dimen.user_image_crop_size, R.dimen.user_image_crop_size)
+            .centerCrop()
+            .placeholder(R.drawable.nobody_normal)
+            .into(viewHolder.mUserImageView);
       }
     }
 
