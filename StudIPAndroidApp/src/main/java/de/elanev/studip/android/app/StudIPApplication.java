@@ -55,9 +55,6 @@ public class StudIPApplication extends Application {
       Fabric.with(this, new Crashlytics());
     }
 
-    // Load SQLCipher JNI Libs
-    SQLiteDatabase.loadLibs(this);
-
     // Enable StrictMode for debug builds
     if (BuildConfig.DEBUG) {
       StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads()
