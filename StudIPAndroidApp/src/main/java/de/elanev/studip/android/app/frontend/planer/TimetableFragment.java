@@ -8,15 +8,18 @@
 
 package de.elanev.studip.android.app.frontend.planer;
 
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.alamkanak.weekview.DateTimeInterpreter;
 import com.alamkanak.weekview.WeekView;
@@ -50,11 +53,13 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
   Prefs mPrefs = Prefs.getInstance(getActivity());
   private WeekView mWeekView;
   private HashMap<String, Pair<Event, Course>> mEventsMap = new HashMap<>();
+  private int mOrientation;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     mApiService = new StudIpLegacyApiService(mPrefs.getServer(), getActivity());
+    mOrientation = getResources().getConfiguration().orientation;
   }
 
   @Override public void onResume() {
@@ -64,11 +69,9 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
   }
 
   private void scrollToCurrentTime() {
-    Calendar calendar = Calendar.getInstance(Locale.getDefault());
-    calendar.setTimeInMillis(System.currentTimeMillis());
-
-    mWeekView.goToDate(calendar);
-    mWeekView.goToHour(calendar.get(Calendar.HOUR));
+    mWeekView.goToToday();
+    mWeekView.goToHour(Calendar.getInstance(Locale.getDefault())
+        .get(Calendar.HOUR_OF_DAY));
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -90,6 +93,12 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
         return localizeHour(hour);
       }
     });
+
+    if (mOrientation == Configuration.ORIENTATION_PORTRAIT) {
+      mWeekView.setNumberOfVisibleDays(1);
+    } else if (mOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+      mWeekView.setNumberOfVisibleDays(7);
+    }
 
     loadData();
 
@@ -113,14 +122,12 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
         .subscribe(new Subscriber<Pair<Event, Course>>() {
           @Override public void onCompleted() {
             mWeekView.notifyDatasetChanged();
-            mWeekView.goToToday();
-            mWeekView.goToHour(Calendar.getInstance(Locale.getDefault())
-                .get(Calendar.HOUR_OF_DAY));
           }
 
           @Override public void onError(Throwable e) {
-            // Toast error
             Log.e(TAG, e.getLocalizedMessage());
+            Toast.makeText(getContext(), R.string.error_loading_events, Toast.LENGTH_LONG)
+                .show();
           }
 
           @Override public void onNext(Pair<Event, Course> eventCoursePair) {
@@ -163,7 +170,15 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
         if (eventStartCal.get(Calendar.YEAR) == currentCal.get(Calendar.YEAR)) {
 
           if (eventStartCal.get(Calendar.MONTH) == currentCal.get(Calendar.MONTH)) {
-            WeekViewEvent weekViewEvent = new WeekViewEvent(i, event.title, eventStartCal,
+            // Build event title. Rooms set to the event itself are prioritized.
+            String eventTitle = event.title;
+            if (!TextUtils.isEmpty(event.room)) {
+              eventTitle += " (" + event.room + ")";
+            } else if (!TextUtils.isEmpty(course.location)) {
+              eventTitle += " (" + course.location + ")";
+            }
+
+            WeekViewEvent weekViewEvent = new WeekViewEvent(i, eventTitle, eventStartCal,
                 eventEndCal);
             int color = Color.parseColor(course.color);
             weekViewEvent.setColor(color);
