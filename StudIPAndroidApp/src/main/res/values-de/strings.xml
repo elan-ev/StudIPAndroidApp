@@ -216,6 +216,7 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="no_schedule">
         Sie haben für die nächsten zwei Wochen keine Termine.
     </string>
+    <string name="error_loading_events">Es trat ein Fehler beim Laden der Termine auf.</string>
 
     <!-- Profile -->
     <string name="Profile">Profil</string>
