@@ -297,19 +297,19 @@ public class MainActivity extends AppCompatActivity implements
         }
         break;
       case R.id.navigation_planner:
-        fragTag = PlannerFragment.class.getName();
-        frag = findFragment(fragTag);
-        if (frag == null) {
-          frag = new PlannerFragment();
-        }
-        break;
-      case R.id.navigation_timetable:
         fragTag = TimetableFragment.class.getName();
         frag = findFragment(fragTag);
         if (frag == null) {
           frag = new TimetableFragment();
         }
         break;
+//      case R.id.navigation_timetable:
+//        fragTag = TimetableFragment.class.getName();
+//        frag = findFragment(fragTag);
+//        if (frag == null) {
+//          frag = new TimetableFragment();
+//        }
+//        break;
       default:
         frag = new NewsTabsFragment();
     }
