@@ -166,9 +166,19 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
   }
 
   private String localizeDate(Calendar date) {
-    return DateUtils.formatDateTime(getActivity(), date.getTimeInMillis(),
-        DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE
-            | DateUtils.FORMAT_ABBREV_WEEKDAY | DateUtils.FORMAT_NO_YEAR);
+    String formattedDate;
+
+    if (mOrientation == Configuration.ORIENTATION_PORTRAIT
+        && mWeekView.getNumberOfVisibleDays() > 3) {
+      formattedDate = DateUtils.formatDateTime(getActivity(), date.getTimeInMillis(),
+          DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_NO_YEAR);
+    } else {
+      formattedDate = DateUtils.formatDateTime(getActivity(), date.getTimeInMillis(),
+          DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE
+              | DateUtils.FORMAT_ABBREV_WEEKDAY | DateUtils.FORMAT_NO_YEAR);
+    }
+
+    return formattedDate;
   }
 
   private String localizeHour(int hour) {
