@@ -206,6 +206,7 @@ information visit https://goo.gl/AKQXve.</string>
     <!-- Planner -->
     <string name="Planner">Planner</string>
     <string name="no_schedule">You have no schedule for the next two weeks.</string>
+    <string name="error_loading_events">Error while loading events.</string>
 
     <!-- Profile -->
     <string name="Profile">Profile</string>
