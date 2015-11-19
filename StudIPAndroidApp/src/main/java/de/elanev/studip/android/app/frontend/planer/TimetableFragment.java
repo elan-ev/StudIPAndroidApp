@@ -17,6 +17,9 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -54,10 +57,11 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
   private WeekView mWeekView;
   private HashMap<String, Pair<Event, Course>> mEventsMap = new HashMap<>();
   private int mOrientation;
+  private boolean mListViewShowing = false;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
+    setHasOptionsMenu(true);
     mApiService = new StudIpLegacyApiService(mPrefs.getServer(), getActivity());
     mOrientation = getResources().getConfiguration().orientation;
   }
@@ -83,6 +87,7 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
   }
 
   @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    getActivity().setTitle(R.string.Planner);
     mWeekView.setMonthChangeListener(this);
     mWeekView.setDateTimeInterpreter(new DateTimeInterpreter() {
       @Override public String interpretDate(Calendar date) {
@@ -103,6 +108,61 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
     loadData();
 
     super.onActivityCreated(savedInstanceState);
+  }
+
+
+  @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.planer_menu, menu);
+
+    super.onCreateOptionsMenu(menu, inflater);
+  }
+
+  @Override public void onPrepareOptionsMenu(Menu menu) {
+    int currentlyVisisleDays = mWeekView.getNumberOfVisibleDays();
+    if (currentlyVisisleDays == 1) {
+      menu.findItem(R.id.planer_day)
+          .setChecked(true);
+    } else if (currentlyVisisleDays == 3) {
+      menu.findItem(R.id.planer_three_days)
+          .setChecked(true);
+    } else if (currentlyVisisleDays == 7) {
+      menu.findItem(R.id.planer_week)
+          .setChecked(true);
+    } else if (mListViewShowing) {
+      menu.findItem(R.id.planer_list)
+          .setChecked(true);
+    }
+
+    super.onPrepareOptionsMenu(menu);
+  }
+
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.isCheckable() && item.isChecked()) {
+      item.setChecked(false);
+    } else {
+      item.setChecked(true);
+    }
+
+    switch (item.getItemId()) {
+      case R.id.planer_goto_today:
+        scrollToCurrentTime();
+        return true;
+      case R.id.planer_three_days:
+        mWeekView.setNumberOfVisibleDays(3);
+        return true;
+      case R.id.planer_week:
+        mWeekView.setNumberOfVisibleDays(7);
+        return true;
+      case R.id.planer_day:
+        mWeekView.setNumberOfVisibleDays(1);
+        return true;
+      case R.id.planer_list:
+        Toast.makeText(getContext(), "TODO", Toast.LENGTH_SHORT)
+            .show();
+        return true;
+    }
+
+    return super.onOptionsItemSelected(item);
   }
 
   private String localizeDate(Calendar date) {
