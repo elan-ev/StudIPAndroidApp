@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ Copyright (c) 2015 ELAN e.V.
   ~ All rights reserved. This program and the accompanying materials
@@ -213,6 +214,11 @@ information visit https://goo.gl/AKQXve.</string>
     <string name="Planner">Planner</string>
     <string name="no_schedule">You have no schedule for the next two weeks.</string>
     <string name="error_loading_events">Error while loading events.</string>
+    <string name="goto_today">Go to today</string>
+    <string name="three_day_view">3 Days view</string>
+    <string name="week_view">Week view</string>
+    <string name="day_view">Day view</string>
+    <string name="list_view">List view</string>
 
     <!-- Profile -->
     <string name="Profile">Profile</string>
