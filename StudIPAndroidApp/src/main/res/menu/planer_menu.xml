@@ -14,24 +14,24 @@
         android:id="@+id/planer_goto_today"
         android:icon="@drawable/ic_action_date"
         app:showAsAction="always"
-        android:title="Today"/>
+        android:title="@string/goto_today"/>
 
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/planer_three_days"
-            android:title="3 Days view"/>
+            android:title="@string/three_day_view"/>
 
         <item
             android:id="@+id/planer_week"
-            android:title="Week view"/>
+            android:title="@string/week_view"/>
 
         <item
             android:id="@+id/planer_day"
-            android:title="Day view"/>
+            android:title="@string/day_view"/>
 
         <item
             android:id="@+id/planer_list"
-            android:title="List view"/>
+            android:title="@string/list_view"/>
     </group>
 
 </menu>
