@@ -35,8 +35,7 @@ import de.elanev.studip.android.app.frontend.contacts.ContactsGroupsFragment;
 import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
 import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
 import de.elanev.studip.android.app.frontend.news.NewsTabsFragment;
-import de.elanev.studip.android.app.frontend.planer.PlannerFragment;
-import de.elanev.studip.android.app.frontend.planer.TimetableFragment;
+import de.elanev.studip.android.app.frontend.planer.PlanerActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
@@ -121,7 +120,8 @@ public class MainActivity extends AppCompatActivity implements
 
   private Intent createInviteIntent() {
 
-    Server server  = Prefs.getInstance(this).getServer();
+    Server server = Prefs.getInstance(this)
+        .getServer();
     String inviteText = "";
     String inviteTextHtml = "";
     if (server == null) {
@@ -297,19 +297,8 @@ public class MainActivity extends AppCompatActivity implements
         }
         break;
       case R.id.navigation_planner:
-        fragTag = TimetableFragment.class.getName();
-        frag = findFragment(fragTag);
-        if (frag == null) {
-          frag = new TimetableFragment();
-        }
-        break;
-//      case R.id.navigation_timetable:
-//        fragTag = TimetableFragment.class.getName();
-//        frag = findFragment(fragTag);
-//        if (frag == null) {
-//          frag = new TimetableFragment();
-//        }
-//        break;
+        startActivity(new Intent(this, PlanerActivity.class));
+        return;
       default:
         frag = new NewsTabsFragment();
     }
@@ -332,6 +321,10 @@ public class MainActivity extends AppCompatActivity implements
         .replace(R.id.content_frame, frag, frag.getClass()
             .getName())
         .commit();
+  }
+
+  protected int getCurrentNavDrawerItem() {
+    return R.id.navigation_invalid;
   }
 
   @Override public boolean onNavigationItemSelected(android.view.MenuItem menuItem) {

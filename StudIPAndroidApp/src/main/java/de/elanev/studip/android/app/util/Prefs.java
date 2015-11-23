@@ -11,12 +11,14 @@ package de.elanev.studip.android.app.util;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AuthenticationContract;
+import de.elanev.studip.android.app.frontend.planer.PlanerActivity;
 
 
 /**
@@ -38,6 +40,9 @@ public class Prefs {
   private static final String API_SETTINGS_STRING = "apiSettingsString";
   private static final String ALLOW_MOBILE_DATA = "allowMobileData";
   private static final String USER_INFO = "currentUserInfo";
+  private static final String PLANER_PREFERRED_PORTRAIT_VIEW = "planerPreferredPortraitView";
+  private static final String PLANER_PREFERRED_LANDSCAPE_VIEW = "planerPreferredLandscapeView";
+  private static final String PLANER_PREFERRED_TIMETABLE_DAYS_COUNT = "planerPreferredTimetableViewDayCount";
   private static Prefs sInstance;
   private Context mContext;
   private SharedPreferences mPrefs;
@@ -67,7 +72,9 @@ public class Prefs {
    * Clears the SharedPreferences
    */
   public void clearPrefs() {
-    mPrefs.edit().clear().apply();
+    mPrefs.edit()
+        .clear()
+        .apply();
     this.mCachedServer = null;
   }
 
@@ -111,22 +118,24 @@ public class Prefs {
 
       c.moveToFirst();
       if (c.getCount() > 0) {
-        String serverName = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_NAME));
-        String serverContact = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL));
-        String serverKey = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_KEY));
-        String serverSecret = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_SECRET));
-        String serverUrl = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_URL));
-        String accessToken = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN));
-        String accessSecret = c.getString(c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET));
+        String serverName = c.getString(
+            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_NAME));
+        String serverContact = c.getString(
+            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL));
+        String serverKey = c.getString(
+            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_KEY));
+        String serverSecret = c.getString(
+            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_SECRET));
+        String serverUrl = c.getString(
+            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_URL));
+        String accessToken = c.getString(
+            c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN));
+        String accessSecret = c.getString(
+            c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET));
 
 
-        this.mCachedServer = new Server(serverName,
-            serverKey,
-            serverSecret,
-            serverUrl,
-            serverContact,
-            accessToken,
-            accessSecret);
+        this.mCachedServer = new Server(serverName, serverKey, serverSecret, serverUrl,
+            serverContact, accessToken, accessSecret);
       }
       c.close();
     }
@@ -176,7 +185,9 @@ public class Prefs {
    * Set the app as started. This will cause the isFirstStart() method to return false.
    */
   public void setAppStarted() {
-    mPrefs.edit().putBoolean(APP_FIRST_START, false).apply();
+    mPrefs.edit()
+        .putBoolean(APP_FIRST_START, false)
+        .apply();
   }
 
 
@@ -214,19 +225,33 @@ public class Prefs {
    * @deprecated debug only, for credential migration testing.
    */
   public void simulateOldPrefs(Server server) {
-    mPrefs.edit().putString("accessToken", server.getAccessToken()).apply();
-    mPrefs.edit().putString("accessTokenSecret", server.getAccessTokenSecret()).apply();
-    mPrefs.edit().putString("serverName", server.getName()).apply();
-    mPrefs.edit().putString("serverUrl", server.getBaseUrl()).apply();
-    mPrefs.edit().putString("serverKey", server.getConsumerKey()).apply();
-    mPrefs.edit().putString("serverSecret", server.getConsumerSecret()).apply();
+    mPrefs.edit()
+        .putString("accessToken", server.getAccessToken())
+        .apply();
+    mPrefs.edit()
+        .putString("accessTokenSecret", server.getAccessTokenSecret())
+        .apply();
+    mPrefs.edit()
+        .putString("serverName", server.getName())
+        .apply();
+    mPrefs.edit()
+        .putString("serverUrl", server.getBaseUrl())
+        .apply();
+    mPrefs.edit()
+        .putString("serverKey", server.getConsumerKey())
+        .apply();
+    mPrefs.edit()
+        .putString("serverSecret", server.getConsumerSecret())
+        .apply();
   }
 
   /**
    * Sets the preference that indicates that the initial sync operation was successful.
    */
   public void setAppSynced() {
-    mPrefs.edit().putBoolean(APP_SYNC_COMPLETE, true).apply();
+    mPrefs.edit()
+        .putBoolean(APP_SYNC_COMPLETE, true)
+        .apply();
   }
 
   /**
@@ -253,7 +278,9 @@ public class Prefs {
    * @param userId the current users Stud.IP user id String.
    */
   public void setUserId(String userId) {
-    mPrefs.edit().putString(USER_ID, userId).apply();
+    mPrefs.edit()
+        .putString(USER_ID, userId)
+        .apply();
   }
 
   /**
@@ -273,7 +300,9 @@ public class Prefs {
    * @param userInfoJson JSON formatted User info string
    */
   public void setUserInfo(String userInfoJson) {
-    mPrefs.edit().putString(USER_INFO, userInfoJson).apply();
+    mPrefs.edit()
+        .putString(USER_INFO, userInfoJson)
+        .apply();
   }
 
   /**
@@ -291,7 +320,9 @@ public class Prefs {
    * @param semesterId Stud.IP id String of the current semester.
    */
   public void setCurrentSemesterId(String semesterId) {
-    mPrefs.edit().putString(CURRENT_SEMESTER_ID, semesterId).apply();
+    mPrefs.edit()
+        .putString(CURRENT_SEMESTER_ID, semesterId)
+        .apply();
   }
 
   /**
@@ -300,7 +331,9 @@ public class Prefs {
    * @param value Indicates an activated forum.
    */
   public void setForumIsActivated(boolean value) {
-    mPrefs.edit().putBoolean(FORUM_IS_ACTIVATED, value).apply();
+    mPrefs.edit()
+        .putBoolean(FORUM_IS_ACTIVATED, value)
+        .apply();
   }
 
   /**
@@ -327,7 +360,9 @@ public class Prefs {
    * @param apiSettings JSON String representation of the API settings to save
    */
   public void setApiSettings(String apiSettings) {
-    mPrefs.edit().putString(API_SETTINGS_STRING, apiSettings).apply();
+    mPrefs.edit()
+        .putString(API_SETTINGS_STRING, apiSettings)
+        .apply();
   }
 
   /**
@@ -345,6 +380,70 @@ public class Prefs {
    * @param isAllowed the value to store
    */
   public void setAllowMobile(boolean isAllowed) {
-    mPrefs.edit().putBoolean(ALLOW_MOBILE_DATA, isAllowed).apply();
+    mPrefs.edit()
+        .putBoolean(ALLOW_MOBILE_DATA, isAllowed)
+        .apply();
+  }
+
+  /**
+   * Returns the users preferred planer view based on the passed orientation of the devices. We
+   * store
+   * the preferred view of the landscape and portrait orientation.
+   *
+   * @param orientation orientation for which the preferred view should be returned
+   * @return the preferred view of the planer for the passed orientation
+   */
+  public String getPreferredPlanerView(int orientation) {
+    String preferredView;
+    if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+      preferredView = mPrefs.getString(PLANER_PREFERRED_PORTRAIT_VIEW,
+          PlanerActivity.PLANER_VIEW_LIST);
+    } else {
+      preferredView = mPrefs.getString(PLANER_PREFERRED_LANDSCAPE_VIEW,
+          PlanerActivity.PLANER_VIEW_TIMETABLE);
+    }
+
+    return preferredView;
+  }
+
+  /**
+   * Stores the preferred planer view for the passed orientation. We store the preferred view for
+   * landscape and portrait orientation.
+   *
+   * @param orientation the orientation for which the preferred view should be stored
+   * @param view        the preferred view for the passed orientation
+   */
+  public void setPlanerPreferredView(int orientation, String view) {
+    if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+      mPrefs.edit()
+          .putString(PLANER_PREFERRED_PORTRAIT_VIEW, view)
+          .apply();
+    } else {
+      mPrefs.edit()
+          .putString(PLANER_PREFERRED_LANDSCAPE_VIEW, view)
+          .apply();
+    }
+  }
+
+  /**
+   * Returns the user's preferred count of days which should be displayed in the timetable view of
+   * the planer.
+   *
+   * @return The count of days which should be displayed in the timetable view.
+   */
+  public int getPreferredPlanerTimetableViewDayCount() {
+    return mPrefs.getInt(PLANER_PREFERRED_TIMETABLE_DAYS_COUNT, 1);
+  }
+
+  /**
+   * Stores the users preferred count of days which should be displayed in the timetable view of
+   * the planer.
+   *
+   * @param count The user's preferred count of days.
+   */
+  public void setPrefPlanerTimetableViewDayCount(int count) {
+    mPrefs.edit()
+        .putInt(PLANER_PREFERRED_TIMETABLE_DAYS_COUNT, count)
+        .apply();
   }
 }
