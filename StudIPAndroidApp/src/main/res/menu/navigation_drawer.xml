@@ -34,9 +34,10 @@
             android:icon="@drawable/ic_menu_planner"
             android:title="@string/Planner"/>
 
-        <!--<item-->
-            <!--android:id="@+id/navigation_timetable"-->
-            <!--android:icon="@drawable/ic_menu_planner"-->
-            <!--android:title="Timetable"/>-->
     </group>
+
+    <item
+        android:id="@+id/navigation_invalid"
+        android:visible="false"
+        />
 </menu>

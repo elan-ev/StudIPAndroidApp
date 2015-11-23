@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
@@ -163,6 +164,13 @@ public class PlannerFragment extends ProgressListFragment implements
 
   @Override public void onRefresh() {
     requestEvents();
+  }
+
+  public static Fragment newInstance(Bundle args) {
+    PlannerFragment fragment = new PlannerFragment();
+    fragment.setArguments(args);
+
+    return fragment;
   }
 
   private static class EventsAdapter extends BaseAdapter implements StickyListHeadersAdapter {
