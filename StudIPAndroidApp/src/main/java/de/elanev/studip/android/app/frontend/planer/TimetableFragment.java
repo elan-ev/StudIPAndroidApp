@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -58,12 +59,23 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
   private HashMap<String, Pair<Event, Course>> mEventsMap = new HashMap<>();
   private int mOrientation;
   private boolean mListViewShowing = false;
+  private Bundle mArgs;
+  private int mPreferredDayCount = 1;
+
+  public static Fragment newInstance(Bundle args) {
+    TimetableFragment fragment = new TimetableFragment();
+    fragment.setArguments(args);
+
+    return fragment;
+  }
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(true);
     mApiService = new StudIpLegacyApiService(mPrefs.getServer(), getActivity());
     mOrientation = getResources().getConfiguration().orientation;
+    mArgs = getArguments();
+    mPreferredDayCount = mPrefs.getPreferredPlanerTimetableViewDayCount();
   }
 
   @Override public void onResume() {
@@ -100,7 +112,7 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
     });
 
     if (mOrientation == Configuration.ORIENTATION_PORTRAIT) {
-      mWeekView.setNumberOfVisibleDays(1);
+      mWeekView.setNumberOfVisibleDays(mPreferredDayCount);
     } else if (mOrientation == Configuration.ORIENTATION_LANDSCAPE) {
       mWeekView.setNumberOfVisibleDays(7);
     }
@@ -109,7 +121,6 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
 
     super.onActivityCreated(savedInstanceState);
   }
-
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.planer_menu, menu);

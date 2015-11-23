@@ -127,6 +127,10 @@
         <activity
             android:name=".frontend.forums.ForumEntryComposeActivity"/>
 
+        <!-- planer -->
+        <activity
+            android:name=".frontend.planer.PlanerActivity"/>
+
         <!-- RestIpProvider for rest API calls -->
         <provider
             android:name=".backend.provider.RestIpProvider"
