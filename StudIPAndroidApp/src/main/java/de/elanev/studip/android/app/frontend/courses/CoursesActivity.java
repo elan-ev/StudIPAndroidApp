@@ -31,6 +31,8 @@ public class CoursesActivity extends MainActivity {
     fragmentManager.beginTransaction()
         .add(R.id.content_frame, fragment, "courses-fragment")
         .commit();
+
+    overridePendingTransition(0, 0);
   }
 
   @Override protected int getCurrentNavDrawerItem() {

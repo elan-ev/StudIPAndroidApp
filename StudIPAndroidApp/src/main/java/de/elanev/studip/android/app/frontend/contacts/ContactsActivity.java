@@ -19,6 +19,7 @@ import de.elanev.studip.android.app.R;
  * @author joern
  */
 public class ContactsActivity extends MainActivity {
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
@@ -30,6 +31,8 @@ public class ContactsActivity extends MainActivity {
     fragmentManager.beginTransaction()
         .add(R.id.content_frame, fragment, "contacts-fragment")
         .commit();
+
+    overridePendingTransition(0, 0);
   }
 
   @Override protected int getCurrentNavDrawerItem() {

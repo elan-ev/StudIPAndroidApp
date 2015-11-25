@@ -19,16 +19,20 @@ import de.elanev.studip.android.app.R;
  * @author joern
  */
 public class MessagesActivity extends MainActivity {
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
     Bundle args = getFragmentArguments();
     Fragment fragment = MessagesListFragment.newInstance(args);
+
     FragmentManager fragmentManager = getSupportFragmentManager();
     fragmentManager.beginTransaction()
         .add(R.id.content_frame, fragment, "messages-fragment")
         .commit();
+
+    overridePendingTransition(0, 0);
   }
 
   @Override protected int getCurrentNavDrawerItem() {
