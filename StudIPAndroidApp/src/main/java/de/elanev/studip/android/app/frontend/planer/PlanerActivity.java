@@ -10,6 +10,7 @@ package de.elanev.studip.android.app.frontend.planer;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 
 import de.elanev.studip.android.app.MainActivity;
@@ -27,7 +28,7 @@ public class PlanerActivity extends MainActivity {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_planer);
+    setContentView(R.layout.activity_main);
 
     int orientation = getResources().getConfiguration().orientation;
     String preferredView = Prefs.getInstance(this)
@@ -47,6 +48,10 @@ public class PlanerActivity extends MainActivity {
       fragment = TimetableFragment.newInstance(args);
     }
 
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    fragmentManager.beginTransaction()
+        .add(R.id.content_frame, fragment, "planner-fragment")
+        .commit();
   }
 
   @Override protected int getCurrentNavDrawerItem() {

@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -178,5 +179,12 @@ public class ContactsGroupsFragment extends UserListFragment implements
     if (getActivity() != null && errorCode != 404) {
       Toast.makeText(mContext, R.string.sync_error_default, Toast.LENGTH_LONG).show();
     }
+  }
+
+  public static Fragment newInstance(Bundle args) {
+    ContactsGroupsFragment fragment = new ContactsGroupsFragment();
+    fragment.setArguments(args);
+
+    return fragment;
   }
 }
