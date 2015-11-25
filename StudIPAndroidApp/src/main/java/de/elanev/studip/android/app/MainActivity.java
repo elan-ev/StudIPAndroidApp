@@ -8,12 +8,13 @@
 package de.elanev.studip.android.app;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -51,15 +52,14 @@ import de.elanev.studip.android.app.widget.UserDetailsActivity;
 public class MainActivity extends AppCompatActivity implements
     NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
   public static final String TAG = MainActivity.class.getSimpleName();
-  private static final String ACTIVE_NAVIGATION_ITEM = "active_navi_item";
-  private static int mSelectedNavItem = R.id.navigation_news;
+  private static int mSelectedNavItem = R.id.navigation_invalid;
   private DrawerLayout mDrawerLayout;
   private ActionBarDrawerToggle mDrawerToggle;
   private String mUserId;
   private User mCurrentUser;
-  private boolean isPaused;
   private NavigationView mNavigationView;
   private View mHeaderView;
+  private Handler mHandler;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.main, menu);
@@ -148,19 +148,19 @@ public class MainActivity extends AppCompatActivity implements
     super.onBackPressed();
   }
 
-  @Override protected void onPause() {
-    super.onPause();
-    isPaused = true;
+  @Override protected void onResume() {
+    super.onResume();
+    selectNavItem();
   }
 
-  @Override protected void onSaveInstanceState(Bundle outState) {
-    outState.putInt(ACTIVE_NAVIGATION_ITEM, mSelectedNavItem);
-    super.onSaveInstanceState(outState);
+  private void selectNavItem() {
+    mNavigationView.getMenu()
+        .findItem(getCurrentNavDrawerItem())
+        .setChecked(true);
   }
 
-  @Override protected void onStart() {
-    super.onStart();
-    isPaused = false;
+  protected int getCurrentNavDrawerItem() {
+    return R.id.navigation_invalid;
   }
 
   @Override protected void onCreate(Bundle savedInstanceState) {
@@ -176,6 +176,8 @@ public class MainActivity extends AppCompatActivity implements
       finish();
       return;
     }
+
+    mHandler = new Handler();
 
     // Verify that the forum routes are still activated
     //TODO: Move this and other API checks to a Service or something, but not here
@@ -193,18 +195,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     initNavigation();
-
-//    if (savedInstanceState == null) {
-//      navigateTo(mSelectedNavItem);
-//      mNavigationView.getMenu()
-//          .findItem(mSelectedNavItem)
-//          .setChecked(true);
-//    } else {
-//      navigateTo(mSelectedNavItem);
-//      mNavigationView.getMenu()
-//          .findItem(savedInstanceState.getInt(ACTIVE_NAVIGATION_ITEM))
-//          .setChecked(true);
-//    }
   }
 
   @Override protected void onPostCreate(Bundle savedInstanceState) {
@@ -218,11 +208,6 @@ public class MainActivity extends AppCompatActivity implements
     super.setContentView(layoutResID);
     initToolbar();
   }
-
-//  @Override public void onConfigurationChanged(Configuration newConfig) {
-//    super.onConfigurationChanged(newConfig);
-//    mDrawerToggle.onConfigurationChanged(newConfig);
-//  }
 
   private void initToolbar() {
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -254,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements
     mNavigationView.setNavigationItemSelectedListener(this);
 
     setNavHeaderInformation();
+    selectNavItem();
   }
 
   private void setNavHeaderInformation() {
@@ -273,6 +259,45 @@ public class MainActivity extends AppCompatActivity implements
     } else {
       mHeaderView.setVisibility(View.GONE);
     }
+  }
+
+  protected Bundle getFragmentArguments() {
+    Bundle args = new Bundle();
+    Intent intent = getIntent();
+
+    if (intent == null) {
+      return args;
+    }
+
+    final Bundle intentExtras = intent.getExtras();
+    if (intentExtras != null) {
+      args.putAll(intentExtras);
+    }
+
+    return args;
+  }
+
+  @Override public boolean onNavigationItemSelected(final android.view.MenuItem menuItem) {
+    menuItem.setChecked(true);
+
+    mHandler.postDelayed(new Runnable() {
+      @Override public void run() {
+        navigateTo(menuItem.getItemId());
+      }
+    }, 250);
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+      // fade out the main content
+      View content = findViewById(R.id.content_frame);
+      if (content != null) {
+        content.animate()
+            .alpha(0)
+            .setDuration(150);
+      }
+    }
+    mDrawerLayout.closeDrawer(GravityCompat.START);
+
+    return false;
   }
 
   private void navigateTo(int itemId) {
@@ -296,46 +321,11 @@ public class MainActivity extends AppCompatActivity implements
       case R.id.navigation_planner:
         startActivity(new Intent(this, PlanerActivity.class));
         return;
-
-      default:
-        startActivity(new Intent(this, NewsActivity.class));
-        return;
     }
-  }
-
-  protected Bundle getFragmentArguments() {
-    Bundle args = new Bundle();
-    Intent intent = getIntent();
-
-    if (intent == null) {
-      return args;
-    }
-
-    final Bundle intentExtras = intent.getExtras();
-    if (intentExtras != null) {
-      args.putAll(intentExtras);
-    }
-
-    return args;
-  }
-
-  protected int getCurrentNavDrawerItem() {
-    return R.id.navigation_invalid;
-  }
-
-  @Override public boolean onNavigationItemSelected(android.view.MenuItem menuItem) {
-    if (!isPaused) {
-      menuItem.setChecked(true);
-      mSelectedNavItem = menuItem.getItemId();
-      navigateTo(mSelectedNavItem);
-      mDrawerLayout.closeDrawers();
-    }
-
-    return false;
   }
 
   @Override public void onClick(View v) {
-    if (mUserId != null && !isPaused) {
+    if (mUserId != null) {
       Intent intent = new Intent(this, UserDetailsActivity.class);
       intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
       startActivity(intent);
