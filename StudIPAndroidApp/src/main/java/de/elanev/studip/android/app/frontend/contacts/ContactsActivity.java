@@ -9,8 +9,6 @@
 package de.elanev.studip.android.app.frontend.contacts;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
@@ -20,22 +18,14 @@ import de.elanev.studip.android.app.R;
  */
 public class ContactsActivity extends MainActivity {
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
-
-    Bundle args = getFragmentArguments();
-    Fragment fragment = ContactsGroupsFragment.newInstance(args);
-
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    fragmentManager.beginTransaction()
-        .add(R.id.content_frame, fragment, "contacts-fragment")
-        .commit();
-
-    overridePendingTransition(0, 0);
-  }
-
   @Override protected int getCurrentNavDrawerItem() {
     return R.id.navigation_contacts;
+  }
+
+  @Override protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_contacts);
+
+    overridePendingTransition(0, 0);
   }
 }
