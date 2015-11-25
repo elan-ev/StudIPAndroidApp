@@ -9,8 +9,6 @@
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
@@ -20,22 +18,14 @@ import de.elanev.studip.android.app.R;
  */
 public class CoursesActivity extends MainActivity {
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
-
-    Bundle args = getFragmentArguments();
-    Fragment fragment = CoursesFragment.newInstance(args);
-
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    fragmentManager.beginTransaction()
-        .add(R.id.content_frame, fragment, "courses-fragment")
-        .commit();
-
-    overridePendingTransition(0, 0);
-  }
-
   @Override protected int getCurrentNavDrawerItem() {
     return R.id.navigation_courses;
+  }
+
+  @Override protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_course);
+
+    overridePendingTransition(0, 0);
   }
 }
