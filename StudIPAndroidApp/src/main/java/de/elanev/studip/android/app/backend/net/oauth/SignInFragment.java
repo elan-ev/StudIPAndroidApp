@@ -53,6 +53,7 @@ import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.DatabaseHandler;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
+import de.elanev.studip.android.app.frontend.news.NewsActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.ServerData;
@@ -264,7 +265,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
    * Starts the next activity after prefetching.
    */
   public void startMainActivity() {
-    Intent intent = new Intent(getActivity(), MainActivity.class);
+    Intent intent = new Intent(getActivity(), NewsActivity.class);
     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
