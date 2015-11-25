@@ -35,6 +35,7 @@ public class PlanerActivity extends MainActivity {
         .getPreferredPlanerView(orientation);
 
     initFragment(preferredView);
+    overridePendingTransition(0, 0);
   }
 
   private void initFragment(String preferredView) {
