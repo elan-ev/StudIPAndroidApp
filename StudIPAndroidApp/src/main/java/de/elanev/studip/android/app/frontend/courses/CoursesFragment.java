@@ -16,6 +16,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -189,6 +190,13 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
       }
       mSwipeRefreshLayoutListView.setRefreshing(false);
     }
+  }
+
+  public static Fragment newInstance(Bundle args) {
+    CoursesFragment fragment = new CoursesFragment();
+    fragment.setArguments(args);
+
+    return fragment;
   }
 
   /*
