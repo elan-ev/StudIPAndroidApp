@@ -223,6 +223,7 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="week_view">Wochenansicht</string>
     <string name="day_view">Tag Ansicht</string>
     <string name="list_view">Listenansicht</string>
+    <string name="timetable">Stundenplan</string>
 
     <!-- Profile -->
     <string name="Profile">Profil</string>
