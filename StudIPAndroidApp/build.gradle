@@ -14,8 +14,8 @@ def versionPatch = 21 // max. 99
 
 // Beta- and Alpha-Release versioning
 def versionMajorBeta = 1 // max. 9
-def versionMinorBeta = 0 // max. 99
-def versionPatchBeta = 10 // max. 99
+def versionMinorBeta = 1 // max. 99
+def versionPatchBeta = 2 // max. 99
 
 buildscript {
 
@@ -37,7 +37,7 @@ repositories {
 
 dependencies {
   // Crashlytics Kit
-  compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
+  compile('com.crashlytics.sdk.android:crashlytics:2.5.3@aar') {
     transitive = true
   }
   // Android Support Libs
@@ -96,7 +96,7 @@ android {
   }
 
   compileSdkVersion 23
-  buildToolsVersion "23.0.1"
+  buildToolsVersion '23.0.2'
 
   signingConfigs {
     release
