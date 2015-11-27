@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.frontend.planer;
+package de.elanev.studip.android.app.frontend.planner;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,11 +20,15 @@ import de.elanev.studip.android.app.util.Prefs;
 /**
  * @author joern
  */
-public class PlanerActivity extends MainActivity {
+public class PlannerActivity extends MainActivity {
 
-  public static final String PLANER_VIEW_TIMETABLE = "planer-view-timetable";
-  public static final String PLANER_VIEW_LIST = "planer-view-list";
-  private static final String PLANER_PREFERRED_VIEW = "preferred-view";
+  public static final String PLANNER_VIEW_TIMETABLE = "planner-view-timetable";
+  public static final String PLANNER_VIEW_LIST = "planner-view-list";
+  private static final String PLANNER_PREFERRED_VIEW = "planner-preferred-view";
+
+  @Override protected int getCurrentNavDrawerItem() {
+    return R.id.navigation_planner;
+  }
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -32,7 +36,7 @@ public class PlanerActivity extends MainActivity {
 
     int orientation = getResources().getConfiguration().orientation;
     String preferredView = Prefs.getInstance(this)
-        .getPreferredPlanerView(orientation);
+        .getPreferredPlannerView(orientation);
 
     initFragment(preferredView);
     overridePendingTransition(0, 0);
@@ -40,22 +44,18 @@ public class PlanerActivity extends MainActivity {
 
   private void initFragment(String preferredView) {
     Bundle args = new Bundle();
-    args.putString(PLANER_PREFERRED_VIEW, preferredView);
+    args.putString(PLANNER_PREFERRED_VIEW, preferredView);
 
     Fragment fragment;
-    if (TextUtils.equals(preferredView, PLANER_VIEW_LIST)) {
-      fragment = PlannerFragment.newInstance(args);
+    if (TextUtils.equals(preferredView, PLANNER_VIEW_LIST)) {
+      fragment = PlannerListFragment.newInstance(args);
     } else {
-      fragment = TimetableFragment.newInstance(args);
+      fragment = PlannerTimetableFragment.newInstance(args);
     }
 
     FragmentManager fragmentManager = getSupportFragmentManager();
     fragmentManager.beginTransaction()
         .add(R.id.content_frame, fragment, "planner-fragment")
         .commit();
-  }
-
-  @Override protected int getCurrentNavDrawerItem() {
-    return R.id.navigation_planner;
   }
 }

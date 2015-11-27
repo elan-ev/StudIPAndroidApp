@@ -18,7 +18,7 @@ import android.net.Uri;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AuthenticationContract;
-import de.elanev.studip.android.app.frontend.planer.PlanerActivity;
+import de.elanev.studip.android.app.frontend.planner.PlannerActivity;
 
 
 /**
@@ -40,9 +40,9 @@ public class Prefs {
   private static final String API_SETTINGS_STRING = "apiSettingsString";
   private static final String ALLOW_MOBILE_DATA = "allowMobileData";
   private static final String USER_INFO = "currentUserInfo";
-  private static final String PLANER_PREFERRED_PORTRAIT_VIEW = "planerPreferredPortraitView";
-  private static final String PLANER_PREFERRED_LANDSCAPE_VIEW = "planerPreferredLandscapeView";
-  private static final String PLANER_PREFERRED_TIMETABLE_DAYS_COUNT = "planerPreferredTimetableViewDayCount";
+  private static final String PLANNER_PREFERRED_PORTRAIT_VIEW = "plannerPreferredPortraitView";
+  private static final String PLANNER_PREFERRED_LANDSCAPE_VIEW = "plannerPreferredLandscapeView";
+  private static final String PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT = "plannerPreferredTimetableViewDayCount";
   private static Prefs sInstance;
   private Context mContext;
   private SharedPreferences mPrefs;
@@ -386,64 +386,64 @@ public class Prefs {
   }
 
   /**
-   * Returns the users preferred planer view based on the passed orientation of the devices. We
+   * Returns the users preferred planner view based on the passed orientation of the devices. We
    * store
    * the preferred view of the landscape and portrait orientation.
    *
    * @param orientation orientation for which the preferred view should be returned
-   * @return the preferred view of the planer for the passed orientation
+   * @return the preferred view of the planner for the passed orientation
    */
-  public String getPreferredPlanerView(int orientation) {
+  public String getPreferredPlannerView(int orientation) {
     String preferredView;
     if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-      preferredView = mPrefs.getString(PLANER_PREFERRED_PORTRAIT_VIEW,
-          PlanerActivity.PLANER_VIEW_LIST);
+      preferredView = mPrefs.getString(PLANNER_PREFERRED_PORTRAIT_VIEW,
+          PlannerActivity.PLANNER_VIEW_LIST);
     } else {
-      preferredView = mPrefs.getString(PLANER_PREFERRED_LANDSCAPE_VIEW,
-          PlanerActivity.PLANER_VIEW_TIMETABLE);
+      preferredView = mPrefs.getString(PLANNER_PREFERRED_LANDSCAPE_VIEW,
+          PlannerActivity.PLANNER_VIEW_TIMETABLE);
     }
 
     return preferredView;
   }
 
   /**
-   * Stores the preferred planer view for the passed orientation. We store the preferred view for
+   * Stores the preferred planner view for the passed orientation. We store the preferred view for
    * landscape and portrait orientation.
    *
    * @param orientation the orientation for which the preferred view should be stored
    * @param view        the preferred view for the passed orientation
    */
-  public void setPlanerPreferredView(int orientation, String view) {
+  public void setPlannerPreferredView(int orientation, String view) {
     if (orientation == Configuration.ORIENTATION_PORTRAIT) {
       mPrefs.edit()
-          .putString(PLANER_PREFERRED_PORTRAIT_VIEW, view)
+          .putString(PLANNER_PREFERRED_PORTRAIT_VIEW, view)
           .apply();
     } else {
       mPrefs.edit()
-          .putString(PLANER_PREFERRED_LANDSCAPE_VIEW, view)
+          .putString(PLANNER_PREFERRED_LANDSCAPE_VIEW, view)
           .apply();
     }
   }
 
   /**
    * Returns the user's preferred count of days which should be displayed in the timetable view of
-   * the planer.
+   * the planner.
    *
    * @return The count of days which should be displayed in the timetable view.
    */
-  public int getPreferredPlanerTimetableViewDayCount() {
-    return mPrefs.getInt(PLANER_PREFERRED_TIMETABLE_DAYS_COUNT, 1);
+  public int getPreferredPlannerTimetableViewDayCount() {
+    return mPrefs.getInt(PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT, 1);
   }
 
   /**
    * Stores the users preferred count of days which should be displayed in the timetable view of
-   * the planer.
+   * the planner.
    *
    * @param count The user's preferred count of days.
    */
-  public void setPrefPlanerTimetableViewDayCount(int count) {
+  public void setPrefPlannerTimetableViewDayCount(int count) {
     mPrefs.edit()
-        .putInt(PLANER_PREFERRED_TIMETABLE_DAYS_COUNT, count)
+        .putInt(PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT, count)
         .apply();
   }
 }

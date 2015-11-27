@@ -37,7 +37,7 @@ import de.elanev.studip.android.app.frontend.contacts.ContactsActivity;
 import de.elanev.studip.android.app.frontend.courses.CoursesActivity;
 import de.elanev.studip.android.app.frontend.messages.MessagesActivity;
 import de.elanev.studip.android.app.frontend.news.NewsActivity;
-import de.elanev.studip.android.app.frontend.planer.PlanerActivity;
+import de.elanev.studip.android.app.frontend.planner.PlannerActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
@@ -319,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements
         return;
 
       case R.id.navigation_planner:
-        startActivity(new Intent(this, PlanerActivity.class));
+        startActivity(new Intent(this, PlannerActivity.class));
         return;
     }
   }
