@@ -51,14 +51,14 @@ import rx.schedulers.Schedulers;
 /**
  * @author joern
  */
-public class PlannerTimetableFragment extends ReactiveFragment implements WeekView.MonthChangeListener {
+public class PlannerTimetableFragment extends ReactiveFragment implements
+    WeekView.MonthChangeListener, PlannerFragment {
   private static final String TAG = PlannerTimetableFragment.class.getSimpleName();
   StudIpLegacyApiService mApiService;
   Prefs mPrefs = Prefs.getInstance(getActivity());
   private WeekView mWeekView;
   private HashMap<String, Pair<Event, Course>> mEventsMap = new HashMap<>();
   private int mOrientation;
-  private boolean mListViewShowing = false;
   private Bundle mArgs;
   private int mPreferredDayCount = 1;
 
@@ -84,7 +84,7 @@ public class PlannerTimetableFragment extends ReactiveFragment implements WeekVi
     scrollToCurrentTime();
   }
 
-  private void scrollToCurrentTime() {
+  @Override public void scrollToCurrentTime() {
     mWeekView.goToToday();
     mWeekView.goToHour(Calendar.getInstance(Locale.getDefault())
         .get(Calendar.HOUR_OF_DAY));
@@ -120,60 +120,6 @@ public class PlannerTimetableFragment extends ReactiveFragment implements WeekVi
     loadData();
 
     super.onActivityCreated(savedInstanceState);
-  }
-
-  @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.planer_menu, menu);
-
-    super.onCreateOptionsMenu(menu, inflater);
-  }
-
-  @Override public void onPrepareOptionsMenu(Menu menu) {
-    int currentlyVisisleDays = mWeekView.getNumberOfVisibleDays();
-    if (currentlyVisisleDays == 1) {
-      menu.findItem(R.id.planer_day)
-          .setChecked(true);
-    } else if (currentlyVisisleDays == 3) {
-      menu.findItem(R.id.planer_three_days)
-          .setChecked(true);
-    } else if (currentlyVisisleDays == 7) {
-      menu.findItem(R.id.planer_week)
-          .setChecked(true);
-    } else if (mListViewShowing) {
-      menu.findItem(R.id.planer_list)
-          .setChecked(true);
-    }
-
-    super.onPrepareOptionsMenu(menu);
-  }
-
-  @Override public boolean onOptionsItemSelected(MenuItem item) {
-    if (item.isCheckable() && item.isChecked()) {
-      item.setChecked(false);
-    } else {
-      item.setChecked(true);
-    }
-
-    switch (item.getItemId()) {
-      case R.id.planer_goto_today:
-        scrollToCurrentTime();
-        return true;
-      case R.id.planer_three_days:
-        mWeekView.setNumberOfVisibleDays(3);
-        return true;
-      case R.id.planer_week:
-        mWeekView.setNumberOfVisibleDays(7);
-        return true;
-      case R.id.planer_day:
-        mWeekView.setNumberOfVisibleDays(1);
-        return true;
-      case R.id.planer_list:
-        Toast.makeText(getContext(), "TODO", Toast.LENGTH_SHORT)
-            .show();
-        return true;
-    }
-
-    return super.onOptionsItemSelected(item);
   }
 
   private String localizeDate(Calendar date) {
@@ -219,6 +165,53 @@ public class PlannerTimetableFragment extends ReactiveFragment implements WeekVi
 
   private void addEvent(Pair<Event, Course> eventCoursePair) {
     mEventsMap.put(eventCoursePair.first.event_id, eventCoursePair);
+  }
+
+  @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
+
+    inflater.inflate(R.menu.planner_timetable_menu, menu);
+  }
+
+  @Override public void onPrepareOptionsMenu(Menu menu) {
+    int currentlyVisibleDays = mWeekView.getNumberOfVisibleDays();
+    if (currentlyVisibleDays == 1) {
+      menu.findItem(R.id.planner_day)
+          .setChecked(true);
+    } else if (currentlyVisibleDays == 3) {
+      menu.findItem(R.id.planner_three_days)
+          .setChecked(true);
+    } else if (currentlyVisibleDays == 7) {
+      menu.findItem(R.id.planner_week)
+          .setChecked(true);
+    }
+
+    super.onPrepareOptionsMenu(menu);
+  }
+
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.isCheckable() && item.isChecked()) {
+      item.setChecked(false);
+    } else {
+      item.setChecked(true);
+    }
+
+    switch (item.getItemId()) {
+      case R.id.planner_three_days:
+        Prefs.getInstance(getContext()).setPrefPlannerTimetableViewDayCount(3);
+        mWeekView.setNumberOfVisibleDays(3);
+        return true;
+      case R.id.planner_week:
+        Prefs.getInstance(getContext()).setPrefPlannerTimetableViewDayCount(7);
+        mWeekView.setNumberOfVisibleDays(7);
+        return true;
+      case R.id.planner_day:
+        Prefs.getInstance(getContext()).setPrefPlannerTimetableViewDayCount(1);
+        mWeekView.setNumberOfVisibleDays(1);
+        return true;
+    }
+
+    return super.onOptionsItemSelected(item);
   }
 
   @Override public List<WeekViewEvent> onMonthChange(int newYear, int newMonth) {

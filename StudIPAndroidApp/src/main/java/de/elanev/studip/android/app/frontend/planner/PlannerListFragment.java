@@ -18,6 +18,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -64,7 +67,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  *         In Stud.IP known as Planner.
  */
 public class PlannerListFragment extends ProgressListFragment implements
-    AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+    AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, PlannerFragment {
 
   private static final String TAG = PlannerListFragment.class.getSimpleName();
 
@@ -94,6 +97,7 @@ public class PlannerListFragment extends ProgressListFragment implements
     super.onActivityCreated(savedInstanceState);
     getActivity().setTitle(R.string.Planner);
     setEmptyMessage(R.string.no_schedule);
+    setHasOptionsMenu(true);
 
     mAdapter = new EventsAdapter(mContext);
     mListView.setOnItemClickListener(this);
@@ -105,6 +109,12 @@ public class PlannerListFragment extends ProgressListFragment implements
   @Override public void onStart() {
     super.onStart();
     requestEvents();
+  }
+
+  @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.planner_listview_menu, menu);
+
+    super.onCreateOptionsMenu(menu, inflater);
   }
 
   private void requestEvents() {
@@ -167,6 +177,10 @@ public class PlannerListFragment extends ProgressListFragment implements
 
   @Override public void onRefresh() {
     requestEvents();
+  }
+
+  @Override public void scrollToCurrentTime() {
+    //TODO
   }
 
   private static class EventsAdapter extends BaseAdapter implements StickyListHeadersAdapter {
