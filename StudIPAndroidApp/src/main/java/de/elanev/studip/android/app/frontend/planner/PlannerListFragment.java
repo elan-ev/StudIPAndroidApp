@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.frontend.planer;
+package de.elanev.studip.android.app.frontend.planner;
 
 import android.content.Context;
 import android.content.Intent;
@@ -63,16 +63,16 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  *         Fragment for showing data related to the /events route of the api.
  *         In Stud.IP known as Planner.
  */
-public class PlannerFragment extends ProgressListFragment implements
+public class PlannerListFragment extends ProgressListFragment implements
     AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
-  private static final String TAG = PlannerFragment.class.getSimpleName();
+  private static final String TAG = PlannerListFragment.class.getSimpleName();
 
   private String mEventsRoute;
   private Server mServer;
   private EventsAdapter mAdapter;
 
-  public PlannerFragment() {}
+  public PlannerListFragment() {}
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -167,7 +167,7 @@ public class PlannerFragment extends ProgressListFragment implements
   }
 
   public static Fragment newInstance(Bundle args) {
-    PlannerFragment fragment = new PlannerFragment();
+    PlannerListFragment fragment = new PlannerListFragment();
     fragment.setArguments(args);
 
     return fragment;

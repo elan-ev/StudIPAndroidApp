@@ -105,7 +105,7 @@
 
         <!-- Planer -->
         <activity
-            android:name=".frontend.planer.PlanerActivity"/>
+            android:name=".frontend.planner.PlannerActivity"/>
 
         <!-- SignIn -->
         <activity

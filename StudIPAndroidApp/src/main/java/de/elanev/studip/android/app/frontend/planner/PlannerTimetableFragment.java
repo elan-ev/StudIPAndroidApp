@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.frontend.planer;
+package de.elanev.studip.android.app.frontend.planner;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -51,8 +51,8 @@ import rx.schedulers.Schedulers;
 /**
  * @author joern
  */
-public class TimetableFragment extends ReactiveFragment implements WeekView.MonthChangeListener {
-  private static final String TAG = TimetableFragment.class.getSimpleName();
+public class PlannerTimetableFragment extends ReactiveFragment implements WeekView.MonthChangeListener {
+  private static final String TAG = PlannerTimetableFragment.class.getSimpleName();
   StudIpLegacyApiService mApiService;
   Prefs mPrefs = Prefs.getInstance(getActivity());
   private WeekView mWeekView;
@@ -63,7 +63,7 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
   private int mPreferredDayCount = 1;
 
   public static Fragment newInstance(Bundle args) {
-    TimetableFragment fragment = new TimetableFragment();
+    PlannerTimetableFragment fragment = new PlannerTimetableFragment();
     fragment.setArguments(args);
 
     return fragment;
@@ -75,7 +75,7 @@ public class TimetableFragment extends ReactiveFragment implements WeekView.Mont
     mApiService = new StudIpLegacyApiService(mPrefs.getServer(), getActivity());
     mOrientation = getResources().getConfiguration().orientation;
     mArgs = getArguments();
-    mPreferredDayCount = mPrefs.getPreferredPlanerTimetableViewDayCount();
+    mPreferredDayCount = mPrefs.getPreferredPlannerTimetableViewDayCount();
   }
 
   @Override public void onResume() {
