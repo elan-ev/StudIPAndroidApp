@@ -23,7 +23,7 @@ import de.elanev.studip.android.app.util.Prefs;
  * @author joern
  */
 public class PlannerActivity extends MainActivity {
-
+  private static final String TAG = PlannerActivity.class.getSimpleName();
   public static final String PLANNER_VIEW_TIMETABLE = "planner-view-timetable";
   public static final String PLANNER_VIEW_LIST = "planner-view-list";
   private static final String PLANNER_PREFERRED_VIEW = "planner-preferred-view";
@@ -79,9 +79,8 @@ public class PlannerActivity extends MainActivity {
   private void initFragment(String preferredView) {
     Bundle args = new Bundle();
     args.putString(PLANNER_PREFERRED_VIEW, preferredView);
-
-    FragmentManager fragmentManager = getSupportFragmentManager();
     Fragment fragment;
+    FragmentManager fragmentManager = getSupportFragmentManager();
     if (TextUtils.equals(preferredView, PLANNER_VIEW_LIST)) {
       fragment = PlannerListFragment.newInstance(args);
     } else {
