@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -51,7 +52,7 @@ import de.elanev.studip.android.app.widget.UserDetailsActivity;
  */
 public class MainActivity extends AppCompatActivity implements
     NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
-  public static final String TAG = MainActivity.class.getSimpleName();
+  private static final String TAG = MainActivity.class.getSimpleName();
   private static int mSelectedNavItem = R.id.navigation_invalid;
   private DrawerLayout mDrawerLayout;
   private ActionBarDrawerToggle mDrawerToggle;
@@ -202,6 +203,19 @@ public class MainActivity extends AppCompatActivity implements
     // Sync the toggle state after onRestoreInstanceState has occurred.
     initNavigation();
     mDrawerToggle.syncState();
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+      // Fade content back in
+      View content = findViewById(R.id.content_frame);
+      if (content != null) {
+        content.setAlpha(0);
+        content.animate()
+            .alpha(1)
+            .setDuration(250);
+      } else {
+        Log.w(TAG, "No view with ID main_content to fade in.");
+      }
+    }
   }
 
   @Override public void setContentView(@LayoutRes int layoutResID) {
@@ -304,23 +318,34 @@ public class MainActivity extends AppCompatActivity implements
 
     switch (itemId) {
       case R.id.navigation_news:
-        startActivity(new Intent(this, NewsActivity.class));
+        startActivityWithNewTask(new Intent(this, NewsActivity.class));
         return;
       case R.id.navigation_courses:
-        startActivity(new Intent(this, CoursesActivity.class));
+        startActivityWithNewTask(new Intent(this, CoursesActivity.class));
         return;
 
       case R.id.navigation_messages:
-        startActivity(new Intent(this, MessagesActivity.class));
+        startActivityWithNewTask(new Intent(this, MessagesActivity.class));
         return;
 
       case R.id.navigation_contacts:
-        startActivity(new Intent(this, ContactsActivity.class));
+        startActivityWithNewTask(new Intent(this, ContactsActivity.class));
         return;
 
       case R.id.navigation_planner:
-        startActivity(new Intent(this, PlannerActivity.class));
+        startActivityWithNewTask(new Intent(this, PlannerActivity.class));
         return;
+    }
+  }
+
+  private void startActivityWithNewTask(Intent intent) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      TaskStackBuilder builder = TaskStackBuilder.create(this);
+      builder.addNextIntentWithParentStack(intent);
+      builder.startActivities();
+    } else {
+      startActivity(intent);
+      finish();
     }
   }
 
