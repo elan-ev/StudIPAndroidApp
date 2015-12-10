@@ -8,11 +8,14 @@
 
 package de.elanev.studip.android.app.frontend.planner;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -28,19 +31,19 @@ import android.widget.Toast;
 import com.alamkanak.weekview.DateTimeInterpreter;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
+import com.fernandocejas.frodo.annotation.RxLogSubscriber;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.Event;
+import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.frontend.courses.CourseViewActivity;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ReactiveFragment;
 import rx.Observable;
@@ -52,15 +55,18 @@ import rx.schedulers.Schedulers;
  * @author joern
  */
 public class PlannerTimetableFragment extends ReactiveFragment implements
-    WeekView.MonthChangeListener, PlannerFragment {
+    WeekView.MonthChangeListener, WeekView.EventClickListener, PlannerFragment {
   private static final String TAG = PlannerTimetableFragment.class.getSimpleName();
+  private static final String SCROLL_POSITION_X = "scroll-position-x";
+  private static final String SCROLL_POSTIION_Y = "scroll-position-y";
   StudIpLegacyApiService mApiService;
   Prefs mPrefs = Prefs.getInstance(getActivity());
   private WeekView mWeekView;
-  private HashMap<String, Pair<Event, Course>> mEventsMap = new HashMap<>();
   private int mOrientation;
   private Bundle mArgs;
   private int mPreferredDayCount = 1;
+  private ArrayList<Event> mEventsMap = new ArrayList<>();
+  private ArrayMap<String, Course> mCoursesMap = new ArrayMap<>();
 
   public static Fragment newInstance(Bundle args) {
     PlannerTimetableFragment fragment = new PlannerTimetableFragment();
@@ -78,16 +84,51 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
     mPreferredDayCount = mPrefs.getPreferredPlannerTimetableViewDayCount();
   }
 
+  @Override public void onStart() {
+    super.onStart();
+
+    loadData();
+  }
+
   @Override public void onResume() {
     super.onResume();
 
-    scrollToCurrentTime();
+    if (!mRecreated) scrollToCurrentTime();
+    Log.d(TAG, "Recreated: " + mRecreated);
   }
 
   @Override public void scrollToCurrentTime() {
     mWeekView.goToToday();
     mWeekView.goToHour(Calendar.getInstance(Locale.getDefault())
         .get(Calendar.HOUR_OF_DAY));
+  }
+
+  private void loadData() {
+    Observable<Pair<Event, Course>> events = mApiService.getEvents();
+    EventsSubscriber subscriber = new EventsSubscriber();
+
+    mCompositeSubscription.add(bind(events)
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .toList()
+        .subscribe(subscriber));
+  }
+
+  private void addEvents(List<Pair<Event, Course>> pairList) {
+    if (pairList == null) {
+      return;
+    }
+
+    mEventsMap.clear();
+
+    for (int i = 0; i <= pairList.size(); i++) {
+      Pair<Event, Course> eventCoursePair = pairList.get(i);
+      mEventsMap.add(eventCoursePair.first);
+
+      if (eventCoursePair.second != null) {
+        mCoursesMap.put(eventCoursePair.second.courseId, eventCoursePair.second);
+      }
+    }
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -101,6 +142,7 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
   @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     getActivity().setTitle(R.string.Planner);
     mWeekView.setMonthChangeListener(this);
+    mWeekView.setOnEventClickListener(this);
     mWeekView.setDateTimeInterpreter(new DateTimeInterpreter() {
       @Override public String interpretDate(Calendar date) {
         return localizeDate(date);
@@ -117,54 +159,21 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
       mWeekView.setNumberOfVisibleDays(7);
     }
 
-    loadData();
+    if (savedInstanceState == null) {
+      scrollToCurrentTime();
+    }
 
     super.onActivityCreated(savedInstanceState);
   }
 
-  private String localizeDate(Calendar date) {
-    String formattedDate;
+  @Override public void onSaveInstanceState(Bundle outState) {
+    int scrollPositionX = mWeekView.getScrollX();
+    int scrollPositionY = mWeekView.getScrollY();
 
-    if (mOrientation == Configuration.ORIENTATION_PORTRAIT
-        && mWeekView.getNumberOfVisibleDays() > 3) {
-      formattedDate = DateUtils.formatDateTime(getActivity(), date.getTimeInMillis(),
-          DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_NO_YEAR);
-    } else {
-      formattedDate = DateUtils.formatDateTime(getActivity(), date.getTimeInMillis(),
-          DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE
-              | DateUtils.FORMAT_ABBREV_WEEKDAY | DateUtils.FORMAT_NO_YEAR);
-    }
+    outState.putInt(SCROLL_POSITION_X, scrollPositionX);
+    outState.putInt(SCROLL_POSTIION_Y, scrollPositionY);
 
-    return formattedDate;
-  }
-
-  private String localizeHour(int hour) {
-    return String.valueOf(hour);
-  }
-
-  private void loadData() {
-    Observable<Pair<Event, Course>> listObservable = mApiService.getEvents();
-    mCompositeSubscription.add(bind(listObservable).subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<Pair<Event, Course>>() {
-          @Override public void onCompleted() {
-            mWeekView.notifyDatasetChanged();
-          }
-
-          @Override public void onError(Throwable e) {
-            Log.e(TAG, e.getLocalizedMessage());
-            Toast.makeText(getContext(), R.string.error_loading_events, Toast.LENGTH_LONG)
-                .show();
-          }
-
-          @Override public void onNext(Pair<Event, Course> eventCoursePair) {
-            addEvent(eventCoursePair);
-          }
-        }));
-  }
-
-  private void addEvent(Pair<Event, Course> eventCoursePair) {
-    mEventsMap.put(eventCoursePair.first.event_id, eventCoursePair);
+    super.onSaveInstanceState(outState);
   }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -198,15 +207,18 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
 
     switch (item.getItemId()) {
       case R.id.planner_three_days:
-        Prefs.getInstance(getContext()).setPrefPlannerTimetableViewDayCount(3);
+        Prefs.getInstance(getContext())
+            .setPrefPlannerTimetableViewDayCount(3);
         mWeekView.setNumberOfVisibleDays(3);
         return true;
       case R.id.planner_week:
-        Prefs.getInstance(getContext()).setPrefPlannerTimetableViewDayCount(7);
+        Prefs.getInstance(getContext())
+            .setPrefPlannerTimetableViewDayCount(7);
         mWeekView.setNumberOfVisibleDays(7);
         return true;
       case R.id.planner_day:
-        Prefs.getInstance(getContext()).setPrefPlannerTimetableViewDayCount(1);
+        Prefs.getInstance(getContext())
+            .setPrefPlannerTimetableViewDayCount(1);
         mWeekView.setNumberOfVisibleDays(1);
         return true;
     }
@@ -214,7 +226,37 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
     return super.onOptionsItemSelected(item);
   }
 
+  private String localizeDate(Calendar date) {
+    String formattedDate;
+
+    if (mOrientation == Configuration.ORIENTATION_PORTRAIT
+        && mWeekView.getNumberOfVisibleDays() > 3) {
+      formattedDate = DateUtils.formatDateTime(getActivity(), date.getTimeInMillis(),
+          DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_NO_YEAR);
+    } else {
+      formattedDate = DateUtils.formatDateTime(getActivity(), date.getTimeInMillis(),
+          DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE
+              | DateUtils.FORMAT_ABBREV_WEEKDAY | DateUtils.FORMAT_NO_YEAR);
+    }
+
+    return formattedDate;
+  }
+
+  private String localizeHour(int hour) {
+    return String.valueOf(hour);
+  }
+
   @Override public List<WeekViewEvent> onMonthChange(int newYear, int newMonth) {
+
+    //TODO: Enable dynamic month and year display when the following is fixed
+    //FIXME: The currently visible month is not changed correctly,
+    // check wether it's an issue with the calendar view or not
+
+    //    Log.d(TAG, "Current Month: " + newMonth + " " + newYear);
+    //    SimpleDateFormat month_date = new SimpleDateFormat("MMMM", Locale.getDefault());
+    //    String monthName = month_date.format(newMonth);
+    //    getActivity().setTitle(getString(R.string.Planner) + " - " + monthName + " " + newYear);
+
     return getWeekViewEventsFor(newYear, newMonth);
   }
 
@@ -225,45 +267,83 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
 
     List<WeekViewEvent> events = new ArrayList<>();
 
+    for (int i = 0; i < mEventsMap.size(); i++) {
+      Event event = mEventsMap.get(i);
+      Course course = mCoursesMap.get(event.course_id);
 
-    if (mEventsMap != null) {
-      Iterator iterator = mEventsMap.entrySet()
-          .iterator();
-      int i = 1;
-      while (iterator.hasNext()) {
-        Map.Entry<String, Pair<Event, Course>> entry = (Map.Entry<String, Pair<Event, Course>>) iterator.next();
-        Pair<Event, Course> eventCoursePair = entry.getValue();
-        Event event = eventCoursePair.first;
-        Course course = eventCoursePair.second;
+      Calendar eventStartCal = Calendar.getInstance(Locale.getDefault());
+      Calendar eventEndCal = Calendar.getInstance(Locale.getDefault());
+      eventStartCal.setTimeInMillis(event.start * 1000L);
+      eventEndCal.setTimeInMillis(event.end * 1000L);
 
-        Calendar eventStartCal = Calendar.getInstance(Locale.getDefault());
-        Calendar eventEndCal = Calendar.getInstance(Locale.getDefault());
-        eventStartCal.setTimeInMillis(event.start * 1000L);
-        eventEndCal.setTimeInMillis(event.end * 1000L);
+      if (eventStartCal.get(Calendar.YEAR) == currentCal.get(Calendar.YEAR)) {
+        if (eventStartCal.get(Calendar.MONTH) == currentCal.get(Calendar.MONTH)) {
 
-        if (eventStartCal.get(Calendar.YEAR) == currentCal.get(Calendar.YEAR)) {
+          // Build event title. Rooms set to the event itself are prioritized.
+          //FIXME: The current dev rev has a location attribute, use this instead later
+          String eventTitle = event.title;
+          if (!TextUtils.isEmpty(event.room)) {
+            eventTitle += " (" + event.room + ")";
+          } else if (course != null && !TextUtils.isEmpty(course.location)) {
+            eventTitle += " (" + course.location + ")";
+          }
 
-          if (eventStartCal.get(Calendar.MONTH) == currentCal.get(Calendar.MONTH)) {
-            // Build event title. Rooms set to the event itself are prioritized.
-            String eventTitle = event.title;
-            if (!TextUtils.isEmpty(event.room)) {
-              eventTitle += " (" + event.room + ")";
-            } else if (!TextUtils.isEmpty(course.location)) {
-              eventTitle += " (" + course.location + ")";
-            }
-
-            WeekViewEvent weekViewEvent = new WeekViewEvent(i, eventTitle, eventStartCal,
-                eventEndCal);
+          WeekViewEvent weekViewEvent = new WeekViewEvent(i, eventTitle, eventStartCal,
+              eventEndCal);
+          if (course != null) {
             int color = Color.parseColor(course.color);
             weekViewEvent.setColor(color);
-            events.add(weekViewEvent);
           }
+          events.add(weekViewEvent);
         }
-        iterator.remove();
-        i++;
       }
     }
 
     return events;
   }
+
+  @Override public void onEventClick(WeekViewEvent weekViewEvent, RectF eventRect) {
+    Pair<Event, Course> eventCoursePair = getEventAndCourseFor(weekViewEvent);
+    Event event = eventCoursePair.first;
+    Course course = eventCoursePair.second;
+
+    if (event == null || course == null) return;
+
+    String cid = event.course_id;
+    String title = course.title;
+    String modules = course.modules.getAsJson();
+
+    Intent intent = new Intent(getActivity(), CourseViewActivity.class);
+    intent.putExtra(CoursesContract.Columns.Courses.COURSE_ID, cid);
+    intent.putExtra(CoursesContract.Columns.Courses.COURSE_TITLE, title);
+    intent.putExtra(CoursesContract.Columns.Courses.COURSE_MODULES, modules);
+    startActivity(intent);
+  }
+
+  private Pair<Event, Course> getEventAndCourseFor(WeekViewEvent weekViewEvent) {
+    long eventId = weekViewEvent.getId();
+    Event event = mEventsMap.get((int) eventId);
+    Course course = mCoursesMap.get(event.course_id);
+
+    return new Pair<>(event, course);
+  }
+
+  @RxLogSubscriber
+  private final class EventsSubscriber extends Subscriber<List<Pair<Event, Course>>> {
+
+    @Override public void onCompleted() {
+      mWeekView.notifyDatasetChanged();
+    }
+
+    @Override public void onError(Throwable e) {
+      Log.e(TAG, e.getLocalizedMessage());
+      Toast.makeText(getContext(), R.string.error_loading_events, Toast.LENGTH_LONG)
+          .show();
+    }
+
+    @Override public void onNext(List<Pair<Event, Course>> pairs) {
+      addEvents(pairs);
+    }
+  }
 }
+
