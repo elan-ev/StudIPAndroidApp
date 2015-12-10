@@ -11,27 +11,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/planer_goto_today"
+        android:id="@+id/planner_goto_today"
         android:icon="@drawable/ic_action_date"
         app:showAsAction="always"
         android:title="@string/goto_today"/>
-
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/planer_three_days"
-            android:title="@string/three_day_view"/>
-
-        <item
-            android:id="@+id/planer_week"
-            android:title="@string/week_view"/>
-
-        <item
-            android:id="@+id/planer_day"
-            android:title="@string/day_view"/>
-
-        <item
-            android:id="@+id/planer_list"
-            android:title="@string/list_view"/>
-    </group>
-
 </menu>

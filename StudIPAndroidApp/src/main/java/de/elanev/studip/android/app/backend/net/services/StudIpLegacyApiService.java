@@ -4,9 +4,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Pair;
 
+import com.fernandocejas.frodo.annotation.RxLogObservable;
+
 import org.apache.http.HttpStatus;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.backend.datamodel.Course;
@@ -338,6 +341,7 @@ public class StudIpLegacyApiService {
    *
    * @return An {@link Observable} containing the user's {@link Events} for the next two weeks.
    */
+  @RxLogObservable
   public Observable<Pair<Event, Course>> getEvents() {
     // First get the events
     return mService.getEvents()
@@ -409,6 +413,7 @@ public class StudIpLegacyApiService {
     /*
      * Course specific
      */
+    @RxLogObservable
     @GET("/courses/{course_id}") Observable<CourseItem> getCourse(
         @Path("course_id") String courseId);
 

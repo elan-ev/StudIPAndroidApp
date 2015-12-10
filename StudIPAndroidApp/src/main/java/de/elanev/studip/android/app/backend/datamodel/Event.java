@@ -12,11 +12,13 @@ package de.elanev.studip.android.app.backend.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.io.Serializable;
+
 /**
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Event {
+public class Event implements Serializable {
     public String event_id;
     public String course_id;
     public Long start;
