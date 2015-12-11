@@ -31,7 +31,6 @@ import android.widget.Toast;
 import com.alamkanak.weekview.DateTimeInterpreter;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
-import com.fernandocejas.frodo.annotation.RxLogSubscriber;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -104,30 +103,26 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
   }
 
   private void loadData() {
+    //FIXME: This is not optimal, fix after figuring out how to use Observable.toList -.-
+    mEventsMap.clear();
+
     Observable<Pair<Event, Course>> events = mApiService.getEvents();
     EventsSubscriber subscriber = new EventsSubscriber();
 
-    mCompositeSubscription.add(bind(events)
-        .subscribeOn(Schedulers.newThread())
+    mCompositeSubscription.add(bind(events).subscribeOn(Schedulers.newThread())
         .observeOn(AndroidSchedulers.mainThread())
-        .toList()
         .subscribe(subscriber));
   }
 
-  private void addEvents(List<Pair<Event, Course>> pairList) {
-    if (pairList == null) {
+  private void addEvents(Pair<Event, Course> pair) {
+    if (pair == null) {
       return;
     }
 
-    mEventsMap.clear();
+    mEventsMap.add(pair.first);
 
-    for (int i = 0; i <= pairList.size(); i++) {
-      Pair<Event, Course> eventCoursePair = pairList.get(i);
-      mEventsMap.add(eventCoursePair.first);
-
-      if (eventCoursePair.second != null) {
-        mCoursesMap.put(eventCoursePair.second.courseId, eventCoursePair.second);
-      }
+    if (pair.second != null) {
+      mCoursesMap.put(pair.second.courseId, pair.second);
     }
   }
 
@@ -328,8 +323,7 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
     return new Pair<>(event, course);
   }
 
-  @RxLogSubscriber
-  private final class EventsSubscriber extends Subscriber<List<Pair<Event, Course>>> {
+  private final class EventsSubscriber extends Subscriber<Pair<Event, Course>> {
 
     @Override public void onCompleted() {
       mWeekView.notifyDatasetChanged();
@@ -341,7 +335,7 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
           .show();
     }
 
-    @Override public void onNext(List<Pair<Event, Course>> pairs) {
+    @Override public void onNext(Pair<Event, Course> pairs) {
       addEvents(pairs);
     }
   }
