@@ -25,13 +25,13 @@ buildscript {
   }
   dependencies {
     classpath 'io.fabric.tools:gradle:1.19.2'
-    classpath "com.fernandocejas.frodo:frodo-plugin:0.8.1"
+//    classpath "com.fernandocejas.frodo:frodo-plugin:0.8.1"
   }
 
 }
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
-apply plugin: 'com.fernandocejas.frodo'
+//apply plugin: 'com.fernandocejas.frodo'
 
 repositories {
   maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -74,7 +74,7 @@ dependencies {
   compile 'com.mcxiaoke.volley:library:1.0.18@aar'
   compile 'de.hdodenhof:circleimageview:1.3.0'
   compile 'net.zetetic:android-database-sqlcipher:3.3.1-1@aar'
-//  compile 'com.github.alamkanak:android-week-view:1.2.3'
+
   compile project(':libs:Android-Week-View:library')
 }
 
