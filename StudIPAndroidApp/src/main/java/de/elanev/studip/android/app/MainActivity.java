@@ -22,6 +22,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
@@ -248,8 +249,10 @@ public class MainActivity extends AppCompatActivity implements
     mDrawerLayout.setDrawerListener(mDrawerToggle);
 
     mNavigationView = (NavigationView) findViewById(R.id.navigation);
-    mHeaderView = findViewById(R.id.navigation_header);
+    mHeaderView = LayoutInflater.from(this)
+        .inflate(R.layout.nav_header, null);
     mHeaderView.setOnClickListener(this);
+    mNavigationView.addHeaderView(mHeaderView);
     mNavigationView.setNavigationItemSelectedListener(this);
 
     setNavHeaderInformation();

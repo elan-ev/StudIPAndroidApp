@@ -54,7 +54,6 @@
         android:background="@color/studip_mobile_dark"
         app:itemIconTint="@android:color/white"
         app:itemTextColor="@color/primary_text_dark"
-        app:headerLayout="@layout/nav_header"
         app:menu="@menu/navigation_drawer"/>
 
 </android.support.v4.widget.DrawerLayout>
