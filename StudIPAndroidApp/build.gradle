@@ -15,7 +15,7 @@ def versionPatch = 21 // max. 99
 // Beta- and Alpha-Release versioning
 def versionMajorBeta = 1 // max. 9
 def versionMinorBeta = 1 // max. 99
-def versionPatchBeta = 2 // max. 99
+def versionPatchBeta = 3 // max. 99
 
 buildscript {
 
@@ -24,7 +24,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'io.fabric.tools:gradle:1.19.2'
+    classpath 'io.fabric.tools:gradle:1.+'
 //    classpath "com.fernandocejas.frodo:frodo-plugin:0.8.1"
   }
 
@@ -40,7 +40,7 @@ repositories {
 
 dependencies {
   // Crashlytics Kit
-  compile('com.crashlytics.sdk.android:crashlytics:2.5.3@aar') {
+  compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
     transitive = true
   }
   // Android Support Libs
@@ -62,9 +62,15 @@ dependencies {
   compile 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
 
   // SignPost OAuth
-  compile 'oauth.signpost:signpost-commonshttp4:1.2.1.2'
   compile 'oauth.signpost:oauth-signpost:1.2.1.2'
-  compile 'oauth.signpost:signpost-core:1.2.1.2'
+  compile ('oauth.signpost:signpost-commonshttp4:1.2.1.2') {
+    exclude module: 'commons-logging'
+    exclude module: 'httpcore'
+    exclude module: 'httpclient'
+  }
+  compile ('oauth.signpost:signpost-core:1.2.1.2') {
+    exclude module: 'commons-codec'
+  }
   compile project(':libs:signpost-retrofit')
 
   // Other
@@ -87,6 +93,7 @@ def buildTime() {
 def isTravis = "true".equals(System.getenv("TRAVIS"))
 def preDexEnabled = "true".equals(System.getProperty("pre-dex", "true"))
 android {
+  useLibrary 'org.apache.http.legacy'
 
   dexOptions {
     // Skip pre-dexing when running on Travis CI or when disabled via -Dpre-dex=false.
