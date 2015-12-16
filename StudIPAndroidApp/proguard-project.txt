@@ -67,11 +67,11 @@
 -keep interface com.android.volley.** { *; }
 
 -dontwarn android.support.**
--dontwarn org.apache.**
+-dontwarn org.apache.http.**
 -dontwarn com.actionbarsherlock.internal.**
 -dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
--dontwarn com.google.common.**
--dontwarn com.squareup.okhttp.**
+-dontwarn com.google.**
+-dontwarn com.squareup.**
 -dontwarn okio.**
 -dontwarn rx.**
 -dontwarn retrofit.**
