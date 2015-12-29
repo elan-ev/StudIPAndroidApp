@@ -7,32 +7,115 @@
 -->
 <manifest
     package="de.elanev.studip.android.app"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Application permissions -->
+
+    <!-- Permissions -->
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-    <!-- General application settings -->
+    <uses-sdk tools:overrideLibrary="com.fernandocejas.frodo"/>
+
+    <!-- Application -->
+
     <application
         android:name="de.elanev.studip.android.app.StudIPApplication"
-        android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
+        android:allowBackup="true"
         android:installLocation="preferExternal"
         android:label="@string/app_name"
         android:logo="@drawable/ic_home_transparent"
         android:theme="@style/AppTheme">
-        <!-- Main activity with navigation drawer and content frame -->
+
+
+        <!-- Activities -->
+
+        <!-- News -->
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:name=".frontend.news.NewsActivity"
+            android:label="@string/app_name"
+            android:theme="@style/noAnimTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- Authentication activities -->
+        <!-- News list and details view activity -->
+        <activity
+            android:name=".frontend.news.NewsItemViewActivity"
+            android:parentActivityName=".frontend.news.NewsActivity">
+            <category android:name="android.intent.category.MONKEY"/>
+
+            <!-- Support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".frontend.news.NewsActivity"/>
+        </activity>
+
+        <!-- Courses -->
+        <activity
+            android:name=".frontend.courses.CoursesActivity"
+            android:label="@string/Courses"
+            android:theme="@style/noAnimTheme">
+        </activity>
+        <!-- Courses list and detail view activities -->
+        <activity
+            android:name=".frontend.courses.CourseViewActivity"
+            android:parentActivityName=".frontend.courses.CoursesActivity"
+            android:launchMode="singleTop">
+            <category android:name="android.intent.category.MONKEY"/>
+
+            <!-- Support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".frontend.courses.CoursesActivity"/>
+        </activity>
+
+        <!-- Messages -->
+         <activity
+            android:name=".frontend.messages.MessagesActivity"
+            android:label="@string/Messages"
+            android:theme="@style/noAnimTheme">
+        </activity>
+        <!-- Messages list, details view and compose activities -->
+        <activity
+            android:name=".frontend.messages.MessageDetailActivity"
+            android:parentActivityName=".frontend.messages.MessagesActivity"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <category android:name="android.intent.category.MONKEY"/>
+
+            <!-- Support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".frontend.messages.MessagesActivity"/>
+        </activity>
+        <activity
+            android:name=".frontend.messages.MessageComposeActivity"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Contacts -->
+         <activity
+            android:name=".frontend.contacts.ContactsActivity"
+            android:label="@string/Contacts"
+            android:theme="@style/noAnimTheme">
+        </activity>
+
+        <!-- Planer -->
+        <activity
+            android:name=".frontend.planner.PlannerActivity"
+            android:label="@string/Planner"
+            android:theme="@style/noAnimTheme"/>
+
+        <!-- SignIn -->
         <activity
             android:name=".backend.net.oauth.SignInActivity"
             android:screenOrientation="portrait"
@@ -53,81 +136,32 @@
                 android:value=".backend.net.oauth.SignInActivity"/>
         </activity>
 
-        <!-- News list and details view activity -->
-        <activity
-            android:name=".frontend.news.NewsItemViewActivity"
-            android:parentActivityName=".MainActivity">
-            <category android:name="android.intent.category.MONKEY"/>
-
-            <!-- Support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-        </activity>
-        <!-- Courses list and detail view activities -->
-        <activity
-            android:name=".frontend.courses.CourseViewActivity"
-            android:parentActivityName=".MainActivity"
-            android:launchMode="singleTop">
-            <category android:name="android.intent.category.MONKEY"/>
-
-            <!-- Support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-        </activity>
-
-        <!-- Messages list, details view and compose activities -->
-        <activity
-            android:name=".frontend.messages.MessageDetailActivity"
-            android:parentActivityName=".MainActivity"
-            android:uiOptions="splitActionBarWhenNarrow">
-            <category android:name="android.intent.category.MONKEY"/>
-
-            <!-- Support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-        </activity>
-        <activity
-            android:name=".frontend.messages.MessageComposeActivity"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/plain"/>
-            </intent-filter>
-
-        </activity>
-
-        <!-- user details view activity -->
+        <!-- Users -->
         <activity
             android:name=".widget.UserDetailsActivity"/>
 
-
-        <!-- about the app activity -->
+        <!-- About -->
         <activity
             android:name=".frontend.AboutActivity"/>
 
-        <!-- generic WebView activity -->
+        <!-- Web -->
         <activity
             android:name=".widget.WebViewActivity"/>
 
-        <!-- forum areas view activity -->
+        <!-- Forums -->
         <activity
             android:name=".frontend.forums.ForumAreasActivity"/>
-
-        <!-- forum entries view activity -->
         <activity
             android:name=".frontend.forums.ForumEntriesActivity"/>
         <activity
             android:name=".frontend.forums.ForumEntryActivity"/>
-
-        <!-- forum area compose activity -->
         <activity
             android:name=".frontend.forums.ForumEntryComposeActivity"/>
 
-        <!-- RestIpProvider for rest API calls -->
+
+        <!-- Providers -->
+
+        <!-- Main RestIpProvider -->
         <provider
             android:name=".backend.provider.RestIpProvider"
             android:authorities="de.elanev.studip.android.app"

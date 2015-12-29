@@ -27,7 +27,7 @@
 #   public *;
 #}
 
--keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature
+-keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature,InnerClasses
 
 -keep class android.support.** { *; }
 -keep interface android.support.** { *; }
@@ -65,14 +65,23 @@
 }
 -keep class com.android.volley.** { *; }
 -keep interface com.android.volley.** { *; }
+-keep class okio.** { *; }
+-keep interface okio.** { *; }
+-keep class rx.** { *; }
+-keep interface rx.** { *; }
 
 -dontwarn android.support.**
--dontwarn org.apache.**
+-dontwarn org.apache.http.**
 -dontwarn com.actionbarsherlock.internal.**
 -dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
--dontwarn com.google.common.**
--dontwarn com.squareup.okhttp.**
+-dontwarn com.google.**
+-dontwarn com.squareup.**
 -dontwarn okio.**
 -dontwarn rx.**
 -dontwarn retrofit.**
 -dontwarn com.android.volley.**
+
+-dontnote com.google.vending.licensing.ILicensingService
+-dontnote com.android.vending.licensing.ILicensingService
+-dontnote com.google.android.gms.**
+-dontnote com.google.android.gms.**
