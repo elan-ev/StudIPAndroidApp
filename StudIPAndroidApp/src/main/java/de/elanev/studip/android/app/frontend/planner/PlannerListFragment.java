@@ -6,17 +6,21 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.frontend.planer;
+package de.elanev.studip.android.app.frontend.planner;
 
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -62,31 +66,38 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  *         Fragment for showing data related to the /events route of the api.
  *         In Stud.IP known as Planner.
  */
-public class PlannerFragment extends ProgressListFragment implements
-    AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class PlannerListFragment extends ProgressListFragment implements
+    AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, PlannerFragment {
 
-  private static final String TAG = PlannerFragment.class.getSimpleName();
+  private static final String TAG = PlannerListFragment.class.getSimpleName();
 
   private String mEventsRoute;
   private Server mServer;
   private EventsAdapter mAdapter;
 
-  public PlannerFragment() {}
+  public PlannerListFragment() {}
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  public static Fragment newInstance(Bundle args) {
+    PlannerListFragment fragment = new PlannerListFragment();
+    fragment.setArguments(args);
+
+    return fragment;
+  }
+
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = getActivity();
-    mServer = Prefs.getInstance(mContext).getServer();
+    mServer = Prefs.getInstance(mContext)
+        .getServer();
     mEventsRoute = String.format(getString(R.string.restip_planner) + ".json", mServer.getApiUrl());
 
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     getActivity().setTitle(R.string.Planner);
     setEmptyMessage(R.string.no_schedule);
+    setHasOptionsMenu(true);
 
     mAdapter = new EventsAdapter(mContext);
     mListView.setOnItemClickListener(this);
@@ -95,45 +106,48 @@ public class PlannerFragment extends ProgressListFragment implements
     mSwipeRefreshLayoutListView.setOnRefreshListener(this);
   }
 
-  @Override
-  public void onStart() {
+  @Override public void onStart() {
     super.onStart();
     requestEvents();
   }
 
+  @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.planner_listview_menu, menu);
+
+    super.onCreateOptionsMenu(menu, inflater);
+  }
+
   private void requestEvents() {
     JacksonRequest<Events> eventsJacksonRequest = new JacksonRequest<Events>(mEventsRoute,
-        Events.class,
-        null,
-        new Response.Listener<Events>() {
-          public void onResponse(Events response) {
-            new CourseInfoLoadTask(getActivity()).execute(response);
-          }
+        Events.class, null, new Response.Listener<Events>() {
+      public void onResponse(Events response) {
+        new CourseInfoLoadTask(getActivity()).execute(response);
+      }
 
-        },
-        new Response.ErrorListener() {
-          public void onErrorResponse(VolleyError error) {
-            if (getActivity() != null && error != null && error.getMessage() != null) {
-              Log.wtf(TAG, error.getMessage());
-              mSwipeRefreshLayoutListView.setRefreshing(false);
-              Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG).show();
-            }
-          }
+    }, new Response.ErrorListener() {
+      public void onErrorResponse(VolleyError error) {
+        if (getActivity() != null && error != null && error.getMessage() != null) {
+          Log.wtf(TAG, error.getMessage());
+          mSwipeRefreshLayoutListView.setRefreshing(false);
+          Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
+              .show();
         }
+      }
+    }
 
-        ,
-        Request.Method.GET);
+        , Request.Method.GET);
 
     DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(30000,
-        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
 
     eventsJacksonRequest.setRetryPolicy(retryPolicy);
     eventsJacksonRequest.setPriority(Request.Priority.IMMEDIATE);
 
     try {
-      OAuthConnector.with(mServer).sign(eventsJacksonRequest);
-      StudIPApplication.getInstance().addToRequestQueue(eventsJacksonRequest, TAG);
+      OAuthConnector.with(mServer)
+          .sign(eventsJacksonRequest);
+      StudIPApplication.getInstance()
+          .addToRequestQueue(eventsJacksonRequest, TAG);
       mSwipeRefreshLayoutListView.setRefreshing(true);
       Log.i(TAG, "Getting new events");
     } catch (OAuthExpectationFailedException e) {
@@ -147,9 +161,9 @@ public class PlannerFragment extends ProgressListFragment implements
     }
   }
 
-  @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    EventsAdapter.EventsAdapterItem e = (EventsAdapter.EventsAdapterItem) mAdapter.getItem(position);
+  @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    EventsAdapter.EventsAdapterItem e = (EventsAdapter.EventsAdapterItem) mAdapter.getItem(
+        position);
     String cid = e.eventCourseId;
     String title = e.eventCourseTitle;
     String modules = e.eventCourseModules;
@@ -163,6 +177,10 @@ public class PlannerFragment extends ProgressListFragment implements
 
   @Override public void onRefresh() {
     requestEvents();
+  }
+
+  @Override public void scrollToCurrentTime() {
+    //TODO
   }
 
   private static class EventsAdapter extends BaseAdapter implements StickyListHeadersAdapter {
@@ -179,8 +197,7 @@ public class PlannerFragment extends ProgressListFragment implements
       mDateTimeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
     }
 
-    @Override
-    public View getHeaderView(int position, View view, ViewGroup viewGroup) {
+    @Override public View getHeaderView(int position, View view, ViewGroup viewGroup) {
       HeaderHolder holder;
 
       if (view == null) {
@@ -201,8 +218,7 @@ public class PlannerFragment extends ProgressListFragment implements
       return view;
     }
 
-    @Override
-    public long getHeaderId(int position) {
+    @Override public long getHeaderId(int position) {
       if (mSections.isEmpty()) return 0;
 
       for (int i = 0; i < mSections.size(); i++) {
@@ -214,24 +230,20 @@ public class PlannerFragment extends ProgressListFragment implements
       return mSections.size() - 1;
     }
 
-    @Override
-    public int getCount() {
+    @Override public int getCount() {
       return mData == null ? 0 : mData.size();
     }
 
-    @Override
-    public Object getItem(int position) {
+    @Override public Object getItem(int position) {
       if (position == ListView.INVALID_POSITION || position >= mData.size()) return null;
       else return mData.get(position);
     }
 
-    @Override
-    public long getItemId(int position) {
+    @Override public long getItemId(int position) {
       return position;
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @Override public View getView(int position, View convertView, ViewGroup parent) {
       View row = convertView;
       if (row == null) {
         row = mInflater.inflate(R.layout.list_item_planner, parent, false);
@@ -258,8 +270,7 @@ public class PlannerFragment extends ProgressListFragment implements
       return row;
     }
 
-    @Override
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return mData == null || mData.isEmpty();
     }
 
@@ -295,6 +306,21 @@ public class PlannerFragment extends ProgressListFragment implements
       }
     }
 
+    static class EventsAdapterItem {
+      Event event;
+      String eventCourseTitle;
+      String eventCourseId;
+      String eventCourseModules;
+
+      EventsAdapterItem(Event event, String eventCourseTitle, String eventCourseId,
+          String eventCourseModules) {
+        this.event = event;
+        this.eventCourseTitle = eventCourseTitle;
+        this.eventCourseId = eventCourseId;
+        this.eventCourseModules = eventCourseModules;
+      }
+    }
+
     private class HeaderHolder {
       TextView date;
     }
@@ -304,34 +330,17 @@ public class PlannerFragment extends ProgressListFragment implements
 
     }
 
-    static class EventsAdapterItem {
-      Event event;
-      String eventCourseTitle;
-      String eventCourseId;
-      String eventCourseModules;
-
-      EventsAdapterItem(Event event,
-          String eventCourseTitle,
-          String eventCourseId,
-          String eventCourseModules) {
-        this.event = event;
-        this.eventCourseTitle = eventCourseTitle;
-        this.eventCourseId = eventCourseId;
-        this.eventCourseModules = eventCourseModules;
-      }
-    }
-
   }
 
   private class CourseInfoLoadTask extends AsyncTask<Events, Void, CourseInfoLoadTask.ResultSet> {
 
-    private Context mContext;
     private final String[] projection = {
         CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
         CoursesContract.Qualified.Courses.COURSES_COURSE_ID,
         CoursesContract.Qualified.Courses.COURSES_COURSE_MODULES,
-    };
+        };
     private final String selection = CoursesContract.Qualified.Courses.COURSES_COURSE_ID + " = ?";
+    private Context mContext;
 
     CourseInfoLoadTask(Context context) {
       this.mContext = context;
@@ -360,18 +369,16 @@ public class PlannerFragment extends ProgressListFragment implements
         if (!eventItemCache.containsKey(currentCourseId)) {
           if (mContext != null) {
             Cursor c = mContext.getContentResolver()
-                .query(CoursesContract.CONTENT_URI,
-                    projection,
-                    selection,
-                    new String[]{currentCourseId},
-                    null);
+                .query(CoursesContract.CONTENT_URI, projection, selection,
+                    new String[]{currentCourseId}, null);
 
             if (!c.isAfterLast()) {
               c.moveToNext();
               String[] courseInfoArray = {c.getString(0), c.getString(1), c.getString(2)};
               eventItemCache.put(currentCourseId, courseInfoArray);
             } else {
-              SyncHelper.getInstance(mContext).performCoursesSync(null);
+              SyncHelper.getInstance(mContext)
+                  .performCoursesSync(null);
             }
             c.close();
           }
@@ -381,9 +388,7 @@ public class PlannerFragment extends ProgressListFragment implements
         String[] courseInfos = eventItemCache.get(currentCourseId);
         if (courseInfos != null) {
           EventsAdapter.EventsAdapterItem item = new EventsAdapter.EventsAdapterItem(e,
-              courseInfos[0],
-              courseInfos[1],
-              courseInfos[2]);
+              courseInfos[0], courseInfos[1], courseInfos[2]);
           items.add(item);
         }
 

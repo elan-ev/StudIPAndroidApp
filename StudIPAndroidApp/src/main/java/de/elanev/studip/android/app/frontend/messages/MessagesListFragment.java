@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -283,6 +284,13 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
       }
       mSwipeRefreshLayoutListView.setRefreshing(false);
     }
+  }
+
+  public static Fragment newInstance(Bundle args) {
+    MessagesListFragment fragment = new MessagesListFragment();
+    fragment.setArguments(args);
+
+    return fragment;
   }
 
   /*

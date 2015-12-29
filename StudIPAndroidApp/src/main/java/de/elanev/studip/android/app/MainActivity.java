@@ -8,17 +8,21 @@
 package de.elanev.studip.android.app;
 
 import android.content.Intent;
-import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.LayoutRes;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
@@ -31,11 +35,11 @@ import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.frontend.contacts.ContactsGroupsFragment;
-import de.elanev.studip.android.app.frontend.courses.CoursesFragment;
-import de.elanev.studip.android.app.frontend.messages.MessagesListFragment;
-import de.elanev.studip.android.app.frontend.news.NewsTabsFragment;
-import de.elanev.studip.android.app.frontend.planer.PlannerFragment;
+import de.elanev.studip.android.app.frontend.contacts.ContactsActivity;
+import de.elanev.studip.android.app.frontend.courses.CoursesActivity;
+import de.elanev.studip.android.app.frontend.messages.MessagesActivity;
+import de.elanev.studip.android.app.frontend.news.NewsActivity;
+import de.elanev.studip.android.app.frontend.planner.PlannerActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
@@ -49,16 +53,15 @@ import de.elanev.studip.android.app.widget.UserDetailsActivity;
  */
 public class MainActivity extends AppCompatActivity implements
     NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
-  public static final String TAG = MainActivity.class.getSimpleName();
-  private static final String ACTIVE_NAVIGATION_ITEM = "active_navi_item";
-  private static int mSelectedNavItem = R.id.navigation_news;
+  private static final String TAG = MainActivity.class.getSimpleName();
+  private static int mSelectedNavItem = R.id.navigation_invalid;
   private DrawerLayout mDrawerLayout;
   private ActionBarDrawerToggle mDrawerToggle;
   private String mUserId;
   private User mCurrentUser;
-  private boolean isPaused;
   private NavigationView mNavigationView;
   private View mHeaderView;
+  private Handler mHandler;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.main, menu);
@@ -120,7 +123,8 @@ public class MainActivity extends AppCompatActivity implements
 
   private Intent createInviteIntent() {
 
-    Server server  = Prefs.getInstance(this).getServer();
+    Server server = Prefs.getInstance(this)
+        .getServer();
     String inviteText = "";
     String inviteTextHtml = "";
     if (server == null) {
@@ -146,19 +150,19 @@ public class MainActivity extends AppCompatActivity implements
     super.onBackPressed();
   }
 
-  @Override protected void onPause() {
-    super.onPause();
-    isPaused = true;
+  @Override protected void onResume() {
+    super.onResume();
+    selectNavItem();
   }
 
-  @Override protected void onSaveInstanceState(Bundle outState) {
-    outState.putInt(ACTIVE_NAVIGATION_ITEM, mSelectedNavItem);
-    super.onSaveInstanceState(outState);
+  private void selectNavItem() {
+    mNavigationView.getMenu()
+        .findItem(getCurrentNavDrawerItem())
+        .setChecked(true);
   }
 
-  @Override protected void onStart() {
-    super.onStart();
-    isPaused = false;
+  protected int getCurrentNavDrawerItem() {
+    return R.id.navigation_invalid;
   }
 
   @Override protected void onCreate(Bundle savedInstanceState) {
@@ -175,6 +179,8 @@ public class MainActivity extends AppCompatActivity implements
       return;
     }
 
+    mHandler = new Handler();
+
     // Verify that the forum routes are still activated
     //TODO: Move this and other API checks to a Service or something, but not here
     SyncHelper.getInstance(this)
@@ -184,40 +190,38 @@ public class MainActivity extends AppCompatActivity implements
     SyncHelper.getInstance(this)
         .requestCurrentUserInfo(null);
 
-    setContentView(R.layout.activity_main);
-
     mCurrentUser = User.fromJson(Prefs.getInstance(this)
         .getUserInfo());
     if (mCurrentUser != null) {
       mUserId = mCurrentUser.userId;
     }
 
-    initToolbar();
     initNavigation();
-    setNavHeaderInformation();
-
-    if (savedInstanceState == null) {
-      setFragment(mSelectedNavItem);
-      mNavigationView.getMenu()
-          .findItem(mSelectedNavItem)
-          .setChecked(true);
-    } else {
-      setFragment(mSelectedNavItem);
-      mNavigationView.getMenu()
-          .findItem(savedInstanceState.getInt(ACTIVE_NAVIGATION_ITEM))
-          .setChecked(true);
-    }
   }
 
   @Override protected void onPostCreate(Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
     // Sync the toggle state after onRestoreInstanceState has occurred.
+    initNavigation();
     mDrawerToggle.syncState();
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+      // Fade content back in
+      View content = findViewById(R.id.content_frame);
+      if (content != null) {
+        content.setAlpha(0);
+        content.animate()
+            .alpha(1)
+            .setDuration(250);
+      } else {
+        Log.w(TAG, "No view with ID main_content to fade in.");
+      }
+    }
   }
 
-  @Override public void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    mDrawerToggle.onConfigurationChanged(newConfig);
+  @Override public void setContentView(@LayoutRes int layoutResID) {
+    super.setContentView(layoutResID);
+    initToolbar();
   }
 
   private void initToolbar() {
@@ -232,16 +236,27 @@ public class MainActivity extends AppCompatActivity implements
   }
 
   private void initNavigation() {
+    mSelectedNavItem = getCurrentNavDrawerItem();
     mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+    if (mDrawerLayout == null) {
+      Log.d(TAG, "No drawer found");
+      return;
+    }
 
     mDrawerToggle = new ActionBarDrawerToggle(MainActivity.this, mDrawerLayout,
         R.string.open_drawer, R.string.close_drawer);
     mDrawerLayout.setDrawerListener(mDrawerToggle);
 
     mNavigationView = (NavigationView) findViewById(R.id.navigation);
-    mHeaderView = findViewById(R.id.navigation_header);
+    mHeaderView = LayoutInflater.from(this)
+        .inflate(R.layout.nav_header, null);
     mHeaderView.setOnClickListener(this);
+    mNavigationView.addHeaderView(mHeaderView);
     mNavigationView.setNavigationItemSelectedListener(this);
+
+    setNavHeaderInformation();
+    selectNavItem();
   }
 
   private void setNavHeaderInformation() {
@@ -263,82 +278,82 @@ public class MainActivity extends AppCompatActivity implements
     }
   }
 
-  private void setFragment(int itemId) {
-    String fragTag;
-    Fragment frag;
-    switch (itemId) {
-      case R.id.navigation_news:
-        fragTag = NewsTabsFragment.class.getName();
-        frag = findFragment(fragTag);
-        if (frag == null) {
-          frag = new NewsTabsFragment();
-        }
-        break;
-      case R.id.navigation_courses:
-        fragTag = CoursesFragment.class.getName();
-        frag = findFragment(fragTag);
-        if (frag == null) {
-          frag = new CoursesFragment();
-        }
-        break;
-      case R.id.navigation_messages:
-        fragTag = MessagesListFragment.class.getName();
-        frag = findFragment(fragTag);
-        if (frag == null) {
-          frag = new MessagesListFragment();
-        }
-        break;
-      case R.id.navigation_contacts:
-        fragTag = ContactsGroupsFragment.class.getName();
-        frag = findFragment(fragTag);
-        if (frag == null) {
-          frag = new ContactsGroupsFragment();
-        }
-        break;
-      case R.id.navigation_planner:
-        fragTag = PlannerFragment.class.getName();
-        frag = findFragment(fragTag);
-        if (frag == null) {
-          frag = new PlannerFragment();
-        }
-        break;
-      default:
-        frag = new NewsTabsFragment();
+  protected Bundle getFragmentArguments() {
+    Bundle args = new Bundle();
+    Intent intent = getIntent();
+
+    if (intent == null) {
+      return args;
     }
-    changeFragment(frag);
-  }
 
-  /*
-   * Searches for a fragment for the given tag
-   *
-   * @return the found fragment or null
-   *
-   */
-  private Fragment findFragment(String tag) {
-    return getSupportFragmentManager().findFragmentByTag(tag);
-  }
-
-  private void changeFragment(Fragment frag) {
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    fragmentManager.beginTransaction()
-        .replace(R.id.content_frame, frag, frag.getClass()
-            .getName())
-        .commit();
-  }
-
-  @Override public boolean onNavigationItemSelected(android.view.MenuItem menuItem) {
-    if (!isPaused) {
-      menuItem.setChecked(true);
-      mSelectedNavItem = menuItem.getItemId();
-      setFragment(mSelectedNavItem);
-      mDrawerLayout.closeDrawers();
+    final Bundle intentExtras = intent.getExtras();
+    if (intentExtras != null) {
+      args.putAll(intentExtras);
     }
+
+    return args;
+  }
+
+  @Override public boolean onNavigationItemSelected(final android.view.MenuItem menuItem) {
+    menuItem.setChecked(true);
+
+    mHandler.postDelayed(new Runnable() {
+      @Override public void run() {
+        navigateTo(menuItem.getItemId());
+      }
+    }, 250);
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+      // fade out the main content
+      View content = findViewById(R.id.content_frame);
+      if (content != null) {
+        content.animate()
+            .alpha(0)
+            .setDuration(150);
+      }
+    }
+    mDrawerLayout.closeDrawer(GravityCompat.START);
 
     return false;
   }
 
+  private void navigateTo(int itemId) {
+
+    switch (itemId) {
+      case R.id.navigation_news:
+        startActivityWithNewTask(new Intent(this, NewsActivity.class));
+        return;
+      case R.id.navigation_courses:
+        startActivityWithNewTask(new Intent(this, CoursesActivity.class));
+        return;
+
+      case R.id.navigation_messages:
+        startActivityWithNewTask(new Intent(this, MessagesActivity.class));
+        return;
+
+      case R.id.navigation_contacts:
+        startActivityWithNewTask(new Intent(this, ContactsActivity.class));
+        return;
+
+      case R.id.navigation_planner:
+        startActivityWithNewTask(new Intent(this, PlannerActivity.class));
+        return;
+    }
+  }
+
+  private void startActivityWithNewTask(Intent intent) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      TaskStackBuilder builder = TaskStackBuilder.create(this);
+      builder.addNextIntentWithParentStack(intent);
+      builder.startActivities();
+    } else {
+      startActivity(intent);
+      finish();
+    }
+  }
+
   @Override public void onClick(View v) {
-    if (mUserId != null && !isPaused) {
+    if (mUserId != null) {
       Intent intent = new Intent(this, UserDetailsActivity.class);
       intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
       startActivity(intent);

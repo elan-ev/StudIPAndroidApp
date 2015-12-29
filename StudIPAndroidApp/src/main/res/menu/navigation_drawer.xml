@@ -33,5 +33,11 @@
             android:id="@+id/navigation_planner"
             android:icon="@drawable/ic_menu_planner"
             android:title="@string/Planner"/>
+
     </group>
+
+    <item
+        android:id="@+id/navigation_invalid"
+        android:visible="false"
+        />
 </menu>
