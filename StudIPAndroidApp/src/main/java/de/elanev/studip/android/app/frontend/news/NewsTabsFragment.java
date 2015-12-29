@@ -54,4 +54,11 @@ public class NewsTabsFragment extends Fragment {
   private PagerAdapter buildAdapter() {
     return new NewsTabsAdapter(getActivity(), getChildFragmentManager());
   }
+
+  public static Fragment newInstance(Bundle args) {
+    NewsTabsFragment fragment = new NewsTabsFragment();
+    fragment.setArguments(args);
+
+    return fragment;
+  }
 }
