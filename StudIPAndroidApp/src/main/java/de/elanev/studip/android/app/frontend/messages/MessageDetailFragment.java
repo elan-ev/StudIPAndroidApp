@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.squareup.picasso.Picasso;
 
+import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -83,6 +85,8 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
   private TextView mMessageAuthorTextView;
   private ImageView mUserImageView;
   private boolean mDeleteButtonVisible = true;
+  private ProgressBar mProgressSpinner;
+  private MainActivity.OnShowProgressBarListener mCallback;
 
   public MessageDetailFragment() {}
 
@@ -140,6 +144,13 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
     super.onAttach(activity);
     activity.getContentResolver()
         .registerContentObserver(MessagesContract.CONTENT_URI_MESSAGES, true, mObserver);
+
+    try {
+      mCallback = (MainActivity.OnShowProgressBarListener) activity;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(activity.toString()
+          + " must implement OnShowProgressBarListener");
+    }
   }
 
   @Override
@@ -162,9 +173,9 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
     menu.findItem(R.id.delete_message).setVisible(mDeleteButtonVisible);
 
     if (!mDeleteButtonVisible) {
-      ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+      mCallback.onShowProgressBar(true);
     } else {
-      ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+      mCallback.onShowProgressBar(false);
     }
 
     super.onPrepareOptionsMenu(menu);
