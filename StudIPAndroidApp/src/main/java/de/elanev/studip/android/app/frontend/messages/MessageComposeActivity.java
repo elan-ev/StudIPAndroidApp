@@ -15,12 +15,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.ProgressBar;
 
+import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.MessagesContract;
 
-public class MessageComposeActivity extends AppCompatActivity {
+public class MessageComposeActivity extends AppCompatActivity implements
+    MainActivity.OnShowProgressBarListener {
 
   private static final String TAG = MessageComposeActivity.class.getSimpleName();
   protected static final String MESSAGE_TYPE_FLAG = MessageComposeActivity.class.getSimpleName()
@@ -31,15 +35,16 @@ public class MessageComposeActivity extends AppCompatActivity {
   protected static final int MESSAGE_FLAG_SENDTO = 1001;
   protected static final int MESSAGE_ACTION_FORWARD = 2000;
   protected static final int MESSAGE_ACTION_REPLY = 2001;
+  private ProgressBar mProgressBar;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // First request toolbar progress indicator
-    supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
     // Then set the content with toolbar
     setContentView(R.layout.content_frame);
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    mProgressBar = (ProgressBar) findViewById(R.id.progress_spinner);
+
     setSupportActionBar(toolbar);
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
@@ -106,4 +111,11 @@ public class MessageComposeActivity extends AppCompatActivity {
     return super.onOptionsItemSelected(item);
   }
 
+  @Override public void onShowProgressBar(boolean show) {
+    if (show) {
+      mProgressBar.setVisibility(View.VISIBLE);
+    } else {
+      mProgressBar.setVisibility(View.GONE);
+    }
+  }
 }
