@@ -27,6 +27,7 @@ import org.apache.http.HttpException;
 
 import java.util.concurrent.TimeoutException;
 
+import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntry;
@@ -51,6 +52,7 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
   private EditText mSubjectEditText;
   private EditText mContentEditText;
   private boolean mSendButtonVisible = true;
+  private MainActivity.OnShowProgressBarListener mCallback;
 
   public static ForumEntryComposeFragment newInstance(Bundle args) {
     ForumEntryComposeFragment fragment = new ForumEntryComposeFragment();
@@ -84,6 +86,17 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
     return v;
   }
 
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    try {
+      mCallback = (MainActivity.OnShowProgressBarListener) activity;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(activity.toString()
+          + " must implement OnShowProgressBarListener");
+    }
+  }
+
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.forum_entry_compose_menu, menu);
     super.onCreateOptionsMenu(menu, inflater);
@@ -93,7 +106,7 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.create_new_area).setVisible(mSendButtonVisible);
 
-    ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(!mSendButtonVisible);
+    mCallback.onShowProgressBar(!mSendButtonVisible);
   }
 
   @Override public boolean onOptionsItemSelected(MenuItem item) {
