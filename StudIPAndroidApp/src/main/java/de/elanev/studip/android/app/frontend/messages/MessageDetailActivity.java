@@ -15,20 +15,25 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.ProgressBar;
 
+import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 
-public class MessageDetailActivity extends AppCompatActivity {
+public class MessageDetailActivity extends AppCompatActivity implements
+    MainActivity.OnShowProgressBarListener {
+  private ProgressBar mProgressBar;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // First request toolbar progrss indicator
-    supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
     // Then set the content with toolbar
     setContentView(R.layout.content_frame);
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    mProgressBar = (ProgressBar) findViewById(R.id.progress_spinner);
+
     setSupportActionBar(toolbar);
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
@@ -45,7 +50,8 @@ public class MessageDetailActivity extends AppCompatActivity {
     }
 
     if (savedInstanceState == null) {
-      MessageDetailFragment messageDetailFragment = MessageDetailFragment.newInstance(extras.getExtras());
+      MessageDetailFragment messageDetailFragment = MessageDetailFragment.newInstance(
+          extras.getExtras());
       getSupportFragmentManager().beginTransaction()
           .add(R.id.content_frame, messageDetailFragment, MessageComposeFragment.class.getName())
           .commit();
@@ -63,4 +69,11 @@ public class MessageDetailActivity extends AppCompatActivity {
     return super.onOptionsItemSelected(item);
   }
 
+  @Override public void onShowProgressBar(boolean show) {
+    if (show) {
+      mProgressBar.setVisibility(View.VISIBLE);
+    } else {
+      mProgressBar.setVisibility(View.GONE);
+    }
+  }
 }

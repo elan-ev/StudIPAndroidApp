@@ -11,23 +11,29 @@ package de.elanev.studip.android.app.frontend.forums;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.view.Window;
+import android.widget.ProgressBar;
 
+import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 
 /**
  * @author joern
  */
-public class ForumEntryComposeActivity extends AppCompatActivity {
+public class ForumEntryComposeActivity extends AppCompatActivity implements
+    MainActivity.OnShowProgressBarListener {
+
+  private ProgressBar mProgressBar;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
     setContentView(R.layout.content_frame);
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
+    mProgressBar = (ProgressBar) findViewById(R.id.progress_spinner);
 
+    setSupportActionBar(toolbar);
     getSupportActionBar().setHomeButtonEnabled(true);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -46,4 +52,11 @@ public class ForumEntryComposeActivity extends AppCompatActivity {
     }
   }
 
+  @Override public void onShowProgressBar(boolean show) {
+    if (show) {
+      mProgressBar.setVisibility(View.VISIBLE);
+    } else {
+      mProgressBar.setVisibility(View.GONE);
+    }
+  }
 }
