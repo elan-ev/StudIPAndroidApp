@@ -360,4 +360,8 @@ public class MainActivity extends AppCompatActivity implements
       mDrawerLayout.closeDrawers();
     }
   }
+
+  public interface OnShowProgressBarListener {
+    public void onShowProgressBar(boolean show);
+  }
 }
