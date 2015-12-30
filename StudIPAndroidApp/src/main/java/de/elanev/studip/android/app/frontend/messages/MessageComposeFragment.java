@@ -44,6 +44,7 @@ import com.android.volley.VolleyError;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Message;
@@ -77,6 +78,7 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
   private UserAdapter mAdapter;
   private EditText mSubjectEditTextView, mMessageEditTextView;
   private boolean mSendButtonVisible = true;
+  private MainActivity.OnShowProgressBarListener mCallback;
 
   public MessageComposeFragment() {}
 
@@ -133,6 +135,17 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
     mMessageEditTextView = (EditText) v.findViewById(R.id.message_compose_message);
 
     return v;
+  }
+
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    try {
+      mCallback = (MainActivity.OnShowProgressBarListener) activity;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(activity.toString()
+          + " must implement OnShowProgressBarListener");
+    }
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
@@ -227,9 +240,9 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
     menu.findItem(R.id.send_icon).setVisible(mSendButtonVisible);
 
     if (!mSendButtonVisible) {
-      ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+      mCallback.onShowProgressBar(true);
     } else {
-      ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+      mCallback.onShowProgressBar(false);
     }
 
 
