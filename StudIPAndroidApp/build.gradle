@@ -131,7 +131,7 @@ android {
 
   defaultConfig {
     minSdkVersion 10
-    targetSdkVersion 22
+    targetSdkVersion 23
 
     versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
     versionName "${versionMajor}.${versionMinor}.${versionPatch}"
