@@ -39,6 +39,7 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
   protected StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
   private String mTitle;
+  private boolean mIsRefreshing = false;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -112,7 +113,9 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     if (getActivity() == null) {
       return;
     }
-    // Workaround for: https://code.google.com/p/android/issues/detail?id=77712
+
+    mIsRefreshing = toggle;
+    // Workaround for: ://code.google.com/p/android/issues/detail?id=77712
     TypedValue typed_value = new TypedValue();
     getActivity().getTheme()
         .resolveAttribute(android.support.v7.appcompat.R.attr.actionBarSize, typed_value, true);
@@ -121,6 +124,10 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
         getResources().getDimensionPixelSize(typed_value.resourceId));
 
     mSwipeRefreshLayout.setRefreshing(toggle);
+  }
+
+  public boolean isRefreshing() {
+    return mIsRefreshing;
   }
 
   public void setTitle(String title) {
