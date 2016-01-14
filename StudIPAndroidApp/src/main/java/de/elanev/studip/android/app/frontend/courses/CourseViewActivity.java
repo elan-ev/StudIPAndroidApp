@@ -24,7 +24,6 @@ import android.view.MenuItem;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Course;
@@ -133,28 +132,17 @@ public class CourseViewActivity extends AppCompatActivity {
   }
 
   @Override public void onBackPressed() {
-    if (!returnBackStackImmediate(getSupportFragmentManager())) {
-      super.onBackPressed();
-    }
-  }
+    String activeFragmentTag = "android:switcher:" + R.id.pager + ":" + mPager.getCurrentItem();
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    CourseDocumentsFragment fragment = (CourseDocumentsFragment) fragmentManager.findFragmentByTag(
+        activeFragmentTag);
 
-  // HACK: propagate back button press to child fragments.
-  // (http://android.joao.jp/2013/09/back-stack-with-nested-fragments-back.html)
-  // FIXME: Fix with either a better hack, or an official solution
-  private boolean returnBackStackImmediate(FragmentManager fm) {
-    List<Fragment> fList = fm.getFragments();
-    Fragment fActive = mPagerAdapter.getItem(mPager.getCurrentItem());
-    if (fActive instanceof CourseDocumentsFragment) {
-      if (fList != null && fList.size() > 0) {
-        for (Fragment f : fList) {
-          if (f.getChildFragmentManager().getBackStackEntryCount() > 0) {
-            return f.getChildFragmentManager().popBackStackImmediate() || returnBackStackImmediate(f
-                .getChildFragmentManager());
-          }
-        }
-      }
+    if (fragment != null) {
+      fragment.onBackPressed();
+      return;
     }
-    return false;
+
+    super.onBackPressed();
   }
 
   public static class FragmentsAdapter extends FragmentPagerAdapter {
