@@ -1,11 +1,16 @@
+/*
+ * Copyright (c) 2016 ELAN e.V.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ */
+
 package de.elanev.studip.android.app.backend.net.services;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Pair;
-
-
-import org.apache.http.HttpStatus;
 
 import java.util.ArrayList;
 
@@ -27,24 +32,25 @@ import de.elanev.studip.android.app.backend.datamodel.Settings;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.datamodel.UserItem;
 import de.elanev.studip.android.app.backend.db.UsersContract;
-import retrofit.Callback;
-import retrofit.ErrorHandler;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
-import retrofit.converter.JacksonConverter;
-import retrofit.http.Field;
-import retrofit.http.FormUrlEncoded;
-import retrofit.http.GET;
-import retrofit.http.POST;
-import retrofit.http.PUT;
-import retrofit.http.Path;
-import retrofit.http.Query;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Callback;
+import retrofit2.JacksonConverterFactory;
+import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
-import se.akerfeldt.signpost.retrofit.RetrofitHttpOAuthConsumer;
-import se.akerfeldt.signpost.retrofit.SigningOkClient;
+import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer;
+import se.akerfeldt.okhttp.signpost.SigningInterceptor;
+
 
 /**
  * API service providing methodes to interact with the legacy implementation of the Stud.IP REST
@@ -66,36 +72,43 @@ public class StudIpLegacyApiService {
   //region CONSTRUCTOR
   // -----------------------------------------------------------------------------------------------
   public StudIpLegacyApiService(Server server, Context context) {
-    RetrofitHttpOAuthConsumer oAuthConsumer = new RetrofitHttpOAuthConsumer(server.getConsumerKey(),
+    // Begin building the OkHttp3 client
+    OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+
+    // Create OkHttp3 SignPost interceptor and add it to the OkHttp3 client
+    OkHttpOAuthConsumer oAuthConsumer = new OkHttpOAuthConsumer(server.getConsumerKey(),
         server.getConsumerSecret());
     oAuthConsumer.setTokenWithSecret(server.getAccessToken(), server.getAccessTokenSecret());
+    clientBuilder.addInterceptor(new SigningInterceptor(oAuthConsumer));
 
     // Set log request log level based on BuildConfig
-    RestAdapter.LogLevel logLevel = (BuildConfig.DEBUG)
-        ? RestAdapter.LogLevel.FULL
-        : RestAdapter.LogLevel.BASIC;
+    HttpLoggingInterceptor.Level logLevel = (BuildConfig.DEBUG)
+        ? HttpLoggingInterceptor.Level.BODY
+        : HttpLoggingInterceptor.Level.BASIC;
 
-    // Set up the RestAdapter with the appropriate configuration options
-    RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(server.getApiUrl())
-        .setLogLevel(logLevel)
-        .setConverter(new JacksonConverter())
-        .setClient(new SigningOkClient(oAuthConsumer))
-        .setErrorHandler(new ErrorHandler() {
-          @Override public Throwable handleError(RetrofitError cause) {
-            if (cause != null) {
-              Response response = cause.getResponse();
-              if (response != null && response.getUrl()
-                  .contains("user") && cause.getResponse()
-                  .getStatus() == HttpStatus.SC_NOT_FOUND) {
-                return new UserNotFoundException(cause);
-              }
-            }
-            return cause;
-          }
-        })
-        .build();
+    HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+    logging.setLevel(logLevel);
+    clientBuilder.addInterceptor(logging);
 
-    mService = restAdapter.create(RestIPLegacyService.class);
+    // Add the necessary RestIpApiErrorInterceptor
+    clientBuilder.addInterceptor(new RestIpErrorInterceptor());
+
+    // Begin creating the Retrofit2 client
+    Retrofit.Builder retrofitBuilder = new Retrofit.Builder();
+
+    // Add API URL, JacksonConverter and the previously created OkHttp3 client
+    retrofitBuilder.baseUrl(server.getApiUrl())
+        .addConverterFactory(JacksonConverterFactory.create())
+        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+        .client(clientBuilder.build());
+
+    // Build Retrofit
+    Retrofit retrofit = retrofitBuilder.build();
+
+    // Create an instance of our RestIPLegacyService API interface.
+    mService = retrofit.create(RestIPLegacyService.class);
+
+    // Other initializations
     mContext = context.getApplicationContext();
   }
   //endregion --------------------------------------------------------------------------------------
@@ -348,7 +361,7 @@ public class StudIpLegacyApiService {
             return Observable.from(events.events);
           }
         })
-            // Then for every event get the course and emit it as Pair
+        // Then for every event get the course and emit it as Pair
         .flatMap(new Func1<Event, Observable<Pair<Event, Course>>>() {
           @Override public Observable<Pair<Event, Course>> call(Event event) {
 
@@ -377,57 +390,57 @@ public class StudIpLegacyApiService {
     /*
      * Forums
      */
-    @PUT("/courses/{course_id}/set_forum_read") void setForumRead(
+    @PUT("courses/{course_id}/set_forum_read") void setForumRead(
         @Path("course_id") String courseId, Callback<ForumCategory> cb);
 
-    @GET("/courses/{course_id}/forum_categories") Observable<ForumCategories> getForumCategories(
+    @GET("courses/{course_id}/forum_categories") Observable<ForumCategories> getForumCategories(
         @Path("course_id") String courseId);
 
-    @GET("/forum_category/{category_id}/areas") Observable<ForumAreas> getForumAreas(@Path(
+    @GET("forum_category/{category_id}/areas") Observable<ForumAreas> getForumAreas(@Path(
         "category_id") String categoryId, @Query("offset") int offset, @Query("limit") int limit);
 
-    @GET("/forum_entry/{topic_id}/children") Observable<ForumEntries> getForumTopicEntries(@Path(
+    @GET("forum_entry/{topic_id}/children") Observable<ForumEntries> getForumTopicEntries(@Path(
         "topic_id") String topicId, @Query("offset") int offset, @Query("limit") int limit);
 
-    @FormUrlEncoded @POST("/forum_entry/{topic_id}") Observable<ForumArea> createForumEntry(@Path(
+    @FormUrlEncoded @POST("forum_entry/{topic_id}") Observable<ForumArea> createForumEntry(@Path(
         "topic_id") String topicId, @Field("subject") String entrySubject,
         @Field("content") String entryContent);
 
     /*
      * User specific
      */
-    @GET("/user/{user_id}") Observable<UserItem> getUser(@Path("user_id") String userId);
+    @GET("user/{user_id}") Observable<UserItem> getUser(@Path("user_id") String userId);
 
-    @GET("/user") Observable<UserItem> getCurrentUserInfo();
+    @GET("user") Observable<UserItem> getCurrentUserInfo();
 
-    @GET("/events") Observable<Events> getEvents();
+    @GET("events") Observable<Events> getEvents();
 
     /*
      * Generally Stud.IP specifix
      */
-    @GET("/studip/settings") Observable<Settings> getSettings();
+    @GET("studip/settings") Observable<Settings> getSettings();
 
     /*
      * Course specific
      */
-    @GET("/courses/{course_id}") Observable<CourseItem> getCourse(
+    @GET("courses/{course_id}") Observable<CourseItem> getCourse(
         @Path("course_id") String courseId);
 
-    @GET("/documents/{course_id}/folder") Observable<DocumentFolders> getCourseDocuments(
+    @GET("documents/{course_id}/folder") Observable<DocumentFolders> getCourseDocuments(
         @Path("course_id") String courseId);
 
-    @GET("/documents/{course_id}/folder/{folder_id}") Observable<DocumentFolders> getCourseDocumentsFolders(
+    @GET("documents/{course_id}/folder/{folder_id}") Observable<DocumentFolders> getCourseDocumentsFolders(
         @Path("course_id") String courseId, @Path("folder_id") String folderId);
   }
   //endregion --------------------------------------------------------------------------------------
 
-  //region INNER CLASSES ---------------------------------------------------------------------------
-  public static class UserNotFoundException extends RuntimeException {
-    RetrofitError cause;
-
-    UserNotFoundException(RetrofitError cause) {
-      this.cause = cause;
-    }
-  }
-  //endregion --------------------------------------------------------------------------------------
+//  //region INNER CLASSES ---------------------------------------------------------------------------
+//  public static class UserNotFoundException extends RuntimeException {
+//    RetrofitError cause;
+//
+//    UserNotFoundException(RetrofitError cause) {
+//      this.cause = cause;
+//    }
+//  }
+//  //endregion --------------------------------------------------------------------------------------
 }
