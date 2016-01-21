@@ -8,6 +8,7 @@
 package de.elanev.studip.android.app.frontend.contacts;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -86,9 +87,10 @@ public class ContactsGroupsFragment extends UserListFragment implements
     SyncHelper.getInstance(mContext).forcePerformContactsSync(this);
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    activity.getContentResolver()
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+
+    context.getContentResolver()
         .registerContentObserver(ContactsContract.CONTENT_URI_CONTACT_GROUPS, true, mObserver);
   }
 

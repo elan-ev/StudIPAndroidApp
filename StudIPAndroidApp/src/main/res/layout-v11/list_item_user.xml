@@ -24,8 +24,8 @@
         android:layout_marginBottom="16dp"
         android:layout_marginTop="16dp"
         android:src="@drawable/nobody_normal"
-        app:border_width="1dp"
-        app:border_color="#fff5f5f5"
+        app:civ_border_width="1dp"
+        app:civ_border_color="#fff5f5f5"
         android:contentDescription="@string/user_image"/>
 
     <TextView

@@ -115,6 +115,8 @@
     <string name="downloads">%1$d Downloads</string>
     <string name="error_downloadmanager_disabled">Der DownloadManager ist deaktiviert.
         Bitte reaktivieren um fortzufahren.</string>
+    <string name="download_permission_denied">Download nicht möglich. Benötigte
+        Berechtigung nicht erhalten.</string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Datenschutzerklärung</string>

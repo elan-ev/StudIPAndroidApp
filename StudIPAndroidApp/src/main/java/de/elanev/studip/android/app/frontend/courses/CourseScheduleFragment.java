@@ -101,9 +101,9 @@ public class CourseScheduleFragment extends ListFragment implements LoaderCallba
     mEmptyMessageTextView.setText(messageRes);
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    activity.getContentResolver()
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    context.getContentResolver()
         .registerContentObserver(EventsContract.CONTENT_URI, true, mEventsObserver);
   }
 

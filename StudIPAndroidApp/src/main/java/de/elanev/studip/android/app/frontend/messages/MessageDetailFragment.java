@@ -140,15 +140,15 @@ public class MessageDetailFragment extends Fragment implements LoaderCallbacks<C
   }
 
   @Override
-  public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    activity.getContentResolver()
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    context.getContentResolver()
         .registerContentObserver(MessagesContract.CONTENT_URI_MESSAGES, true, mObserver);
 
     try {
-      mCallback = (MainActivity.OnShowProgressBarListener) activity;
+      mCallback = (MainActivity.OnShowProgressBarListener) context;
     } catch (ClassCastException e) {
-      throw new ClassCastException(activity.toString()
+      throw new ClassCastException(context.toString()
           + " must implement OnShowProgressBarListener");
     }
   }
