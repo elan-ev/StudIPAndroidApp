@@ -17,6 +17,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
@@ -211,35 +212,35 @@ public class UserDetailsActivity extends AppCompatActivity implements
       if (!TextUtils.isEmpty(userEmail)) {
         emailTextView.setText(userEmail);
         emailContainer.setVisibility(View.VISIBLE);
-        emailIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+        emailIcon.setColorFilter(ContextCompat.getColor(this, R.color.studip_mobile_dark),
             PorterDuff.Mode.SRC_IN);
       }
       if (!TextUtils.isEmpty(userPhoneNumber)) {
         phoneTextView.setText(userPhoneNumber);
         phoneContainer.setVisibility(View.VISIBLE);
         emailPhoneDivier.setVisibility(View.VISIBLE);
-        phoneIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+        phoneIcon.setColorFilter(ContextCompat.getColor(this, R.color.studip_mobile_dark),
             PorterDuff.Mode.SRC_IN);
       }
       if (!TextUtils.isEmpty(skypeName)) {
         skypeTextView.setText(skypeName);
         skypeContainer.setVisibility(View.VISIBLE);
         emailPhoneDivier.setVisibility(View.VISIBLE);
-        skypeIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+        skypeIcon.setColorFilter(ContextCompat.getColor(this, R.color.studip_mobile_dark),
             PorterDuff.Mode.SRC_IN);
       }
       if (!TextUtils.isEmpty(userHomepage)) {
         homepageTextView.setText(userHomepage);
         homepageContainer.setVisibility(View.VISIBLE);
         phoneHomepageDivider.setVisibility(View.VISIBLE);
-        homepageIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+        homepageIcon.setColorFilter(ContextCompat.getColor(this, R.color.studip_mobile_dark),
             PorterDuff.Mode.SRC_IN);
       }
       if (!TextUtils.isEmpty(userPrivAdr)) {
         addressTextView.setText(userPrivAdr);
         addressContainer.setVisibility(View.VISIBLE);
         homepageAddressDivider.setVisibility(View.VISIBLE);
-        addressIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+        addressIcon.setColorFilter(ContextCompat.getColor(this, R.color.studip_mobile_dark),
             PorterDuff.Mode.SRC_IN);
       }
     }

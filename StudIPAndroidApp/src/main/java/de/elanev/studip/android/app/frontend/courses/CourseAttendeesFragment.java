@@ -8,6 +8,7 @@
 package de.elanev.studip.android.app.frontend.courses;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -105,9 +106,10 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
   }
 
   @Override
-  public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    activity.getContentResolver()
+  public void onAttach(Context context) {
+    super.onAttach(context);
+
+    context.getContentResolver()
         .registerContentObserver(UsersContract.CONTENT_URI, true, mObserver);
   }
 

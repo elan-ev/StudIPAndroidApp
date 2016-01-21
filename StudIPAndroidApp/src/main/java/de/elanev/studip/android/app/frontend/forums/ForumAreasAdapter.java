@@ -110,7 +110,7 @@ class ForumAreasAdapter extends RecyclerView.Adapter<ForumAreasAdapter.ViewHolde
     }
 
     @Override public void onClick(View v) {
-      mListener.onListItemClicked(v, getPosition());
+      mListener.onListItemClicked(v, getAdapterPosition());
     }
 
     public interface ViewHolderClicks {
