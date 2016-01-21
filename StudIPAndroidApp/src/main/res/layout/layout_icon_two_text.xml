@@ -20,8 +20,8 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_image"
-        app:border_width="1dp"
-        app:border_color="#fff5f5f5"
+        app:civ_border_width="1dp"
+        app:civ_border_color="#fff5f5f5"
         android:layout_width="@dimen/user_image_icon_size"
         android:layout_height="@dimen/user_image_icon_size"
         android:contentDescription="@string/user_image"

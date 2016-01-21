@@ -9,6 +9,7 @@
 package de.elanev.studip.android.app.frontend.forums;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -21,8 +22,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.apache.http.HttpException;
-
 import java.util.concurrent.TimeoutException;
 
 import de.elanev.studip.android.app.MainActivity;
@@ -33,6 +32,7 @@ import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ReactiveFragment;
+import retrofit2.HttpException;
 import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
 
@@ -83,13 +83,13 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
     return v;
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
 
     try {
-      mCallback = (MainActivity.OnShowProgressBarListener) activity;
+      mCallback = (MainActivity.OnShowProgressBarListener) context;
     } catch (ClassCastException e) {
-      throw new ClassCastException(activity.toString()
+      throw new ClassCastException(context.toString()
           + " must implement OnShowProgressBarListener");
     }
   }

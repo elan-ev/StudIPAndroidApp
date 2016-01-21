@@ -137,13 +137,13 @@ public class MessageComposeFragment extends Fragment implements LoaderCallbacks<
     return v;
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
 
     try {
-      mCallback = (MainActivity.OnShowProgressBarListener) activity;
+      mCallback = (MainActivity.OnShowProgressBarListener) context;
     } catch (ClassCastException e) {
-      throw new ClassCastException(activity.toString()
+      throw new ClassCastException(context.toString()
           + " must implement OnShowProgressBarListener");
     }
   }

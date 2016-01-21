@@ -109,10 +109,10 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     getLoaderManager().initLoader(0, null, this);
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
 
-    activity.getContentResolver()
+    context.getContentResolver()
         .registerContentObserver(MessagesContract.CONTENT_URI_MESSAGE_FOLDERS, true, mObserver);
   }
 
