@@ -9,6 +9,7 @@
 package de.elanev.studip.android.app.backend.net.oauth;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -44,12 +45,12 @@ public class WebAuthFragment extends Fragment {
     return fragment;
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
     try {
-      mCallbacks = (OnWebViewAuthListener) activity;
+      mCallbacks = (OnWebViewAuthListener) context;
     } catch (ClassCastException e) {
-      throw new ClassCastException(activity.toString() + "must implement OnWebViewAuthListener");
+      throw new ClassCastException(context.toString() + "must implement OnWebViewAuthListener");
     }
   }
 

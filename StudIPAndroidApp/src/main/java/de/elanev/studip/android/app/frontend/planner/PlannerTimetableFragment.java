@@ -59,7 +59,7 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
   private static final String SCROLL_POSITION_X = "scroll-position-x";
   private static final String SCROLL_POSTIION_Y = "scroll-position-y";
   StudIpLegacyApiService mApiService;
-  Prefs mPrefs = Prefs.getInstance(getActivity());
+  Prefs mPrefs;
   private WeekView mWeekView;
   private int mOrientation;
   private Bundle mArgs;
@@ -77,9 +77,11 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(true);
+    mArgs = getArguments();
+    mPrefs = Prefs.getInstance(getActivity());
+
     mApiService = new StudIpLegacyApiService(mPrefs.getServer(), getActivity());
     mOrientation = getResources().getConfiguration().orientation;
-    mArgs = getArguments();
     mPreferredDayCount = mPrefs.getPreferredPlannerTimetableViewDayCount();
   }
 

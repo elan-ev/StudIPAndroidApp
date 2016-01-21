@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import org.apache.http.HttpException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +26,7 @@ import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.ForumCategory;
 import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
+import retrofit2.HttpException;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
