@@ -96,9 +96,9 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
     getLoaderManager().initLoader(0, null, this);
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    activity.getContentResolver()
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    context.getContentResolver()
         .registerContentObserver(CoursesContract.CONTENT_URI, true, mObserver);
   }
 

@@ -134,12 +134,14 @@ public class CourseViewActivity extends AppCompatActivity {
   @Override public void onBackPressed() {
     String activeFragmentTag = "android:switcher:" + R.id.pager + ":" + mPager.getCurrentItem();
     FragmentManager fragmentManager = getSupportFragmentManager();
-    CourseDocumentsFragment fragment = (CourseDocumentsFragment) fragmentManager.findFragmentByTag(
-        activeFragmentTag);
 
-    if (fragment != null) {
-      fragment.onBackPressed();
-      return;
+    Fragment fragment = fragmentManager.findFragmentByTag(activeFragmentTag);
+    if (fragment != null && fragment instanceof CourseDocumentsFragment) {
+      if (((CourseDocumentsFragment) fragment).onBackPressed()) {
+        return;
+      } else {
+        super.onBackPressed();
+      }
     }
 
     super.onBackPressed();
