@@ -8,7 +8,6 @@
       <module fileurl="file://$PROJECT_DIR$/StudIPAndroidApp/StudIPAndroidApp-StudIPAndroidApp.iml" filepath="$PROJECT_DIR$/StudIPAndroidApp/StudIPAndroidApp-StudIPAndroidApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/Android-Week-View/library/library.iml" filepath="$PROJECT_DIR$/libs/Android-Week-View/library/library.iml" />
       <module fileurl="file://$PROJECT_DIR$/libs/libs.iml" filepath="$PROJECT_DIR$/libs/libs.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libs/signpost-retrofit/signpost-retrofit.iml" filepath="$PROJECT_DIR$/libs/signpost-retrofit/signpost-retrofit.iml" />
     </modules>
   </component>
 </project>

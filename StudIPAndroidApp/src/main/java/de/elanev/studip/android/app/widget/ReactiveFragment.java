@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import rx.Observable;
 import rx.android.app.AppObservable;
 import rx.android.lifecycle.LifecycleEvent;
 import rx.android.lifecycle.LifecycleObservable;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import rx.subscriptions.CompositeSubscription;
 
@@ -104,7 +105,7 @@ public class ReactiveFragment extends Fragment {
 
   protected <T> Observable<T> bind(Observable<T> observable) {
     Observable<T> boundObservable = AppObservable.bindSupportFragment(this, observable)
-        .observeOn(mainThread());
+        .observeOn(mainThread()).subscribeOn(Schedulers.io());
     return LifecycleObservable.bindFragmentLifecycle(lifecycle(), boundObservable);
   }
 
