@@ -8,6 +8,7 @@
 
 package de.elanev.studip.android.app.frontend.courses;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
@@ -15,14 +16,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -64,9 +67,10 @@ import rx.schedulers.Schedulers;
 /**
  * Created by joern on 03.02.14
  */
-public class CourseDocumentsFragment extends Fragment {
+public class CourseDocumentsFragment extends ReactiveListFragment {
 
   static final String TAG = CourseDocumentsFragment.class.getSimpleName();
+  private static final int REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE = 0;
   /**
    * Broadcast receiver listening for completion of a download
    */
@@ -103,6 +107,7 @@ public class CourseDocumentsFragment extends Fragment {
   private DownloadManager mDownloadManager;
   private TextView mFolderTextView;
   private ArrayList<DocumentsNavigationBackStackEntry> mDocumentsNavigationBackstack = new ArrayList<>();
+  private Document mSelectedDocument;
 
   public CourseDocumentsFragment() {}
 
@@ -114,6 +119,27 @@ public class CourseDocumentsFragment extends Fragment {
     return fragment;
   }
 
+  @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+      @NonNull int[] grantResults) {
+    switch (requestCode) {
+      case REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE:
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+          // Permission Granted
+          downloadDocument(mSelectedDocument);
+        } else {
+
+          // Permission Denied
+          Toast.makeText(getActivity(), R.string.download_permission_denied, Toast.LENGTH_SHORT)
+              .show();
+        }
+        break;
+      default:
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+  }
+
   @Override public void onAttach(Context context) {
     super.onAttach(context);
     // registering the broadcast receiver for completed downloads
@@ -121,119 +147,9 @@ public class CourseDocumentsFragment extends Fragment {
         new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
   }
 
-  @Override public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
-    Bundle args = getArguments();
-    if (args == null || args.isEmpty() || !args.containsKey(
-        CoursesContract.Columns.Courses.COURSE_ID)) {
-      throw new IllegalStateException("Arguments must not be null and must contain a course_id");
-    }
-    mCourseId = args.getString(CoursesContract.Columns.Courses.COURSE_ID);
-
-    // Get folder ID and name if available
-    mFolderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
-    mFolderName = getArguments().getString(FOLDER_NAME);
-
-    mAdapter = new DocumentsAdapter(new ArrayList<>(), getActivity(), new ListItemClicks() {
-      @Override public void onListItemClicked(View caller, int position) {
-        Object obj = mAdapter.getItem(position);
-
-        if (obj == null) {
-          return;
-        }
-
-        if (obj instanceof DocumentFolder) {
-          if (isRefreshing()) {
-            return;
-          }
-
-          String folderName = ((DocumentFolder) obj).name;
-          String folderId = ((DocumentFolder) obj).folder_id;
-
-          addToDocumentsNavigationBackStack(mFolderId, mFolderName);
-          loadFolder(folderId, folderName);
-
-        } else if (obj instanceof Document) {
-          downloadDocument((Document) obj);
-        }
-      }
-    });
-
-    mObserver = new RecyclerView.AdapterDataObserver() {
-      @Override public void onChanged() {
-        super.onChanged();
-        mEmptyView.setText(R.string.no_documents);
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
-    mAdapter.registerAdapterDataObserver(mObserver);
-
-  }
-
-  private void addToDocumentsNavigationBackStack(String folderId, String folderName) {
-    Log.d(TAG, "Adding: " + folderId + " : " + folderName + "to back stack");
-    // First check if the entry already exists
-    for (int i = 0, count = mDocumentsNavigationBackstack.size(); i < count; i++) {
-      DocumentsNavigationBackStackEntry stackEntry = mDocumentsNavigationBackstack.get(i);
-
-      if (TextUtils.equals(stackEntry.getFolderId(), folderId)) {
-        // Entry already existing, stop here.
-        return;
-      }
-    }
-
-    // Add new entry
-    final DocumentsNavigationBackStackEntry newEntry = new DocumentsNavigationBackStackEntry(
-        folderId, folderName);
-    mDocumentsNavigationBackstack.add(newEntry);
-  }
-
-  private void loadFolder(final String folderId, final String folderName) {
-    setRefreshing(true);
-
-    mFolderId = folderId;
-    mFolderName = folderName;
-
-    Observable<DocumentFolders> observable;
-    if (folderId == null) {
-      observable = mApiService.getCourseDocuments(mCourseId);
-    } else {
-      observable = mApiService.getCourseDocumentsFolders(mCourseId, folderId);
-    }
-
-    if (observable != null) {
-      mCompositeSubscription.add(bind(observable).subscribeOn(Schedulers.newThread())
-          .subscribe(new Subscriber<DocumentFolders>() {
-            @Override public void onCompleted() {
-              setRefreshing(false);
-            }
-
-            @Override public void onError(Throwable e) {
-              if (e instanceof TimeoutException) {
-                Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
-                    .show();
-              } else if (e instanceof HttpException) {
-                Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
-                    .show();
-                Log.e(TAG, e.getLocalizedMessage());
-              } else {
-                e.printStackTrace();
-                throw new RuntimeException("See inner exception");
-              }
-
-              setRefreshing(false);
-            }
-
-            @Override public void onNext(DocumentFolders documentFolders) {
-              final List<Object> list = new ArrayList<>();
-              list.addAll(documentFolders.folders);
-              list.addAll(documentFolders.documents);
-
-              mAdapter.updateData(list, folderName);
-            }
-          }));
-    }
+  @Override public void onSaveInstanceState(Bundle outState) {
+    outState.putAll(getArguments());
+    super.onSaveInstanceState(outState);
   }
 
   @TargetApi(Build.VERSION_CODES.HONEYCOMB) private void downloadDocument(Document document) {
@@ -318,6 +234,135 @@ public class CourseDocumentsFragment extends Fragment {
     }
   }
 
+  @Override public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    Bundle args = getArguments();
+    if (args == null || args.isEmpty() || !args.containsKey(
+        CoursesContract.Columns.Courses.COURSE_ID)) {
+      throw new IllegalStateException("Arguments must not be null and must contain a course_id");
+    }
+    mCourseId = args.getString(CoursesContract.Columns.Courses.COURSE_ID);
+
+    // Get folder ID and name if available
+    mFolderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
+
+    mAdapter = new DocumentsAdapter(new ArrayList<>(), getActivity(), new ListItemClicks() {
+      @Override public void onListItemClicked(View caller, int position) {
+        Object obj = mAdapter.getItem(position);
+
+        if (obj == null) {
+          return;
+        }
+
+        if (obj instanceof DocumentFolder) {
+          if (isRefreshing()) {
+            return;
+          }
+
+          String folderName = ((DocumentFolder) obj).name;
+          String folderId = ((DocumentFolder) obj).folder_id;
+
+          addToDocumentsNavigationBackStack(mFolderId, mFolderName);
+          loadFolder(folderId, folderName);
+
+        } else if (obj instanceof Document) {
+          // Setting currently selected document for later use
+          mSelectedDocument = (Document) obj;
+
+          // Check if the write external storage permission is already available.
+          if (ContextCompat.checkSelfPermission(getActivity(),
+              Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            Log.i(TAG, "WRITE_EXTERNAL_STORAGE permission NOT granted. Asking for permission.");
+            // Write external storage permission has not been granted.
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE);
+          } else {
+            Log.i(TAG, "WRITE_EXTERNAL_STORAGE permission already granted. Starting download.");
+            downloadDocument(mSelectedDocument);
+          }
+        }
+      }
+    });
+
+
+    mObserver = new RecyclerView.AdapterDataObserver() {
+      @Override public void onChanged() {
+        super.onChanged();
+        mEmptyView.setText(R.string.no_documents);
+        setEmptyViewVisible(mAdapter.isEmpty());
+      }
+    };
+    mAdapter.registerAdapterDataObserver(mObserver);
+
+  }
+
+  private void addToDocumentsNavigationBackStack(String folderId, String folderName) {
+    Log.d(TAG, "Adding: " + folderId + " : " + folderName + "to back stack");
+    // First check if the entry already exists
+    for (int i = 0, count = mDocumentsNavigationBackstack.size(); i < count; i++) {
+      DocumentsNavigationBackStackEntry stackEntry = mDocumentsNavigationBackstack.get(i);
+
+      if (TextUtils.equals(stackEntry.getFolderId(), folderId)) {
+        // Entry already existing, stop here.
+        return;
+      }
+    }
+
+    // Add new entry
+    final DocumentsNavigationBackStackEntry newEntry = new DocumentsNavigationBackStackEntry(
+        folderId, folderName);
+    mDocumentsNavigationBackstack.add(newEntry);
+  }
+
+  private void loadFolder(final String folderId, final String folderName) {
+    setRefreshing(true);
+
+    mFolderId = folderId;
+    mFolderName = folderName;
+
+    Observable<DocumentFolders> observable;
+    if (folderId == null) {
+      observable = mApiService.getCourseDocuments(mCourseId);
+    } else {
+      observable = mApiService.getCourseDocumentsFolders(mCourseId, folderId);
+    }
+
+    if (observable != null) {
+      mCompositeSubscription.add(bind(observable).subscribeOn(Schedulers.newThread())
+          .subscribe(new Subscriber<DocumentFolders>() {
+            @Override public void onCompleted() {
+              setRefreshing(false);
+            }
+
+            @Override public void onError(Throwable e) {
+              if (e instanceof TimeoutException) {
+                Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
+                    .show();
+              } else if (e instanceof HttpException) {
+                Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
+                    .show();
+                Log.e(TAG, e.getLocalizedMessage());
+              } else {
+                e.printStackTrace();
+                throw new RuntimeException("See inner exception");
+              }
+
+              setRefreshing(false);
+            }
+
+            @Override public void onNext(DocumentFolders documentFolders) {
+              final List<Object> list = new ArrayList<>();
+              list.addAll(documentFolders.folders);
+              list.addAll(documentFolders.documents);
+
+              mAdapter.updateData(list, folderName);
+            }
+          }));
+    }
+  }
+
   @Override public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.documents_recyclerview_list, container, false);
@@ -341,15 +386,14 @@ public class CourseDocumentsFragment extends Fragment {
     }
   }
 
+  @Override protected void updateItems() {
+    loadFolder(mFolderId, mFolderName);
+  }
+
   @Override public void onStart() {
     super.onStart();
 
     loadFolder(mFolderId, mFolderName);
-  }
-
-  @Override public void onSaveInstanceState(Bundle outState) {
-    outState.putAll(getArguments());
-    super.onSaveInstanceState(outState);
   }
 
   @Override public void onDetach() {
@@ -417,10 +461,6 @@ public class CourseDocumentsFragment extends Fragment {
         return R.string.unknown_error;
     }
 
-  }
-
-  @Override protected void updateItems() {
-    loadFolder(mFolderId, mFolderName);
   }
 
   public void onBackPressed() {
