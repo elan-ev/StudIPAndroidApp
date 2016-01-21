@@ -52,7 +52,6 @@ import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import retrofit.RetrofitError;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -128,15 +127,12 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
               }
 
               @Override public void onError(Throwable e) {
+                Log.e(TAG, e.getLocalizedMessage());
                 if (e instanceof TimeoutException) {
                   Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
                       .show();
-                } else if (e instanceof RetrofitError
-                    && ((RetrofitError) e).getKind() == RetrofitError.Kind.CONVERSION) {
-                  Log.e(TAG, e.getLocalizedMessage());
-                } else if (e instanceof RetrofitError || e instanceof HttpException) {
-                  Toast.makeText(getActivity(), "Retrofit error or http exception",
-                      Toast.LENGTH_LONG)
+                } else if (e instanceof HttpException) {
+                  Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
                       .show();
                   Log.e(TAG, e.getLocalizedMessage());
                 } else {
