@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -61,7 +61,7 @@ public class Server implements Serializable {
     this.accessUrl = baseUrl + "/oauth/access_token";
     this.authorizationUrl = baseUrl + "/oauth/authorize";
     this.requestUrl = baseUrl + "/oauth/request_token";
-    this.apiUrl = baseUrl + "/api";
+    this.apiUrl = baseUrl + "/api/";
     this.contactEmail = contactEmail;
   }
 
@@ -114,7 +114,7 @@ public class Server implements Serializable {
     this.accessUrl = base_url + "/oauth/access_token";
     this.authorizationUrl = base_url + "/oauth/authorize";
     this.requestUrl = base_url + "/oauth/request_token";
-    this.apiUrl = base_url + "/api";
+    this.apiUrl = base_url + "/api/";
   }
 
   public String getAccessUrl() {
