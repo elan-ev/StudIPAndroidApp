@@ -110,6 +110,7 @@
     <string name="version_not_supported_message">Unfortunately your Android version is currently not supporting downloads from Stud.IP.</string>
     <string name="downloads">%1$d downloads</string>
     <string name="error_downloadmanager_disabled">Your download manager is disabled. Please enable it to continue.</string>
+    <string name="download_permission_denied">Can\'t download file. Necessary permission denied.</string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Privacy policy</string>
