@@ -37,8 +37,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -60,6 +58,7 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
+import retrofit2.HttpException;
 import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
@@ -463,10 +462,19 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
 
   }
 
-  public void onBackPressed() {
+  /**
+   * Returns the previous navigation page when the back button is pressed.
+   *
+   * @return true if the previous entry was successfully returned is currently shown. false if
+   * there was no entry was in the back stack.
+   */
+  public boolean onBackPressed() {
     DocumentsNavigationBackStackEntry prevEntry = popDocumentsNavigationBackStack();
     if (prevEntry != null) {
       loadFolder(prevEntry.getFolderId(), prevEntry.getFolderName());
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -555,8 +563,8 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         holder.mSubtitleTextView.setVisibility(View.VISIBLE);
       }
 
-      holder.mIconImageView.setColorFilter(mContext.getResources()
-          .getColor(R.color.studip_mobile_dark), PorterDuff.Mode.SRC_IN);
+      holder.mIconImageView.setColorFilter(
+          ContextCompat.getColor(mContext, R.color.studip_mobile_dark), PorterDuff.Mode.SRC_IN);
     }
 
     @Override public int getItemCount() {

@@ -362,13 +362,13 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     return servers;
   }
 
-  @Override public void onAttach(Activity activity) {
+  @Override public void onAttach(Context context) {
     Log.i(TAG, "onAttach Called!");
-    super.onAttach(activity);
+    super.onAttach(context);
     try {
-      mCallbacks = (OnRequestTokenReceived) activity;
+      mCallbacks = (OnRequestTokenReceived) context;
     } catch (ClassCastException e) {
-      throw new ClassCastException(activity.toString() + "must implement OnWebViewAuthListener");
+      throw new ClassCastException(context.toString() + "must implement OnWebViewAuthListener");
     }
   }
 

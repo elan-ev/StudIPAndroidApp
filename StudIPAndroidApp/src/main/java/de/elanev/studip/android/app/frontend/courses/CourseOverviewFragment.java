@@ -174,9 +174,9 @@ public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<
     }
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    final ContentResolver contentResolver = activity.getContentResolver();
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    final ContentResolver contentResolver = context.getContentResolver();
 
     contentResolver.registerContentObserver(CoursesContract.CONTENT_URI, true, mObserverCourse);
 
