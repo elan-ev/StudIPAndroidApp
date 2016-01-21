@@ -22,6 +22,7 @@ import rx.Observable;
 import rx.android.app.AppObservable;
 import rx.android.lifecycle.LifecycleEvent;
 import rx.android.lifecycle.LifecycleObservable;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import rx.subscriptions.CompositeSubscription;
 
@@ -104,7 +105,7 @@ public class ReactiveFragment extends Fragment {
 
   protected <T> Observable<T> bind(Observable<T> observable) {
     Observable<T> boundObservable = AppObservable.bindSupportFragment(this, observable)
-        .observeOn(mainThread());
+        .observeOn(mainThread()).subscribeOn(Schedulers.io());
     return LifecycleObservable.bindFragmentLifecycle(lifecycle(), boundObservable);
   }
 

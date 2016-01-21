@@ -4,12 +4,13 @@
 package de.elanev.studip.android.app.backend.net.util;
 
 import com.android.volley.toolbox.HurlStack;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.OkUrlFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import okhttp3.OkHttpClient;
+import okhttp3.OkUrlFactory;
 
 /**
  * An {@link com.android.volley.toolbox.HttpStack HttpStack} implementation which

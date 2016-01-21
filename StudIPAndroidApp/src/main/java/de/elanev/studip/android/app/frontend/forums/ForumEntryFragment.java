@@ -31,9 +31,7 @@ import java.util.concurrent.TimeoutException;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntry;
 import de.elanev.studip.android.app.backend.datamodel.User;
-import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import retrofit.RetrofitError;
 import rx.Subscriber;
 
 /**
@@ -217,14 +215,9 @@ public class ForumEntryFragment extends ReactiveListFragment {
           @Override public void onError(Throwable e) {
             if (e instanceof TimeoutException) {
               Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT).show();
-            } else if (e instanceof RetrofitError) {
-              Toast.makeText(getActivity(), "Retrofit error", Toast.LENGTH_LONG).show();
             } else if (e instanceof HttpException) {
               Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG).show();
               Log.e(TAG, e.getLocalizedMessage());
-            } else if (e instanceof StudIpLegacyApiService.UserNotFoundException) {
-              Log.e(TAG, "User not found");
-              return;
             } else {
               e.printStackTrace();
               throw new RuntimeException("See inner exception");

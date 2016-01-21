@@ -58,7 +58,6 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
-import retrofit.RetrofitError;
 import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
@@ -423,7 +422,7 @@ public class CourseDocumentsFragment extends Fragment {
                 if (e instanceof TimeoutException) {
                   Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
                       .show();
-                } else if (e instanceof RetrofitError || e instanceof HttpException) {
+                } else if (e instanceof HttpException) {
                   Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
                       .show();
                   Log.e(TAG, e.getLocalizedMessage());
