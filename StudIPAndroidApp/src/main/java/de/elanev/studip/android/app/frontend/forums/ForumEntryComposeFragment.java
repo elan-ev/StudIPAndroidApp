@@ -11,8 +11,6 @@ package de.elanev.studip.android.app.frontend.forums;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,7 +33,6 @@ import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ReactiveFragment;
-import retrofit.RetrofitError;
 import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
 
@@ -147,8 +144,8 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
       @Override public void onError(Throwable e) {
         if (e instanceof TimeoutException) {
           Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT).show();
-        } else if (e instanceof RetrofitError || e instanceof HttpException) {
-          Toast.makeText(getActivity(), "Retrofit error or http exception", Toast.LENGTH_LONG)
+        } else if (e instanceof HttpException) {
+          Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
               .show();
           Log.e(TAG, e.getLocalizedMessage());
         } else {

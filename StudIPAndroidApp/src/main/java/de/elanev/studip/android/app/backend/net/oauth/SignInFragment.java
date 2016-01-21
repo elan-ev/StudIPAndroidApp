@@ -208,7 +208,10 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         Log.i(TAG, "App synced starting..");
         startMainActivity();
         return;
+      } else if(prefs.getUserId() == null) {
+
       } else {
+
         performPrefetchSync();
         return;
       }

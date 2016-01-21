@@ -10,8 +10,8 @@ package de.elanev.studip.android.app.backend.net.services;
 
 import java.util.HashMap;
 
-import retrofit.http.Body;
-import retrofit.http.POST;
+import retrofit2.http.Body;
+import retrofit2.http.POST;
 import rx.Observable;
 
 /**

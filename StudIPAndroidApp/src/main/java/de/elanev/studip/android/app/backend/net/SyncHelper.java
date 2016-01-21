@@ -75,7 +75,7 @@ import de.elanev.studip.android.app.backend.db.UnizensusContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
 import de.elanev.studip.android.app.backend.net.services.CustomJsonConverterApiService;
-import de.elanev.studip.android.app.backend.net.services.DiscoveryRouteJsonConverter;
+import de.elanev.studip.android.app.backend.net.services.DiscoveryRouteJsonConverterFactory;
 import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.backend.net.sync.ContactGroupsHandler;
 import de.elanev.studip.android.app.backend.net.sync.DocumentsHandler;
@@ -1475,9 +1475,8 @@ public class SyncHelper {
   }
 
   public void requestApiRoutes(final SyncHelperCallbacks callbacks) {
-    CustomJsonConverterApiService apiService = new CustomJsonConverterApiService(mContext,
-        mServer,
-        new DiscoveryRouteJsonConverter());
+    CustomJsonConverterApiService apiService = new CustomJsonConverterApiService(mServer,
+        new DiscoveryRouteJsonConverterFactory());
 
     mCompositeSubscription.add(apiService.discoverApi()
         .subscribeOn(Schedulers.newThread())

@@ -22,7 +22,6 @@ import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
 import de.elanev.studip.android.app.backend.datamodel.ForumCategory;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import retrofit.RetrofitError;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -151,8 +150,8 @@ public class ForumAreasListFragment extends ReactiveListFragment {
           @Override public void onError(Throwable e) {
             if (e instanceof TimeoutException) {
               Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT).show();
-            } else if (e instanceof RetrofitError || e instanceof HttpException) {
-              Toast.makeText(getActivity(), "Retrofit error or http exception", Toast.LENGTH_LONG)
+            } else if (e instanceof HttpException) {
+              Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
                   .show();
               Log.e(TAG, e.getLocalizedMessage());
             } else {
