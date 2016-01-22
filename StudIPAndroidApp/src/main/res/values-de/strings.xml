@@ -117,6 +117,8 @@
         Bitte reaktivieren um fortzufahren.</string>
     <string name="download_permission_denied">Download nicht möglich. Benötigte
         Berechtigung nicht erhalten.</string>
+    <string name="Open">Öffnen</string>
+    <string name="no_compatible_application">Keine kompatible App gefunden</string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Datenschutzerklärung</string>
