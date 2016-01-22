@@ -111,6 +111,8 @@
     <string name="downloads">%1$d downloads</string>
     <string name="error_downloadmanager_disabled">Your download manager is disabled. Please enable it to continue.</string>
     <string name="download_permission_denied">Can\'t download file. Necessary permission denied.</string>
+    <string name="Open">Open</string>
+    <string name="no_compatible_application">No compatible application found</string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Privacy policy</string>
