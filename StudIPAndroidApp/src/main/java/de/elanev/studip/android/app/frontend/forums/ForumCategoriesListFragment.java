@@ -28,7 +28,6 @@ import de.elanev.studip.android.app.backend.db.CoursesContract;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import retrofit2.HttpException;
 import rx.Subscriber;
-import rx.schedulers.Schedulers;
 
 /**
  * @author joern
