@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
@@ -25,6 +26,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
@@ -34,6 +36,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,6 +73,15 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
 
   static final String TAG = CourseDocumentsFragment.class.getSimpleName();
   private static final int REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE = 0;
+  private DocumentsAdapter mAdapter;
+  private String mCourseId;
+  private String mFolderId;
+  private String mFolderName;
+  private DownloadManager mDownloadManager;
+  private TextView mFolderTextView;
+  private ArrayList<DocumentsNavigationBackStackEntry> mDocumentsNavigationBackstack = new ArrayList<>();
+  private Document mSelectedDocument;
+  private LinearLayout mContainerLayout;
   /**
    * Broadcast receiver listening for completion of a download
    */
@@ -89,9 +101,12 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         Cursor cursor = mgr.query(query);
         int statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
         int reasonIndex = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+        int localUri = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI);
+        int mimeType = cursor.getColumnIndex(DownloadManager.COLUMN_MEDIA_TYPE);
 
         if (cursor.moveToFirst()) {
-          queryStatus(cursor.getInt(statusIndex), cursor.getInt(reasonIndex));
+          queryStatus(cursor.getInt(statusIndex), cursor.getInt(reasonIndex),
+              cursor.getString(localUri), cursor.getString(mimeType));
         }
 
         cursor.close();
@@ -99,14 +114,6 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     }
 
   };
-  private DocumentsAdapter mAdapter;
-  private String mCourseId;
-  private String mFolderId;
-  private String mFolderName;
-  private DownloadManager mDownloadManager;
-  private TextView mFolderTextView;
-  private ArrayList<DocumentsNavigationBackStackEntry> mDocumentsNavigationBackstack = new ArrayList<>();
-  private Document mSelectedDocument;
 
   public CourseDocumentsFragment() {}
 
@@ -137,13 +144,6 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-  }
-
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
-    // registering the broadcast receiver for completed downloads
-    context.registerReceiver(mDownloadManagerReceiver,
-        new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
   }
 
   @Override public void onSaveInstanceState(Bundle outState) {
@@ -233,6 +233,72 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     }
   }
 
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    // registering the broadcast receiver for completed downloads
+    context.registerReceiver(mDownloadManagerReceiver,
+        new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+
+    loadFolder(mFolderId, mFolderName);
+  }
+
+  @Override public void onDetach() {
+    super.onDetach();
+    // unregister the broadcast receiver to save resources
+    getActivity().unregisterReceiver(mDownloadManagerReceiver);
+  }
+
+  private void loadFolder(final String folderId, final String folderName) {
+    setRefreshing(true);
+
+    mFolderId = folderId;
+    mFolderName = folderName;
+
+    Observable<DocumentFolders> observable;
+    if (folderId == null) {
+      observable = mApiService.getCourseDocuments(mCourseId);
+    } else {
+      observable = mApiService.getCourseDocumentsFolders(mCourseId, folderId);
+    }
+
+    if (observable != null) {
+      mCompositeSubscription.add(bind(observable).subscribeOn(Schedulers.newThread())
+          .subscribe(new Subscriber<DocumentFolders>() {
+            @Override public void onCompleted() {
+              setRefreshing(false);
+            }
+
+            @Override public void onError(Throwable e) {
+              if (e instanceof TimeoutException) {
+                Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
+                    .show();
+              } else if (e instanceof HttpException) {
+                Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
+                    .show();
+                Log.e(TAG, e.getLocalizedMessage());
+              } else {
+                e.printStackTrace();
+                throw new RuntimeException("See inner exception");
+              }
+
+              setRefreshing(false);
+            }
+
+            @Override public void onNext(DocumentFolders documentFolders) {
+              final List<Object> list = new ArrayList<>();
+              list.addAll(documentFolders.folders);
+              list.addAll(documentFolders.documents);
+
+              mAdapter.updateData(list, folderName);
+            }
+          }));
+    }
+  }
+
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
@@ -315,53 +381,6 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     mDocumentsNavigationBackstack.add(newEntry);
   }
 
-  private void loadFolder(final String folderId, final String folderName) {
-    setRefreshing(true);
-
-    mFolderId = folderId;
-    mFolderName = folderName;
-
-    Observable<DocumentFolders> observable;
-    if (folderId == null) {
-      observable = mApiService.getCourseDocuments(mCourseId);
-    } else {
-      observable = mApiService.getCourseDocumentsFolders(mCourseId, folderId);
-    }
-
-    if (observable != null) {
-      mCompositeSubscription.add(bind(observable).subscribeOn(Schedulers.newThread())
-          .subscribe(new Subscriber<DocumentFolders>() {
-            @Override public void onCompleted() {
-              setRefreshing(false);
-            }
-
-            @Override public void onError(Throwable e) {
-              if (e instanceof TimeoutException) {
-                Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
-                    .show();
-              } else if (e instanceof HttpException) {
-                Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
-                    .show();
-                Log.e(TAG, e.getLocalizedMessage());
-              } else {
-                e.printStackTrace();
-                throw new RuntimeException("See inner exception");
-              }
-
-              setRefreshing(false);
-            }
-
-            @Override public void onNext(DocumentFolders documentFolders) {
-              final List<Object> list = new ArrayList<>();
-              list.addAll(documentFolders.folders);
-              list.addAll(documentFolders.documents);
-
-              mAdapter.updateData(list, folderName);
-            }
-          }));
-    }
-  }
-
   @Override public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.documents_recyclerview_list, container, false);
@@ -369,7 +388,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     mEmptyView = (TextView) v.findViewById(R.id.empty);
     mFolderTextView = (TextView) v.findViewById(R.id.folder_title);
     mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
-
+    mContainerLayout = (LinearLayout) v.findViewById(R.id.layout_container);
     return v;
   }
 
@@ -389,19 +408,8 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     loadFolder(mFolderId, mFolderName);
   }
 
-  @Override public void onStart() {
-    super.onStart();
-
-    loadFolder(mFolderId, mFolderName);
-  }
-
-  @Override public void onDetach() {
-    super.onDetach();
-    // unregister the broadcast receiver to save resources
-    getActivity().unregisterReceiver(mDownloadManagerReceiver);
-  }
-
-  private void queryStatus(int queryStatus, int queryReason) {
+  private void queryStatus(int queryStatus, int queryReason, final String fileName,
+      final String mime) {
 
     switch (queryStatus) {
       case DownloadManager.STATUS_FAILED:
@@ -409,14 +417,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         break;
 
       case DownloadManager.STATUS_SUCCESSFUL:
-        showToastMessage(R.string.download_completed);
-        try {
-          // Show the download activity
-          startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
-        } catch (ActivityNotFoundException e) {
-          // No download manager installed or active, let the user handle the downloads.
-        }
-
+        showSnackbar(fileName, mime);
         break;
 
       default:
@@ -426,7 +427,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
   }
 
   private void showToastMessage(int stringRes) {
-    if (isAdded()) Toast.makeText(getActivity(), stringRes, Toast.LENGTH_SHORT)
+    if (isAdded()) Toast.makeText(getContext(), stringRes, Toast.LENGTH_SHORT)
         .show();
   }
 
@@ -460,6 +461,35 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         return R.string.unknown_error;
     }
 
+  }
+
+  private void showSnackbar(final String fileName, final String mime) {
+    // Create Snackbar
+    Snackbar snackbar = Snackbar.make(mContainerLayout, R.string.download_completed,
+        Snackbar.LENGTH_SHORT)
+        .setAction(R.string.Open, new View.OnClickListener() {
+          @Override public void onClick(View v) {
+            Intent viewIntent = new Intent(Intent.ACTION_VIEW);
+            viewIntent.setDataAndType(Uri.parse(fileName), mime);
+
+            try {
+              // Show the download activity
+              startActivity(viewIntent);
+            } catch (ActivityNotFoundException e) {
+              // No application for handling the file is installed.
+              showToastMessage(R.string.no_compatible_application);
+            }
+          }
+        });
+
+    // Change color of primary Snackbar text
+    View snackbarView = snackbar.getView();
+    TextView textView = (TextView) snackbarView.findViewById(
+        android.support.design.R.id.snackbar_text);
+    textView.setTextColor(Color.LTGRAY);
+
+    // Show the Snack
+    snackbar.show();
   }
 
   /**
@@ -605,13 +635,15 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         itemView.setOnClickListener(this);
       }
 
+      public interface ViewHolderClicks {
+        void onListItemClicked(View caller, int position);
+      }
+
       @Override public void onClick(View v) {
         mListener.onListItemClicked(v, getAdapterPosition());
       }
 
-      public interface ViewHolderClicks {
-        void onListItemClicked(View caller, int position);
-      }
+
     }
   }
 
