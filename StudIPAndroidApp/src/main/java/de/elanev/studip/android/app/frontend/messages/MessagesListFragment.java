@@ -7,7 +7,6 @@
  */
 package de.elanev.studip.android.app.frontend.messages;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
