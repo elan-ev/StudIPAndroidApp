@@ -10,6 +10,7 @@ package de.elanev.studip.android.app.widget;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
@@ -30,11 +33,11 @@ import rx.subscriptions.CompositeSubscription;
  */
 public abstract class ReactiveListFragment extends ReactiveFragment {
   private static final String TAG = ReactiveListFragment.class.getSimpleName();
+  @Bind(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayout;
+  @Bind(R.id.list) protected RecyclerView mRecyclerView;
+  @Bind(R.id.empty) protected TextView mEmptyView;
   protected final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-  protected RecyclerView mRecyclerView;
   protected RecyclerView.ItemDecoration mDividerItemDecoration;
-  protected TextView mEmptyView;
-  protected SwipeRefreshLayout mSwipeRefreshLayout;
   protected RecyclerView.AdapterDataObserver mObserver;
   protected StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
@@ -44,7 +47,8 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(true);
-    Server server = Prefs.getInstance(getActivity()).getServer();
+    Server server = Prefs.getInstance(getActivity())
+        .getServer();
     mApiService = new StudIpLegacyApiService(server, getActivity());
   }
 
@@ -56,13 +60,11 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     }
   }
 
-  @Override public View onCreateView(LayoutInflater inflater,
-      @Nullable ViewGroup container,
+  @Override public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.recyclerview_list, container, false);
-    mRecyclerView = (RecyclerView) v.findViewById(R.id.list);
-        mEmptyView = (TextView) v.findViewById(R.id.empty);
-    mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
+
+    ButterKnife.bind(this, v);
 
     return v;
   }
@@ -71,7 +73,7 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     super.onActivityCreated(savedInstanceState);
 
     mEmptyView.setText(R.string.loading);
-    setEmptyViewVisible(true);
+    //    setEmptyViewVisible(true);
 
     // Set RecyclerView up
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -82,9 +84,7 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
 
     // Set SwipeRefreshLayout up
     mSwipeRefreshLayout.setColorSchemeResources(R.color.studip_mobile_dark,
-        R.color.studip_mobile_darker,
-        R.color.studip_mobile_dark,
-        R.color.studip_mobile_darker);
+        R.color.studip_mobile_darker, R.color.studip_mobile_dark, R.color.studip_mobile_darker);
     mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
         updateItems();
@@ -92,6 +92,8 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     });
     setRefreshing(true);
   }
+
+  protected abstract void updateItems();
 
   public void setEmptyViewVisible(boolean toggle) {
     if (toggle) {
@@ -107,7 +109,9 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     mRecyclerView.removeItemDecoration(mDividerItemDecoration);
   }
 
-  protected abstract void updateItems();
+  public boolean isRefreshing() {
+    return mIsRefreshing;
+  }
 
   public void setRefreshing(final boolean toggle) {
     if (getActivity() == null) {
@@ -119,15 +123,10 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     TypedValue typed_value = new TypedValue();
     getActivity().getTheme()
         .resolveAttribute(android.support.v7.appcompat.R.attr.actionBarSize, typed_value, true);
-    mSwipeRefreshLayout.setProgressViewOffset(false,
-        0,
+    mSwipeRefreshLayout.setProgressViewOffset(false, 0,
         getResources().getDimensionPixelSize(typed_value.resourceId));
 
     mSwipeRefreshLayout.setRefreshing(toggle);
-  }
-
-  public boolean isRefreshing() {
-    return mIsRefreshing;
   }
 
   public void setTitle(String title) {

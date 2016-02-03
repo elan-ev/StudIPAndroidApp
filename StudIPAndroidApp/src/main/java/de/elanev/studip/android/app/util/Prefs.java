@@ -15,6 +15,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 
+import de.elanev.studip.android.app.backend.datamodel.Postbox;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AuthenticationContract;
@@ -43,6 +44,7 @@ public class Prefs {
   private static final String PLANNER_PREFERRED_PORTRAIT_VIEW = "plannerPreferredPortraitView";
   private static final String PLANNER_PREFERRED_LANDSCAPE_VIEW = "plannerPreferredLandscapeView";
   private static final String PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT = "plannerPreferredTimetableViewDayCount";
+  private static final String MESSAGE_POSTBOX = "messageFolders";
   private static Prefs sInstance;
   private Context mContext;
   private SharedPreferences mPrefs;
@@ -444,6 +446,19 @@ public class Prefs {
   public void setPrefPlannerTimetableViewDayCount(int count) {
     mPrefs.edit()
         .putInt(PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT, count)
+        .apply();
+  }
+
+  public Postbox getPostbox() {
+    String postboxJson = mPrefs.getString(MESSAGE_POSTBOX, "");
+    Postbox postbox = Postbox.fromJson(postboxJson);
+    return postbox;
+  }
+
+  public void setPostbox(Postbox postbox) {
+    String postboxString = Postbox.toJson(postbox);
+    mPrefs.edit()
+        .putString(MESSAGE_POSTBOX, postboxString)
         .apply();
   }
 }

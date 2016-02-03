@@ -181,7 +181,8 @@
     <string name="message_deleted">Nachricht gelöscht</string>
     <string name="Receiver">Empfänger</string>
     <string name="Subject">Betreff</string>
-    <string name="original_message">Original Nachricht</string>
+    <string name="message_quotation_with_sender">Original von %1$s am %2$s:</string>
+    <string name="message_quotation_without_sender">Original vom %1$s:</string>
     <string name="message_forward_string">WG</string>
     <string name="message_reply_string">AW</string>
     <string name="Send">Senden</string>
@@ -193,7 +194,7 @@
     <string name="please_choose_receiver">Bitte Empfänger angeben</string>
     <string name="please_enter_subject">Bitte einen Betreff angeben</string>
     <string name="please_enter_message">Bitte eine Nachricht eingeben</string>
-    <string name="enter_forename_lastname">Vorname Nachname eingeben</string>
+    <string name="select_valid_user">Gültigen Nutzer auswählen</string>
     <string name="enter_subject">Betreff eingeben</string>
     <string name="enter_message">Nachricht eingeben</string>
 
@@ -268,6 +269,9 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="Enter_content">Forebeitrag verfassen</string>
     <string name="no_forum_categories">Keine Kategorien vorhanden</string>
     <string name="anonymous">Anonym</string>
+
+    <!-- General error messages -->
+    <string name="error_timeout">Zeitüberschreitung, versuchen Sie es später erneut</string>
 
 
 </resources>
