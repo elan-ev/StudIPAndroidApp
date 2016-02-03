@@ -10,11 +10,12 @@ package de.elanev.studip.android.app.backend.net.services;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Pair;
+import android.support.v4.util.Pair;
 
 import java.util.ArrayList;
 
 import de.elanev.studip.android.app.BuildConfig;
+import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.backend.datamodel.Course;
 import de.elanev.studip.android.app.backend.datamodel.CourseItem;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolders;
@@ -26,6 +27,12 @@ import de.elanev.studip.android.app.backend.datamodel.ForumCategories;
 import de.elanev.studip.android.app.backend.datamodel.ForumCategory;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntries;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntry;
+import de.elanev.studip.android.app.backend.datamodel.Message;
+import de.elanev.studip.android.app.backend.datamodel.MessageFolders;
+import de.elanev.studip.android.app.backend.datamodel.MessageItem;
+import de.elanev.studip.android.app.backend.datamodel.Messages;
+import de.elanev.studip.android.app.backend.datamodel.MessagesStats;
+import de.elanev.studip.android.app.backend.datamodel.Postbox;
 import de.elanev.studip.android.app.backend.datamodel.Recording;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.Settings;
@@ -38,6 +45,7 @@ import retrofit2.Callback;
 import retrofit2.JacksonConverterFactory;
 import retrofit2.Retrofit;
 import retrofit2.RxJavaCallAdapterFactory;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -383,6 +391,97 @@ public class StudIpLegacyApiService {
           }
         });
   }
+
+  public Observable<Postbox> getMessageFolders(int offset, int limit) {
+    Observable<MessageFolders> inboxObservable = mService.getMessageInbox(offset, limit)
+        .flatMap(new Func1<MessageFolders, Observable<MessageFolders>>() {
+          @Override public Observable<MessageFolders> call(MessageFolders messageFolders) {
+            messageFolders.boxType = StudIPConstants.STUDIP_MESSAGES_INBOX_IDENTIFIER;
+            return Observable.just(messageFolders);
+          }
+        });
+
+    Observable<MessageFolders> outboxObservable = mService.getMessageOutbox(offset, limit)
+        .flatMap(new Func1<MessageFolders, Observable<MessageFolders>>() {
+          @Override public Observable<MessageFolders> call(MessageFolders messageFolders) {
+            messageFolders.boxType = StudIPConstants.STUDIP_MESSAGES_OUTBOX_IDENTIFIER;
+            return Observable.just(messageFolders);
+          }
+        });
+
+    return Observable.zip(inboxObservable, outboxObservable,
+        new Func2<MessageFolders, MessageFolders, Postbox>() {
+          @Override public Postbox call(MessageFolders inbox, MessageFolders outbox) {
+            return new Postbox(inbox, outbox);
+          }
+        });
+  }
+
+  public Observable<Pair<Message, User>> getInboxMessages(String folder, int offset, int limit) {
+    return mService.getMessagesInboxFolder(folder, offset, limit)
+        // Unwrap message
+        .flatMap(new Func1<Messages, Observable<Message>>() {
+          @Override public Observable<Message> call(Messages messages) {
+            return Observable.from(messages.messages);
+          }
+        })
+
+        // For each message, load the user for senderId
+        .flatMap(new Func1<Message, Observable<Pair<Message, User>>>() {
+          @Override public Observable<Pair<Message, User>> call(Message message) {
+
+            // Zip the message and user observables together
+            return Observable.zip(Observable.just(message), getUser(message.senderId),
+                new Func2<Message, User, Pair<Message, User>>() {
+
+                  // Function to zip them together
+                  @Override public Pair<Message, User> call(Message message, User user) {
+                    return new Pair<>(message, user);
+                  }
+                });
+          }
+        });
+  }
+
+  public Observable<Pair<Message, User>> getOutboxMessages(String folder, int offset, int limit) {
+    return mService.getMessagesOutboxFolder(folder, offset, limit)
+        // Unwrap message
+        .flatMap(new Func1<Messages, Observable<Message>>() {
+          @Override public Observable<Message> call(Messages messages) {
+            return Observable.from(messages.messages);
+          }
+        })
+
+        // For each message, load the user for senderId
+        .flatMap(new Func1<Message, Observable<Pair<Message, User>>>() {
+          @Override public Observable<Pair<Message, User>> call(Message message) {
+
+            // Zip the message and user observables together
+            return Observable.zip(Observable.just(message), getUser(message.senderId),
+                new Func2<Message, User, Pair<Message, User>>() {
+
+                  // Function to zip them together
+                  @Override public Pair<Message, User> call(Message message, User user) {
+                    return new Pair<>(message, user);
+                  }
+                });
+          }
+        });
+  }
+
+  public Observable<Void> setMessageRead(final String messageId) {
+    return mService.setMessageRead(messageId);
+  }
+
+  public Observable<MessageItem> sendMessage(final String receiverId, final String subject,
+      final String message) {
+    return mService.sendMessage(receiverId, subject, message);
+  }
+
+  public Observable<Void> deleteMessage(final String messageId) {
+    return mService.deleteMessage(messageId);
+  }
+
   //endregion --------------------------------------------------------------------------------------
 
   //region INTERFACES ------------------------------------------------------------------------------
@@ -390,8 +489,8 @@ public class StudIpLegacyApiService {
     /*
      * Forums
      */
-    @PUT("courses/{course_id}/set_forum_read") void setForumRead(
-        @Path("course_id") String courseId, Callback<ForumCategory> cb);
+    @PUT("courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
+        Callback<ForumCategory> cb);
 
     @GET("courses/{course_id}/forum_categories") Observable<ForumCategories> getForumCategories(
         @Path("course_id") String courseId);
@@ -416,7 +515,7 @@ public class StudIpLegacyApiService {
     @GET("events") Observable<Events> getEvents();
 
     /*
-     * Generally Stud.IP specifix
+     * Generally Stud.IP
      */
     @GET("studip/settings") Observable<Settings> getSettings();
 
@@ -431,16 +530,35 @@ public class StudIpLegacyApiService {
 
     @GET("documents/{course_id}/folder/{folder_id}") Observable<DocumentFolders> getCourseDocumentsFolders(
         @Path("course_id") String courseId, @Path("folder_id") String folderId);
+
+    /* Messages */
+    @GET("messages/in") Observable<MessageFolders> getMessageInbox(@Query("offset") int offset,
+        @Query("limit") int limit);
+
+    @GET("messages/out") Observable<MessageFolders> getMessageOutbox(@Query("offset") int offset,
+        @Query("limit") int limit);
+
+    @GET("messages/in/{folder_id}") Observable<Messages> getMessagesInboxFolder(
+        @Path("folder_id") String folderId, @Query("offset") int offset, @Query("limit") int limit);
+
+    @GET("messages/out/{folder_id}") Observable<Messages> getMessagesOutboxFolder(
+        @Path("folder_id") String folderId, @Query("offset") int offset, @Query("limit") int limit);
+
+    @PUT("messages/{message_id}/read") Observable<Void> setMessageRead(
+        @Path("message_id") String messageId);
+
+    @FormUrlEncoded @POST("messages") Observable<MessageItem> sendMessage(
+        @Field("user_id") String receiverId, @Field("subject") String subject,
+        @Field("message") String message);
+
+    @DELETE("messages/{message_id}") Observable<Void> deleteMessage(
+        @Path("message_id") String messageId);
+
+    @GET("messages") Observable<MessagesStats> getMessagesStats();
   }
   //endregion --------------------------------------------------------------------------------------
 
-//  //region INNER CLASSES ---------------------------------------------------------------------------
-//  public static class UserNotFoundException extends RuntimeException {
-//    RetrofitError cause;
-//
-//    UserNotFoundException(RetrofitError cause) {
-//      this.cause = cause;
-//    }
-//  }
-//  //endregion --------------------------------------------------------------------------------------
+  //  //region INNER CLASSES ---------------------------------------------------------------------------
+
+  //  //endregion --------------------------------------------------------------------------------------
 }
