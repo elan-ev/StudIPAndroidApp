@@ -70,7 +70,7 @@ public class MessagesHandler implements ResultHandler {
 		ContentProviderOperation.Builder builder = ContentProviderOperation
 				.newInsert(MessagesContract.CONTENT_URI_MESSAGES)
 				.withValue(MessagesContract.Columns.Messages.MESSAGE_ID,
-						m.message_id)
+						m.messageId)
 				.withValue(MessagesContract.Columns.Messages.MESSAGE, m.message)
 				.withValue(MessagesContract.Columns.Messages.MESSAGE_MKDATE,
 						m.mkdate)
@@ -78,9 +78,9 @@ public class MessagesHandler implements ResultHandler {
 						m.priority)
 				.withValue(
 						MessagesContract.Columns.Messages.MESSAGE_RECEIVER_ID,
-						m.receiver_id)
+						m.receiverId)
 				.withValue(MessagesContract.Columns.Messages.MESSAGE_SENDER_ID,
-						m.sender_id)
+						m.senderId)
 				.withValue(MessagesContract.Columns.Messages.MESSAGE_SUBJECT,
 						m.subject)
 				.withValue(MessagesContract.Columns.Messages.MESSAGE_UNREAD,
