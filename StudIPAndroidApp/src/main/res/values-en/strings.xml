@@ -172,7 +172,8 @@
     <string name="message_deleted">Message deleted</string>
     <string name="Receiver">Receiver</string>
     <string name="Subject">Subject</string>
-    <string name="original_message">Original message</string>
+    <string name="message_quotation_with_sender">Original by %1$s on %2$s:</string>
+    <string name="message_quotation_without_sender">Original on %1$s:</string>
     <string name="message_forward_string">FWD</string>
     <string name="message_reply_string">RE</string>
     <string name="Send">send</string>
@@ -184,7 +185,7 @@
     <string name="please_choose_receiver">Please choose a receiver</string>
     <string name="please_enter_subject">Please enter a message subject</string>
     <string name="please_enter_message">Please enter a message</string>
-    <string name="enter_forename_lastname">Enter Forename Lastname</string>
+    <string name="select_valid_user">Select a valid user</string>
     <string name="enter_subject">Enter subject</string>
     <string name="enter_message">Enter message</string>
 
@@ -256,5 +257,7 @@ information visit https://goo.gl/AKQXve.</string>
     <string name="no_forum_categories">No categories</string>
     <string name="anonymous">Anonymous</string>
 
+    <!-- General error messages -->
+    <string name="error_timeout">Request timed out, try again later</string>
 
 </resources>
