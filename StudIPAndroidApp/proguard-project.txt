@@ -60,6 +60,14 @@
 -keepclassmembers class * extends android.support.v4.app.Fragment{
  public *** newInstance(android.os.Bundle);
 }
+-keep class butterknife.** { *; }
+-keep class **$$ViewBinder { *; }
+-keepclasseswithmembernames class * {
+    @butterknife.* <fields>;
+}
+-keepclasseswithmembernames class * {
+    @butterknife.* <methods>;
+}
 
 -dontwarn android.support.**
 -dontwarn org.apache.http.**
@@ -71,6 +79,7 @@
 -dontwarn okio.**
 -dontwarn rx.**
 -dontwarn com.android.volley.**
+-dontwarn butterknife.internal.**
 
 -dontnote com.google.vending.licensing.ILicensingService
 -dontnote com.android.vending.licensing.ILicensingService
