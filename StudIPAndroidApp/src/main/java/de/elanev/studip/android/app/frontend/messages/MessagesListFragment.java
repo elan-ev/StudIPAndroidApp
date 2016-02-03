@@ -9,115 +9,207 @@ package de.elanev.studip.android.app.frontend.messages;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Request.Method;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.VolleyError;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import de.elanev.studip.android.app.MainActivity;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPApplication;
-import de.elanev.studip.android.app.backend.datamodel.Server;
-import de.elanev.studip.android.app.backend.db.MessagesContract;
-import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.backend.net.SyncHelper;
-import de.elanev.studip.android.app.backend.net.oauth.OAuthConnector;
-import de.elanev.studip.android.app.backend.net.util.StringRequest;
-import de.elanev.studip.android.app.util.DateTools;
-import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.StuffUtil;
-import de.elanev.studip.android.app.util.TextTools;
-import de.elanev.studip.android.app.widget.ProgressListFragment;
-import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.exception.OAuthNotAuthorizedException;
+import de.elanev.studip.android.app.StudIPConstants;
+import de.elanev.studip.android.app.backend.datamodel.Message;
+import de.elanev.studip.android.app.backend.datamodel.User;
+import de.elanev.studip.android.app.widget.ReactiveListFragment;
+import de.elanev.studip.android.app.widget.SimpleRecyclerViewAdapter;
+import de.elanev.studip.android.app.widget.SimpleSectionedRecyclerViewAdapter;
+import de.hdodenhof.circleimageview.CircleImageView;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
-public class MessagesListFragment extends ProgressListFragment implements LoaderCallbacks<Cursor>,
-    AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener,
-    SyncHelper.SyncHelperCallbacks {
+public class MessagesListFragment extends ReactiveListFragment {
   public static final String TAG = MessagesListFragment.class.getSimpleName();
-  protected final ContentObserver mObserver = new ContentObserver(new Handler()) {
-    @Override public void onChange(boolean selfChange) {
-      if (getActivity() == null) {
-        return;
-      }
-
-      Loader<Cursor> loader = getLoaderManager().getLoader(0);
-      if (loader != null) {
-        loader.forceLoad();
-      }
-    }
-  };
-  private MessagesAdapter mMessagesAdapter;
-  private String mApiUrl;
+  public MessagesAdapter mAdapter;
+  public SimpleSectionedRecyclerViewAdapter mSectionedAdapter;
+  private int mOffset = 0;
+  private boolean mLoading;
+  private int mPreviousTotal;
+  private int mVisibleThreshold;
+  private String mFolderId;
+  private String mBoxType;
 
   public MessagesListFragment() {}
 
+  public static MessagesListFragment newInstance(Bundle args) {
+    MessagesListFragment fragment = new MessagesListFragment();
+    fragment.setArguments(args);
+
+    return fragment;
+  }
+
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    mApiUrl = Prefs.getInstance(getActivity()).getServer().getApiUrl();
-
-    // Creating the adapters for the listview
-    mMessagesAdapter = new MessagesAdapter(mContext);
-
     setHasOptionsMenu(true);
+    Bundle arguments = getArguments();
+    if (arguments == null) {
+      return;
+    }
+
+    mFolderId = arguments.getString(MessagesActivity.FOLDER_ID);
+    mBoxType = arguments.getString(MessagesActivity.BOX_TYPE);
   }
+
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
+
+    if (savedInstanceState != null) {
+      mFolderId = savedInstanceState.getString(MessagesActivity.FOLDER_ID);
+    }
+
     getActivity().setTitle(R.string.Messages);
-    setEmptyMessage(R.string.no_messages);
+    mEmptyView.setText(R.string.no_messages);
+    mAdapter = new MessagesAdapter(new ArrayList<Pair<Message, User>>(),
+        new SimpleRecyclerViewAdapter.ViewHolder.ViewHolderClicks() {
 
-    mListView.setOnItemClickListener(this);
-    mListView.setAdapter(mMessagesAdapter);
+          @Override public void onListItemClicked(View v, int position) {
+            Pair<Message, User> messageUserPair = mAdapter.getItem(position);
+            Message message = messageUserPair.first;
+            User user = messageUserPair.second;
+            startMessageDetailActivity(message, user);
+          }
+        }, getContext()) {};
+    mObserver = new RecyclerView.AdapterDataObserver() {
 
-    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
-    // Request the latest messages from server
-    mSwipeRefreshLayoutListView.setRefreshing(true);
-    SyncHelper.getInstance(mContext).performMessagesSync(this);
-    // initialize CursorLoader
-    getLoaderManager().initLoader(0, null, this);
+      @Override public void onChanged() {
+        super.onChanged();
+
+        mEmptyView.setText(R.string.no_entries);
+        setEmptyViewVisible(mAdapter.isEmpty());
+      }
+    };
+
+    mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+      @Override public void onRefresh() {
+        mOffset = 0;
+        updateItems();
+      }
+    });
+    mSectionedAdapter = new SimpleSectionedRecyclerViewAdapter(mAdapter);
+    mSectionedAdapter.registerAdapterDataObserver(mObserver);
+
+    setRefreshing(true);
+    mRecyclerView.setAdapter(mSectionedAdapter);
+
+    mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+      @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+        int visibleItemCount = mRecyclerView.getChildCount();
+        int totalItemCount = layoutManager.getItemCount();
+        int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+
+
+        if (mLoading) {
+
+          if (totalItemCount > mPreviousTotal) {
+            mLoading = false;
+            mPreviousTotal = totalItemCount;
+          }
+        }
+        if (!mLoading && (totalItemCount - visibleItemCount) <= (firstVisibleItem
+            + mVisibleThreshold)) {
+
+          mOffset = totalItemCount;
+          setRefreshing(true);
+          updateItems();
+          mLoading = true;
+        }
+      }
+    });
+
+    if (!mRecreated) {
+      updateItems();
+    }
   }
 
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
+  @Override protected void updateItems() {
+    Observable<Pair<Message, User>> messageObservable;
+    if (mBoxType.equals(StudIPConstants.STUDIP_MESSAGES_INBOX_IDENTIFIER)) {
+      messageObservable = mApiService.getInboxMessages(mFolderId, mOffset, 10);
+    } else {
+      messageObservable = mApiService.getOutboxMessages(mFolderId, mOffset, 10);
+    }
 
-    context.getContentResolver()
-        .registerContentObserver(MessagesContract.CONTENT_URI_MESSAGE_FOLDERS, true, mObserver);
+    final ArrayList<Pair<Message, User>> entries = new ArrayList<>();
+    mCompositeSubscription.add(bind(messageObservable).subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<Pair<Message, User>>() {
+          @Override public void onCompleted() {
+            mAdapter.addAll(entries);
+          }
+
+          @Override public void onError(Throwable e) {
+          }
+
+          @Override public void onNext(Pair<Message, User> messageUserPair) {
+            entries.add(messageUserPair);
+          }
+        }));
   }
 
-  @Override public void onDetach() {
-    super.onDetach();
-    getActivity().getContentResolver().unregisterContentObserver(mObserver);
+  private void startMessageDetailActivity(Message message, User sender) {
+    if (message.unread != 0) markMessageAsRead(message.messageId);
+
+    Bundle extras = new Bundle();
+    extras.putSerializable(MessageDetailActivity.MESSAGE, message);
+    extras.putSerializable(MessageDetailActivity.SENDER_INFO, sender);
+
+    Intent intent = new Intent(getContext(), MessageDetailActivity.class);
+    intent.putExtras(extras);
+
+    startActivity(intent);
+  }
+
+  /**
+   * @param messageId
+   */
+  private void markMessageAsRead(final String messageId) {
+    mCompositeSubscription.add(
+        bind(mApiService.setMessageRead(messageId)).subscribe(new Subscriber<Void>() {
+          @Override public void onCompleted() {
+            //SUCCESS
+            updateItems();
+          }
+
+          @Override public void onError(Throwable e) {
+            //ERROR
+          }
+
+          @Override public void onNext(Void aVoid) {
+            //NOTHING
+          }
+        }));
+  }
+
+  @Override public void onSaveInstanceState(Bundle outState) {
+    outState.putString(MessagesActivity.FOLDER_ID, mFolderId);
+    outState.putString(MessagesActivity.BOX_TYPE, mBoxType);
+
+    super.onSaveInstanceState(outState);
   }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -125,20 +217,12 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
     super.onCreateOptionsMenu(menu, inflater);
   }
 
-  @Override public void onPrepareOptionsMenu(Menu menu) {
-    MainActivity activity = (MainActivity) getActivity();
-//    boolean drawerOpen = activity.mDrawerLayout.isDrawerOpen(drawerOpen);
-//    menu.findItem(R.id.compose_icon).setVisible(!drawerOpen);
-
-    super.onPrepareOptionsMenu(menu);
-  }
-
   @Override public boolean onOptionsItemSelected(MenuItem item) {
     if (isAdded()) {
       switch (item.getItemId()) {
         case R.id.compose_icon:
 
-          Intent intent = new Intent(mContext, MessageComposeActivity.class);
+          Intent intent = new Intent(getContext(), MessageComposeActivity.class);
           startActivity(intent);
           break;
 
@@ -150,212 +234,52 @@ public class MessagesListFragment extends ProgressListFragment implements Loader
 
   }
 
-  public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-    setLoadingViewVisible(true);
-    return new CursorLoader(mContext,
-        MessagesContract.CONTENT_URI_MESSAGE_FOLDERS.buildUpon()
-            .appendPath("name")
-            .appendPath("Posteingang")
-            .build(),
-        MessageQuery.projection,
-        UsersContract.Qualified.USERS_USER_ID + " NOT NULL",
-        null,
-        MessagesContract.DEFAULT_SORT_ORDER_MESSAGES);
-  }
+  static class MessagesAdapter extends
+      SimpleRecyclerViewAdapter<Pair<Message, User>, MessagesAdapter.ViewHolder> {
 
-  public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-    if (getActivity() == null) {
-      return;
+    private final LayoutInflater mInflater;
+    private final Context mContext;
+
+    public MessagesAdapter(ArrayList<Pair<Message, User>> data,
+        SimpleRecyclerViewAdapter.ViewHolder.ViewHolderClicks listener, Context context) {
+
+      mData = data;
+      mListener = listener;
+      mInflater = LayoutInflater.from(context);
+      mContext = context;
     }
 
-    cursor.moveToFirst();
-    if (cursor.getCount() > 0) {
-      List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
-      if (!cursor.isAfterLast())
-        getActivity().setTitle(cursor.getString(cursor.getColumnIndex(MessagesContract.Columns.MessageFolders.MESSAGE_FOLDER_NAME)));
+    @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+      View v = mInflater.inflate(R.layout.list_item_message, parent, false);
 
-      long previousDay = -1;
-      long currentDay = -1;
-      while (!cursor.isAfterLast()) {
-        currentDay = cursor.getLong(cursor.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_MKDATE));
-        if (!DateTools.isSameDay(previousDay * 1000L, currentDay * 1000L)) {
-          sections.add(new SectionedCursorAdapter.Section(cursor.getPosition(),
-              DateTools.getShortLocalizedTime(currentDay * 1000L, mContext)));
-        }
-
-        previousDay = currentDay;
-
-        cursor.moveToNext();
-      }
-
-      mMessagesAdapter.setSections(sections);
+      return new ViewHolder(v, mListener);
     }
 
-    mMessagesAdapter.swapCursor(cursor);
+    @Override public void onBindViewHolder(ViewHolder holder, int position) {
+      Pair<Message, User> messageUserPair = getItem(position);
+      Message message = messageUserPair.first;
+      User user = messageUserPair.second;
 
-    setLoadingViewVisible(false);
-  }
-
-  public void onLoaderReset(Loader<Cursor> loader) {
-    mMessagesAdapter.swapCursor(null);
-  }
-
-  @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    if (position != ListView.INVALID_POSITION) {
-      Cursor c = (Cursor) mListView.getItemAtPosition(position);
-      String messageId = c.getString(c.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_ID));
-      int messageIntId = c.getInt(c.getColumnIndex(MessagesContract.Columns.Messages._ID));
-      int unread = c.getInt(c.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_UNREAD));
-      if (unread != 0) markMessageAsRead(messageId, messageIntId);
-
-      Intent intent = new Intent(mContext, MessageDetailActivity.class);
-      intent.putExtra(MessagesContract.Columns.Messages.MESSAGE_ID, messageId);
-
-      startActivity(intent);
-    }
-  }
-
-  /**
-   * @param messageId
-   * @param messageIntId
-   */
-  private void markMessageAsRead(final String messageId, final int messageIntId) {
-
-    String messagesUrl = String.format(getString(R.string.restip_messages_read_messageid),
-        mApiUrl,
-        messageId);
-
-    StringRequest request = new StringRequest(Method.PUT, messagesUrl, new Listener<String>() {
-      public void onResponse(String response) {
-        mContext.getContentResolver()
-            .update(MessagesContract.CONTENT_URI_MESSAGES.buildUpon()
-                .appendPath("read")
-                .appendPath(String.valueOf(messageIntId))
-                .build(), null, null, null);
-      }
-    }, new ErrorListener() {
-      public void onErrorResponse(VolleyError error) {
-        if (error.getMessage() != null) Log.e(TAG, error.getMessage());
-
-        if (isAdded()) Toast.makeText(mContext,
-            getString(R.string.something_went_wrong) + error.getMessage(),
-            Toast.LENGTH_SHORT).show();
-      }
-    });
-
-    try {
-      Server server = Prefs.getInstance(mContext).getServer();
-      OAuthConnector.with(server).sign(request);
-
-    } catch (OAuthMessageSignerException e) {
-      e.printStackTrace();
-    } catch (OAuthExpectationFailedException e) {
-      e.printStackTrace();
-    } catch (OAuthCommunicationException e) {
-      e.printStackTrace();
-    } catch (OAuthNotAuthorizedException e) {
-      StuffUtil.startSignInActivity(mContext);
-    }
-    StudIPApplication.getInstance().addToRequestQueue(request);
-  }
-
-  @Override public void onRefresh() {
-    SyncHelper.getInstance(mContext).performMessagesSync(this);
-  }
-
-  @Override public void onSyncStarted() {
-    mSwipeRefreshLayoutListView.setRefreshing(true);
-  }
-
-  @Override public void onSyncStateChange(int status) {
-  }
-
-  @Override public void onSyncFinished(int status) {
-    if (status == SyncHelper.SyncHelperCallbacks.FINISHED_MESSAGES_SYNC) {
-      mSwipeRefreshLayoutListView.setRefreshing(false);
-    }
-  }
-
-  @Override public void onSyncError(int status, String errorMsg, int errorCode) {
-    if (status == SyncHelper.SyncHelperCallbacks.ERROR_MESSAGES_SYNC && errorCode != 404) {
-      if (getActivity() != null) {
-        Toast.makeText(mContext, R.string.sync_error_default, Toast.LENGTH_LONG).show();
-      }
-      mSwipeRefreshLayoutListView.setRefreshing(false);
-    }
-  }
-
-  public static Fragment newInstance(Bundle args) {
-    MessagesListFragment fragment = new MessagesListFragment();
-    fragment.setArguments(args);
-
-    return fragment;
-  }
-
-  /*
-   * messages adapter
-   */
-  private interface MessageQuery {
-    String[] projection = {
-        MessagesContract.Qualified.Messages.MESSAGES_ID,
-        MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_ID,
-        MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_MKDATE,
-        MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_SUBJECT,
-        MessagesContract.Qualified.Messages.MESSAGES_MESSAGE_UNREAD,
-        MessagesContract.Qualified.MessageFolders.MESSAGES_FOLDERS_MESSAGE_FOLDER_NAME,
-
-        UsersContract.Qualified.USERS_USER_TITLE_PRE,
-        UsersContract.Qualified.USERS_USER_FORENAME,
-        UsersContract.Qualified.USERS_USER_LASTNAME,
-        UsersContract.Qualified.USERS_USER_TITLE_POST,
-        UsersContract.Qualified.USERS_USER_AVATAR_NORMAL
-    };
-  }
-
-  private class MessagesAdapter extends SectionedCursorAdapter {
-
-    public MessagesAdapter(Context context) {
-      super(context);
-    }
-
-    @Override public View newView(Context context, Cursor cursor, ViewGroup parent) {
-      return getActivity().getLayoutInflater().inflate(R.layout.list_item_message, parent, false);
-    }
-
-    @Override public void bindView(View view, Context context, final Cursor cursor) {
-
-      final String usertTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
-      final String userForename = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-      final String userLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
-      final String userTitlePost = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
-      final String userImageUrl = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-
-      final String messageSubject = cursor.getString(cursor.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_SUBJECT));
-      final int messageUnread = cursor.getInt(cursor.getColumnIndex(MessagesContract.Columns.Messages.MESSAGE_UNREAD));
-
-      final TextView messageSenderTimeTextView = (TextView) view.findViewById(R.id.message_sender);
-      final TextView messageSubjectTextView = (TextView) view.findViewById(R.id.message_subject);
-
-      messageSenderTimeTextView.setText(TextTools.createNameSting(usertTitlePre,
-          userForename,
-          userLastname,
-          userTitlePost));
-      messageSubjectTextView.setText(messageSubject);
-
-      if (messageUnread == 1) messageSubjectTextView.setTypeface(null, Typeface.BOLD);
-      else messageSubjectTextView.setTypeface(null, Typeface.NORMAL);
-
-
-      ImageView imageView = (ImageView) view.findViewById(R.id.user_image);
-
-      Picasso.with(context)
-          .load(userImageUrl)
+      holder.mSubject.setText(message.subject);
+      holder.mUserName.setText(user.getFullName());
+      Picasso.with(mContext)
+          .load(user.avatarNormal)
           .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
           .centerCrop()
           .placeholder(R.drawable.nobody_normal)
-          .into(imageView);
+          .into(holder.userImage);
     }
 
-  }
+    public static class ViewHolder extends SimpleRecyclerViewAdapter.ViewHolder {
+      @Bind(R.id.message_subject) TextView mSubject;
+      @Bind(R.id.message_sender) TextView mUserName;
+      @Bind(R.id.user_image) CircleImageView userImage;
 
+      public ViewHolder(View itemView, ViewHolderClicks listener) {
+        super(itemView, listener);
+
+        ButterKnife.bind(this, itemView);
+      }
+    }
+  }
 }
