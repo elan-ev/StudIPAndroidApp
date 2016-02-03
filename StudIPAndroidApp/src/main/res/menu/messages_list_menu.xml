@@ -7,15 +7,6 @@
   ~ http://www.gnu.org/licenses/gpl.html
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:StudIPApplication="http://schemas.android.com/apk/res-auto">
-
-<item
-        android:id="@+id/compose_icon"
-        android:icon="@drawable/ic_action_mail"
-        StudIPApplication:showAsAction="ifRoom|withText"
-        android:title="@string/compose_message"
-        android:titleCondensed="@string/Compose">
-    </item>
+<menu>
 
 </menu>
