@@ -131,7 +131,7 @@ public class MessageComposeActivity extends AppCompatActivity {
     if (mAction == MESSAGE_ACTION_FORWARD) {
       subject = String.format("%s: %s", getString(R.string.message_forward_string),
           message.subject);
-    } else if (mAction == MESSAGE_ACTION_REPLY) {
+    } else if (mAction == MESSAGE_ACTION_REPLY && !TextUtils.isEmpty(message.subject)) {
       subject = String.format("%s: %s", getString(R.string.message_reply_string), message.subject);
     } else {
       subject = message.subject;
