@@ -7,4 +7,4 @@
  */
 
 include ':StudIPAndroidApp'
-include ':libs:Android-Week-View:library'
+//include ':libs:Android-Week-View:library'
