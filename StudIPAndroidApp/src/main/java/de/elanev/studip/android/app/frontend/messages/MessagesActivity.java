@@ -14,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -55,7 +56,16 @@ public class MessagesActivity extends MainActivity {
         startComposeActivity();
       }
     });
-    getSupportActionBar().setTitle(R.string.Messages);
+
+    // Workaround for missing title when Toolbar is wrapped in CollapsibleToolbarLayouts
+    // FIXME: Look for a better, backward compatible fix for this
+    TextView text = new TextView(this);
+    text.setText(R.string.Messages);
+    text.setTextAppearance(this,
+        android.R.style.TextAppearance_Material_Widget_ActionBar_Title_Inverse);
+    mToolbar.addView(text);
+    // ---
+
     overridePendingTransition(0, 0);
   }
 

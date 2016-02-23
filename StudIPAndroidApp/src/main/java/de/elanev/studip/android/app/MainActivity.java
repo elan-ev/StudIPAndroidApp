@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements
   private Handler mHandler;
   private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
   private StudIpLegacyApiService mApiService;
+  protected Toolbar mToolbar;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.main, menu);
@@ -256,8 +257,8 @@ public class MainActivity extends AppCompatActivity implements
   }
 
   private void initToolbar() {
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
+    mToolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(mToolbar);
 
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
