@@ -81,7 +81,6 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
   private DownloadManager mDownloadManager;
   private ArrayList<DocumentsNavigationBackStackEntry> mDocumentsNavigationBackstack = new ArrayList<>();
   private Document mSelectedDocument;
-  private LinearLayout mContainerLayout;
   /**
    * Broadcast receiver listening for completion of a download
    */
