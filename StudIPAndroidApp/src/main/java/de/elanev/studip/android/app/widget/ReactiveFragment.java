@@ -38,7 +38,6 @@ public class ReactiveFragment extends Fragment {
   protected RecyclerView mRecyclerView;
   protected TextView mEmptyView;
   protected SwipeRefreshLayout mSwipeRefreshLayout;
-  protected RecyclerView.AdapterDataObserver mObserver;
   protected StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
   private String mTitle;

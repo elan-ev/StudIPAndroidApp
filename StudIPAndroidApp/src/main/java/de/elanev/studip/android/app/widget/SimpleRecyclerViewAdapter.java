@@ -10,7 +10,6 @@ package de.elanev.studip.android.app.widget;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.TextView;
 
 import java.util.List;
 

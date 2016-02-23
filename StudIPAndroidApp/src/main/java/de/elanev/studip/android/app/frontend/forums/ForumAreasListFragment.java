@@ -42,7 +42,6 @@ public class ForumAreasListFragment extends ReactiveListFragment {
   private String mCategoryTitle;
   private String mCategoryId;
   private ForumAreasAdapter mAdapter;
-  private RecyclerView.AdapterDataObserver mObserver;
   private int previousTotal = 0;
   private boolean loading = true;
   private int firstVisibleItem, visibleItemCount, totalItemCount;
@@ -85,18 +84,6 @@ public class ForumAreasListFragment extends ReactiveListFragment {
         startActivity(args);
       }
     });
-
-    mObserver = new RecyclerView.AdapterDataObserver() {
-
-      @Override public void onChanged() {
-        super.onChanged();
-
-        mEmptyView.setText(R.string.no_entries);
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
-
-    mAdapter.registerAdapterDataObserver(mObserver);
   }
 
   private void startActivity(Bundle args) {
@@ -110,6 +97,8 @@ public class ForumAreasListFragment extends ReactiveListFragment {
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     setTitle(mCategoryTitle);
+
+    mEmptyView.setText(R.string.no_entries);
     mRecyclerView.setAdapter(mAdapter);
     mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
       @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -191,11 +180,6 @@ public class ForumAreasListFragment extends ReactiveListFragment {
       }
     }
     return true;
-  }
-
-  @Override public void onDetach() {
-    super.onDetach();
-    mAdapter.unregisterAdapterDataObserver(mObserver);
   }
 
 }
