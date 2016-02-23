@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.alamkanak.weekview.DateTimeInterpreter;
+import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 
@@ -54,7 +55,7 @@ import rx.schedulers.Schedulers;
  * @author joern
  */
 public class PlannerTimetableFragment extends ReactiveFragment implements
-    WeekView.MonthChangeListener, WeekView.EventClickListener, PlannerFragment {
+    MonthLoader.MonthChangeListener, WeekView.EventClickListener, PlannerFragment {
   private static final String TAG = PlannerTimetableFragment.class.getSimpleName();
   private static final String SCROLL_POSITION_X = "scroll-position-x";
   private static final String SCROLL_POSTIION_Y = "scroll-position-y";
