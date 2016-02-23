@@ -45,7 +45,6 @@ public class ForumEntriesListFragment extends ReactiveListFragment {
   private String mEntryTitle;
   private String mEntryId;
   private ForumEntriesAdapter mAdapter;
-  private RecyclerView.AdapterDataObserver mObserver;
   private int previousTotal = 0;
   private boolean loading = true;
   private int firstVisibleItem, visibleItemCount, totalItemCount;
@@ -107,12 +106,6 @@ public class ForumEntriesListFragment extends ReactiveListFragment {
     return true;
   }
 
-  @Override public void onDetach() {
-    super.onDetach();
-
-    mAdapter.unregisterAdapterDataObserver(mObserver);
-  }
-
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
@@ -155,18 +148,6 @@ public class ForumEntriesListFragment extends ReactiveListFragment {
       }
 
     }, getActivity().getBaseContext());
-
-    mObserver = new RecyclerView.AdapterDataObserver() {
-
-      @Override public void onChanged() {
-        super.onChanged();
-
-        mEmptyView.setText(R.string.no_entries);
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
-
-    mAdapter.registerAdapterDataObserver(mObserver);
   }
 
   private void startActivity(Bundle args) {
@@ -187,6 +168,8 @@ public class ForumEntriesListFragment extends ReactiveListFragment {
         updateItems();
       }
     });
+
+    mEmptyView.setText(R.string.no_entries);
     mRecyclerView.setAdapter(mAdapter);
     mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
       @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {

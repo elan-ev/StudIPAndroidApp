@@ -46,7 +46,6 @@ public class ForumEntryFragment extends ReactiveListFragment {
   private String mSubject;
   private long mDate;
   private ForumEntryAdapter mAdapter;
-  private RecyclerView.AdapterDataObserver mObserver;
   private int previousTotal = 0;
   private boolean loading = true;
   private int firstVisibleItem, visibleItemCount, totalItemCount;
@@ -126,24 +125,13 @@ public class ForumEntryFragment extends ReactiveListFragment {
       @Override public void onListItemClicked(View v, int position) {}
 
     }, getActivity());
-
-    mObserver = new RecyclerView.AdapterDataObserver() {
-
-      @Override public void onChanged() {
-        super.onChanged();
-
-        mEmptyView.setText(R.string.no_entries);
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
-
-    mAdapter.registerAdapterDataObserver(mObserver);
   }
 
   @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
     setTitle(mSubject);
+    mEmptyView.setText(R.string.no_entries);
     mRecyclerView.setAdapter(mAdapter);
     mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
