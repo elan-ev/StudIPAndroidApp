@@ -16,29 +16,37 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import de.elanev.studip.android.app.MainActivity;
+import de.elanev.studip.android.app.R;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+
 /**
  * @author joern
  */
-//TODO Use mock implementations of classes
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class SignInActivityTest {
-  @Rule public ActivityTestRule<SignInActivity> mActivityRule = new ActivityTestRule(
+  @Rule public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule(
       SignInActivity.class);
 
   @Test public void testListItemClick() {
-    // EXAMPLE
-    //    onView(withText("Testumgebung")).perform(click());
-    //    onView(withId(R.id.webView)).check(matches(isDisplayed()));
-    //FIXME: Espresso won't find the webview :(, maybe the fragment is the cause
+    onView(withText("Universität Osnabrück")).perform(click());
+    onView(withId(R.id.webView)).check(matches(isDisplayed()));
+    //FIXME: Espresso won't find the webview :(
     //    onWebView().check(webContent(hasElementWithId("loginname")));
   }
 
   @Test public void testBackButtonClick() {
-    // EXAMPLE
-    //    onView(withText("Testumgebung")).perform(click());
-    //    onView(withContentDescription("Navigate up")).perform(click());
-    //    onView(withId(android.R.id.list)).check(matches(isDisplayed()));
+    onView(withText("Universität Osnabrück")).perform(click());
+    onView(withContentDescription("Navigate up")).perform(click());
+    onView(withId(android.R.id.list)).check(matches(isDisplayed()));
   }
 
 }
