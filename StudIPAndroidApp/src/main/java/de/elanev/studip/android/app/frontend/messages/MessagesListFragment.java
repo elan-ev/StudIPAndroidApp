@@ -81,7 +81,6 @@ public class MessagesListFragment extends ReactiveListFragment {
       mFolderId = savedInstanceState.getString(MessagesActivity.FOLDER_ID);
     }
 
-    getActivity().setTitle(R.string.Messages);
     mEmptyView.setText(R.string.no_messages);
     mAdapter = new MessagesAdapter(new ArrayList<Pair<Message, User>>(),
         new SimpleRecyclerViewAdapter.ViewHolder.ViewHolderClicks() {
@@ -93,15 +92,6 @@ public class MessagesListFragment extends ReactiveListFragment {
             startMessageDetailActivity(message, user);
           }
         }, getContext()) {};
-    mObserver = new RecyclerView.AdapterDataObserver() {
-
-      @Override public void onChanged() {
-        super.onChanged();
-
-        mEmptyView.setText(R.string.no_entries);
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
 
     mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
@@ -110,9 +100,7 @@ public class MessagesListFragment extends ReactiveListFragment {
       }
     });
     mSectionedAdapter = new SimpleSectionedRecyclerViewAdapter(mAdapter);
-    mSectionedAdapter.registerAdapterDataObserver(mObserver);
 
-    setRefreshing(true);
     mRecyclerView.setAdapter(mSectionedAdapter);
 
     mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -140,10 +128,6 @@ public class MessagesListFragment extends ReactiveListFragment {
         }
       }
     });
-
-    if (!mRecreated) {
-      updateItems();
-    }
   }
 
   @Override protected void updateItems() {
@@ -159,7 +143,13 @@ public class MessagesListFragment extends ReactiveListFragment {
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Pair<Message, User>>() {
           @Override public void onCompleted() {
+            if (mOffset == 0) {
+              // We are refreshing, so remove all previous entries.
+              mAdapter.clear();
+            }
+
             mAdapter.addAll(entries);
+            setRefreshing(false);
           }
 
           @Override public void onError(Throwable e) {
@@ -203,6 +193,11 @@ public class MessagesListFragment extends ReactiveListFragment {
             //NOTHING
           }
         }));
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+    updateItems();
   }
 
   @Override public void onSaveInstanceState(Bundle outState) {

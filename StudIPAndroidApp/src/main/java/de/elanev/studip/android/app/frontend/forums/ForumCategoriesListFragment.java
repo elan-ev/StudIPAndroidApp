@@ -37,7 +37,6 @@ public class ForumCategoriesListFragment extends ReactiveListFragment {
 
   private String mCourseId;
   private ForumCategoriesAdapter mAdapter;
-  private RecyclerView.AdapterDataObserver mObserver;
 
   public ForumCategoriesListFragment() {}
 
@@ -66,19 +65,11 @@ public class ForumCategoriesListFragment extends ReactiveListFragment {
         startActivity(args);
       }
     });
-
-    mObserver = new RecyclerView.AdapterDataObserver() {
-      @Override public void onChanged() {
-        super.onChanged();
-        mEmptyView.setText(R.string.no_forum_categories);
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
-    mAdapter.registerAdapterDataObserver(mObserver);
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
+    mEmptyView.setText(R.string.no_forum_categories);
     mRecyclerView.setAdapter(mAdapter);
     updateItems();
   }
@@ -126,11 +117,6 @@ public class ForumCategoriesListFragment extends ReactiveListFragment {
     intent.putExtras(args);
 
     startActivity(intent);
-  }
-
-  @Override public void onDetach() {
-    super.onDetach();
-    mAdapter.unregisterAdapterDataObserver(mObserver);
   }
 
 }

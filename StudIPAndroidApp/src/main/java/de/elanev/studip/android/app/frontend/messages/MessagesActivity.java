@@ -45,6 +45,7 @@ public class MessagesActivity extends MainActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_message);
     setTitle(R.string.Messages);
+
     ButterKnife.bind(this);
     FragmentsAdapter pagerAdapter = new FragmentsAdapter(getSupportFragmentManager(), getTabs());
     mViewPager.setAdapter(pagerAdapter);
@@ -54,7 +55,7 @@ public class MessagesActivity extends MainActivity {
         startComposeActivity();
       }
     });
-
+    getSupportActionBar().setTitle(R.string.Messages);
     overridePendingTransition(0, 0);
   }
 

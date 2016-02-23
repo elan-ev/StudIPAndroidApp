@@ -10,11 +10,9 @@ package de.elanev.studip.android.app.widget;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,16 +31,14 @@ import rx.subscriptions.CompositeSubscription;
  */
 public abstract class ReactiveListFragment extends ReactiveFragment {
   private static final String TAG = ReactiveListFragment.class.getSimpleName();
-  @Bind(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayout;
-  @Bind(R.id.list) protected RecyclerView mRecyclerView;
-  @Bind(R.id.empty) protected TextView mEmptyView;
   protected final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+  @Bind(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayout;
+  @Bind(R.id.list) protected EmptyRecyclerView mRecyclerView;
+  @Bind(R.id.empty) protected TextView mEmptyView;
   protected RecyclerView.ItemDecoration mDividerItemDecoration;
-  protected RecyclerView.AdapterDataObserver mObserver;
   protected StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
-  private String mTitle;
-  private boolean mIsRefreshing = false;
+  private boolean mIsRefreshing;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -72,8 +68,10 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
   @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    mEmptyView.setText(R.string.loading);
-    //    setEmptyViewVisible(true);
+    if (mEmptyView != null) {
+      mEmptyView.setText(R.string.loading);
+      mRecyclerView.setEmptyView(mEmptyView);
+    }
 
     // Set RecyclerView up
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -90,22 +88,11 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
         updateItems();
       }
     });
-    setRefreshing(true);
   }
 
   protected abstract void updateItems();
 
-  public void setEmptyViewVisible(boolean toggle) {
-    if (toggle) {
-      mEmptyView.setVisibility(View.VISIBLE);
-      mSwipeRefreshLayout.setVisibility(View.GONE);
-    } else {
-      mEmptyView.setVisibility(View.GONE);
-      mSwipeRefreshLayout.setVisibility(View.VISIBLE);
-    }
-  }
-
-  public void removeDividerItemDecoratior() {
+  public void removeDividerItemDecorator() {
     mRecyclerView.removeItemDecoration(mDividerItemDecoration);
   }
 
@@ -119,13 +106,13 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     }
 
     mIsRefreshing = toggle;
-    // Workaround for: ://code.google.com/p/android/issues/detail?id=77712
-    TypedValue typed_value = new TypedValue();
-    getActivity().getTheme()
-        .resolveAttribute(android.support.v7.appcompat.R.attr.actionBarSize, typed_value, true);
-    mSwipeRefreshLayout.setProgressViewOffset(false, 0,
-        getResources().getDimensionPixelSize(typed_value.resourceId));
-
+    //    // Workaround for: ://code.google.com/p/android/issues/detail?id=77712
+    //    TypedValue typed_value = new TypedValue();
+    //    getActivity().getTheme()
+    //        .resolveAttribute(android.support.v7.appcompat.R.attr.actionBarSize, typed_value, true);
+    //    mSwipeRefreshLayout.setProgressViewOffset(false, 0,
+    //        getResources().getDimensionPixelSize(typed_value.resourceId));
+    //
     mSwipeRefreshLayout.setRefreshing(toggle);
   }
 
@@ -134,8 +121,8 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
   }
 
 
-  public static interface ListItemClicks {
-    public void onListItemClicked(View v, int position);
+  public interface ListItemClicks {
+    void onListItemClicked(View v, int position);
   }
 
 }
