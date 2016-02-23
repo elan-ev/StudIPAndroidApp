@@ -52,6 +52,7 @@ dependencies {
   compile 'com.android.support:recyclerview-v7:23.1.1'
   compile 'com.android.support:design:23.1.1'
   compile 'com.android.support:cardview-v7:23.1.1'
+  compile 'com.android.support:support-annotations:23.1.1'
 
   // Square Libs
   compile 'com.squareup.okhttp3:okhttp:3.0.1'
@@ -89,14 +90,28 @@ dependencies {
 
   // Other
   compile 'se.emilsjolander:stickylistheaders:2.7.0'
-  compile 'com.google.guava:guava:19.0'
+  compile 'com.google.guava:guava:18.0'
   compile 'com.mcxiaoke.volley:library:1.0.19'
   compile 'de.hdodenhof:circleimageview:2.0.0'
   compile 'net.zetetic:android-database-sqlcipher:3.3.1-2'
+  compile 'com.github.alamkanak:android-week-view:1.2.6'
+//  compile project(':libs:Android-Week-View:library')
   compile 'com.jakewharton:butterknife:7.0.1'
   compile 'io.github.yavski:fab-speed-dial:1.0.1'
 
-  compile project(':libs:Android-Week-View:library')
+  // Test deps
+  androidTestCompile 'com.android.support:support-annotations:23.1.1'
+  androidTestCompile 'com.android.support.test:runner:0.4.1'
+  androidTestCompile 'com.android.support.test:rules:0.4.1'
+  androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.1'){
+    exclude module: 'guave'
+  }
+  androidTestCompile 'com.android.support.test.espresso:espresso-web:2.2.1'
+
+  // Dependencies for local unit tests
+  testCompile 'junit:junit:4.12'
+  testCompile 'org.mockito:mockito-all:2.0.2-beta'
+  testCompile 'org.hamcrest:hamcrest-all:1.3'
 }
 
 def buildTime() {
@@ -112,10 +127,11 @@ android {
 
   dexOptions {
     // Skip pre-dexing when running on Travis CI or when disabled via -Dpre-dex=false.
-    preDexLibraries = preDexEnabled && !isTravis
+//    preDexLibraries = preDexEnabled && !isTravis
+    preDexLibraries = false
+    javaMaxHeapSize "4g" //specify the heap size for the dex process
   }
 
-  testBuildType "staging"
 
   lintOptions {
     abortOnError false
@@ -123,6 +139,13 @@ android {
 
   compileSdkVersion 23
   buildToolsVersion '23.0.2'
+
+  // Always show the result of every unit test, even if it passes.
+  testOptions.unitTests.all {
+    testLogging {
+      events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+    }
+  }
 
   signingConfigs {
     release
@@ -146,6 +169,13 @@ android {
     versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
     versionName "${versionMajor}.${versionMinor}.${versionPatch}"
     buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
+
+    // Testing settings
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    testInstrumentationRunnerArguments disableAnalytics: 'true'
+
+    // Enabling multidex support.
+    multiDexEnabled true
   }
 
   compileOptions {
@@ -180,6 +210,7 @@ android {
       ext.enableCrashlytics = false
       versionNameSuffix '-DEBUG'
       debuggable = true
+      testCoverageEnabled = true
     }
 
     release {
@@ -229,8 +260,13 @@ android {
   }
 
   packagingOptions {
-    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/DEPENDENCIES'
     exclude 'META-INF/NOTICE'
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/LICENSE.txt'
+    exclude 'META-INF/NOTICE.txt'
+    exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
+    exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
   }
 
 }
