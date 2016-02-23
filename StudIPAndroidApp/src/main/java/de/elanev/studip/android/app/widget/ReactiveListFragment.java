@@ -35,6 +35,7 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
   @Bind(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayout;
   @Bind(R.id.list) protected EmptyRecyclerView mRecyclerView;
   @Bind(R.id.empty) protected TextView mEmptyView;
+  @Bind(R.id.layout_container) protected  View mContainerLayout;
   protected RecyclerView.ItemDecoration mDividerItemDecoration;
   protected StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
