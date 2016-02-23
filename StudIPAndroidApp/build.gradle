@@ -64,8 +64,8 @@ dependencies {
   compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.1'
 
   // Jackson JSON Parsing
-  compile 'com.fasterxml.jackson.core:jackson-databind:2.7.0'
-  compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.0'
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.7.1-1'
+  compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.1'
 
   // SignPost OAuth
   compile 'oauth.signpost:oauth-signpost:1.2.1.2'
