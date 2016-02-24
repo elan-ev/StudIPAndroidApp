@@ -955,10 +955,10 @@ public class SyncHelper {
 
                     for (Message m : response.messages) {
                       if (callbacks != null) {
-                        new UsersRequestTask().execute(m.sender_id, m.receiver_id);
+                        new UsersRequestTask().execute(m.senderId, m.receiverId);
                       } else {
-                        requestUser(m.sender_id, null);
-                        requestUser(m.receiver_id, null);
+                        requestUser(m.senderId, null);
+                        requestUser(m.receiverId, null);
                       }
                     }
 

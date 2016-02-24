@@ -14,6 +14,7 @@
     <dimen name="list_item_vert_margin">8dp</dimen>
     <dimen name="layout_padding_normal">8dp</dimen>
     <dimen name="layout_padding_small">4dp</dimen>
+    <dimen name="layout_margin_large">16dp</dimen>
     <dimen name="layout_margin_normal">8dp</dimen>
     <dimen name="layout_margin_small">4dp</dimen>
     <dimen name="touch_default_site">48dp</dimen>
@@ -41,6 +42,7 @@
     <dimen name="user_image_icon_size">40dp</dimen>
     <dimen name="user_image_crop_size">64dp</dimen>
     <dimen name="content_area_space">8dp</dimen>
+    <dimen name="content_area_space_large">16dp</dimen>
 
     <dimen name="main_logo_height">175dp</dimen>
 </resources>

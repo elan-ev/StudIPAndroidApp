@@ -74,23 +74,22 @@
                 android:value=".frontend.courses.CoursesActivity"/>
         </activity>
 
-        <!-- Messages -->
+        <!-- Messages list, details view and compose activities -->
          <activity
             android:name=".frontend.messages.MessagesActivity"
             android:label="@string/Messages"
+            android:launchMode="singleTop"
             android:theme="@style/noAnimTheme">
         </activity>
-        <!-- Messages list, details view and compose activities -->
         <activity
             android:name=".frontend.messages.MessageDetailActivity"
             android:parentActivityName=".frontend.messages.MessagesActivity"
             android:uiOptions="splitActionBarWhenNarrow">
-            <category android:name="android.intent.category.MONKEY"/>
 
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".frontend.messages.MessagesActivity"/>
+                android:value=".frontend.messages.MessagesListActivity"/>
         </activity>
         <activity
             android:name=".frontend.messages.MessageComposeActivity"

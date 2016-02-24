@@ -87,22 +87,13 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
 
     mAdapter = new RecordingsAdapter(null, this, getActivity());
     mCourseId = getArguments().getString(CoursesContract.Columns.Courses.COURSE_ID);
-    mObserver = new RecyclerView.AdapterDataObserver() {
 
-      @Override public void onChanged() {
-        super.onChanged();
-
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
-
-    mAdapter.registerAdapterDataObserver(mObserver);
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     mRecyclerView.setAdapter(mAdapter);
-    removeDividerItemDecoratior();
+    removeDividerItemDecorator();
     mEmptyView.setText(R.string.no_recordings);
 
     if (!mRecreated) {

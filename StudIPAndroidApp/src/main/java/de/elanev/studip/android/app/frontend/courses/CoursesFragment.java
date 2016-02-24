@@ -8,7 +8,6 @@
 
 package de.elanev.studip.android.app.frontend.courses;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -30,8 +29,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 
