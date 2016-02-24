@@ -33,13 +33,24 @@ public class SimpleDividerItemDecoration extends RecyclerView.ItemDecoration {
     for (int i = 0; i < childCount; i++) {
       View child = parent.getChildAt(i);
 
-      RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+      if (child != null) {
+        // Check if it's a header view and skip the divider drawing
+        RecyclerView.LayoutManager manager = parent.getLayoutManager();
+        int viewType = manager.getItemViewType(child);
 
-      int top = child.getBottom() + params.bottomMargin;
-      int bottom = top + mDivider.getIntrinsicHeight();
+        if (viewType == SimpleSectionedRecyclerViewAdapter.SECTION_HEADER_TYPE) {
+          continue;
+        }
 
-      mDivider.setBounds(left, top, right, bottom);
-      mDivider.draw(c);
+        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+        int top = child.getBottom() + params.bottomMargin;
+        int bottom = top + mDivider.getIntrinsicHeight();
+
+
+        mDivider.setBounds(left, top, right, bottom);
+        mDivider.draw(c);
+      }
     }
   }
 }

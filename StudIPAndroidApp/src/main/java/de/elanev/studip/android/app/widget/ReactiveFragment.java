@@ -8,7 +8,6 @@
 
 package de.elanev.studip.android.app.widget;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -39,7 +38,6 @@ public class ReactiveFragment extends Fragment {
   protected RecyclerView mRecyclerView;
   protected TextView mEmptyView;
   protected SwipeRefreshLayout mSwipeRefreshLayout;
-  protected RecyclerView.AdapterDataObserver mObserver;
   protected StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
   private String mTitle;

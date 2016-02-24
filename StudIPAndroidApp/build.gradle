@@ -17,7 +17,7 @@ def versionPatch = 21 // max. 99
 // Beta- and Alpha-Release versioning
 def versionMajorBeta = 1 // max. 9
 def versionMinorBeta = 1 // max. 99
-def versionPatchBeta = 7 // max. 99
+def versionPatchBeta = 10 // max. 99
 
 buildscript {
 
@@ -38,6 +38,7 @@ apply plugin: 'io.fabric'
 repositories {
   maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
   maven { url 'https://maven.fabric.io/public' }
+  jcenter()
 }
 
 dependencies {
@@ -63,8 +64,8 @@ dependencies {
   compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.1'
 
   // Jackson JSON Parsing
-  compile 'com.fasterxml.jackson.core:jackson-databind:2.7.0'
-  compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.0'
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.7.1-1'
+  compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.1'
 
   // SignPost OAuth
   compile 'oauth.signpost:oauth-signpost:1.2.1.2'
@@ -92,6 +93,8 @@ dependencies {
   compile 'com.mcxiaoke.volley:library:1.0.19'
   compile 'de.hdodenhof:circleimageview:2.0.0'
   compile 'net.zetetic:android-database-sqlcipher:3.3.1-2'
+  compile 'com.jakewharton:butterknife:7.0.1'
+  compile 'io.github.yavski:fab-speed-dial:1.0.1'
 
   compile project(':libs:Android-Week-View:library')
 }

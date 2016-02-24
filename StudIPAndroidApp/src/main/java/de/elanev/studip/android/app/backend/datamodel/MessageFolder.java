@@ -10,17 +10,12 @@ package de.elanev.studip.android.app.backend.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.ArrayList;
 
 /**
  * @author joern
  */
-
-
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MessageFolders {
-  @JsonProperty("folders") public ArrayList<String> folders;
-  @JsonIgnore public String boxType;
+public class MessageFolder {
+  public String name;
+  @JsonIgnore String boxType;
 }

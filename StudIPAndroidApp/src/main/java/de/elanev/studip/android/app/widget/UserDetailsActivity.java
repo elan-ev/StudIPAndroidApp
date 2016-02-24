@@ -32,6 +32,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.frontend.messages.MessageComposeActivity;
 import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
@@ -96,10 +97,6 @@ public class UserDetailsActivity extends AppCompatActivity implements
       return;
     }
     mUserId = mData.getString(UsersContract.Columns.USER_ID);
-    //    String mOwnUserId = Prefs.getInstance(this).getUserId();
-    //    if (TextUtils.equals(mOwnUserId, mUserId)) {
-    //      isCurrentUser = true;
-    //    }
 
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
@@ -111,23 +108,24 @@ public class UserDetailsActivity extends AppCompatActivity implements
     floatingActionButton = (FloatingActionButton) findViewById(R.id.floating_action_button);
     floatingActionButton.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
-        //        if (!isCurrentUser) {
+        User user = new User();
+        user.userId = mUserId;
+        user.forename = mFirstname;
+        user.lastname = mLastname;
+        user.titlePost = mTitlePost;
+        user.titlePre = mTitlePre;
+
+        Bundle extras = new Bundle();
+        extras.putInt(MessageComposeActivity.MESSAGE_ACTION_FLAG,
+            MessageComposeActivity.MESSAGE_ACTION_REPLY);
+        extras.putSerializable(MessageComposeActivity.MESSAGE_RECEIVER, user);
+
+
         Intent intent = new Intent(v.getContext(), MessageComposeActivity.class);
-        intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
-        intent.putExtra(UsersContract.Columns.USER_FORENAME, mFirstname);
-        intent.putExtra(UsersContract.Columns.USER_LASTNAME, mLastname);
-        intent.putExtra(UsersContract.Columns.USER_TITLE_POST, mTitlePost);
-        intent.putExtra(UsersContract.Columns.USER_TITLE_PRE, mTitlePre);
+        intent.putExtras(extras);
         startActivity(intent);
-        //        } else {
-        //          // TODO: Edit Profile
-        //        }
       }
     });
-    //
-    //    if (isCurrentUser) {
-    //      floatingActionButton.setImageResource(R.drawable.ic_action_write);
-    //    }
 
     collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
     userImage = (ImageView) findViewById(R.id.user_image);

@@ -30,11 +30,13 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import de.elanev.studip.android.app.backend.datamodel.Postbox;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
+import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.frontend.contacts.ContactsActivity;
 import de.elanev.studip.android.app.frontend.courses.CoursesActivity;
 import de.elanev.studip.android.app.frontend.messages.MessagesActivity;
@@ -44,6 +46,10 @@ import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.widget.UserDetailsActivity;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * @author joern
@@ -62,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements
   private NavigationView mNavigationView;
   private View mHeaderView;
   private Handler mHandler;
+  private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+  private StudIpLegacyApiService mApiService;
+  protected Toolbar mToolbar;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.main, menu);
@@ -178,17 +187,12 @@ public class MainActivity extends AppCompatActivity implements
       finish();
       return;
     }
-
+    mApiService = new StudIpLegacyApiService(Prefs.getInstance(this).getServer(), this);
     mHandler = new Handler();
 
-    // Verify that the forum routes are still activated
-    //TODO: Move this and other API checks to a Service or something, but not here
-    SyncHelper.getInstance(this)
-        .requestApiRoutes(null);
-    SyncHelper.getInstance(this)
-        .getSettings(null);
-    SyncHelper.getInstance(this)
-        .requestCurrentUserInfo(null);
+
+
+    fetchPref();
 
     mCurrentUser = User.fromJson(Prefs.getInstance(this)
         .getUserInfo());
@@ -197,6 +201,34 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     initNavigation();
+  }
+
+  private void fetchPref() {
+    // Verify that the forum routes are still activated
+    //TODO: Move this and other API checks to a Service or something, but not here
+    SyncHelper.getInstance(this)
+        .requestApiRoutes(null);
+    SyncHelper.getInstance(this)
+        .getSettings(null);
+    SyncHelper.getInstance(this)
+        .requestCurrentUserInfo(null);
+    mCompositeSubscription.add(mApiService.getMessageFolders(0, 10)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribeOn(Schedulers.io())
+        .subscribe(new Subscriber<Postbox>() {
+          @Override public void onCompleted() {
+            // Do something....
+          }
+
+          @Override public void onError(Throwable e) {
+            Log.e(TAG, e.getLocalizedMessage());
+          }
+
+          @Override public void onNext(Postbox postbox) {
+            Prefs.getInstance(MainActivity.this)
+                .setPostbox(postbox);
+          }
+        }));
   }
 
   @Override protected void onPostCreate(Bundle savedInstanceState) {
@@ -225,8 +257,8 @@ public class MainActivity extends AppCompatActivity implements
   }
 
   private void initToolbar() {
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
+    mToolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(mToolbar);
 
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {

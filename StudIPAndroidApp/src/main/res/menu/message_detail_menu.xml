@@ -11,26 +11,20 @@
       xmlns:StudIPApplication="http://schemas.android.com/apk/res-auto">
 
 
-<item
+    <item
         android:id="@+id/delete_message"
         android:icon="@drawable/ic_action_trash"
-        StudIPApplication:showAsAction="ifRoom|withText"
-        android:title="@string/delete_message"
-        android:titleCondensed="@string/delete"/>
+        StudIPApplication:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/reply_message"
         android:icon="@drawable/ic_action_reply"
-        StudIPApplication:showAsAction="ifRoom|withText"
-        android:title="@string/reply_message"
-        android:titleCondensed="@string/reply"/>
+        StudIPApplication:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/forward_message"
         android:icon="@drawable/ic_action_forward"
-        StudIPApplication:showAsAction="ifRoom|withText"
-        android:title="@string/forward_message"
-        android:titleCondensed="@string/forward"/>
+        StudIPApplication:showAsAction="ifRoom"/>
 
 
 </menu>
