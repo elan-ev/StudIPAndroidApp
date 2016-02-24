@@ -37,14 +37,14 @@ public class SignInActivityTest {
       SignInActivity.class);
 
   @Test public void testListItemClick() {
-    onView(withText("Universität Osnabrück")).perform(click());
+    onView(withText("Testumgebung")).perform(click());
     onView(withId(R.id.webView)).check(matches(isDisplayed()));
     //FIXME: Espresso won't find the webview :(
     //    onWebView().check(webContent(hasElementWithId("loginname")));
   }
 
   @Test public void testBackButtonClick() {
-    onView(withText("Universität Osnabrück")).perform(click());
+    onView(withText("Testumgebung")).perform(click());
     onView(withContentDescription("Navigate up")).perform(click());
     onView(withId(android.R.id.list)).check(matches(isDisplayed()));
   }
