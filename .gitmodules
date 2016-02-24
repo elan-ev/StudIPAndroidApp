@@ -3,6 +3,3 @@
 	url = https://github.com/elan-ev/volley.git
   branch = master
   ignore = dirty
-[submodule "libs/Android-Week-View"]
-	path = libs/Android-Week-View
-	url = https://github.com/mndfcked/Android-Week-View.git
