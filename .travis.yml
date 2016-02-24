@@ -29,7 +29,7 @@ before_script:
 - emulator -avd test -no-skin -no-audio -no-window &
 - adb wait-for-device
 - adb shell input keyevent 82 &
-script: "./gradlew test --continue && ./gradlew connectedCheck"
+script: "./gradlew testBetaStagingUnitTest --continue; ./gradlew connectedBetaStagingAndroidTest"
 notifications:
   slack:
     secure: Ov7XJdmH5SB1zQlVVT7gozs42Ju1XIONyC2B8+dwKqAxdXEjscTUFkKOPOLVGtfloAd2/8t70LeB1CxIByBMy/WMU4VNYloGMD2FrwFasGhveXCVubKla33miE/Iq+4/R3TXxWffk4Pvvj6BE3D0rQJw8+0RvbBzLsh928USj7E=
