@@ -137,15 +137,24 @@ android {
   compileSdkVersion 23
   buildToolsVersion '23.0.2'
 
+  // Testing option
   // Always show the result of every unit test, even if it passes.
   testOptions.unitTests.all {
     testLogging {
       events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
     }
   }
+  testBuildType "staging"
 
   signingConfigs {
     release
+
+    staging {
+      storeFile file("src/staging/staging.jks")
+      storePassword "testing"
+      keyAlias "testing"
+      keyPassword "testing"
+    }
   }
 
   //Read signing config from release.properties in root
@@ -248,6 +257,7 @@ android {
       versionNameSuffix '-STAGING'
       debuggable = false
       minifyEnabled = false
+      signingConfig signingConfigs.staging
     }
 
   }
