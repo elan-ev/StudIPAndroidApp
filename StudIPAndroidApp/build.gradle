@@ -139,6 +139,7 @@ android {
   compileSdkVersion 23
   buildToolsVersion '23.0.2'
 
+  // Testing option
   // Always show the result of every unit test, even if it passes.
   testOptions.unitTests.all {
     testLogging {
