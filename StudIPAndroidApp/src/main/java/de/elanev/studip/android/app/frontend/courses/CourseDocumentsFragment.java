@@ -56,6 +56,7 @@ import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.widget.EmptyRecyclerView;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -78,10 +79,8 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
   private String mFolderId;
   private String mFolderName;
   private DownloadManager mDownloadManager;
-  private TextView mFolderTextView;
   private ArrayList<DocumentsNavigationBackStackEntry> mDocumentsNavigationBackstack = new ArrayList<>();
   private Document mSelectedDocument;
-  private LinearLayout mContainerLayout;
   /**
    * Broadcast receiver listening for completion of a download
    */
@@ -350,17 +349,6 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         }
       }
     });
-
-
-    mObserver = new RecyclerView.AdapterDataObserver() {
-      @Override public void onChanged() {
-        super.onChanged();
-        mEmptyView.setText(R.string.no_documents);
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
-    mAdapter.registerAdapterDataObserver(mObserver);
-
   }
 
   private void addToDocumentsNavigationBackStack(String folderId, String folderName) {
@@ -381,27 +369,13 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     mDocumentsNavigationBackstack.add(newEntry);
   }
 
-  @Override public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    View v = inflater.inflate(R.layout.documents_recyclerview_list, container, false);
-    mRecyclerView = (RecyclerView) v.findViewById(R.id.list);
-    mEmptyView = (TextView) v.findViewById(R.id.empty);
-    mFolderTextView = (TextView) v.findViewById(R.id.folder_title);
-    mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
-    mContainerLayout = (LinearLayout) v.findViewById(R.id.layout_container);
-    return v;
-  }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-
+    mEmptyView.setText(R.string.no_documents);
+    mRecyclerView.setEmptyView(mEmptyView);
     mRecyclerView.setAdapter(mAdapter);
     mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-
-    if (!TextUtils.isEmpty(mFolderName)) {
-      mFolderTextView.setText(mFolderName);
-      mFolderTextView.setVisibility(View.VISIBLE);
-    }
   }
 
   @Override protected void updateItems() {

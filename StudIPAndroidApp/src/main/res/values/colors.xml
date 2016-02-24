@@ -8,6 +8,32 @@
   -->
 <resources>
 
+    <!-- Studip Material Palette
+    '50': '#dae4f2',
+    '100': '#a2badd',
+    '200': '#799cce',
+    '300': '#4575bb',
+    '400': '#3c67a5',
+    '500': '#34598f', ==> StudIP primary
+    '600': '#2c4b79',
+    '700': '#243d62',
+    '800': '#1c2f4c',
+    '900': '#132135',
+    'A100': '#dae4f2',
+    'A200': '#a2badd',
+    'A400': '#3c67a5',
+    'A700': '#243d62'
+    -->
+    <color name="studip_primary">#34598F</color>
+    <color name="studip_primary_dark">#243d62</color>
+    <color name="studip_accent_dark">#3c67a5</color>
+    <color name="studip_accent_light">#a2badd</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
+    <color name="divider_color">#B6B6B6</color>
+
+
+    <!-- Other colors (legacy, text, indicators...) -->
     <color name="studip_mobile_dark">#FF34598f</color>
     <color name="studip_mobile_dark_alpha">#af34598f</color>
     <color name="studip_mobile_darker">#243E63</color>

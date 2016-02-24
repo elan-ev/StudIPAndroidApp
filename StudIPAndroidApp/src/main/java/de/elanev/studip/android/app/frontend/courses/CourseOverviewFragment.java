@@ -7,7 +7,6 @@
  */
 package de.elanev.studip.android.app.frontend.courses;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.ContentObserver;
