@@ -89,7 +89,7 @@
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".frontend.messages.MessagesListActivity"/>
+                android:value=".frontend.messages.MessagesActivity"/>
         </activity>
         <activity
             android:name=".frontend.messages.MessageComposeActivity"
