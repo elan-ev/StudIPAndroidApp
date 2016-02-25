@@ -64,8 +64,8 @@ dependencies {
   compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.1'
 
   // Jackson JSON Parsing
-  compile 'com.fasterxml.jackson.core:jackson-databind:2.7.1-1'
-  compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.1'
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.6.5'
+  compile 'com.fasterxml.jackson.core:jackson-annotations:2.6.5'
 
   // SignPost OAuth
   compile 'oauth.signpost:oauth-signpost:1.2.1.2'
@@ -143,8 +143,12 @@ android {
     minSdkVersion 10
     targetSdkVersion 23
 
+    // Generate versionCode and versionName
     versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
     versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+    // Set output file name based on versionName
+    setProperty("archivesBaseName", "studip_mobil-$versionName")
+
     buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
   }
 
@@ -216,14 +220,6 @@ android {
       versionNameSuffix '-STAGING'
       debuggable = false
       minifyEnabled = false
-    }
-
-    applicationVariants.all { variant ->
-      variant.outputs.each { output ->
-        def file = output.outputFile
-        output.outputFile = new File(file.parent, file.name.replace(".apk",
-            "-" + variant.productFlavors.versionCode + "-" + variant.name + ".apk"))
-      }
     }
 
   }
