@@ -98,7 +98,8 @@ dependencies {
   compile 'io.github.yavski:fab-speed-dial:1.0.1'
 
   // Test deps
-  androidTestCompile 'com.android.support:support-annotations:23.1.1'
+  androidTestCompile 'junit:junit:4.12'
+  androidTestCompile 'com.android.support:support-annotations:23.2.0'
   androidTestCompile 'com.android.support.test:runner:0.4.1'
   androidTestCompile 'com.android.support.test:rules:0.4.1'
   androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.1'){
