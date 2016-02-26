@@ -422,6 +422,14 @@ public class StudIpLegacyApiService {
         });
   }
 
+  /**
+   * Get the users {@link Messages} in the specified Stud.IP messages inbox folder.
+   *
+   * @param folder The ID of the inbox {@link MessageFolder}
+   * @param offset Offset number of the message pagination.
+   * @param limit  The limit of entries until it paginates.
+   * @return An {@link Observable} containing {@link Messages} from the specified inbox folder.
+   */
   public Observable<Pair<Message, User>> getInboxMessages(String folder, int offset, int limit) {
     return mService.getMessagesInboxFolder(folder, offset, limit)
         // Unwrap message
@@ -448,6 +456,14 @@ public class StudIpLegacyApiService {
         });
   }
 
+  /**
+   * Get the users {@link Messages} in the specified Stud.IP messages outbox folder.
+   *
+   * @param folder The ID of the outbox {@link MessageFolder}
+   * @param offset Offset number of the message pagination.
+   * @param limit  The limit of entries until it paginates.
+   * @return An {@link Observable} containing {@link Messages} from the specified outbox folder.
+   */
   public Observable<Pair<Message, User>> getOutboxMessages(String folder, int offset, int limit) {
     return mService.getMessagesOutboxFolder(folder, offset, limit)
         // Unwrap message
@@ -474,15 +490,35 @@ public class StudIpLegacyApiService {
         });
   }
 
+  /**
+   * Marks the specified message as read.
+   *
+   * @param messageId The ID of the message to be marked as read.
+   * @return Nothing
+   */
   public Observable<Void> setMessageRead(final String messageId) {
     return mService.setMessageRead(messageId);
   }
 
+  /**
+   * Sends a message to the user specified by the receiverId.
+   *
+   * @param receiverId The ID of the user to send the message to.
+   * @param subject    A String as subject for the message.
+   * @param message    The message String.
+   * @return The newly created {@link Message}
+   */
   public Observable<MessageItem> sendMessage(final String receiverId, final String subject,
       final String message) {
     return mService.sendMessage(receiverId, subject, message);
   }
 
+  /**
+   * Deletes the specified message from the users message box.
+   *
+   * @param messageId The id of the message to delete.
+   * @return Nothing
+   */
   public Observable<Void> deleteMessage(final String messageId) {
     return mService.deleteMessage(messageId);
   }
