@@ -5,6 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+
 package de.elanev.studip.android.app.widget;
 
 import android.app.AlertDialog;
@@ -255,7 +256,8 @@ public abstract class UserListFragment extends ProgressListFragment implements L
             try {
               mResolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
                   new ContactGroupHandler(response.group).parse());
-              SyncHelper.getInstance(context).forcePerformContactsSync(null);
+              SyncHelper.getInstance(context)
+                  .performContactsSync(null);
             } catch (RemoteException e) {
               e.printStackTrace();
             } catch (OperationApplicationException e) {
@@ -308,7 +310,8 @@ public abstract class UserListFragment extends ProgressListFragment implements L
                     String.format("%d", userIntId)
                 }
             );
-        SyncHelper.getInstance(context).forcePerformContactsSync(null);
+        SyncHelper.getInstance(context)
+            .performContactsSync(null);
 
         Toast.makeText(context, R.string.successfully_deleted, Toast.LENGTH_SHORT).show();
       }
@@ -349,7 +352,8 @@ public abstract class UserListFragment extends ProgressListFragment implements L
             try {
               mResolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
                   new ContactsHandler(response).parse());
-              SyncHelper.getInstance(context).forcePerformContactsSync(null);
+              SyncHelper.getInstance(context)
+                  .performContactsSync(null);
             } catch (RemoteException e) {
               e.printStackTrace();
             } catch (OperationApplicationException e) {
@@ -403,7 +407,8 @@ public abstract class UserListFragment extends ProgressListFragment implements L
             .delete(ContactsContract.CONTENT_URI_CONTACTS.buildUpon().appendPath(userId).build(),
                 null,
                 null);
-        SyncHelper.getInstance(context).forcePerformContactsSync(null);
+        SyncHelper.getInstance(context)
+            .performContactsSync(null);
 
 
         Toast.makeText(context, R.string.successfully_deleted, Toast.LENGTH_SHORT).show();
@@ -520,7 +525,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
       int row = 0;
       boolean[] primitivValuesArr = new boolean[multimap.size()];
       while (it.hasNext()) {
-        Map.Entry<String, Pair<Pair<String, Integer>, Boolean>> pairs = (Map.Entry<String, Pair<Pair<String, Integer>, Boolean>>) it
+        Map.Entry<String, Pair<Pair<String, Integer>, Boolean>> pairs = it
             .next();
 
         allGroupNames.add(pairs.getKey());
