@@ -59,6 +59,13 @@ public class ContactsGroupsFragment extends UserListFragment implements
 
   public ContactsGroupsFragment() {}
 
+  public static Fragment newInstance(Bundle args) {
+    ContactsGroupsFragment fragment = new ContactsGroupsFragment();
+    fragment.setArguments(args);
+
+    return fragment;
+  }
+
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
@@ -78,16 +85,17 @@ public class ContactsGroupsFragment extends UserListFragment implements
     getLoaderManager().initLoader(0, null, this);
   }
 
-  @Override public void onStart() {
-    super.onStart();
-    SyncHelper.getInstance(mContext).forcePerformContactsSync(this);
-  }
-
   @Override public void onAttach(Context context) {
     super.onAttach(context);
 
     context.getContentResolver()
         .registerContentObserver(ContactsContract.CONTENT_URI_CONTACT_GROUPS, true, mObserver);
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+    SyncHelper.getInstance(mContext)
+        .performContactsSync(this);
   }
 
   @Override public void onDetach() {
@@ -146,7 +154,7 @@ public class ContactsGroupsFragment extends UserListFragment implements
       Intent intent = new Intent(mContext, UserDetailsActivity.class);
       intent.putExtra(UsersContract.Columns.USER_ID, userId);
       ActivityOptionsCompat options = ActivityOptionsCompat.
-          makeSceneTransitionAnimation(getActivity(), (View) icon, getString(R.string.Profile));
+          makeSceneTransitionAnimation(getActivity(), icon, getString(R.string.Profile));
 
       // Start UserDetailActivity with transition if supported
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -158,7 +166,8 @@ public class ContactsGroupsFragment extends UserListFragment implements
   }
 
   @Override public void onRefresh() {
-    SyncHelper.getInstance(mContext).forcePerformContactsSync(this);
+    SyncHelper.getInstance(mContext)
+        .performContactsSync(this);
   }
 
   @Override public void onSyncStarted() {
@@ -177,12 +186,5 @@ public class ContactsGroupsFragment extends UserListFragment implements
     if (getActivity() != null && errorCode != 404) {
       Toast.makeText(mContext, R.string.sync_error_default, Toast.LENGTH_LONG).show();
     }
-  }
-
-  public static Fragment newInstance(Bundle args) {
-    ContactsGroupsFragment fragment = new ContactsGroupsFragment();
-    fragment.setArguments(args);
-
-    return fragment;
   }
 }

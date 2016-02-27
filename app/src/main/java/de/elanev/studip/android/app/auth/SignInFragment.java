@@ -155,6 +155,39 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
 
   }
 
+  private void authorize(Server selectedServer) {
+    if (NetworkUtils.getConnectivityStatus(mContext) == NetworkUtils.NOT_CONNECTED) {
+      Toast.makeText(mContext, "Not connected", Toast.LENGTH_LONG)
+          .show();
+      return;
+    }
+    hideLoginForm();
+
+    OAuthConnector.with(selectedServer)
+        .getRequestToken(this);
+  }
+
+  /* Hides the login form and sets the progress indicator as visible */
+  private void hideLoginForm() {
+    if (getActivity() != null && isAdded()) {
+      mListView.setVisibility(View.GONE);
+      mProgressInfo.setVisibility(View.VISIBLE);
+      mSignInFormVisible = false;
+      mInfoBoxView.setOnClickListener(null);
+      mInfoBoxTextView.setText(R.string.sync_notice);
+    }
+  }
+
+  @Override public void onAttach(Context context) {
+    Log.i(TAG, "onAttach Called!");
+    super.onAttach(context);
+    try {
+      mCallbacks = (OnRequestTokenReceived) context;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(context.toString() + "must implement OnWebViewAuthListener");
+    }
+  }
+
   @Override public void onCreate(Bundle savedInstanceState) {
     Log.i(TAG, "onCreate Called!");
     super.onCreate(savedInstanceState);
@@ -207,7 +240,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         Log.i(TAG, "App synced starting..");
         startMainActivity();
         return;
-      } else if(prefs.getUserId() == null) {
+      } else if (prefs.getUserId() == null) {
 
       } else {
 
@@ -216,7 +249,8 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
       }
 
     } else if (mRequestTokenReceived) {
-      OAuthConnector.with(prefs.getServer()).getAccessToken(this);
+      OAuthConnector.with(prefs.getServer())
+          .getAccessToken(this);
       return;
     }
 
@@ -240,135 +274,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   @Override public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putBoolean(REQUEST_TOKEN_RECEIVED, mRequestTokenReceived);
-  }
-
-  /* Hides the login form and sets the progress indicator as visible */
-  private void hideLoginForm() {
-    if (getActivity() != null && isAdded()) {
-      mListView.setVisibility(View.GONE);
-      mProgressInfo.setVisibility(View.VISIBLE);
-      mSignInFormVisible = false;
-      mInfoBoxView.setOnClickListener(null);
-      mInfoBoxTextView.setText(R.string.sync_notice);
-    }
-  }
-
-  private void destroyInsecureCredentials() {
-    Log.i(TAG, "Insecure credentials found, deleting...");
-    // Encrypt legacy database
-    DatabaseHandler.deleteLegacyDatabase(getActivity());
-    // Delete the app database
-    getActivity().getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
-    // Clear the app preferences
-    Prefs.getInstance(getActivity()).clearPrefs();
-  }
-
-  /**
-   * Starts the next activity after prefetching.
-   */
-  public void startMainActivity() {
-    Intent intent = new Intent(getActivity(), NewsActivity.class);
-    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    startActivity(intent);
-
-    Log.i(TAG, "Starting news Activity...");
-    if (!ApiUtils.isOverApi11()) {
-      getActivity().finish();
-    }
-  }
-
-  /* Simply triggers the prefetching at the SyncHelper */
-  private void performPrefetchSync() {
-    User currentUser = User.fromJson(Prefs.getInstance(mContext).getUserInfo());
-
-    if (currentUser != null) {
-      SyncHelper.getInstance(mContext)
-          .requestInstitutesForUserID(currentUser.userId, this);
-      SyncHelper.getInstance(mContext)
-          .requestApiRoutes(this);
-    } else {
-      showLoginForm();
-    }
-
-  }
-
-  /* Hides the progess indicator and sets the login form as visible */
-  private void showLoginForm() {
-    if (getActivity() != null && isAdded()) {
-      mListView.setVisibility(View.VISIBLE);
-      mProgressInfo.setVisibility(View.GONE);
-      mSignInFormVisible = true;
-      mInfoBoxView.setOnClickListener(mMissingServerOnClickListener);
-      mInfoBoxTextView.setText(R.string.missing_studip_message);
-    }
-  }
-
-  private void authorize(Server selectedServer) {
-    if (NetworkUtils.getConnectivityStatus(mContext) == NetworkUtils.NOT_CONNECTED) {
-      Toast.makeText(mContext, "Not connected", Toast.LENGTH_LONG).show();
-      return;
-    }
-    hideLoginForm();
-
-    OAuthConnector.with(selectedServer).getRequestToken(this);
-  }
-
-  private void resetSignInActivityState() {
-    //Cancel all pending network requests
-    StudIPApplication.getInstance().cancelAllPendingRequests(SyncHelper.TAG);
-
-    // Resetting the SyncHelper
-    SyncHelper.getInstance(mContext).resetSyncHelper();
-
-    // Clear the app preferences
-    Prefs.getInstance(mContext).clearPrefs();
-
-    // Delete the app database
-    mContext.getContentResolver() //
-        .delete(AbstractContract.BASE_CONTENT_URI, null, null);
-
-    mCoursesSynced = false;
-    mContactsSynced = false;
-    mMessagesSynced = false;
-    mNewsSynced = false;
-    mUsersSynced = false;
-    mSemestersSynced = false;
-    mInstitutesSynced = false;
-    mRequestTokenReceived = false;
-  }
-
-  /*
-   * Returns the list auf saved servers. This method expects to find a correct formatted
-   * servers.json file in the Android assets folder
-   */
-  private Servers getItems() {
-    ObjectMapper mapper = new ObjectMapper();
-    Servers servers = null;
-    try {
-      servers = mapper.readValue(ServerData.serverJson, Servers.class);
-    } catch (JsonParseException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    // If something went wrong, return an empty array
-    if (servers == null) servers = new Servers(new Server[0]);
-
-    return servers;
-  }
-
-  @Override public void onAttach(Context context) {
-    Log.i(TAG, "onAttach Called!");
-    super.onAttach(context);
-    try {
-      mCallbacks = (OnRequestTokenReceived) context;
-    } catch (ClassCastException e) {
-      throw new ClassCastException(context.toString() + "must implement OnWebViewAuthListener");
-    }
   }
 
   @Override public void onDetach() {
@@ -420,6 +325,110 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     return super.onOptionsItemSelected(item);
   }
 
+  private void destroyInsecureCredentials() {
+    Log.i(TAG, "Insecure credentials found, deleting...");
+    // Encrypt legacy database
+    DatabaseHandler.deleteLegacyDatabase(getActivity());
+    // Delete the app database
+    getActivity().getContentResolver()
+        .delete(AbstractContract.BASE_CONTENT_URI, null, null);
+    // Clear the app preferences
+    Prefs.getInstance(getActivity())
+        .clearPrefs();
+  }
+
+  /**
+   * Starts the next activity after prefetching.
+   */
+  public void startMainActivity() {
+    Intent intent = new Intent(getActivity(), NewsActivity.class);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    startActivity(intent);
+
+    Log.i(TAG, "Starting news Activity...");
+    if (!ApiUtils.isOverApi11()) {
+      getActivity().finish();
+    }
+  }
+
+  /* Simply triggers the prefetching at the SyncHelper */
+  private void performPrefetchSync() {
+    User currentUser = User.fromJson(Prefs.getInstance(mContext)
+        .getUserInfo());
+
+    if (currentUser != null) {
+      SyncHelper.getInstance(mContext)
+          .requestInstitutesForUserID(currentUser.userId, this);
+      SyncHelper.getInstance(mContext)
+          .requestApiRoutes(this);
+    } else {
+      showLoginForm();
+    }
+
+  }
+
+  /* Hides the progess indicator and sets the login form as visible */
+  private void showLoginForm() {
+    if (getActivity() != null && isAdded()) {
+      mListView.setVisibility(View.VISIBLE);
+      mProgressInfo.setVisibility(View.GONE);
+      mSignInFormVisible = true;
+      mInfoBoxView.setOnClickListener(mMissingServerOnClickListener);
+      mInfoBoxTextView.setText(R.string.missing_studip_message);
+    }
+  }
+
+  private void resetSignInActivityState() {
+    //Cancel all pending network requests
+    StudIPApplication.getInstance()
+        .cancelAllPendingRequests(SyncHelper.TAG);
+
+    // Resetting the SyncHelper
+    SyncHelper.getInstance(mContext)
+        .resetSyncHelper();
+
+    // Clear the app preferences
+    Prefs.getInstance(mContext)
+        .clearPrefs();
+
+    // Delete the app database
+    mContext.getContentResolver() //
+        .delete(AbstractContract.BASE_CONTENT_URI, null, null);
+
+    mCoursesSynced = false;
+    mContactsSynced = false;
+    mMessagesSynced = false;
+    mNewsSynced = false;
+    mUsersSynced = false;
+    mSemestersSynced = false;
+    mInstitutesSynced = false;
+    mRequestTokenReceived = false;
+  }
+
+  /*
+   * Returns the list auf saved servers. This method expects to find a correct formatted
+   * servers.json file in the Android assets folder
+   */
+  private Servers getItems() {
+    ObjectMapper mapper = new ObjectMapper();
+    Servers servers = null;
+    try {
+      servers = mapper.readValue(ServerData.serverJson, Servers.class);
+    } catch (JsonParseException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    // If something went wrong, return an empty array
+    if (servers == null) servers = new Servers(new Server[0]);
+
+    return servers;
+  }
+
   @Override public void onSyncStarted() {}
 
   @Override public void onSyncStateChange(int status) {
@@ -460,11 +469,9 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         break;
       case SyncHelper.SyncHelperCallbacks.FINISHED_NEWS_SYNC:
         mNewsSynced = true;
-        SyncHelper.getInstance(mContext).performMessagesSync(this);
-        break;
-      case SyncHelper.SyncHelperCallbacks.FINISHED_MESSAGES_SYNC:
         mMessagesSynced = true;
-        SyncHelper.getInstance(mContext).performContactsSync(this, null);
+        SyncHelper.getInstance(mContext)
+            .performContactsSync(this);
         break;
       case SyncHelper.SyncHelperCallbacks.FINISHED_CONTACTS_SYNC:
         mContactsSynced = true;
@@ -577,7 +584,8 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     mSelectedServer.setAccessTokenSecret(tokenSecret);
     Prefs.getInstance(mContext).setServer(mSelectedServer);
     SyncHelper.getInstance(mContext).requestApiRoutes(this);
-    SyncHelper.getInstance(mContext).getSettings(this);
+    SyncHelper.getInstance(mContext)
+        .getSettings();
     SyncHelper.getInstance(mContext).requestCurrentUserInfo(this);
   }
 
@@ -597,12 +605,12 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
 
   /* Array adapter class which holds and displays the saved servers */
   private class ServerAdapter extends ArrayAdapter<Server> implements Filterable {
+    private final Object lock = new Object();
     private Context mContext;
     private int mTextViewResourceId;
     private Server[] mData = null;
     private ServerFilter mFilter = null;
     private Server[] mOriginalData;
-    private final Object lock = new Object();
 
     /**
      * Public constructor which takes the context, viewResource and
@@ -617,14 +625,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
       this.mContext = context;
       this.mTextViewResourceId = textViewResourceId;
       this.mData = data;
-    }
-
-    @Override public Filter getFilter() {
-      if (mFilter == null) {
-        return new ServerFilter();
-      } else {
-        return mFilter;
-      }
     }
 
     @Override public int getCount() {
@@ -645,6 +645,14 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
       ((TextView) convertView.findViewById(android.R.id.text1)).setText(server.getName());
       convertView.setTag(server);
       return convertView;
+    }
+
+    @Override public Filter getFilter() {
+      if (mFilter == null) {
+        return new ServerFilter();
+      } else {
+        return mFilter;
+      }
     }
 
     private class ServerFilter extends Filter {
