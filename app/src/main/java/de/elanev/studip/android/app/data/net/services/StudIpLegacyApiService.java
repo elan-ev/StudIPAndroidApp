@@ -397,6 +397,17 @@ public class StudIpLegacyApiService {
         });
   }
 
+  public Observable<Events> getEvents(final String courseId) {
+    return mService.getEvents(courseId);
+  }
+
+  /**
+   * Gets the message folders from Stud.IP.
+   *
+   * @param offset The pagination offset
+   * @param limit  The limit of entries until it paginates.
+   * @return An {@link Observable} containing a list of the users {@link MessageFolders}.
+   */
   public Observable<Postbox> getMessageFolders(int offset, int limit) {
     Observable<MessageFolders> inboxObservable = mService.getMessageInbox(offset, limit)
         .flatMap(new Func1<MessageFolders, Observable<MessageFolders>>() {
@@ -523,13 +534,55 @@ public class StudIpLegacyApiService {
     return mService.deleteMessage(messageId);
   }
 
+  /**
+   * Gets the {@link Institutes} the user specified by the users ID is registered in.
+   *
+   * @param userId The users ID for whom to load the {@link Institutes} for.
+   * @return A List {@link Institutes}
+   */
+  public Observable<InstitutesContainer> getInstitutes(final String userId) {
+    return mService.getInstitutes(userId);
+  }
+
+  /**
+   * Gets the {@link Contacts} of the user.
+   *
+   * @return A list of {@link Contacts}
+   */
+  public Observable<Contacts> getContacts() {
+    return mService.getContacts();
+  }
+
+  /**
+   * Gets the {@link ContactGroups} of the user.
+   *
+   * @return A list of {@link ContactGroups}
+   */
+  public Observable<ContactGroups> getContactGroups() {
+    return mService.getContactGroups();
+  }
+
+  /**
+   * Gets a list of the users {@link Courses}.
+   *
+   * @return A list of the users {@link Courses}.
+   */
+  public Observable<Courses> getCourses() {
+    return mService.getCourses();
+  }
+
+  public Observable<News> getNews(final String range) {
+    return mService.getNews(range);
+  }
+
+  public Observable<Semesters> getSemesters() {
+    return mService.getSemesters();
+  }
   //endregion --------------------------------------------------------------------------------------
 
   //region INTERFACES ------------------------------------------------------------------------------
   public interface RestIPLegacyService {
-    /*
-     * Forums
-     */
+    /* Forums */
     @PUT("courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
         Callback<ForumCategory> cb);
 
@@ -546,23 +599,20 @@ public class StudIpLegacyApiService {
         "topic_id") String topicId, @Field("subject") String entrySubject,
         @Field("content") String entryContent);
 
-    /*
-     * User specific
-     */
+    /* User */
     @GET("user/{user_id}") Observable<UserItem> getUser(@Path("user_id") String userId);
 
     @GET("user") Observable<UserItem> getCurrentUserInfo();
 
+    /* Events */
     @GET("events") Observable<Events> getEvents();
 
-    /*
-     * Generally Stud.IP
-     */
+    @GET("events/{course_id}") Observable<Events> getEvents(@Path("course_id") String courseId);
+
+    /* General */
     @GET("studip/settings") Observable<Settings> getSettings();
 
-    /*
-     * Course specific
-     */
+    /* Courses */
     @GET("courses/{course_id}") Observable<CourseItem> getCourse(
         @Path("course_id") String courseId);
 
@@ -595,11 +645,30 @@ public class StudIpLegacyApiService {
     @DELETE("messages/{message_id}") Observable<Void> deleteMessage(
         @Path("message_id") String messageId);
 
-    @GET("messages") Observable<MessagesStats> getMessagesStats();
+    //TODO: Add unread counter to messages
+    //@GET("messages") Observable<MessagesStats> getMessagesStats();
+
+    /* Institutes */
+    @GET("user/{user_id}/institutes") Observable<InstitutesContainer> getInstitutes(
+        @Path("user_id") String userId);
+
+    /* Contacts */
+    @GET("contacts") Observable<Contacts> getContacts();
+
+    @GET("contacts/groups") Observable<ContactGroups> getContactGroups();
+
+    /* Courses */
+    @GET("courses") Observable<Courses> getCourses();
+
+    /* News */
+    @GET("news/range/{range}") Observable<News> getNews(@Path("range") String range);
+
+    /* Semesters */
+    @GET("semesters") Observable<Semesters> getSemesters();
   }
   //endregion --------------------------------------------------------------------------------------
 
-  //  //region INNER CLASSES ---------------------------------------------------------------------------
+  //region INNER CLASSES ---------------------------------------------------------------------------
 
-  //  //endregion --------------------------------------------------------------------------------------
+  //endregion --------------------------------------------------------------------------------------
 }
