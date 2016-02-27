@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.widget;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ import java.util.List;
  */
 public abstract class SimpleRecyclerViewAdapter<T, VH extends SimpleRecyclerViewAdapter.ViewHolder> extends
     RecyclerView.Adapter<VH> {
-  protected List<T> mData;
+  protected List<T> mData = new ArrayList<>();
   protected ViewHolder.ViewHolderClicks mListener;
 
   public SimpleRecyclerViewAdapter() {
