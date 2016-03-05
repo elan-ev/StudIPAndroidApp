@@ -32,7 +32,7 @@ import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntry;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import retrofit2.HttpException;
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 
 /**
