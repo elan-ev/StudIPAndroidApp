@@ -24,8 +24,16 @@ public class Settings {
 
   @JsonProperty("SEM_TYPE") public HashMap<Integer, SeminarTypeData> semTypes;
 
+  public Settings(HashMap<Integer, SeminarTypeData> semTypes) {
+    this.semTypes = semTypes;
+  }
+
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class SeminarTypeData {
+    public SeminarTypeData(String name) {
+      this.name = name;
+    }
+
     @JsonProperty("name") public String name;
     //    @JsonProperty("class") public int class;
   }
