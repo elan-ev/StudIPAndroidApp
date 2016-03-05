@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app;
+package de.elanev.studip.android.app.backend.net.oauth;
 
 import android.app.Activity;
 import android.app.Application;
@@ -14,9 +14,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -26,14 +24,14 @@ import static org.mockito.Mockito.when;
  * @author joern
  */
 @SmallTest
-public class SignInActivityTest {
+public class SignInActivityUnitTest {
   //TODO: Real tests, currently just dummy stuff
   @Test public void mockFinalMethod() {
     Activity activity = mock(Activity.class);
     Application app = mock(Application.class);
     when(activity.getApplication()).thenReturn(app);
 
-    assertThat(app, is(equalTo(activity.getApplication())));
+    assertThat(app).isEqualTo(activity.getApplication());
 
     verify(activity).getApplication();
     verifyNoMoreInteractions(activity);
