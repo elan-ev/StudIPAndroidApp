@@ -42,9 +42,9 @@ import de.elanev.studip.android.app.backend.db.UsersContract;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Callback;
-import retrofit2.JacksonConverterFactory;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.Retrofit;
-import retrofit2.RxJavaCallAdapterFactory;
 import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -80,6 +80,17 @@ public class StudIpLegacyApiService {
   //region CONSTRUCTOR
   // -----------------------------------------------------------------------------------------------
   public StudIpLegacyApiService(Server server, Context context) {
+
+    Retrofit retrofit = getRetrofit(server);
+
+    // Create an instance of our RestIPLegacyService API interface.
+    mService = retrofit.create(RestIPLegacyService.class);
+
+    // Other initializations
+    mContext = context.getApplicationContext();
+  }
+
+  public static Retrofit getRetrofit(Server server) {
     // Begin building the OkHttp3 client
     OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
 
@@ -111,13 +122,7 @@ public class StudIpLegacyApiService {
         .client(clientBuilder.build());
 
     // Build Retrofit
-    Retrofit retrofit = retrofitBuilder.build();
-
-    // Create an instance of our RestIPLegacyService API interface.
-    mService = retrofit.create(RestIPLegacyService.class);
-
-    // Other initializations
-    mContext = context.getApplicationContext();
+    return retrofitBuilder.build();
   }
   //endregion --------------------------------------------------------------------------------------
 
