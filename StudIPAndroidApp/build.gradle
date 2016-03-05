@@ -58,9 +58,10 @@ dependencies {
   compile 'com.squareup.okhttp3:okhttp:3.0.1'
   compile 'com.squareup.okhttp3:okhttp-urlconnection:3.0.1'
   compile 'com.squareup.okhttp3:logging-interceptor:3.0.1'
-  compile 'com.squareup.retrofit2:retrofit:2.0.0-beta3'
-  compile 'com.squareup.retrofit2:converter-jackson:2.0.0-beta3'
-  compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0-beta3'
+  compile 'com.squareup.retrofit2:retrofit:2.0.0-beta4'
+  compile 'com.squareup.retrofit2:converter-jackson:2.0.0-beta4'
+  compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0-beta4'
+  compile 'com.squareup.retrofit2:retrofit-mock:2.0.0-beta4'
   compile 'com.squareup.picasso:picasso:2.5.2'
   compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.1'
 
@@ -111,7 +112,7 @@ dependencies {
   // Dependencies for local unit tests
   testCompile 'junit:junit:4.12'
   testCompile 'org.mockito:mockito-all:2.0.2-beta'
-  testCompile 'org.hamcrest:hamcrest-all:1.3'
+  testCompile 'com.google.truth:truth:0.27'
 }
 
 def buildTime() {
@@ -146,17 +147,9 @@ android {
       events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
     }
   }
-  testBuildType "staging"
 
   signingConfigs {
     release
-
-    staging {
-      storeFile file("src/staging/staging.jks")
-      storePassword "testing"
-      keyAlias "testing"
-      keyPassword "testing"
-    }
   }
 
   //Read signing config from release.properties in root
@@ -239,23 +232,6 @@ android {
       minifyEnabled = true
       shrinkResources = true
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
-    }
-
-    staging {
-      buildConfigField "boolean", "USE_CRASHLYTICS", "false"
-
-      // Database name configuration
-      buildConfigField "String", "DATABASE", "\"studip_staging.db\""
-
-      // SyncHelper threshold values
-      buildConfigField "int", "COURSES_SYNC_THRESHOLD", "3600000"; // 1h
-      buildConfigField "int", "NEWS_SYNC_THRESHOLD", "60000"; // 1min
-      buildConfigField "int", "CONTACTS_SYNC_THRESHOLD", "60000"; // 1min
-      ext.enableCrashlytics = false
-      versionNameSuffix '-STAGING'
-      debuggable = false
-      minifyEnabled = false
-      signingConfig signingConfigs.staging
     }
 
     applicationVariants.all { variant ->
