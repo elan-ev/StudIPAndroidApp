@@ -28,7 +28,7 @@ import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
 import de.elanev.studip.android.app.backend.datamodel.ForumCategory;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import retrofit2.HttpException;
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
