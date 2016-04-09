@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2013 ELAN e.V.
+/*
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -20,13 +20,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName(value = "user")
-public class User {
+public class User implements Serializable {
   public static final String NAME = User.class.getName() + ".name";
   public static final String AVATAR = User.class.getName() + ".avatar";
   @JsonProperty("user_id") public String userId;
@@ -69,21 +70,9 @@ public class User {
    * @param privadr
    * @param role
    */
-  public User(String userId,
-      String username,
-      String perms,
-      String titlePre,
-      String forename,
-      String lastname,
-      String titlePost,
-      String email,
-      String avatarSmall,
-      String avatarMedium,
-      String avatarNormal,
-      String phone,
-      String homepage,
-      String privadr,
-      int role) {
+  public User(String userId, String username, String perms, String titlePre, String forename,
+      String lastname, String titlePost, String email, String avatarSmall, String avatarMedium,
+      String avatarNormal, String phone, String homepage, String privadr, int role) {
     this.userId = userId;
     this.username = username;
     this.perms = perms;
@@ -123,7 +112,7 @@ public class User {
 
   @JsonIgnore public static String toJson(User user) {
 
-    if (user==null) {
+    if (user == null) {
       return null;
     }
 
@@ -142,13 +131,16 @@ public class User {
   public String getFullName() {
     StringBuilder builder = new StringBuilder();
     if (!TextUtils.isEmpty(this.titlePre)) {
-      builder.append(this.titlePre).append(" ");
+      builder.append(this.titlePre)
+          .append(" ");
     }
     if (!TextUtils.isEmpty(this.forename)) {
-      builder.append(this.forename).append(" ");
+      builder.append(this.forename)
+          .append(" ");
     }
     if (!TextUtils.isEmpty(this.lastname)) {
-      builder.append(this.lastname).append(" ");
+      builder.append(this.lastname)
+          .append(" ");
     }
     if (!TextUtils.isEmpty(this.titlePost)) {
       builder.append(this.titlePost);

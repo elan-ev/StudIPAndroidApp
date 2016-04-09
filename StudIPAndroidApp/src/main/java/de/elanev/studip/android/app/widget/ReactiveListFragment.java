@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -13,12 +13,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
@@ -31,19 +32,20 @@ import rx.subscriptions.CompositeSubscription;
 public abstract class ReactiveListFragment extends ReactiveFragment {
   private static final String TAG = ReactiveListFragment.class.getSimpleName();
   protected final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-  protected RecyclerView mRecyclerView;
+  @Bind(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayout;
+  @Bind(R.id.list) protected EmptyRecyclerView mRecyclerView;
+  @Bind(R.id.empty) protected TextView mEmptyView;
+  @Bind(R.id.layout_container) protected  View mContainerLayout;
   protected RecyclerView.ItemDecoration mDividerItemDecoration;
-  protected TextView mEmptyView;
-  protected SwipeRefreshLayout mSwipeRefreshLayout;
-  protected RecyclerView.AdapterDataObserver mObserver;
   protected StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
-  private String mTitle;
+  private boolean mIsRefreshing;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(true);
-    Server server = Prefs.getInstance(getActivity()).getServer();
+    Server server = Prefs.getInstance(getActivity())
+        .getServer();
     mApiService = new StudIpLegacyApiService(server, getActivity());
   }
 
@@ -55,13 +57,11 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
     }
   }
 
-  @Override public View onCreateView(LayoutInflater inflater,
-      @Nullable ViewGroup container,
+  @Override public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.recyclerview_list, container, false);
-    mRecyclerView = (RecyclerView) v.findViewById(R.id.list);
-        mEmptyView = (TextView) v.findViewById(R.id.empty);
-    mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
+
+    ButterKnife.bind(this, v);
 
     return v;
   }
@@ -69,8 +69,10 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
   @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    mEmptyView.setText(R.string.loading);
-    setEmptyViewVisible(true);
+    if (mEmptyView != null) {
+      mEmptyView.setText(R.string.loading);
+      mRecyclerView.setEmptyView(mEmptyView);
+    }
 
     // Set RecyclerView up
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -81,45 +83,37 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
 
     // Set SwipeRefreshLayout up
     mSwipeRefreshLayout.setColorSchemeResources(R.color.studip_mobile_dark,
-        R.color.studip_mobile_darker,
-        R.color.studip_mobile_dark,
-        R.color.studip_mobile_darker);
+        R.color.studip_mobile_darker, R.color.studip_mobile_dark, R.color.studip_mobile_darker);
     mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
         updateItems();
       }
     });
-    setRefreshing(true);
-  }
-
-  public void setEmptyViewVisible(boolean toggle) {
-    if (toggle) {
-      mEmptyView.setVisibility(View.VISIBLE);
-      mSwipeRefreshLayout.setVisibility(View.GONE);
-    } else {
-      mEmptyView.setVisibility(View.GONE);
-      mSwipeRefreshLayout.setVisibility(View.VISIBLE);
-    }
-  }
-
-  public void removeDividerItemDecoratior() {
-    mRecyclerView.removeItemDecoration(mDividerItemDecoration);
   }
 
   protected abstract void updateItems();
+
+  public void removeDividerItemDecorator() {
+    mRecyclerView.removeItemDecoration(mDividerItemDecoration);
+  }
+
+  public boolean isRefreshing() {
+    return mIsRefreshing;
+  }
 
   public void setRefreshing(final boolean toggle) {
     if (getActivity() == null) {
       return;
     }
-    // Workaround for: https://code.google.com/p/android/issues/detail?id=77712
-    TypedValue typed_value = new TypedValue();
-    getActivity().getTheme()
-        .resolveAttribute(android.support.v7.appcompat.R.attr.actionBarSize, typed_value, true);
-    mSwipeRefreshLayout.setProgressViewOffset(false,
-        0,
-        getResources().getDimensionPixelSize(typed_value.resourceId));
 
+    mIsRefreshing = toggle;
+    //    // Workaround for: ://code.google.com/p/android/issues/detail?id=77712
+    //    TypedValue typed_value = new TypedValue();
+    //    getActivity().getTheme()
+    //        .resolveAttribute(android.support.v7.appcompat.R.attr.actionBarSize, typed_value, true);
+    //    mSwipeRefreshLayout.setProgressViewOffset(false, 0,
+    //        getResources().getDimensionPixelSize(typed_value.resourceId));
+    //
     mSwipeRefreshLayout.setRefreshing(toggle);
   }
 
@@ -128,8 +122,8 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
   }
 
 
-  public static interface ListItemClicks {
-    public void onListItemClicked(View v, int position);
+  public interface ListItemClicks {
+    void onListItemClicked(View v, int position);
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
 
 package de.elanev.studip.android.app.util;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -23,8 +23,8 @@ import android.view.ViewGroup;
 public class DebugFragment extends Fragment {
   private static final String TAG = DebugFragment.class.getSimpleName();
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
 
     Log.d(TAG, "onAttach CALLED");
   }

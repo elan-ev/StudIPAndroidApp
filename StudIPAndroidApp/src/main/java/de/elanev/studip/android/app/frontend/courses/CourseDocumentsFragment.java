@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 
 package de.elanev.studip.android.app.frontend.courses;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
@@ -15,14 +16,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -30,12 +35,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.apache.http.HttpException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,12 +56,13 @@ import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
+import de.elanev.studip.android.app.widget.EmptyRecyclerView;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
-import retrofit.RetrofitError;
+import retrofit2.HttpException;
 import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
@@ -66,9 +70,17 @@ import rx.schedulers.Schedulers;
 /**
  * Created by joern on 03.02.14
  */
-public class CourseDocumentsFragment extends Fragment {
+public class CourseDocumentsFragment extends ReactiveListFragment {
 
   static final String TAG = CourseDocumentsFragment.class.getSimpleName();
+  private static final int REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE = 0;
+  private DocumentsAdapter mAdapter;
+  private String mCourseId;
+  private String mFolderId;
+  private String mFolderName;
+  private DownloadManager mDownloadManager;
+  private ArrayList<DocumentsNavigationBackStackEntry> mDocumentsNavigationBackstack = new ArrayList<>();
+  private Document mSelectedDocument;
   /**
    * Broadcast receiver listening for completion of a download
    */
@@ -88,9 +100,12 @@ public class CourseDocumentsFragment extends Fragment {
         Cursor cursor = mgr.query(query);
         int statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
         int reasonIndex = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+        int localUri = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI);
+        int mimeType = cursor.getColumnIndex(DownloadManager.COLUMN_MEDIA_TYPE);
 
         if (cursor.moveToFirst()) {
-          queryStatus(cursor.getInt(statusIndex), cursor.getInt(reasonIndex));
+          queryStatus(cursor.getInt(statusIndex), cursor.getInt(reasonIndex),
+              cursor.getString(localUri), cursor.getString(mimeType));
         }
 
         cursor.close();
@@ -109,32 +124,24 @@ public class CourseDocumentsFragment extends Fragment {
     return fragment;
   }
 
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
-    // registering the broadcast receiver for completed downloads
-    context.registerReceiver(mDownloadManagerReceiver,
-        new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-  }
+  @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+      @NonNull int[] grantResults) {
+    switch (requestCode) {
+      case REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE:
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
+          // Permission Granted
+          downloadDocument(mSelectedDocument);
+        } else {
 
-    final FrameLayout wrapperLayout = new FrameLayout(getActivity());
-    wrapperLayout.setLayoutParams(
-        new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT));
-    wrapperLayout.setId(R.id.document_list_wrapper);
-
-    return wrapperLayout;
-  }
-
-  @Override public void onViewCreated(View view, Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
-    DocumentsListFragment frag = DocumentsListFragment.newInstance(getArguments());
-    getChildFragmentManager().beginTransaction()
-        .replace(R.id.document_list_wrapper, frag)
-        .commit();
+          // Permission Denied
+          Toast.makeText(getActivity(), R.string.download_permission_denied, Toast.LENGTH_SHORT)
+              .show();
+        }
+        break;
+      default:
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 
   }
 
@@ -143,13 +150,240 @@ public class CourseDocumentsFragment extends Fragment {
     super.onSaveInstanceState(outState);
   }
 
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB) private void downloadDocument(Document document) {
+    String fileId = document.document_id;
+    String fileName = document.filename;
+    String fileDescription = document.description;
+    String apiUrl = Prefs.getInstance(getActivity())
+        .getServer()
+        .getApiUrl();
+
+    boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
+        Environment.DIRECTORY_DOWNLOADS)
+        .mkdirs();
+
+    // Query DownloadManager and check of file is already being downloaded
+    boolean isDownloading = false;
+
+    if (externalDownloadsDir) {
+      DownloadManager.Query query = new DownloadManager.Query();
+      query.setFilterByStatus(DownloadManager.STATUS_PAUSED |
+          DownloadManager.STATUS_PENDING |
+          DownloadManager.STATUS_RUNNING |
+          DownloadManager.STATUS_SUCCESSFUL);
+      Cursor cur = mDownloadManager.query(query);
+      int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+      for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+        isDownloading = (TextUtils.equals(Environment.DIRECTORY_DOWNLOADS + fileName,
+            cur.getString(col)));
+      }
+      cur.close();
+    }
+
+
+    if (!isDownloading) {
+      try {
+        // Create the download URI
+        String downloadUrl = String.format(getString(R.string.restip_documents_documentid_download),
+            apiUrl, fileId);
+
+        // Sign the download URL with the OAuth credentials and parse the URI
+        Server server = Prefs.getInstance(getActivity())
+            .getServer();
+        String signedDownloadUrl = OAuthConnector.with(server)
+            .sign(downloadUrl);
+        Uri downloadUri = Uri.parse(signedDownloadUrl);
+
+
+        // Create the download request
+        DownloadManager.Request request = new DownloadManager.Request(
+            downloadUri).setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI
+            | DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
+            .setAllowedOverRoaming(false)                   // Disallow roaming downloading
+            .setTitle(fileName)                             // Title of this download
+            .setDescription(fileDescription)               // Description of this download
+            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+        // download location and file name
+
+        //Allowing the scanning by MediaScanner
+        request.allowScanningByMediaScanner();
+        request.setNotificationVisibility(
+            DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        try {
+          mDownloadManager.enqueue(request);
+        } catch (IllegalArgumentException e) {
+          if (getActivity() != null) {
+            Toast.makeText(getActivity(), R.string.error_downloadmanager_disabled,
+                Toast.LENGTH_LONG)
+                .show();
+          }
+        }
+
+      } catch (OAuthMessageSignerException e) {
+        e.printStackTrace();
+      } catch (OAuthExpectationFailedException e) {
+        e.printStackTrace();
+      } catch (OAuthCommunicationException e) {
+        e.printStackTrace();
+      } catch (OAuthNotAuthorizedException e) {
+        StuffUtil.startSignInActivity(getActivity());
+      }
+    }
+  }
+
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    // registering the broadcast receiver for completed downloads
+    context.registerReceiver(mDownloadManagerReceiver,
+        new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+
+    loadFolder(mFolderId, mFolderName);
+  }
+
   @Override public void onDetach() {
     super.onDetach();
     // unregister the broadcast receiver to save resources
     getActivity().unregisterReceiver(mDownloadManagerReceiver);
   }
 
-  private void queryStatus(int queryStatus, int queryReason) {
+  private void loadFolder(final String folderId, final String folderName) {
+    setRefreshing(true);
+
+    mFolderId = folderId;
+    mFolderName = folderName;
+
+    Observable<DocumentFolders> observable;
+    if (folderId == null) {
+      observable = mApiService.getCourseDocuments(mCourseId);
+    } else {
+      observable = mApiService.getCourseDocumentsFolders(mCourseId, folderId);
+    }
+
+    if (observable != null) {
+      mCompositeSubscription.add(bind(observable).subscribeOn(Schedulers.newThread())
+          .subscribe(new Subscriber<DocumentFolders>() {
+            @Override public void onCompleted() {
+              setRefreshing(false);
+            }
+
+            @Override public void onError(Throwable e) {
+              if (e instanceof TimeoutException) {
+                Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
+                    .show();
+              } else if (e instanceof HttpException) {
+                Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
+                    .show();
+                Log.e(TAG, e.getLocalizedMessage());
+              } else {
+                e.printStackTrace();
+                throw new RuntimeException("See inner exception");
+              }
+
+              setRefreshing(false);
+            }
+
+            @Override public void onNext(DocumentFolders documentFolders) {
+              final List<Object> list = new ArrayList<>();
+              list.addAll(documentFolders.folders);
+              list.addAll(documentFolders.documents);
+
+              mAdapter.updateData(list, folderName);
+            }
+          }));
+    }
+  }
+
+  @Override public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    Bundle args = getArguments();
+    if (args == null || args.isEmpty() || !args.containsKey(
+        CoursesContract.Columns.Courses.COURSE_ID)) {
+      throw new IllegalStateException("Arguments must not be null and must contain a course_id");
+    }
+    mCourseId = args.getString(CoursesContract.Columns.Courses.COURSE_ID);
+
+    // Get folder ID and name if available
+    mFolderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
+
+    mAdapter = new DocumentsAdapter(new ArrayList<>(), getActivity(), new ListItemClicks() {
+      @Override public void onListItemClicked(View caller, int position) {
+        Object obj = mAdapter.getItem(position);
+
+        if (obj == null) {
+          return;
+        }
+
+        if (obj instanceof DocumentFolder) {
+          if (isRefreshing()) {
+            return;
+          }
+
+          String folderName = ((DocumentFolder) obj).name;
+          String folderId = ((DocumentFolder) obj).folder_id;
+
+          addToDocumentsNavigationBackStack(mFolderId, mFolderName);
+          loadFolder(folderId, folderName);
+
+        } else if (obj instanceof Document) {
+          // Setting currently selected document for later use
+          mSelectedDocument = (Document) obj;
+
+          // Check if the write external storage permission is already available.
+          if (ContextCompat.checkSelfPermission(getActivity(),
+              Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            Log.i(TAG, "WRITE_EXTERNAL_STORAGE permission NOT granted. Asking for permission.");
+            // Write external storage permission has not been granted.
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE);
+          } else {
+            Log.i(TAG, "WRITE_EXTERNAL_STORAGE permission already granted. Starting download.");
+            downloadDocument(mSelectedDocument);
+          }
+        }
+      }
+    });
+  }
+
+  private void addToDocumentsNavigationBackStack(String folderId, String folderName) {
+    Log.d(TAG, "Adding: " + folderId + " : " + folderName + "to back stack");
+    // First check if the entry already exists
+    for (int i = 0, count = mDocumentsNavigationBackstack.size(); i < count; i++) {
+      DocumentsNavigationBackStackEntry stackEntry = mDocumentsNavigationBackstack.get(i);
+
+      if (TextUtils.equals(stackEntry.getFolderId(), folderId)) {
+        // Entry already existing, stop here.
+        return;
+      }
+    }
+
+    // Add new entry
+    final DocumentsNavigationBackStackEntry newEntry = new DocumentsNavigationBackStackEntry(
+        folderId, folderName);
+    mDocumentsNavigationBackstack.add(newEntry);
+  }
+
+
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    mEmptyView.setText(R.string.no_documents);
+    mRecyclerView.setEmptyView(mEmptyView);
+    mRecyclerView.setAdapter(mAdapter);
+    mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+  }
+
+  @Override protected void updateItems() {
+    loadFolder(mFolderId, mFolderName);
+  }
+
+  private void queryStatus(int queryStatus, int queryReason, final String fileName,
+      final String mime) {
 
     switch (queryStatus) {
       case DownloadManager.STATUS_FAILED:
@@ -157,14 +391,7 @@ public class CourseDocumentsFragment extends Fragment {
         break;
 
       case DownloadManager.STATUS_SUCCESSFUL:
-        showToastMessage(R.string.download_completed);
-        try {
-          // Show the download activity
-          startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
-        } catch (ActivityNotFoundException e) {
-          // No download manager installed or active, let the user handle the downloads.
-        }
-
+        showSnackbar(fileName, mime);
         break;
 
       default:
@@ -174,7 +401,7 @@ public class CourseDocumentsFragment extends Fragment {
   }
 
   private void showToastMessage(int stringRes) {
-    if (isAdded()) Toast.makeText(getActivity(), stringRes, Toast.LENGTH_SHORT)
+    if (isAdded()) Toast.makeText(getContext(), stringRes, Toast.LENGTH_SHORT)
         .show();
   }
 
@@ -210,370 +437,213 @@ public class CourseDocumentsFragment extends Fragment {
 
   }
 
-  public static class DocumentsListFragment extends ReactiveListFragment {
+  private void showSnackbar(final String fileName, final String mime) {
+    // Create Snackbar
+    Snackbar snackbar = Snackbar.make(mContainerLayout, R.string.download_completed,
+        Snackbar.LENGTH_SHORT)
+        .setAction(R.string.Open, new View.OnClickListener() {
+          @Override public void onClick(View v) {
+            Intent viewIntent = new Intent(Intent.ACTION_VIEW);
+            viewIntent.setDataAndType(Uri.parse(fileName), mime);
 
-    private static final String FOLDER_NAME = "folder_name";
-    private DocumentsAdapter mAdapter;
-    private String mCourseId;
-    private String mFolderId;
-    private String mFolderName;
-    private DownloadManager mDownloadManager;
-    private TextView mFolderTextView;
-
-    public DocumentsListFragment() {}
-
-    @Override public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-
-      Bundle args = getArguments();
-      if (args == null || args.isEmpty() || !args.containsKey(
-          CoursesContract.Columns.Courses.COURSE_ID)) {
-        throw new IllegalStateException("Arguments must not be null and must contain a course_id");
-      }
-      mCourseId = args.getString(CoursesContract.Columns.Courses.COURSE_ID);
-
-      // Get folder ID and name if available
-      mFolderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
-      mFolderName = getArguments().getString(FOLDER_NAME);
-
-      mAdapter = new DocumentsAdapter(new ArrayList<>(), getActivity(), new ListItemClicks() {
-        @Override public void onListItemClicked(View caller, int position) {
-          Object obj = mAdapter.getItem(position);
-
-          if (obj == null) {
-            return;
-          }
-
-          if (obj instanceof BackButtonListEntry) {
-            getActivity().onBackPressed();
-          } else if (obj instanceof DocumentFolder) {
-            String folderName = ((DocumentFolder) obj).name;
-            String folderId = ((DocumentFolder) obj).folder_id;
-            Bundle args = new Bundle();
-            args.putString(CoursesContract.Columns.Courses.COURSE_ID, mCourseId);
-            args.putString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID, folderId);
-            args.putString(FOLDER_NAME, folderName);
-
-            DocumentsListFragment frag = DocumentsListFragment.newInstance(args);
-            getParentFragment().getChildFragmentManager()
-                .beginTransaction()
-                .replace(R.id.document_list_wrapper, frag)
-                .addToBackStack(null)
-                .commit();
-          } else if (obj instanceof Document) {
-            downloadDocument((Document) obj);
-          }
-        }
-      });
-
-      mObserver = new RecyclerView.AdapterDataObserver() {
-        @Override public void onChanged() {
-          super.onChanged();
-          mEmptyView.setText(R.string.no_documents);
-          setEmptyViewVisible(mAdapter.isEmpty());
-        }
-      };
-      mAdapter.registerAdapterDataObserver(mObserver);
-
-    }
-
-    /**
-     * Returns a new instance of DocumentsListFragment and sets its arguments with the passed
-     * bundle.
-     *
-     * @param arguments arguments to set to fragment
-     * @return new instance of DocumentsListFragment
-     */
-    public static DocumentsListFragment newInstance(Bundle arguments) {
-      DocumentsListFragment fragment = new DocumentsListFragment();
-
-      fragment.setArguments(arguments);
-
-      return fragment;
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB) private void downloadDocument(Document document) {
-      String fileId = document.document_id;
-      String fileName = document.filename;
-      String fileDescription = document.description;
-      String apiUrl = Prefs.getInstance(getActivity())
-          .getServer()
-          .getApiUrl();
-
-      boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
-          Environment.DIRECTORY_DOWNLOADS)
-          .mkdirs();
-
-      // Query DownloadManager and check of file is already being downloaded
-      boolean isDownloading = false;
-
-      if (externalDownloadsDir) {
-        DownloadManager.Query query = new DownloadManager.Query();
-        query.setFilterByStatus(DownloadManager.STATUS_PAUSED |
-            DownloadManager.STATUS_PENDING |
-            DownloadManager.STATUS_RUNNING |
-            DownloadManager.STATUS_SUCCESSFUL);
-        Cursor cur = mDownloadManager.query(query);
-        int col = cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
-        for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-          isDownloading = (TextUtils.equals(Environment.DIRECTORY_DOWNLOADS + fileName,
-              cur.getString(col)));
-        }
-        cur.close();
-      }
-
-
-      if (!isDownloading) {
-        try {
-          // Create the download URI
-          String downloadUrl = String.format(
-              getString(R.string.restip_documents_documentid_download), apiUrl, fileId);
-
-          // Sign the download URL with the OAuth credentials and parse the URI
-          Server server = Prefs.getInstance(getActivity())
-              .getServer();
-          String signedDownloadUrl = OAuthConnector.with(server)
-              .sign(downloadUrl);
-          Uri downloadUri = Uri.parse(signedDownloadUrl);
-
-
-          // Create the download request
-          DownloadManager.Request request = new DownloadManager.Request(
-              downloadUri).setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI
-              | DownloadManager.Request.NETWORK_MOBILE) // Only mobile and wifi allowed
-              .setAllowedOverRoaming(false)                   // Disallow roaming downloading
-              .setTitle(fileName)                             // Title of this download
-              .setDescription(fileDescription)               // Description of this download
-              .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-          // download location and file name
-
-          //Allowing the scanning by MediaScanner
-          request.allowScanningByMediaScanner();
-          request.setNotificationVisibility(
-              DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-
-          try {
-            mDownloadManager.enqueue(request);
-          } catch (IllegalArgumentException e) {
-            if (getActivity() != null) {
-              Toast.makeText(getActivity(), R.string.error_downloadmanager_disabled,
-                  Toast.LENGTH_LONG)
-                  .show();
+            try {
+              // Show the download activity
+              startActivity(viewIntent);
+            } catch (ActivityNotFoundException e) {
+              // No application for handling the file is installed.
+              showToastMessage(R.string.no_compatible_application);
             }
           }
-
-        } catch (OAuthMessageSignerException e) {
-          e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-          e.printStackTrace();
-        } catch (OAuthCommunicationException e) {
-          e.printStackTrace();
-        } catch (OAuthNotAuthorizedException e) {
-          StuffUtil.startSignInActivity(getActivity());
-        }
-      }
-    }
-
-    @Override public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-        @Nullable Bundle savedInstanceState) {
-      View v = inflater.inflate(R.layout.documents_recyclerview_list, container, false);
-      mRecyclerView = (RecyclerView) v.findViewById(R.id.list);
-      mEmptyView = (TextView) v.findViewById(R.id.empty);
-      mFolderTextView = (TextView) v.findViewById(R.id.folder_title);
-      mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
-
-      return v;
-    }
-
-    @Override public void onActivityCreated(Bundle savedInstanceState) {
-      super.onActivityCreated(savedInstanceState);
-
-      mRecyclerView.setAdapter(mAdapter);
-      mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-
-      if (!TextUtils.isEmpty(mFolderName)) {
-        mFolderTextView.setText(mFolderName);
-        mFolderTextView.setVisibility(View.VISIBLE);
-      }
-    }
-
-    @Override protected void updateItems() {
-      downloadDocumentsForFolder(mCourseId, mFolderId, mFolderName);
-    }
-
-    private void downloadDocumentsForFolder(String courseId, final String folderId,
-        final String folderName) {
-      setRefreshing(true);
-
-      Observable<DocumentFolders> observable;
-      if (folderId == null) {
-        observable = mApiService.getCourseDocuments(courseId);
-      } else {
-        observable = mApiService.getCourseDocumentsFolders(courseId, folderId);
-      }
-
-      if (observable != null) {
-        mCompositeSubscription.add(bind(observable).subscribeOn(Schedulers.newThread())
-            .subscribe(new Subscriber<DocumentFolders>() {
-              @Override public void onCompleted() {
-                setRefreshing(false);
-              }
-
-              @Override public void onError(Throwable e) {
-                if (e instanceof TimeoutException) {
-                  Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
-                      .show();
-                } else if (e instanceof RetrofitError || e instanceof HttpException) {
-                  Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
-                      .show();
-                  Log.e(TAG, e.getLocalizedMessage());
-                } else {
-                  e.printStackTrace();
-                  throw new RuntimeException("See inner exception");
-                }
-
-                setRefreshing(false);
-              }
-
-              @Override public void onNext(DocumentFolders documentFolders) {
-                final List<Object> list = new ArrayList<>();
-                list.addAll(documentFolders.folders);
-                list.addAll(documentFolders.documents);
-
-                mAdapter.updateData(list, folderName);
-              }
-            }));
-      }
-    }
-
-    @Override public void onStart() {
-      super.onStart();
-
-      downloadDocumentsForFolder(mCourseId, mFolderId, mFolderName);
-    }
-
-    private static class BackButtonListEntry {}
-
-    private static class DocumentsAdapter extends
-        RecyclerView.Adapter<DocumentsAdapter.ViewHolder> {
-
-      private final List<Object> mData;
-      private final Context mContext;
-      private ReactiveListFragment.ListItemClicks mFragmentClickListener;
-
-      public DocumentsAdapter(final List<Object> items, Context context,
-          ReactiveListFragment.ListItemClicks fragmentClickListener) {
-        if (items == null) {
-          throw new IllegalStateException("Data items must not be null");
-        }
-
-        mContext = context;
-        mData = items;
-        mFragmentClickListener = fragmentClickListener;
-
-        setHasStableIds(true);
-      }
-
-      @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.list_item_two_text_icon, parent, false);
-
-        return new ViewHolder(view, new ViewHolder.ViewHolderClicks() {
-
-          @Override public void onListItemClicked(View caller, int position) {
-            mFragmentClickListener.onListItemClicked(caller, position);
-          }
-
         });
+
+    // Change color of primary Snackbar text
+    View snackbarView = snackbar.getView();
+    TextView textView = (TextView) snackbarView.findViewById(
+        android.support.design.R.id.snackbar_text);
+    textView.setTextColor(Color.LTGRAY);
+
+    // Show the Snack
+    snackbar.show();
+  }
+
+  /**
+   * Returns the previous navigation page when the back button is pressed.
+   *
+   * @return true if the previous entry was successfully returned is currently shown. false if
+   * there was no entry was in the back stack.
+   */
+  public boolean onBackPressed() {
+    DocumentsNavigationBackStackEntry prevEntry = popDocumentsNavigationBackStack();
+    if (prevEntry != null) {
+      loadFolder(prevEntry.getFolderId(), prevEntry.getFolderName());
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private DocumentsNavigationBackStackEntry popDocumentsNavigationBackStack() {
+    if (mDocumentsNavigationBackstack == null) {
+      return null;
+    }
+
+    int last = mDocumentsNavigationBackstack.size() - 1;
+    if (last < 0) {
+      return null;
+    }
+
+    final DocumentsNavigationBackStackEntry mRecord = mDocumentsNavigationBackstack.remove(last);
+
+    return mRecord;
+  }
+
+  private static class BackButtonListEntry {}
+
+  private static class DocumentsAdapter extends RecyclerView.Adapter<DocumentsAdapter.ViewHolder> {
+
+    private final List<Object> mData;
+    private final Context mContext;
+    private ReactiveListFragment.ListItemClicks mFragmentClickListener;
+
+    public DocumentsAdapter(final List<Object> items, Context context,
+        ReactiveListFragment.ListItemClicks fragmentClickListener) {
+      if (items == null) {
+        throw new IllegalStateException("Data items must not be null");
       }
 
-      @Override public void onBindViewHolder(ViewHolder holder, int position) {
+      mContext = context;
+      mData = items;
+      mFragmentClickListener = fragmentClickListener;
 
-        Object entry = mData.get(position);
-        if (entry == null) {
-          return;
+      setHasStableIds(true);
+    }
+
+    @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+      View view = LayoutInflater.from(parent.getContext())
+          .inflate(R.layout.list_item_two_text_icon, parent, false);
+
+      return new ViewHolder(view, new ViewHolder.ViewHolderClicks() {
+
+        @Override public void onListItemClicked(View caller, int position) {
+          mFragmentClickListener.onListItemClicked(caller, position);
         }
 
-        if (entry instanceof BackButtonListEntry) {
-          holder.mTitleTextView.setText(R.string.back);
-          holder.mIconImageView.setImageResource(R.drawable.ic_arrow_left_blue);
-          holder.mSubtitleTextView.setVisibility(View.GONE);
+      });
+    }
 
-        } else if (entry instanceof DocumentFolder) {
-          DocumentFolder f = (DocumentFolder) entry;
+    @Override public void onBindViewHolder(ViewHolder holder, int position) {
 
-          holder.mIconImageView.setImageResource(R.drawable.ic_folder);
-          holder.mTitleTextView.setText(f.name);
-
-          String subText = String.format(mContext.getString(R.string.last_updated),
-              DateTools.getLocalizedRelativeTimeString(f.chdate));
-          holder.mSubtitleTextView.setText(subText);
-          holder.mSubtitleTextView.setVisibility(View.VISIBLE);
-
-        } else {
-          Document doc = (Document) entry;
-
-          String docName = TextUtils.isEmpty(doc.name) ? doc.filename : doc.name;
-          holder.mIconImageView.setImageResource(R.drawable.ic_file_generic);
-          holder.mTitleTextView.setText(docName);
-
-          String subText = String.format(mContext.getString(R.string.downloads), doc.downloads);
-          subText = subText + "\t\t\t" + TextTools.readableFileSize(doc.filesize);
-          holder.mSubtitleTextView.setText(subText);
-          holder.mSubtitleTextView.setVisibility(View.VISIBLE);
-        }
-
-        holder.mIconImageView.setColorFilter(mContext.getResources()
-            .getColor(R.color.studip_mobile_dark), PorterDuff.Mode.SRC_IN);
+      Object entry = mData.get(position);
+      if (entry == null) {
+        return;
       }
 
-      @Override public int getItemCount() {
-        return mData.size();
+      if (entry instanceof BackButtonListEntry) {
+        holder.mTitleTextView.setText(R.string.back);
+        holder.mIconImageView.setImageResource(R.drawable.ic_arrow_left_blue);
+        holder.mSubtitleTextView.setVisibility(View.GONE);
+
+      } else if (entry instanceof DocumentFolder) {
+        DocumentFolder f = (DocumentFolder) entry;
+
+        holder.mIconImageView.setImageResource(R.drawable.ic_folder);
+        holder.mTitleTextView.setText(f.name);
+
+        String subText = String.format(mContext.getString(R.string.last_updated),
+            DateTools.getLocalizedRelativeTimeString(f.chdate));
+        holder.mSubtitleTextView.setText(subText);
+        holder.mSubtitleTextView.setVisibility(View.VISIBLE);
+
+      } else {
+        Document doc = (Document) entry;
+
+        String docName = TextUtils.isEmpty(doc.name) ? doc.filename : doc.name;
+        holder.mIconImageView.setImageResource(R.drawable.ic_file_generic);
+        holder.mTitleTextView.setText(docName);
+
+        String subText = String.format(mContext.getString(R.string.downloads), doc.downloads);
+        subText = subText + "\t\t\t" + TextTools.readableFileSize(doc.filesize);
+        holder.mSubtitleTextView.setText(subText);
+        holder.mSubtitleTextView.setVisibility(View.VISIBLE);
       }
 
-      public Object getItem(int position) {
-        if (position == RecyclerView.NO_POSITION) {
-          return null;
-        }
+      holder.mIconImageView.setColorFilter(
+          ContextCompat.getColor(mContext, R.color.studip_mobile_dark), PorterDuff.Mode.SRC_IN);
+    }
 
-        return mData.get(position);
+    @Override public int getItemCount() {
+      return mData.size();
+    }
+
+    public Object getItem(int position) {
+      if (position == RecyclerView.NO_POSITION) {
+        return null;
       }
 
-      public void updateData(List<Object> list, String folderName) {
-        mData.clear();
-        mData.addAll(list);
-        this.notifyDataSetChanged();
+      return mData.get(position);
+    }
+
+    public void updateData(List<Object> list, String folderName) {
+      mData.clear();
+      mData.addAll(list);
+      this.notifyDataSetChanged();
+    }
+
+    public boolean isEmpty() {
+      return mData.isEmpty();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+      TextView mTitleTextView;
+      TextView mSubtitleTextView;
+      ImageView mIconImageView;
+      ViewHolder.ViewHolderClicks mListener;
+
+      public ViewHolder(View itemView, ViewHolderClicks viewHolderClicksListener) {
+        super(itemView);
+
+        mListener = viewHolderClicksListener;
+        mTitleTextView = (TextView) itemView.findViewById(R.id.text1);
+        mSubtitleTextView = (TextView) itemView.findViewById(R.id.text2);
+        mIconImageView = (ImageView) itemView.findViewById(R.id.icon);
+        itemView.setOnClickListener(this);
       }
 
-      public boolean isEmpty() {
-        return mData.isEmpty();
+      public interface ViewHolderClicks {
+        void onListItemClicked(View caller, int position);
       }
 
-      public static class ViewHolder extends RecyclerView.ViewHolder implements
-          View.OnClickListener {
-        TextView mTitleTextView;
-        TextView mSubtitleTextView;
-        ImageView mIconImageView;
-        ViewHolder.ViewHolderClicks mListener;
-
-        public ViewHolder(View itemView, ViewHolderClicks viewHolderClicksListener) {
-          super(itemView);
-
-          mListener = viewHolderClicksListener;
-          mTitleTextView = (TextView) itemView.findViewById(R.id.text1);
-          mSubtitleTextView = (TextView) itemView.findViewById(R.id.text2);
-          mIconImageView = (ImageView) itemView.findViewById(R.id.icon);
-          itemView.setOnClickListener(this);
-        }
-
-        @Override public void onClick(View v) {
-          mListener.onListItemClicked(v, getAdapterPosition());
-        }
-
-        public interface ViewHolderClicks {
-          void onListItemClicked(View caller, int position);
-        }
+      @Override public void onClick(View v) {
+        mListener.onListItemClicked(v, getAdapterPosition());
       }
+
+
+    }
+  }
+
+  private class DocumentsNavigationBackStackEntry {
+    private String mFolderId;
+    private String mFolderName;
+
+    public DocumentsNavigationBackStackEntry(String folderId, String folderName) {
+      this.mFolderId = folderId;
+      this.mFolderName = folderName;
+    }
+
+    public String getFolderId() {
+      return mFolderId;
+    }
+
+    public void setFolderId(String folderId) {
+      mFolderId = folderId;
+    }
+
+    public String getFolderName() {
+      return mFolderName;
+    }
+
+    public void setFolderName(String folderName) {
+      mFolderName = folderName;
     }
   }
 }

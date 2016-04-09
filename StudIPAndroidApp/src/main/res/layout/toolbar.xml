@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2015 ELAN e.V.
+  ~ Copyright (c) 2016 ELAN e.V.
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the GNU Public License v3.0
   ~ which accompanies this distribution, and is available at
@@ -18,4 +18,14 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
     android:elevation="2dp"
-    />
+    >
+
+    <ProgressBar
+        android:id="@+id/progress_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    </android.support.v7.widget.Toolbar>

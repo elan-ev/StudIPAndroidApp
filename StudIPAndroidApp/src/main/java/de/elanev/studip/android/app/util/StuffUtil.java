@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -18,10 +18,7 @@ import com.crashlytics.android.Crashlytics;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
-import de.elanev.studip.android.app.backend.db.AbstractContract;
-import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
 import de.elanev.studip.android.app.frontend.AboutActivity;
 import de.elanev.studip.android.app.widget.WebViewActivity;
