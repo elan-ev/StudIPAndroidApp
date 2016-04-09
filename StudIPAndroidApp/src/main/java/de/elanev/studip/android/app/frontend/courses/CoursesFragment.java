@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
 
 package de.elanev.studip.android.app.frontend.courses;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -16,6 +15,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -29,8 +29,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 
@@ -95,9 +93,9 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
     getLoaderManager().initLoader(0, null, this);
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    activity.getContentResolver()
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    context.getContentResolver()
         .registerContentObserver(CoursesContract.CONTENT_URI, true, mObserver);
   }
 
@@ -189,6 +187,13 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
       }
       mSwipeRefreshLayoutListView.setRefreshing(false);
     }
+  }
+
+  public static Fragment newInstance(Bundle args) {
+    CoursesFragment fragment = new CoursesFragment();
+    fragment.setArguments(args);
+
+    return fragment;
   }
 
   /*

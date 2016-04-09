@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  */
 package de.elanev.studip.android.app.frontend.contacts;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -24,12 +25,9 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.android.volley.VolleyError;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.db.ContactsContract;
 import de.elanev.studip.android.app.backend.db.UsersContract;
@@ -85,9 +83,10 @@ public class ContactsGroupsFragment extends UserListFragment implements
     SyncHelper.getInstance(mContext).forcePerformContactsSync(this);
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    activity.getContentResolver()
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+
+    context.getContentResolver()
         .registerContentObserver(ContactsContract.CONTENT_URI_CONTACT_GROUPS, true, mObserver);
   }
 
@@ -178,5 +177,12 @@ public class ContactsGroupsFragment extends UserListFragment implements
     if (getActivity() != null && errorCode != 404) {
       Toast.makeText(mContext, R.string.sync_error_default, Toast.LENGTH_LONG).show();
     }
+  }
+
+  public static Fragment newInstance(Bundle args) {
+    ContactsGroupsFragment fragment = new ContactsGroupsFragment();
+    fragment.setArguments(args);
+
+    return fragment;
   }
 }

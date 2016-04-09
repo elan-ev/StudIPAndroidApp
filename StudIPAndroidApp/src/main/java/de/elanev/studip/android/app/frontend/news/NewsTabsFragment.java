@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -53,5 +53,12 @@ public class NewsTabsFragment extends Fragment {
      */
   private PagerAdapter buildAdapter() {
     return new NewsTabsAdapter(getActivity(), getChildFragmentManager());
+  }
+
+  public static Fragment newInstance(Bundle args) {
+    NewsTabsFragment fragment = new NewsTabsFragment();
+    fragment.setArguments(args);
+
+    return fragment;
   }
 }

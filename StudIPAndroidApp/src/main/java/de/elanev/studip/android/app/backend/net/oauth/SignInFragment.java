@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,6 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.backend.datamodel.Server;
@@ -53,6 +52,7 @@ import de.elanev.studip.android.app.backend.db.AbstractContract;
 import de.elanev.studip.android.app.backend.db.DatabaseHandler;
 import de.elanev.studip.android.app.backend.net.SyncHelper;
 import de.elanev.studip.android.app.backend.net.util.NetworkUtils;
+import de.elanev.studip.android.app.frontend.news.NewsActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.ServerData;
@@ -207,7 +207,10 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         Log.i(TAG, "App synced starting..");
         startMainActivity();
         return;
+      } else if(prefs.getUserId() == null) {
+
       } else {
+
         performPrefetchSync();
         return;
       }
@@ -264,7 +267,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
    * Starts the next activity after prefetching.
    */
   public void startMainActivity() {
-    Intent intent = new Intent(getActivity(), MainActivity.class);
+    Intent intent = new Intent(getActivity(), NewsActivity.class);
     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -358,13 +361,13 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     return servers;
   }
 
-  @Override public void onAttach(Activity activity) {
+  @Override public void onAttach(Context context) {
     Log.i(TAG, "onAttach Called!");
-    super.onAttach(activity);
+    super.onAttach(context);
     try {
-      mCallbacks = (OnRequestTokenReceived) activity;
+      mCallbacks = (OnRequestTokenReceived) context;
     } catch (ClassCastException e) {
-      throw new ClassCastException(activity.toString() + "must implement OnWebViewAuthListener");
+      throw new ClassCastException(context.toString() + "must implement OnWebViewAuthListener");
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -96,7 +96,7 @@ class ForumCategoriesAdapter extends RecyclerView.Adapter<ForumCategoriesAdapter
     }
 
     @Override public void onClick(View v) {
-      mListener.onListItemClicked(v, getPosition());
+      mListener.onListItemClicked(v, getAdapterPosition());
     }
 
     public interface ViewHolderClicks {

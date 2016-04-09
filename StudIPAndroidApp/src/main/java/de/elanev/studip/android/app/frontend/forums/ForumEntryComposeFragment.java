@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -9,10 +9,9 @@
 package de.elanev.studip.android.app.frontend.forums;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,10 +22,9 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.apache.http.HttpException;
-
 import java.util.concurrent.TimeoutException;
 
+import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntry;
@@ -34,7 +32,7 @@ import de.elanev.studip.android.app.backend.datamodel.Server;
 import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ReactiveFragment;
-import retrofit.RetrofitError;
+import retrofit2.HttpException;
 import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
 
@@ -51,6 +49,7 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
   private EditText mSubjectEditText;
   private EditText mContentEditText;
   private boolean mSendButtonVisible = true;
+  private MainActivity.OnShowProgressBarListener mCallback;
 
   public static ForumEntryComposeFragment newInstance(Bundle args) {
     ForumEntryComposeFragment fragment = new ForumEntryComposeFragment();
@@ -84,6 +83,17 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
     return v;
   }
 
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+
+    try {
+      mCallback = (MainActivity.OnShowProgressBarListener) context;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(context.toString()
+          + " must implement OnShowProgressBarListener");
+    }
+  }
+
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.forum_entry_compose_menu, menu);
     super.onCreateOptionsMenu(menu, inflater);
@@ -93,7 +103,7 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.create_new_area).setVisible(mSendButtonVisible);
 
-    ((AppCompatActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(!mSendButtonVisible);
+    mCallback.onShowProgressBar(!mSendButtonVisible);
   }
 
   @Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -134,8 +144,8 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
       @Override public void onError(Throwable e) {
         if (e instanceof TimeoutException) {
           Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT).show();
-        } else if (e instanceof RetrofitError || e instanceof HttpException) {
-          Toast.makeText(getActivity(), "Retrofit error or http exception", Toast.LENGTH_LONG)
+        } else if (e instanceof HttpException) {
+          Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
               .show();
           Log.e(TAG, e.getLocalizedMessage());
         } else {

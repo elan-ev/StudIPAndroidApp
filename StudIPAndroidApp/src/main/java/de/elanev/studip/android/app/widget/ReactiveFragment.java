@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
 
 package de.elanev.studip.android.app.widget;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +22,7 @@ import rx.Observable;
 import rx.android.app.AppObservable;
 import rx.android.lifecycle.LifecycleEvent;
 import rx.android.lifecycle.LifecycleObservable;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import rx.subscriptions.CompositeSubscription;
 
@@ -37,13 +38,12 @@ public class ReactiveFragment extends Fragment {
   protected RecyclerView mRecyclerView;
   protected TextView mEmptyView;
   protected SwipeRefreshLayout mSwipeRefreshLayout;
-  protected RecyclerView.AdapterDataObserver mObserver;
   protected StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
   private String mTitle;
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
 
     lifecycleSubject.onNext(LifecycleEvent.ATTACH);
   }
@@ -104,7 +104,7 @@ public class ReactiveFragment extends Fragment {
 
   protected <T> Observable<T> bind(Observable<T> observable) {
     Observable<T> boundObservable = AppObservable.bindSupportFragment(this, observable)
-        .observeOn(mainThread());
+        .observeOn(mainThread()).subscribeOn(Schedulers.io());
     return LifecycleObservable.bindFragmentLifecycle(lifecycle(), boundObservable);
   }
 

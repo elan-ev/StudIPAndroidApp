@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
-  ~ Copyright (c) 2015 ELAN e.V.
+  ~ Copyright (c) 2016 ELAN e.V.
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the GNU Public License v3.0
   ~ which accompanies this distribution, and is available at
@@ -114,6 +115,10 @@
     <string name="downloads">%1$d Downloads</string>
     <string name="error_downloadmanager_disabled">Der DownloadManager ist deaktiviert.
         Bitte reaktivieren um fortzufahren.</string>
+    <string name="download_permission_denied">Download nicht möglich. Benötigte
+        Berechtigung nicht erhalten.</string>
+    <string name="Open">Öffnen</string>
+    <string name="no_compatible_application">Keine kompatible App gefunden</string>
 
     <!-- About app Activity -->
     <string name="privacy_policy">Datenschutzerklärung</string>
@@ -176,7 +181,8 @@
     <string name="message_deleted">Nachricht gelöscht</string>
     <string name="Receiver">Empfänger</string>
     <string name="Subject">Betreff</string>
-    <string name="original_message">Original Nachricht</string>
+    <string name="message_quotation_with_sender">Original von %1$s am %2$s:</string>
+    <string name="message_quotation_without_sender">Original vom %1$s:</string>
     <string name="message_forward_string">WG</string>
     <string name="message_reply_string">AW</string>
     <string name="Send">Senden</string>
@@ -188,7 +194,7 @@
     <string name="please_choose_receiver">Bitte Empfänger angeben</string>
     <string name="please_enter_subject">Bitte einen Betreff angeben</string>
     <string name="please_enter_message">Bitte eine Nachricht eingeben</string>
-    <string name="enter_forename_lastname">Vorname Nachname eingeben</string>
+    <string name="select_valid_user">Gültigen Nutzer auswählen</string>
     <string name="enter_subject">Betreff eingeben</string>
     <string name="enter_message">Nachricht eingeben</string>
 
@@ -216,6 +222,13 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="no_schedule">
         Sie haben für die nächsten zwei Wochen keine Termine.
     </string>
+    <string name="error_loading_events">Es trat ein Fehler beim Laden der Termine auf.</string>
+    <string name="goto_today">Zu heute gehen</string>
+    <string name="three_day_view">3 Tage Ansicht</string>
+    <string name="week_view">Wochenansicht</string>
+    <string name="day_view">Tag Ansicht</string>
+    <string name="list_view">Listenansicht</string>
+    <string name="timetable">Stundenplan</string>
 
     <!-- Profile -->
     <string name="Profile">Profil</string>
@@ -256,6 +269,9 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="Enter_content">Forebeitrag verfassen</string>
     <string name="no_forum_categories">Keine Kategorien vorhanden</string>
     <string name="anonymous">Anonym</string>
+
+    <!-- General error messages -->
+    <string name="error_timeout">Zeitüberschreitung, versuchen Sie es später erneut</string>
 
 
 </resources>

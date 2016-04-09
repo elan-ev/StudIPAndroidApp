@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -23,17 +23,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import org.apache.http.HttpException;
-
 import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.backend.datamodel.ForumEntry;
 import de.elanev.studip.android.app.backend.datamodel.User;
-import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import retrofit.RetrofitError;
+import retrofit2.HttpException;
 import rx.Subscriber;
 
 /**
@@ -49,7 +46,6 @@ public class ForumEntryFragment extends ReactiveListFragment {
   private String mSubject;
   private long mDate;
   private ForumEntryAdapter mAdapter;
-  private RecyclerView.AdapterDataObserver mObserver;
   private int previousTotal = 0;
   private boolean loading = true;
   private int firstVisibleItem, visibleItemCount, totalItemCount;
@@ -129,24 +125,13 @@ public class ForumEntryFragment extends ReactiveListFragment {
       @Override public void onListItemClicked(View v, int position) {}
 
     }, getActivity());
-
-    mObserver = new RecyclerView.AdapterDataObserver() {
-
-      @Override public void onChanged() {
-        super.onChanged();
-
-        mEmptyView.setText(R.string.no_entries);
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
-
-    mAdapter.registerAdapterDataObserver(mObserver);
   }
 
   @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
     setTitle(mSubject);
+    mEmptyView.setText(R.string.no_entries);
     mRecyclerView.setAdapter(mAdapter);
     mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
@@ -217,14 +202,9 @@ public class ForumEntryFragment extends ReactiveListFragment {
           @Override public void onError(Throwable e) {
             if (e instanceof TimeoutException) {
               Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT).show();
-            } else if (e instanceof RetrofitError) {
-              Toast.makeText(getActivity(), "Retrofit error", Toast.LENGTH_LONG).show();
             } else if (e instanceof HttpException) {
               Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG).show();
               Log.e(TAG, e.getLocalizedMessage());
-            } else if (e instanceof StudIpLegacyApiService.UserNotFoundException) {
-              Log.e(TAG, "User not found");
-              return;
             } else {
               e.printStackTrace();
               throw new RuntimeException("See inner exception");
