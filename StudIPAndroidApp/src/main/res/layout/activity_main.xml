@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2015 ELAN e.V.
+  ~ Copyright (c) 2016 ELAN e.V.
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the GNU Public License v3.0
   ~ which accompanies this distribution, and is available at
@@ -54,7 +54,6 @@
         android:background="@color/studip_mobile_dark"
         app:itemIconTint="@android:color/white"
         app:itemTextColor="@color/primary_text_dark"
-        app:headerLayout="@layout/nav_header"
         app:menu="@menu/navigation_drawer"/>
 
 </android.support.v4.widget.DrawerLayout>

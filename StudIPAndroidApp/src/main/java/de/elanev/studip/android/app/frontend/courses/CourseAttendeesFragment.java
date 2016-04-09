@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  */
 package de.elanev.studip.android.app.frontend.courses;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -24,9 +24,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.android.volley.VolleyError;
-
-import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,9 +102,10 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
   }
 
   @Override
-  public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    activity.getContentResolver()
+  public void onAttach(Context context) {
+    super.onAttach(context);
+
+    context.getContentResolver()
         .registerContentObserver(UsersContract.CONTENT_URI, true, mObserver);
   }
 

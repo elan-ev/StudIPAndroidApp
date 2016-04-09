@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
@@ -31,6 +32,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.backend.datamodel.User;
 import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.frontend.messages.MessageComposeActivity;
 import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
@@ -95,10 +97,6 @@ public class UserDetailsActivity extends AppCompatActivity implements
       return;
     }
     mUserId = mData.getString(UsersContract.Columns.USER_ID);
-    //    String mOwnUserId = Prefs.getInstance(this).getUserId();
-    //    if (TextUtils.equals(mOwnUserId, mUserId)) {
-    //      isCurrentUser = true;
-    //    }
 
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
@@ -110,23 +108,24 @@ public class UserDetailsActivity extends AppCompatActivity implements
     floatingActionButton = (FloatingActionButton) findViewById(R.id.floating_action_button);
     floatingActionButton.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
-        //        if (!isCurrentUser) {
+        User user = new User();
+        user.userId = mUserId;
+        user.forename = mFirstname;
+        user.lastname = mLastname;
+        user.titlePost = mTitlePost;
+        user.titlePre = mTitlePre;
+
+        Bundle extras = new Bundle();
+        extras.putInt(MessageComposeActivity.MESSAGE_ACTION_FLAG,
+            MessageComposeActivity.MESSAGE_ACTION_REPLY);
+        extras.putSerializable(MessageComposeActivity.MESSAGE_RECEIVER, user);
+
+
         Intent intent = new Intent(v.getContext(), MessageComposeActivity.class);
-        intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
-        intent.putExtra(UsersContract.Columns.USER_FORENAME, mFirstname);
-        intent.putExtra(UsersContract.Columns.USER_LASTNAME, mLastname);
-        intent.putExtra(UsersContract.Columns.USER_TITLE_POST, mTitlePost);
-        intent.putExtra(UsersContract.Columns.USER_TITLE_PRE, mTitlePre);
+        intent.putExtras(extras);
         startActivity(intent);
-        //        } else {
-        //          // TODO: Edit Profile
-        //        }
       }
     });
-    //
-    //    if (isCurrentUser) {
-    //      floatingActionButton.setImageResource(R.drawable.ic_action_write);
-    //    }
 
     collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
     userImage = (ImageView) findViewById(R.id.user_image);
@@ -211,35 +210,35 @@ public class UserDetailsActivity extends AppCompatActivity implements
       if (!TextUtils.isEmpty(userEmail)) {
         emailTextView.setText(userEmail);
         emailContainer.setVisibility(View.VISIBLE);
-        emailIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+        emailIcon.setColorFilter(ContextCompat.getColor(this, R.color.studip_mobile_dark),
             PorterDuff.Mode.SRC_IN);
       }
       if (!TextUtils.isEmpty(userPhoneNumber)) {
         phoneTextView.setText(userPhoneNumber);
         phoneContainer.setVisibility(View.VISIBLE);
         emailPhoneDivier.setVisibility(View.VISIBLE);
-        phoneIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+        phoneIcon.setColorFilter(ContextCompat.getColor(this, R.color.studip_mobile_dark),
             PorterDuff.Mode.SRC_IN);
       }
       if (!TextUtils.isEmpty(skypeName)) {
         skypeTextView.setText(skypeName);
         skypeContainer.setVisibility(View.VISIBLE);
         emailPhoneDivier.setVisibility(View.VISIBLE);
-        skypeIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+        skypeIcon.setColorFilter(ContextCompat.getColor(this, R.color.studip_mobile_dark),
             PorterDuff.Mode.SRC_IN);
       }
       if (!TextUtils.isEmpty(userHomepage)) {
         homepageTextView.setText(userHomepage);
         homepageContainer.setVisibility(View.VISIBLE);
         phoneHomepageDivider.setVisibility(View.VISIBLE);
-        homepageIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+        homepageIcon.setColorFilter(ContextCompat.getColor(this, R.color.studip_mobile_dark),
             PorterDuff.Mode.SRC_IN);
       }
       if (!TextUtils.isEmpty(userPrivAdr)) {
         addressTextView.setText(userPrivAdr);
         addressContainer.setVisibility(View.VISIBLE);
         homepageAddressDivider.setVisibility(View.VISIBLE);
-        addressIcon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+        addressIcon.setColorFilter(ContextCompat.getColor(this, R.color.studip_mobile_dark),
             PorterDuff.Mode.SRC_IN);
       }
     }

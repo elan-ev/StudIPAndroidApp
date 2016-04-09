@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2013 ELAN e.V.
+# Copyright (c) 2016 ELAN e.V.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the GNU Public License v3.0
 # which accompanies this distribution, and is available at
@@ -27,24 +27,8 @@
 #   public *;
 #}
 
--keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature
+-keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature,InnerClasses
 
--keep class android.support.** { *; }
--keep interface android.support.** { *; }
--keep class com.actionbarsherlock.** { *; }
--keep interface com.actionbarsherlock.** { *; }
--keep class net.sqlcipher.** { *; }
--keep interface net.sqlcipher.** { *; }
--keep class net.sqlcipher.database.** { *; }
--keep interface net.sqlcipher.database.** { *; }
--keep class info.guardianproject.database.** {*;}
--keep class info.guardianproject.database.sqlcipher.** {*;}
--keep class org.apache.http.** { *; }
--keep class org.apache.harmony.** { *; }
--keep class com.android.org.conscrypt.** { *; }
--keep class com.google.vending.** { *; }
--keep class com.fasterxml.** { *; }
--keep class com.google.common.** { *; }
 -keep public class de.elanev.studip.android.app.backend.datamodel.** {
   public void set*(***);
   public *** get*();
@@ -55,24 +39,49 @@
 }
 -keepclassmembers class **.R$* {public static <fields>;}
 -keep class **.R$*
--keep class retrofit.** { *; }
--keep interface retrofit.** { *; }
--keep class com.squareup.okhttp.** { *; }
--keep interface com.squareup.okhttp.** { *; }
--keep public class * extends android.support.v4.app.Fragment
+-keep,includedescriptorclasses class retrofit2.** { *; }
+-keep,includedescriptorclasses interface retrofit2.** { *; }
+-keepclassmembers class retrofit2.** { *; }
+-keep,includedescriptorclasses class okhttp3.** { *; }
+-keep,includedescriptorclasses interface okhttp3.** { *; }
+-keep,includedescriptorclasses class rx.** { *; }
+-keep,includedescriptorclasses interface rx.** { *; }
+-keep,includedescriptorclasses class se.emilsjolander.stickylistheaders.** { *; }
+-keep,includedescriptorclasses interface se.emilsjolander.stickylistheaders.** { *; }
+-keep,includedescriptorclasses class com.alamkanak.weekview.** { *; }
+-keep,includedescriptorclasses interface com.alamkanak.weekview.** { *; }
+-keep,includedescriptorclasses class net.sqlcipher.** { *; }
+-keep,includedescriptorclasses interface net.sqlcipher.** { *; }
+-keep,includedescriptorclasses class com.fasterxml.** { *; }
+-keep,includedescriptorclasses interface com.fasterxml.** { *; }
+-keep,includedescriptorclasses class android.support.** { *; }
+-keep,includedescriptorclasses interface android.support.** { *; }
+-keep,includedescriptorclasses public class * extends android.support.v4.app.Fragment
 -keepclassmembers class * extends android.support.v4.app.Fragment{
  public *** newInstance(android.os.Bundle);
 }
--keep class com.android.volley.** { *; }
--keep interface com.android.volley.** { *; }
+-keep class butterknife.** { *; }
+-keep class **$$ViewBinder { *; }
+-keepclasseswithmembernames class * {
+    @butterknife.* <fields>;
+}
+-keepclasseswithmembernames class * {
+    @butterknife.* <methods>;
+}
 
 -dontwarn android.support.**
--dontwarn org.apache.**
--dontwarn com.actionbarsherlock.internal.**
--dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
--dontwarn com.google.common.**
--dontwarn com.squareup.okhttp.**
+-dontwarn org.apache.http.**
+-dontwarn com.google.**
+-dontwarn okhttp3.**
+-dontwarn com.squareup.**
+-dontwarn com.fasterxml.**
+-dontwarn retrofit2.**
 -dontwarn okio.**
 -dontwarn rx.**
--dontwarn retrofit.**
 -dontwarn com.android.volley.**
+-dontwarn butterknife.internal.**
+
+-dontnote com.google.vending.licensing.ILicensingService
+-dontnote com.android.vending.licensing.ILicensingService
+-dontnote com.google.android.gms.**
+-dontnote com.google.android.gms.**

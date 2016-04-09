@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,6 @@
  */
 package de.elanev.studip.android.app.frontend.news;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -18,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -103,9 +103,9 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
     getLoaderManager().initLoader(newsSelector, null, this);
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    activity.getContentResolver()
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    context.getContentResolver()
         .registerContentObserver(NewsContract.CONTENT_URI, true, mObserver);
   }
 
@@ -338,7 +338,7 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
           break;
       }
 
-      icon.setColorFilter(getResources().getColor(R.color.studip_mobile_dark),
+      icon.setColorFilter(ContextCompat.getColor(getContext(), R.color.studip_mobile_dark),
           PorterDuff.Mode.SRC_IN);
 
       newsTopicView.setText(newsTopic);

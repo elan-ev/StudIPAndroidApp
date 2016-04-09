@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ELAN e.V.
+ * Copyright (c) 2016 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -35,8 +36,6 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.squareup.picasso.Picasso;
 
-import org.apache.http.HttpException;
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,7 +51,7 @@ import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import retrofit.RetrofitError;
+import retrofit2.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -88,22 +87,13 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
 
     mAdapter = new RecordingsAdapter(null, this, getActivity());
     mCourseId = getArguments().getString(CoursesContract.Columns.Courses.COURSE_ID);
-    mObserver = new RecyclerView.AdapterDataObserver() {
 
-      @Override public void onChanged() {
-        super.onChanged();
-
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
-
-    mAdapter.registerAdapterDataObserver(mObserver);
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     mRecyclerView.setAdapter(mAdapter);
-    removeDividerItemDecoratior();
+    removeDividerItemDecorator();
     mEmptyView.setText(R.string.no_recordings);
 
     if (!mRecreated) {
@@ -123,20 +113,17 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
             .subscribe(new Subscriber<ArrayList<Recording>>() {
               @Override public void onCompleted() {
                 mRecyclerView.setBackgroundColor(
-                    getResources().getColor(R.color.backgroud_grey_light));
+                    ContextCompat.getColor(getContext(), R.color.backgroud_grey_light));
                 setRefreshing(false);
               }
 
               @Override public void onError(Throwable e) {
+                Log.e(TAG, e.getLocalizedMessage());
                 if (e instanceof TimeoutException) {
                   Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
                       .show();
-                } else if (e instanceof RetrofitError
-                    && ((RetrofitError) e).getKind() == RetrofitError.Kind.CONVERSION) {
-                  Log.e(TAG, e.getLocalizedMessage());
-                } else if (e instanceof RetrofitError || e instanceof HttpException) {
-                  Toast.makeText(getActivity(), "Retrofit error or http exception",
-                      Toast.LENGTH_LONG)
+                } else if (e instanceof HttpException) {
+                  Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
                       .show();
                   Log.e(TAG, e.getLocalizedMessage());
                 } else {

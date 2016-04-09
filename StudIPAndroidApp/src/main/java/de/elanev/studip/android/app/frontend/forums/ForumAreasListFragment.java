@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016 ELAN e.V.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ */
+
 package de.elanev.studip.android.app.frontend.forums;
 
 
@@ -11,8 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import org.apache.http.HttpException;
-
 import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
@@ -22,7 +28,7 @@ import de.elanev.studip.android.app.backend.datamodel.ForumArea;
 import de.elanev.studip.android.app.backend.datamodel.ForumAreas;
 import de.elanev.studip.android.app.backend.datamodel.ForumCategory;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import retrofit.RetrofitError;
+import retrofit2.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -36,7 +42,6 @@ public class ForumAreasListFragment extends ReactiveListFragment {
   private String mCategoryTitle;
   private String mCategoryId;
   private ForumAreasAdapter mAdapter;
-  private RecyclerView.AdapterDataObserver mObserver;
   private int previousTotal = 0;
   private boolean loading = true;
   private int firstVisibleItem, visibleItemCount, totalItemCount;
@@ -79,18 +84,6 @@ public class ForumAreasListFragment extends ReactiveListFragment {
         startActivity(args);
       }
     });
-
-    mObserver = new RecyclerView.AdapterDataObserver() {
-
-      @Override public void onChanged() {
-        super.onChanged();
-
-        mEmptyView.setText(R.string.no_entries);
-        setEmptyViewVisible(mAdapter.isEmpty());
-      }
-    };
-
-    mAdapter.registerAdapterDataObserver(mObserver);
   }
 
   private void startActivity(Bundle args) {
@@ -104,6 +97,8 @@ public class ForumAreasListFragment extends ReactiveListFragment {
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     setTitle(mCategoryTitle);
+
+    mEmptyView.setText(R.string.no_entries);
     mRecyclerView.setAdapter(mAdapter);
     mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
       @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -151,8 +146,8 @@ public class ForumAreasListFragment extends ReactiveListFragment {
           @Override public void onError(Throwable e) {
             if (e instanceof TimeoutException) {
               Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT).show();
-            } else if (e instanceof RetrofitError || e instanceof HttpException) {
-              Toast.makeText(getActivity(), "Retrofit error or http exception", Toast.LENGTH_LONG)
+            } else if (e instanceof HttpException) {
+              Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
                   .show();
               Log.e(TAG, e.getLocalizedMessage());
             } else {
@@ -185,11 +180,6 @@ public class ForumAreasListFragment extends ReactiveListFragment {
       }
     }
     return true;
-  }
-
-  @Override public void onDetach() {
-    super.onDetach();
-    mAdapter.unregisterAdapterDataObserver(mObserver);
   }
 
 }
