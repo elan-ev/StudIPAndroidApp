@@ -74,17 +74,27 @@ public class MessagesActivity extends MainActivity {
         .getPostbox();
     ArrayList<FragmentsAdapter.Tab> tabs = new ArrayList<>();
 
-    for (String folderName : postbox.inbox.folders) {
-      Bundle extras = new Bundle();
-      extras.putString(BOX_TYPE, StudIPConstants.STUDIP_MESSAGES_INBOX_IDENTIFIER);
-      extras.putString(FOLDER_ID, folderName);
-      tabs.add(new FragmentsAdapter.Tab(folderName, MessagesListFragment.class, extras));
-    }
-    for (String folderName : postbox.outbox.folders) {
-      Bundle extras = new Bundle();
-      extras.putString(BOX_TYPE, StudIPConstants.STUDIP_MESSAGES_OUTBOX_IDENTIFIER);
-      extras.putString(FOLDER_ID, folderName);
-      tabs.add(new FragmentsAdapter.Tab(folderName, MessagesListFragment.class, extras));
+    if (postbox != null ) {
+      if (postbox.inbox != null && postbox.inbox.folders != null) {
+        for (String folderName : postbox.inbox.folders) {
+          Bundle extras = new Bundle();
+          extras.putString(BOX_TYPE, StudIPConstants.STUDIP_MESSAGES_INBOX_IDENTIFIER);
+          extras.putString(FOLDER_ID, folderName);
+          tabs.add(new FragmentsAdapter.Tab(folderName, MessagesListFragment.class, extras));
+        }
+      }
+
+      if (postbox.outbox != null && postbox.outbox.folders != null) {
+        for (String folderName :
+            postbox
+                .outbox
+                .folders) {
+          Bundle extras = new Bundle();
+          extras.putString(BOX_TYPE, StudIPConstants.STUDIP_MESSAGES_OUTBOX_IDENTIFIER);
+          extras.putString(FOLDER_ID, folderName);
+          tabs.add(new FragmentsAdapter.Tab(folderName, MessagesListFragment.class, extras));
+        }
+      }
     }
 
     return tabs;
