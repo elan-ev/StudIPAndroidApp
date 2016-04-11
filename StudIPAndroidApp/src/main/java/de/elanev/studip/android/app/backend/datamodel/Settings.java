@@ -24,10 +24,8 @@ public class Settings {
 
   @JsonProperty("SEM_TYPE") public HashMap<Integer, SeminarTypeData> semTypes;
 
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  public static class SeminarTypeData {
-    @JsonProperty("name") public String name;
-    //    @JsonProperty("class") public int class;
+  // Default Constructor
+  public Settings() {
   }
 
   public static Settings fromJson(String jsonString) {
@@ -52,6 +50,12 @@ public class Settings {
       e.printStackTrace();
     }
     return json;
+  }
+
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static class SeminarTypeData {
+    @JsonProperty("name") public String name;
+    //    @JsonProperty("class") public int class;
   }
 
   /*
