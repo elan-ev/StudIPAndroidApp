@@ -272,16 +272,18 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
             }
 
             @Override public void onError(Throwable e) {
-              if (e instanceof TimeoutException) {
-                Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
-                    .show();
-              } else if (e instanceof HttpException) {
-                Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
-                    .show();
-                Log.e(TAG, e.getLocalizedMessage());
-              } else {
-                e.printStackTrace();
-                throw new RuntimeException("See inner exception");
+              if (e != null) {
+                if (e instanceof TimeoutException) {
+                  Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
+                      .show();
+                } else if (e instanceof HttpException) {
+                  Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
+                      .show();
+                  Log.e(TAG, e.getLocalizedMessage());
+                } else {
+                  e.printStackTrace();
+                  throw new RuntimeException("See inner exception");
+                }
               }
 
               setRefreshing(false);
