@@ -287,7 +287,7 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
 
           WeekViewEvent weekViewEvent = new WeekViewEvent(i, eventTitle, eventStartCal,
               eventEndCal);
-          if (course != null) {
+          if (course != null && !TextUtils.isEmpty(course.color)) {
             int color = Color.parseColor(course.color);
             weekViewEvent.setColor(color);
           }
