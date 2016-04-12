@@ -163,15 +163,16 @@ public class MessageDetailActivity extends AppCompatActivity {
           }
 
           @Override public void onError(Throwable e) {
-            if (e instanceof TimeoutException) {
-              showToast(R.string.error_timeout);
-              Log.e(TAG, e.getLocalizedMessage());
-            } else if (e instanceof HttpException) {
-              showToast(R.string.error_http_data_error);
-              Log.e(TAG, e.getLocalizedMessage());
-            } else {
-              e.printStackTrace();
-              throw new RuntimeException("See inner exception");
+            if(e != null) {
+              if (e instanceof TimeoutException) {
+                showToast(R.string.error_timeout);
+                Log.e(TAG, e.getLocalizedMessage());
+              } else if (e instanceof HttpException) {
+                showToast(R.string.error_http_data_error);
+                Log.e(TAG, e.getLocalizedMessage());
+              } else {
+                Log.e(TAG, e.getLocalizedMessage());
+              }
             }
           }
 
