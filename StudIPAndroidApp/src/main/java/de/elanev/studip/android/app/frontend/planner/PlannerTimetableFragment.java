@@ -332,9 +332,11 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
     }
 
     @Override public void onError(Throwable e) {
-      Log.e(TAG, e.getLocalizedMessage());
-      Toast.makeText(getContext(), R.string.error_loading_events, Toast.LENGTH_LONG)
+      if (e != null) {
+        Log.e(TAG, e.getLocalizedMessage());
+        Toast.makeText(getContext(), R.string.error_loading_events, Toast.LENGTH_LONG)
           .show();
+      }
     }
 
     @Override public void onNext(Pair<Event, Course> pairs) {

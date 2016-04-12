@@ -299,18 +299,17 @@ public class MessageComposeActivity extends AppCompatActivity implements
           }
 
           @Override public void onError(Throwable e) {
-            if (e instanceof TimeoutException) {
-              showToast(R.string.error_timeout);
-              Log.e(TAG, e.getLocalizedMessage());
-            } else if (e instanceof HttpException) {
-              showToast(R.string.error_http_data_error);
-              Log.e(TAG, e.getLocalizedMessage());
-            } else {
-              e.printStackTrace();
-              throw new RuntimeException("See inner exception");
+            if (e != null) {
+              if (e instanceof TimeoutException) {
+                showToast(R.string.error_timeout);
+                Log.e(TAG, e.getLocalizedMessage());
+              } else if (e instanceof HttpException) {
+                showToast(R.string.error_http_data_error);
+                Log.e(TAG, e.getLocalizedMessage());
+              } else {
+                Log.e(TAG, e.getLocalizedMessage());
+              }
             }
-
-            //            setRefreshing(false);
           }
 
           @Override public void onNext(MessageItem message) {
