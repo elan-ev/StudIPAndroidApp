@@ -267,7 +267,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
         },
         new ErrorListener() {
           public void onErrorResponse(VolleyError error) {
-            if (error.getMessage() != null) Log.e(TAG, error.getMessage());
+            if (error != null && error.getMessage() != null) Log.e(TAG, error.getMessage());
             Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT).show();
           }
         },
@@ -314,7 +314,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
       }
     }, new ErrorListener() {
       public void onErrorResponse(VolleyError error) {
-        if (error.getMessage() != null) Log.e(TAG, error.getMessage());
+        if (error != null && error.getMessage() != null) Log.e(TAG, error.getMessage());
 
         Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT).show();
       }
@@ -366,7 +366,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
            * #onErrorResponse(com.android.volley. VolleyError)
            */
           public void onErrorResponse(VolleyError error) {
-            if (error.getMessage() != null) Log.e(TAG, error.getMessage());
+            if (error != null && error.getMessage() != null) Log.e(TAG, error.getMessage());
             Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT).show();
           }
         },
@@ -410,7 +410,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
       }
     }, new ErrorListener() {
       public void onErrorResponse(VolleyError error) {
-        if (error.getMessage() != null) Log.e(TAG, error.getMessage());
+        if (error != null && error.getMessage() != null) Log.e(TAG, error.getMessage());
 
         Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT).show();
       }
