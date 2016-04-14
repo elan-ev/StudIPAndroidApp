@@ -5,6 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+
 package de.elanev.studip.android.app;
 
 import android.content.Intent;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements
     NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
   private static final String TAG = MainActivity.class.getSimpleName();
   private static int mSelectedNavItem = R.id.navigation_invalid;
+  protected Toolbar mToolbar;
   private DrawerLayout mDrawerLayout;
   private ActionBarDrawerToggle mDrawerToggle;
   private String mUserId;
@@ -70,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements
   private Handler mHandler;
   private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
   private StudIpLegacyApiService mApiService;
-  protected Toolbar mToolbar;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.main, menu);
@@ -104,10 +105,6 @@ public class MainActivity extends AppCompatActivity implements
    * Deletes the preferences and database to logout of the service
    */
   private void logout() {
-    //Cancel all pending network requests
-    StudIPApplication.getInstance()
-        .cancelAllPendingRequests(SyncHelper.TAG);
-
     // Resetting the SyncHelper
     SyncHelper.getInstance(this)
         .resetSyncHelper();
@@ -209,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements
     SyncHelper.getInstance(this)
         .requestApiRoutes(null);
     SyncHelper.getInstance(this)
-        .getSettings(null);
+        .getSettings();
     SyncHelper.getInstance(this)
         .requestCurrentUserInfo(null);
     mCompositeSubscription.add(mApiService.getMessageFolders(0, 10)
@@ -229,42 +226,6 @@ public class MainActivity extends AppCompatActivity implements
                 .setPostbox(postbox);
           }
         }));
-  }
-
-  @Override protected void onPostCreate(Bundle savedInstanceState) {
-    super.onPostCreate(savedInstanceState);
-    // Sync the toggle state after onRestoreInstanceState has occurred.
-    initNavigation();
-    mDrawerToggle.syncState();
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-      // Fade content back in
-      View content = findViewById(R.id.content_frame);
-      if (content != null) {
-        content.setAlpha(0);
-        content.animate()
-            .alpha(1)
-            .setDuration(250);
-      } else {
-        Log.w(TAG, "No view with ID main_content to fade in.");
-      }
-    }
-  }
-
-  @Override public void setContentView(@LayoutRes int layoutResID) {
-    super.setContentView(layoutResID);
-    initToolbar();
-  }
-
-  private void initToolbar() {
-    mToolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(mToolbar);
-
-    ActionBar actionBar = getSupportActionBar();
-    if (actionBar != null) {
-      actionBar.setDisplayHomeAsUpEnabled(true);
-      actionBar.setHomeButtonEnabled(true);
-    }
   }
 
   private void initNavigation() {
@@ -307,6 +268,42 @@ public class MainActivity extends AppCompatActivity implements
           .into(userImageView);
     } else {
       mHeaderView.setVisibility(View.GONE);
+    }
+  }
+
+  @Override protected void onPostCreate(Bundle savedInstanceState) {
+    super.onPostCreate(savedInstanceState);
+    // Sync the toggle state after onRestoreInstanceState has occurred.
+    initNavigation();
+    mDrawerToggle.syncState();
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+      // Fade content back in
+      View content = findViewById(R.id.content_frame);
+      if (content != null) {
+        content.setAlpha(0);
+        content.animate()
+            .alpha(1)
+            .setDuration(250);
+      } else {
+        Log.w(TAG, "No view with ID main_content to fade in.");
+      }
+    }
+  }
+
+  @Override public void setContentView(@LayoutRes int layoutResID) {
+    super.setContentView(layoutResID);
+    initToolbar();
+  }
+
+  private void initToolbar() {
+    mToolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(mToolbar);
+
+    ActionBar actionBar = getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setDisplayHomeAsUpEnabled(true);
+      actionBar.setHomeButtonEnabled(true);
     }
   }
 
@@ -394,6 +391,6 @@ public class MainActivity extends AppCompatActivity implements
   }
 
   public interface OnShowProgressBarListener {
-    public void onShowProgressBar(boolean show);
+    void onShowProgressBar(boolean show);
   }
 }

@@ -54,7 +54,6 @@ public class RestIpProvider extends ContentProvider {
   public static final String TAG = RestIpProvider.class.getSimpleName();
   // Time to wait for the next sync (in ms)
   private static final long SYNC_THRESHOLD = 10000;
-  private static final UriMatcher sUriMatcher = buildUriMatcher();
   private static final int NEWS = 100;
   private static final int NEWS_ID = 101;
   private static final int NEWS_RANGE_ID = 102;
@@ -105,6 +104,7 @@ public class RestIpProvider extends ContentProvider {
   private static final int INSTITUTES = 1000;
   private static final int RECORDINGS = 1100;
   private static final int UNIZENSUS = 1200;
+  private static final UriMatcher sUriMatcher = buildUriMatcher();
   private long mLastDocumentsSync = -1;
   private long mLastCoursesSync = -1;
   private long mLastNewsSync = -1;
@@ -521,11 +521,6 @@ public class RestIpProvider extends ContentProvider {
         break;
       case DOCUMENTS_COURSE_ID: {
         String cid = uri.getLastPathSegment();
-        long currTime = System.currentTimeMillis();
-        if ((currTime - mLastDocumentsSync) > SYNC_THRESHOLD) {
-          SyncHelper.getInstance(getContext()).performDocumentsSyncForCourse(cid);
-          mLastDocumentsSync = currTime;
-        }
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = DocumentsContract.DEFAULT_SORT_ORDER;
@@ -654,7 +649,8 @@ public class RestIpProvider extends ContentProvider {
         break;
       }
       case CONTACTS: {
-        SyncHelper.getInstance(getContext()).performContactsSync(null, null);
+        SyncHelper.getInstance(getContext())
+            .performContactsSync(null);
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = ContactsContract.DEFAULT_SORT_ORDER_CONTACTS;
@@ -713,7 +709,8 @@ public class RestIpProvider extends ContentProvider {
       case CONTACTS_GROUP_MEMBERS: {
         long currTime = System.currentTimeMillis();
         if ((currTime - mLastContactGroupsSync) > SYNC_THRESHOLD) {
-          SyncHelper.getInstance(getContext()).performContactsSync(null, null);
+          SyncHelper.getInstance(getContext())
+              .performContactsSync(null);
           mLastContactGroupsSync = currTime;
         }
 

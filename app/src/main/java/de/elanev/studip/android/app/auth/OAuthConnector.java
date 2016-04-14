@@ -19,6 +19,7 @@ import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 import oauth.signpost.http.HttpRequest;
+import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer;
 
 /**
  * OAuth connector frame class to bundle all of the OAuth logic for easier access
@@ -42,25 +43,25 @@ public class OAuthConnector {
 
   private CommonsHttpOAuthProvider mProvider = null;
   private Server mServer = null;
-  private VolleyOAuthConsumer mConsumer = null;
+  private OkHttpOAuthConsumer mConsumer = null;
 
   private void setServer(Server server) {
     if (!TextUtils.equals(server.getBaseUrl(), mServer.getBaseUrl())) {
       mServer = server;
-      mConsumer = new VolleyOAuthConsumer(server.getConsumerKey(), server.getConsumerSecret());
+      mConsumer = new OkHttpOAuthConsumer(server.getConsumerKey(), server.getConsumerSecret());
     }
   }
 
 
   /*
-   * Creates a new, unauthorized OAuthConnector. The VolleyOAuthConsumer will be initialized with
+   * Creates a new, unauthorized OAuthConnector. The OAuthConsumer will be initialized with
    * the passed Server, but no access tokens will be set.
    *
    * @param server Server object to be used for the initialisation of the consumer
    */
   private OAuthConnector(Server server) {
     this.mServer = server;
-    this.mConsumer = new VolleyOAuthConsumer(server.getConsumerKey(), server.getConsumerSecret());
+    this.mConsumer = new OkHttpOAuthConsumer(server.getConsumerKey(), server.getConsumerSecret());
 
     String accessToken = mServer.getAccessToken();
     String accessTokenSecret = mServer.getAccessTokenSecret();
@@ -71,7 +72,7 @@ public class OAuthConnector {
 
   /*
    * Tells the OAuthConnector to request a new request token from the endpoint. For this to work
-   * the VolleyOAuthConsumer has to be correctly initalized with a server. Since we request a
+   * the OAuthConsumer has to be correctly initalized with a server. Since we request a
    * request token the access tokens don't need to be set.
    * Once the request was successfully finished the
    * {@link OAuthCallbacks#onRequestTokenReceived(String)} from the passed callbacks will be called.
@@ -87,8 +88,8 @@ public class OAuthConnector {
   }
 
   /*
-   * Requests a new access token form the endpoint set in the {@link de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer}.
-   * For this to work the {@link de.elanev.studip.android.app.backend.net.oauth.VolleyOAuthConsumer}
+   * Requests a new access token form the endpoint set in the OAuthConsumer.
+   * For this to work the OAuthConsumer
    * has to be correctly initalized with a server.
    * Once the request was successfully finished the
    * {@link OAuthCallbacks#onAccessTokenReceived(String, String)} from the passed callbacks will be called.

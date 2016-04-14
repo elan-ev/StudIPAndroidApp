@@ -16,8 +16,11 @@ import java.util.ArrayList;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.StudIPConstants;
+import de.elanev.studip.android.app.data.datamodel.ContactGroups;
+import de.elanev.studip.android.app.data.datamodel.Contacts;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.CourseItem;
+import de.elanev.studip.android.app.data.datamodel.Courses;
 import de.elanev.studip.android.app.data.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.data.datamodel.Event;
 import de.elanev.studip.android.app.data.datamodel.Events;
@@ -27,13 +30,17 @@ import de.elanev.studip.android.app.data.datamodel.ForumCategories;
 import de.elanev.studip.android.app.data.datamodel.ForumCategory;
 import de.elanev.studip.android.app.data.datamodel.ForumEntries;
 import de.elanev.studip.android.app.data.datamodel.ForumEntry;
+import de.elanev.studip.android.app.data.datamodel.Institutes;
+import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
 import de.elanev.studip.android.app.data.datamodel.Message;
+import de.elanev.studip.android.app.data.datamodel.MessageFolder;
 import de.elanev.studip.android.app.data.datamodel.MessageFolders;
 import de.elanev.studip.android.app.data.datamodel.MessageItem;
 import de.elanev.studip.android.app.data.datamodel.Messages;
-import de.elanev.studip.android.app.data.datamodel.MessagesStats;
+import de.elanev.studip.android.app.data.datamodel.News;
 import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Recording;
+import de.elanev.studip.android.app.data.datamodel.Semesters;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.User;
@@ -42,9 +49,9 @@ import de.elanev.studip.android.app.data.db.UsersContract;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Callback;
+import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-import retrofit2.Retrofit;
 import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -397,6 +404,17 @@ public class StudIpLegacyApiService {
         });
   }
 
+  public Observable<Events> getEvents(final String courseId) {
+    return mService.getEvents(courseId);
+  }
+
+  /**
+   * Gets the message folders from Stud.IP.
+   *
+   * @param offset The pagination offset
+   * @param limit  The limit of entries until it paginates.
+   * @return An {@link Observable} containing a list of the users {@link MessageFolders}.
+   */
   public Observable<Postbox> getMessageFolders(int offset, int limit) {
     Observable<MessageFolders> inboxObservable = mService.getMessageInbox(offset, limit)
         .flatMap(new Func1<MessageFolders, Observable<MessageFolders>>() {
@@ -422,6 +440,14 @@ public class StudIpLegacyApiService {
         });
   }
 
+  /**
+   * Get the users {@link Messages} in the specified Stud.IP messages inbox folder.
+   *
+   * @param folder The ID of the inbox {@link MessageFolder}
+   * @param offset Offset number of the message pagination.
+   * @param limit  The limit of entries until it paginates.
+   * @return An {@link Observable} containing {@link Messages} from the specified inbox folder.
+   */
   public Observable<Pair<Message, User>> getInboxMessages(String folder, int offset, int limit) {
     return mService.getMessagesInboxFolder(folder, offset, limit)
         // Unwrap message
@@ -448,6 +474,14 @@ public class StudIpLegacyApiService {
         });
   }
 
+  /**
+   * Get the users {@link Messages} in the specified Stud.IP messages outbox folder.
+   *
+   * @param folder The ID of the outbox {@link MessageFolder}
+   * @param offset Offset number of the message pagination.
+   * @param limit  The limit of entries until it paginates.
+   * @return An {@link Observable} containing {@link Messages} from the specified outbox folder.
+   */
   public Observable<Pair<Message, User>> getOutboxMessages(String folder, int offset, int limit) {
     return mService.getMessagesOutboxFolder(folder, offset, limit)
         // Unwrap message
@@ -474,26 +508,125 @@ public class StudIpLegacyApiService {
         });
   }
 
+  /**
+   * Marks the specified message as read.
+   *
+   * @param messageId The ID of the message to be marked as read.
+   * @return Nothing
+   */
   public Observable<Void> setMessageRead(final String messageId) {
     return mService.setMessageRead(messageId);
   }
 
+  /**
+   * Sends a message to the user specified by the receiverId.
+   *
+   * @param receiverId The ID of the user to send the message to.
+   * @param subject    A String as subject for the message.
+   * @param message    The message String.
+   * @return The newly created {@link Message}
+   */
   public Observable<MessageItem> sendMessage(final String receiverId, final String subject,
       final String message) {
     return mService.sendMessage(receiverId, subject, message);
   }
 
+  /**
+   * Deletes the specified message from the users message box.
+   *
+   * @param messageId The id of the message to delete.
+   * @return Nothing
+   */
   public Observable<Void> deleteMessage(final String messageId) {
     return mService.deleteMessage(messageId);
   }
 
+  /**
+   * Gets the {@link Institutes} the user specified by the users ID is registered in.
+   *
+   * @param userId The users ID for whom to load the {@link Institutes} for.
+   * @return A List {@link Institutes}
+   */
+  public Observable<InstitutesContainer> getInstitutes(final String userId) {
+    return mService.getInstitutes(userId);
+  }
+
+  /**
+   * Gets the {@link Contacts} of the user.
+   *
+   * @return A list of {@link Contacts}
+   */
+  public Observable<Contacts> getContacts() {
+    return mService.getContacts();
+  }
+
+  /**
+   * Gets the {@link ContactGroups} of the user.
+   *
+   * @return A list of {@link ContactGroups}
+   */
+  public Observable<ContactGroups> getContactGroups() {
+    return mService.getContactGroups();
+  }
+
+  /**
+   * Adds a specified user to the group specified by the group id.
+   *
+   * @param groupId The id of the group the user shall be added to.
+   * @param userId  The id of the user to add to the group.
+   * @return The refreshed list of contacts groups.
+   */
+  public Observable<ContactGroups> addUserToContactsGroup(final String groupId,
+      final String userId) {
+    return mService.addUserToContactsGroup(groupId, userId);
+  }
+
+  /**
+   * Deletes a specified user from the group specified by the passed group id.
+   *
+   * @param groupId The id of the group the user shall be deleted from.
+   * @param userId  The id of the user which shall be deleted from the group.
+   * @return Nothing
+   */
+  public Observable<Void> deleteUserFromContactsGroup(final String groupId, final String userId) {
+    return mService.deleteUserFormContactsGroup(groupId, userId);
+  }
+
+  /**
+   * Adds a specified user to the contacts.
+   *
+   * @param userId The id of the user which shall be added to the contacts.
+   * @return The new contacts list.
+   */
+  public Observable<Contacts> addUserToContacts(final String userId) {
+    return mService.addUserToContatcs(userId);
+  }
+
+  public Observable<Void> deleteUserFromContacts(final String userId) {
+    return mService.deleteUserFromContacts(userId);
+  }
+
+  /**
+   * Gets a list of the users {@link Courses}.
+   *
+   * @return A list of the users {@link Courses}.
+   */
+  public Observable<Courses> getCourses() {
+    return mService.getCourses();
+  }
+
+  public Observable<News> getNews(final String range) {
+    return mService.getNews(range);
+  }
+
+  public Observable<Semesters> getSemesters() {
+    return mService.getSemesters();
+  }
   //endregion --------------------------------------------------------------------------------------
 
   //region INTERFACES ------------------------------------------------------------------------------
   public interface RestIPLegacyService {
-    /*
-     * Forums
-     */
+    /* Forums */
     @PUT("courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
         Callback<ForumCategory> cb);
 
@@ -510,23 +643,20 @@ public class StudIpLegacyApiService {
         "topic_id") String topicId, @Field("subject") String entrySubject,
         @Field("content") String entryContent);
 
-    /*
-     * User specific
-     */
+    /* User */
     @GET("user/{user_id}") Observable<UserItem> getUser(@Path("user_id") String userId);
 
     @GET("user") Observable<UserItem> getCurrentUserInfo();
 
+    /* Events */
     @GET("events") Observable<Events> getEvents();
 
-    /*
-     * Generally Stud.IP
-     */
+    @GET("events/{course_id}") Observable<Events> getEvents(@Path("course_id") String courseId);
+
+    /* General */
     @GET("studip/settings") Observable<Settings> getSettings();
 
-    /*
-     * Course specific
-     */
+    /* Courses */
     @GET("courses/{course_id}") Observable<CourseItem> getCourse(
         @Path("course_id") String courseId);
 
@@ -559,11 +689,42 @@ public class StudIpLegacyApiService {
     @DELETE("messages/{message_id}") Observable<Void> deleteMessage(
         @Path("message_id") String messageId);
 
-    @GET("messages") Observable<MessagesStats> getMessagesStats();
+    //TODO: Add unread counter to messages
+    //@GET("messages") Observable<MessagesStats> getMessagesStats();
+
+    /* Institutes */
+    @GET("user/{user_id}/institutes") Observable<InstitutesContainer> getInstitutes(
+        @Path("user_id") String userId);
+
+    /* Contacts */
+    @GET("contacts") Observable<Contacts> getContacts();
+
+    @GET("contacts/groups") Observable<ContactGroups> getContactGroups();
+
+    @PUT("contacts/groups/{group_id}/{user_id}") Observable<ContactGroups> addUserToContactsGroup(
+        @Path("group_id") String groupId, @Path("user_id") String userId);
+
+    @DELETE("contacts/groups/{group_id}/{user_id}") Observable<Void> deleteUserFormContactsGroup(
+        @Path("group_id") String groupId, @Path("user_id") String userId);
+
+    @DELETE("contacts/{user_id}") Observable<Void> deleteUserFromContacts(
+        @Path("user_id") String userId);
+
+    @PUT("contacts/{user_id}") Observable<Contacts> addUserToContatcs(
+        @Path("user_id") String userId);
+
+    /* Courses */
+    @GET("courses") Observable<Courses> getCourses();
+
+    /* News */
+    @GET("news/range/{range}") Observable<News> getNews(@Path("range") String range);
+
+    /* Semesters */
+    @GET("semesters") Observable<Semesters> getSemesters();
   }
   //endregion --------------------------------------------------------------------------------------
 
-  //  //region INNER CLASSES ---------------------------------------------------------------------------
+  //region INNER CLASSES ---------------------------------------------------------------------------
 
-  //  //endregion --------------------------------------------------------------------------------------
+  //endregion --------------------------------------------------------------------------------------
 }
