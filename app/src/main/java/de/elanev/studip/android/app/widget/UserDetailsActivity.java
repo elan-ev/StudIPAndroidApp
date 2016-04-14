@@ -32,9 +32,9 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.backend.datamodel.User;
-import de.elanev.studip.android.app.backend.db.UsersContract;
-import de.elanev.studip.android.app.frontend.messages.MessageComposeActivity;
+import de.elanev.studip.android.app.data.datamodel.User;
+import de.elanev.studip.android.app.data.db.UsersContract;
+import de.elanev.studip.android.app.messages.MessageComposeActivity;
 import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
 
 /**

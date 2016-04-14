@@ -20,7 +20,7 @@ import com.android.volley.toolbox.Volley;
 import com.crashlytics.android.Crashlytics;
 import com.squareup.picasso.Picasso;
 
-import de.elanev.studip.android.app.backend.net.util.OkHttpStack;
+import de.elanev.studip.android.app.data.net.util.OkHttpStack;
 import de.elanev.studip.android.app.util.ApiUtils;
 import io.fabric.sdk.android.Fabric;
 

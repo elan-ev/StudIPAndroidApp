@@ -42,7 +42,7 @@
             android:id="@+id/content_fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:name="de.elanev.studip.android.app.frontend.courses.CoursesFragment"
+            android:name="de.elanev.studip.android.app.courses.CoursesFragment"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     </android.support.design.widget.CoordinatorLayout>

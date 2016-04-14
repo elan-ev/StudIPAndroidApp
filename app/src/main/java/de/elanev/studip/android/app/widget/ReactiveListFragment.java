@@ -21,8 +21,8 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.backend.datamodel.Server;
-import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.data.datamodel.Server;
+import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
 import rx.subscriptions.CompositeSubscription;
 

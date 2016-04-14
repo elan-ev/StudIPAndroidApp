@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.backend.db.UsersContract;
+import de.elanev.studip.android.app.data.db.UsersContract;
 
 /**
  * @author joern

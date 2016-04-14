@@ -17,7 +17,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
-import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import rx.Observable;
 import rx.android.app.AppObservable;
 import rx.android.lifecycle.LifecycleEvent;
