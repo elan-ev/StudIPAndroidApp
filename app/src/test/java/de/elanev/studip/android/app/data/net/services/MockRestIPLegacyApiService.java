@@ -15,7 +15,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+import de.elanev.studip.android.app.data.datamodel.ContactGroups;
+import de.elanev.studip.android.app.data.datamodel.Contacts;
 import de.elanev.studip.android.app.data.datamodel.CourseItem;
+import de.elanev.studip.android.app.data.datamodel.Courses;
 import de.elanev.studip.android.app.data.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.data.datamodel.Events;
 import de.elanev.studip.android.app.data.datamodel.ForumArea;
@@ -23,10 +26,13 @@ import de.elanev.studip.android.app.data.datamodel.ForumAreas;
 import de.elanev.studip.android.app.data.datamodel.ForumCategories;
 import de.elanev.studip.android.app.data.datamodel.ForumCategory;
 import de.elanev.studip.android.app.data.datamodel.ForumEntries;
+import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
 import de.elanev.studip.android.app.data.datamodel.MessageFolders;
 import de.elanev.studip.android.app.data.datamodel.MessageItem;
 import de.elanev.studip.android.app.data.datamodel.Messages;
 import de.elanev.studip.android.app.data.datamodel.MessagesStats;
+import de.elanev.studip.android.app.data.datamodel.News;
+import de.elanev.studip.android.app.data.datamodel.Semesters;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.UserItem;
 import de.elanev.studip.android.app.data.model.MockServer;
@@ -97,6 +103,10 @@ public class MockRestIPLegacyApiService implements StudIpLegacyApiService.RestIP
     return null;
   }
 
+  @Override public Observable<Events> getEvents(@Path("course_id") String courseId) {
+    return null;
+  }
+
   @Override public Observable<Settings> getSettings() {
     Settings settingsResponse = new MockSettings();
 
@@ -151,7 +161,45 @@ public class MockRestIPLegacyApiService implements StudIpLegacyApiService.RestIP
     return null;
   }
 
-  @Override public Observable<MessagesStats> getMessagesStats() {
+  @Override public Observable<InstitutesContainer> getInstitutes(@Path("user_id") String userId) {
+    return null;
+  }
+
+  @Override public Observable<Contacts> getContacts() {
+    return null;
+  }
+
+  @Override public Observable<ContactGroups> getContactGroups() {
+    return null;
+  }
+
+  @Override public Observable<ContactGroups> addUserToContactsGroup(
+      @Path("group_id") String groupId, @Path("user_id") String userId) {
+    return null;
+  }
+
+  @Override public Observable<Void> deleteUserFormContactsGroup(@Path("group_id") String groupId,
+      @Path("user_id") String userId) {
+    return null;
+  }
+
+  @Override public Observable<Void> deleteUserFromContacts(@Path("user_id") String userId) {
+    return null;
+  }
+
+  @Override public Observable<Contacts> addUserToContatcs(@Path("user_id") String userId) {
+    return null;
+  }
+
+  @Override public Observable<Courses> getCourses() {
+    return null;
+  }
+
+  @Override public Observable<News> getNews(@Path("range") String range) {
+    return null;
+  }
+
+  @Override public Observable<Semesters> getSemesters() {
     return null;
   }
 }
