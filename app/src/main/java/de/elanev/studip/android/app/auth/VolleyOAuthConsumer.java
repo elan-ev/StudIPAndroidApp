@@ -5,7 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
-package de.elanev.studip.android.app.data.net.oauth;
+
+package de.elanev.studip.android.app.auth;
 
 import oauth.signpost.AbstractOAuthConsumer;
 import oauth.signpost.http.HttpRequest;
@@ -40,7 +41,7 @@ public class VolleyOAuthConsumer extends AbstractOAuthConsumer {
 		if (!(request instanceof com.android.volley.Request<?>)) {
 			throw new IllegalArgumentException(
 					"This consumer expects requests of type "
-							+ de.elanev.studip.android.app.data.net.oauth.VolleyHttpRequestAdapter.class
+							+ VolleyHttpRequestAdapter.class
 									.getCanonicalName());
 		}
 

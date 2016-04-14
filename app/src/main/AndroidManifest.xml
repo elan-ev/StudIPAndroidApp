@@ -116,23 +116,23 @@
 
         <!-- SignIn -->
         <activity
-            android:name=".data.net.oauth.SignInActivity"
+            android:name=".auth.SignInActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:excludeFromRecents="true"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
-            android:name=".data.net.oauth.WebViewActivity"
+            android:name=".auth.WebViewActivity"
             android:excludeFromRecents="true"
             android:noHistory="true"
-            android:parentActivityName=".data.net.oauth.SignInActivity"
+            android:parentActivityName=".auth.SignInActivity"
             android:screenOrientation="portrait">
 
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".data.net.oauth.SignInActivity"/>
+                android:value=".auth.SignInActivity"/>
         </activity>
 
         <!-- Users -->
