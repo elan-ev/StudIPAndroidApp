@@ -51,7 +51,7 @@ import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import retrofit2.HttpException;
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;

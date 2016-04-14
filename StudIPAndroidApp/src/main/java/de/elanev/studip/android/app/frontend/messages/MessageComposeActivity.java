@@ -51,7 +51,7 @@ import de.elanev.studip.android.app.backend.db.UsersContract;
 import de.elanev.studip.android.app.backend.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
-import retrofit2.HttpException;
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
