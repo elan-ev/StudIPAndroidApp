@@ -18,9 +18,9 @@ import com.crashlytics.android.Crashlytics;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.backend.datamodel.Server;
-import de.elanev.studip.android.app.backend.net.oauth.SignInActivity;
-import de.elanev.studip.android.app.frontend.AboutActivity;
+import de.elanev.studip.android.app.data.datamodel.Server;
+import de.elanev.studip.android.app.data.net.oauth.SignInActivity;
+import de.elanev.studip.android.app.about.AboutActivity;
 import de.elanev.studip.android.app.widget.WebViewActivity;
 
 /**
