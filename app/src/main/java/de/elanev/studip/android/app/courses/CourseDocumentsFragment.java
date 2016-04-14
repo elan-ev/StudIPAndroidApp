@@ -48,7 +48,7 @@ import de.elanev.studip.android.app.data.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.db.DocumentsContract;
-import de.elanev.studip.android.app.data.net.oauth.OAuthConnector;
+import de.elanev.studip.android.app.auth.OAuthConnector;
 import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;

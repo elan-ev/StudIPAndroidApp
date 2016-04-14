@@ -73,7 +73,7 @@ import de.elanev.studip.android.app.data.db.RecordingsContract;
 import de.elanev.studip.android.app.data.db.SemestersContract;
 import de.elanev.studip.android.app.data.db.UnizensusContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
-import de.elanev.studip.android.app.data.net.oauth.OAuthConnector;
+import de.elanev.studip.android.app.auth.OAuthConnector;
 import de.elanev.studip.android.app.data.net.services.CustomJsonConverterApiService;
 import de.elanev.studip.android.app.data.net.services.DiscoveryRouteJsonConverterFactory;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;

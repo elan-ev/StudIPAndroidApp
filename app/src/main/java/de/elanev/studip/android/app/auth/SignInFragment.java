@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.data.net.oauth;
+package de.elanev.studip.android.app.auth;
 
 import android.app.Activity;
 import android.content.Context;

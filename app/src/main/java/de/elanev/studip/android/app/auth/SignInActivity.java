@@ -5,7 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
-package de.elanev.studip.android.app.data.net.oauth;
+
+package de.elanev.studip.android.app.auth;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

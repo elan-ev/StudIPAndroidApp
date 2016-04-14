@@ -25,7 +25,7 @@ import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.Message;
 import de.elanev.studip.android.app.data.datamodel.User;
-import de.elanev.studip.android.app.data.net.oauth.VolleySignPostRequestWrapper;
+import de.elanev.studip.android.app.auth.VolleySignPostRequestWrapper;
 
 /**
  * @author joern
