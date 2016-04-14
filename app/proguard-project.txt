@@ -78,7 +78,6 @@
 -dontwarn retrofit2.**
 -dontwarn okio.**
 -dontwarn rx.**
--dontwarn com.android.volley.**
 -dontwarn butterknife.internal.**
 
 -dontnote com.google.vending.licensing.ILicensingService

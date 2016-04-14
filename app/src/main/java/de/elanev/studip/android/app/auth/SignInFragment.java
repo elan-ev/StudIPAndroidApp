@@ -382,10 +382,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   }
 
   private void resetSignInActivityState() {
-    //Cancel all pending network requests
-    StudIPApplication.getInstance()
-        .cancelAllPendingRequests(SyncHelper.TAG);
-
     // Resetting the SyncHelper
     SyncHelper.getInstance(mContext)
         .resetSyncHelper();
