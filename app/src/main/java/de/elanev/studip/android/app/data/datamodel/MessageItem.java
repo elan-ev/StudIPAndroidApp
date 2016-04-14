@@ -6,4 +6,13 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-include ':app'
+package de.elanev.studip.android.app.data.datamodel;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ * @author joern
+ */
+public class MessageItem {
+  @JsonProperty("message") public Message message;
+}

@@ -5,5 +5,16 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+package de.elanev.studip.android.app.data.datamodel;
 
-include ':app'
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ * @author joern
+ */
+public class UnizensusItem {
+
+  @JsonProperty("type") public String type;
+  @JsonProperty("url") public String url;
+
+}

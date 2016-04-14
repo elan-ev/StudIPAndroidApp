@@ -6,4 +6,11 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-include ':app'
+package de.elanev.studip.android.app.planner;
+
+/**
+ * @author joern
+ */
+public interface PlannerFragment {
+  void scrollToCurrentTime();
+}
