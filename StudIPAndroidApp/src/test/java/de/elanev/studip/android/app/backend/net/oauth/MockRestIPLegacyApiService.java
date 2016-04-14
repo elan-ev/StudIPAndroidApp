@@ -42,10 +42,10 @@ import rx.Observable;
 /**
  * @author joern
  */
-class MockRestIPLegacyService implements StudIpLegacyApiService.RestIPLegacyService {
+public class MockRestIPLegacyApiService implements StudIpLegacyApiService.RestIPLegacyService {
   private final BehaviorDelegate<StudIpLegacyApiService.RestIPLegacyService> delegate;
 
-  MockRestIPLegacyService() {
+  MockRestIPLegacyApiService() {
     MockRetrofit mockRetrofit = new MockRetrofit.Builder(
         StudIpLegacyApiService.getRetrofit(new MockServer())).build();
 
