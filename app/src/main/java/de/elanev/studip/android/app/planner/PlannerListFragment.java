@@ -28,24 +28,15 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPApplication;
-import de.elanev.studip.android.app.data.datamodel.Event;
-import de.elanev.studip.android.app.data.datamodel.Events;
-import de.elanev.studip.android.app.data.datamodel.Server;
-import de.elanev.studip.android.app.data.db.CoursesContract;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
-import de.elanev.studip.android.app.auth.OAuthConnector;
-import de.elanev.studip.android.app.data.net.util.JacksonRequest;
 import de.elanev.studip.android.app.courses.CourseViewActivity;
-import de.elanev.studip.android.app.util.DateTools;
-import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.StuffUtil;
-import de.elanev.studip.android.app.widget.ProgressListFragment;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.exception.OAuthNotAuthorizedException;
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import de.elanev.studip.android.app.data.datamodel.Course;
+import de.elanev.studip.android.app.data.datamodel.Event;
+import de.elanev.studip.android.app.data.db.CoursesContract;
+import de.elanev.studip.android.app.widget.ReactiveListFragment;
+import de.elanev.studip.android.app.widget.SimpleRecyclerViewAdapter;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * @author joern
