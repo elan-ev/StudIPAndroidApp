@@ -27,20 +27,15 @@ import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPApplication;
+import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.data.datamodel.ContactGroups;
 import de.elanev.studip.android.app.data.datamodel.Contacts;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.Courses;
-import de.elanev.studip.android.app.data.datamodel.DocumentFolder;
-import de.elanev.studip.android.app.data.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.data.datamodel.Event;
 import de.elanev.studip.android.app.data.datamodel.Events;
 import de.elanev.studip.android.app.data.datamodel.Institutes;
 import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
-import de.elanev.studip.android.app.data.datamodel.Message;
-import de.elanev.studip.android.app.data.datamodel.MessageFolders;
-import de.elanev.studip.android.app.data.datamodel.Messages;
 import de.elanev.studip.android.app.data.datamodel.News;
 import de.elanev.studip.android.app.data.datamodel.NewsItem;
 import de.elanev.studip.android.app.data.datamodel.Recording;
@@ -61,11 +56,9 @@ import de.elanev.studip.android.app.data.db.RecordingsContract;
 import de.elanev.studip.android.app.data.db.SemestersContract;
 import de.elanev.studip.android.app.data.db.UnizensusContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
-import de.elanev.studip.android.app.auth.OAuthConnector;
 import de.elanev.studip.android.app.data.net.services.CustomJsonConverterApiService;
 import de.elanev.studip.android.app.data.net.services.DiscoveryRouteJsonConverterFactory;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.data.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -770,7 +763,7 @@ public class SyncHelper {
 
     if (!TextUtils.equals("", userId) && !TextUtils.equals(StudIPConstants.STUDIP_SYSTEM_USER_ID,
         userId)) {
-        if (callbacks != null) callbacks.onSyncStarted();
+      if (callbacks != null) callbacks.onSyncStarted();
       mCompositeSubscription.add(mApiService.getUser(userId)
           .subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread())
