@@ -6,11 +6,14 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.data.net.oauth;
+package de.elanev.studip.android.app.util;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
+
+import de.elanev.studip.android.app.data.model.MockSettings;
+import de.elanev.studip.android.app.data.net.services.MockRestIPLegacyApiService;
 
 import static com.google.common.truth.Truth.assertThat;
 

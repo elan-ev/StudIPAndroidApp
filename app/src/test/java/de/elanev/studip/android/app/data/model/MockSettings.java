@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.data.net.oauth;
+package de.elanev.studip.android.app.data.model;
 
 import java.util.HashMap;
 

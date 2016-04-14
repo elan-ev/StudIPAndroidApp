@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.data.net.oauth;
+package de.elanev.studip.android.app.data.net.services;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -29,6 +29,8 @@ import de.elanev.studip.android.app.data.datamodel.Messages;
 import de.elanev.studip.android.app.data.datamodel.MessagesStats;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.UserItem;
+import de.elanev.studip.android.app.data.model.MockServer;
+import de.elanev.studip.android.app.data.model.MockSettings;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import retrofit2.Callback;
 import retrofit2.http.Field;
@@ -45,7 +47,7 @@ import rx.Observable;
 public class MockRestIPLegacyApiService implements StudIpLegacyApiService.RestIPLegacyService {
   private final BehaviorDelegate<StudIpLegacyApiService.RestIPLegacyService> delegate;
 
-  MockRestIPLegacyApiService() {
+  public MockRestIPLegacyApiService() {
     MockRetrofit mockRetrofit = new MockRetrofit.Builder(
         StudIpLegacyApiService.getRetrofit(new MockServer())).build();
 
