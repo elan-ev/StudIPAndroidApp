@@ -35,7 +35,7 @@
 
         <!-- News -->
         <activity
-            android:name=".frontend.news.NewsActivity"
+            android:name=".news.NewsActivity"
             android:label="@string/app_name"
             android:theme="@style/noAnimTheme">
             <intent-filter>
@@ -45,54 +45,54 @@
         </activity>
         <!-- News list and details view activity -->
         <activity
-            android:name=".frontend.news.NewsItemViewActivity"
-            android:parentActivityName=".frontend.news.NewsActivity">
+            android:name=".news.NewsItemViewActivity"
+            android:parentActivityName=".news.NewsActivity">
             <category android:name="android.intent.category.MONKEY"/>
 
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".frontend.news.NewsActivity"/>
+                android:value=".news.NewsActivity"/>
         </activity>
 
         <!-- Courses -->
         <activity
-            android:name=".frontend.courses.CoursesActivity"
+            android:name=".courses.CoursesActivity"
             android:label="@string/Courses"
             android:theme="@style/noAnimTheme">
         </activity>
         <!-- Courses list and detail view activities -->
         <activity
-            android:name=".frontend.courses.CourseViewActivity"
-            android:parentActivityName=".frontend.courses.CoursesActivity"
+            android:name=".courses.CourseViewActivity"
+            android:parentActivityName=".courses.CoursesActivity"
             android:launchMode="singleTop">
             <category android:name="android.intent.category.MONKEY"/>
 
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".frontend.courses.CoursesActivity"/>
+                android:value=".courses.CoursesActivity"/>
         </activity>
 
         <!-- Messages list, details view and compose activities -->
          <activity
-            android:name=".frontend.messages.MessagesActivity"
+            android:name=".messages.MessagesActivity"
             android:label="@string/Messages"
             android:launchMode="singleTop"
             android:theme="@style/noAnimTheme">
         </activity>
         <activity
-            android:name=".frontend.messages.MessageDetailActivity"
-            android:parentActivityName=".frontend.messages.MessagesActivity"
+            android:name=".messages.MessageDetailActivity"
+            android:parentActivityName=".messages.MessagesActivity"
             android:uiOptions="splitActionBarWhenNarrow">
 
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".frontend.messages.MessagesActivity"/>
+                android:value=".messages.MessagesActivity"/>
         </activity>
         <activity
-            android:name=".frontend.messages.MessageComposeActivity"
+            android:name=".messages.MessageComposeActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
@@ -103,36 +103,36 @@
 
         <!-- Contacts -->
          <activity
-            android:name=".frontend.contacts.ContactsActivity"
+            android:name=".contacts.ContactsActivity"
             android:label="@string/Contacts"
             android:theme="@style/noAnimTheme">
         </activity>
 
         <!-- Planer -->
         <activity
-            android:name=".frontend.planner.PlannerActivity"
+            android:name=".planner.PlannerActivity"
             android:label="@string/Planner"
             android:theme="@style/noAnimTheme"/>
 
         <!-- SignIn -->
         <activity
-            android:name=".backend.net.oauth.SignInActivity"
+            android:name=".data.net.oauth.SignInActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:excludeFromRecents="true"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
-            android:name=".backend.net.oauth.WebViewActivity"
+            android:name=".data.net.oauth.WebViewActivity"
             android:excludeFromRecents="true"
             android:noHistory="true"
-            android:parentActivityName=".backend.net.oauth.SignInActivity"
+            android:parentActivityName=".data.net.oauth.SignInActivity"
             android:screenOrientation="portrait">
 
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".backend.net.oauth.SignInActivity"/>
+                android:value=".data.net.oauth.SignInActivity"/>
         </activity>
 
         <!-- Users -->
@@ -141,7 +141,7 @@
 
         <!-- About -->
         <activity
-            android:name=".frontend.AboutActivity"/>
+            android:name=".about.AboutActivity"/>
 
         <!-- Web -->
         <activity
@@ -149,20 +149,20 @@
 
         <!-- Forums -->
         <activity
-            android:name=".frontend.forums.ForumAreasActivity"/>
+            android:name=".forums.ForumAreasActivity"/>
         <activity
-            android:name=".frontend.forums.ForumEntriesActivity"/>
+            android:name=".forums.ForumEntriesActivity"/>
         <activity
-            android:name=".frontend.forums.ForumEntryActivity"/>
+            android:name=".forums.ForumEntryActivity"/>
         <activity
-            android:name=".frontend.forums.ForumEntryComposeActivity"/>
+            android:name=".forums.ForumEntryComposeActivity"/>
 
 
         <!-- Providers -->
 
         <!-- Main RestIpProvider -->
         <provider
-            android:name=".backend.provider.RestIpProvider"
+            android:name=".data.provider.RestIpProvider"
             android:authorities="de.elanev.studip.android.app"
             android:exported="false"
             android:label="@string/app_name"

@@ -15,11 +15,11 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 
-import de.elanev.studip.android.app.backend.datamodel.Postbox;
-import de.elanev.studip.android.app.backend.datamodel.Server;
-import de.elanev.studip.android.app.backend.datamodel.User;
-import de.elanev.studip.android.app.backend.db.AuthenticationContract;
-import de.elanev.studip.android.app.frontend.planner.PlannerActivity;
+import de.elanev.studip.android.app.data.datamodel.Postbox;
+import de.elanev.studip.android.app.data.datamodel.Server;
+import de.elanev.studip.android.app.data.datamodel.User;
+import de.elanev.studip.android.app.data.db.AuthenticationContract;
+import de.elanev.studip.android.app.planner.PlannerActivity;
 
 
 /**
