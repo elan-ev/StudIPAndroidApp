@@ -5,7 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
-package de.elanev.studip.android.app.data.net.oauth;
+
+package de.elanev.studip.android.app.auth;
 
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -123,7 +124,7 @@ public class OAuthConnector {
   public interface OAuthCallbacks {
     /**
      * Called when the OAuth request token task finished successfully. The call will contain
-     * the received url to call in a {@link de.elanev.studip.android.app.data.net.oauth.WebViewActivity}
+     * the received url to call in a {@link WebViewActivity}
      * for proceeding the OAuth process.
      *
      * @param authUrl the authorization url String send from the endpoint
