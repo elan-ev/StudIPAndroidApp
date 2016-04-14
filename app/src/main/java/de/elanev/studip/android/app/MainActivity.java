@@ -105,10 +105,6 @@ public class MainActivity extends AppCompatActivity implements
    * Deletes the preferences and database to logout of the service
    */
   private void logout() {
-    //Cancel all pending network requests
-    StudIPApplication.getInstance()
-        .cancelAllPendingRequests(SyncHelper.TAG);
-
     // Resetting the SyncHelper
     SyncHelper.getInstance(this)
         .resetSyncHelper();
