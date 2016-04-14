@@ -30,7 +30,7 @@ import java.util.List;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
-import de.elanev.studip.android.app.data.net.SyncHelper;
+import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.widget.ListAdapterUsers;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 import de.elanev.studip.android.app.widget.UserDetailsActivity;

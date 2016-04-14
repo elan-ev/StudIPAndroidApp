@@ -5,7 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
-package de.elanev.studip.android.app.data.net;
+
+package de.elanev.studip.android.app.data.net.sync;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
@@ -77,9 +78,6 @@ import de.elanev.studip.android.app.auth.OAuthConnector;
 import de.elanev.studip.android.app.data.net.services.CustomJsonConverterApiService;
 import de.elanev.studip.android.app.data.net.services.DiscoveryRouteJsonConverterFactory;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.data.net.sync.ContactGroupsHandler;
-import de.elanev.studip.android.app.data.net.sync.DocumentsHandler;
-import de.elanev.studip.android.app.data.net.sync.MessagesHandler;
 import de.elanev.studip.android.app.data.net.util.JacksonRequest;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
