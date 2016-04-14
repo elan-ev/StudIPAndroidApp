@@ -33,38 +33,28 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Request.Method;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.VolleyError;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.data.datamodel.ContactGroups;
 import de.elanev.studip.android.app.data.datamodel.Contacts;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.db.AbstractContract;
 import de.elanev.studip.android.app.data.db.ContactsContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
-import de.elanev.studip.android.app.auth.OAuthConnector;
+import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.data.net.sync.ContactGroupHandler;
 import de.elanev.studip.android.app.data.net.sync.ContactsHandler;
-import de.elanev.studip.android.app.data.net.util.JacksonRequest;
-import de.elanev.studip.android.app.data.net.util.StringRequest;
+import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.StuffUtil;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.exception.OAuthNotAuthorizedException;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * @author joern
@@ -241,201 +231,148 @@ public abstract class UserListFragment extends ProgressListFragment implements L
 
   }
 
-  private static void addUserToGroup(final String userId,
-      final String groupId,
+  private static void addUserToGroup(final String userId, final String groupId,
       final Context context) {
-    String contactsUrl = String.format(context.getString(R.string.restip_contacts_groups_groupid_userid),
-        mApiUrl,
-        groupId,
-        userId);
-    JacksonRequest<ContactGroups> userAddRequest = new JacksonRequest<ContactGroups>(contactsUrl,
-        ContactGroups.class,
-        null,
-        new Listener<ContactGroups>() {
-          public void onResponse(ContactGroups response) {
+
+    Server server = Prefs.getInstance(context)
+        .getServer();
+    StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
+    service.addUserToContactsGroup(groupId, userId)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<ContactGroups>() {
+          @Override public void onCompleted() {
+            SyncHelper.getInstance(context)
+                .performContactsSync(null);
+          }
+
+          @Override public void onError(Throwable e) {
+            if (e != null) {
+              Log.e(TAG, e.getMessage());
+              //              Toast.makeText(context, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+          }
+
+          @Override public void onNext(ContactGroups contactGroups) {
             try {
               mResolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
-                  new ContactGroupHandler(response.group).parse());
-              SyncHelper.getInstance(context)
-                  .performContactsSync(null);
-            } catch (RemoteException e) {
-              e.printStackTrace();
-            } catch (OperationApplicationException e) {
+                  new ContactGroupHandler(contactGroups.group).parse());
+
+            } catch (RemoteException | OperationApplicationException e) {
               e.printStackTrace();
             }
 
-            Toast.makeText(context, R.string.successfully_added, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.successfully_added, Toast.LENGTH_SHORT)
+                .show();
           }
-        },
-        new ErrorListener() {
-          public void onErrorResponse(VolleyError error) {
-            if (error.getMessage() != null) Log.e(TAG, error.getMessage());
-            Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-          }
-        },
-        Method.PUT
-    );
-    try {
-      Server server = Prefs.getInstance(context).getServer();
-      OAuthConnector.with(server).sign(userAddRequest);
-    } catch (OAuthMessageSignerException e) {
-      e.printStackTrace();
-    } catch (OAuthExpectationFailedException e) {
-      e.printStackTrace();
-    } catch (OAuthCommunicationException e) {
-      e.printStackTrace();
-    } catch (OAuthNotAuthorizedException e) {
-      StuffUtil.startSignInActivity(context);
-    }
-    userAddRequest.setPriority(Request.Priority.IMMEDIATE);
-    StudIPApplication.getInstance().addToRequestQueue(userAddRequest);
-
+        });
   }
 
-  private static void deleteUserFromGroup(final String userId,
-      final String groupId,
-      final int groupIntId,
-      final int userIntId,
-      final Context context) {
-    String contactsUrl = String.format(context.getString(R.string.restip_contacts_groups_groupid_userid),
-        mApiUrl,
-        groupId,
-        userId);
-    StringRequest request = new StringRequest(Method.DELETE, contactsUrl, new Listener<String>() {
-      public void onResponse(String response) {
-        context.getContentResolver()
-            .delete(ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS.buildUpon()
-                    .appendPath(String.format("%d", groupIntId))
+  private static void deleteUserFromGroup(final String userId, final String groupId,
+      final int groupIntId, final int userIntId, final Context context) {
+
+    Server server = Prefs.getInstance(context)
+        .getServer();
+    StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
+    service.deleteUserFromContactsGroup(groupId, userId)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<Void>() {
+          @Override public void onCompleted() {
+            SyncHelper.getInstance(context)
+                .performContactsSync(null);
+          }
+
+          @Override public void onError(Throwable e) {
+            if (e != null) {
+              Log.e(TAG, e.getMessage());
+
+              //Toast.makeText(context, "Fehler: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+          }
+
+          @Override public void onNext(Void aVoid) {
+            context.getContentResolver()
+                .delete(ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS.buildUpon()
+                    .appendPath(String.format(Locale.getDefault(), "%d", groupIntId))
                     .build(), ContactsContract.Columns.Contacts.USER_ID + "= ?", new String[]{
-                    String.format("%d", userIntId)
-                }
-            );
-        SyncHelper.getInstance(context)
-            .performContactsSync(null);
+                    String.format(Locale.getDefault(), "%d", userIntId)
+                });
 
-        Toast.makeText(context, R.string.successfully_deleted, Toast.LENGTH_SHORT).show();
-      }
-    }, new ErrorListener() {
-      public void onErrorResponse(VolleyError error) {
-        if (error.getMessage() != null) Log.e(TAG, error.getMessage());
-
-        Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-      }
-    }
-    );
-
-    try {
-      Server server = Prefs.getInstance(context).getServer();
-      OAuthConnector.with(server).sign(request);
-    } catch (OAuthMessageSignerException e) {
-      e.printStackTrace();
-    } catch (OAuthExpectationFailedException e) {
-      e.printStackTrace();
-    } catch (OAuthCommunicationException e) {
-      e.printStackTrace();
-    } catch (OAuthNotAuthorizedException e) {
-      StuffUtil.startSignInActivity(context);
-    }
-    request.setPriority(Request.Priority.IMMEDIATE);
-    StudIPApplication.getInstance().addToRequestQueue(request);
+            Toast.makeText(context, R.string.successfully_deleted, Toast.LENGTH_SHORT)
+                .show();
+          }
+        });
   }
 
   private static void addUserToContacts(final String userId, final Context context) {
-    String contactsUrl = String.format(context.getString(R.string.restip_contacts_contactid),
-        mApiUrl,
-        userId);
-    JacksonRequest<Contacts> contactAddRequest = new JacksonRequest<Contacts>(contactsUrl,
-        Contacts.class,
-        null,
-        new Listener<Contacts>() {
-          public void onResponse(Contacts response) {
+    Server server = Prefs.getInstance(context)
+        .getServer();
+    StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
+    service.addUserToContacts(userId)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<Contacts>() {
+          @Override public void onCompleted() {
+            SyncHelper.getInstance(context)
+                .performContactsSync(null);
+          }
+
+          @Override public void onError(Throwable e) {
+            if (e != null) Log.e(TAG, e.getMessage());
+            //Toast.makeText(context, "Fehler: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+          }
+
+          @Override public void onNext(Contacts contacts) {
             try {
               mResolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
-                  new ContactsHandler(response).parse());
-              SyncHelper.getInstance(context)
-                  .performContactsSync(null);
-            } catch (RemoteException e) {
-              e.printStackTrace();
-            } catch (OperationApplicationException e) {
+                  new ContactsHandler(contacts).parse());
+            } catch (RemoteException | OperationApplicationException e) {
               e.printStackTrace();
             }
-            Toast.makeText(context, R.string.successfully_added, Toast.LENGTH_SHORT).show();
+
+            Toast.makeText(context, R.string.successfully_added, Toast.LENGTH_SHORT)
+                .show();
           }
-        },
-        new ErrorListener() {
-          /*
-           * (non-Javadoc)
-           *
-           * @see com.android.volley.Response.ErrorListener
-           * #onErrorResponse(com.android.volley. VolleyError)
-           */
-          public void onErrorResponse(VolleyError error) {
-            if (error.getMessage() != null) Log.e(TAG, error.getMessage());
-            Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-          }
-        },
-        Method.PUT
-    );
-    try {
-      Server server = Prefs.getInstance(context).getServer();
-      OAuthConnector.with(server).sign(contactAddRequest);
-    } catch (OAuthMessageSignerException e) {
-      e.printStackTrace();
-    } catch (OAuthExpectationFailedException e) {
-      e.printStackTrace();
-    } catch (OAuthCommunicationException e) {
-      e.printStackTrace();
-    } catch (OAuthNotAuthorizedException e) {
-      StuffUtil.startSignInActivity(context);
-    }
-    contactAddRequest.setPriority(Request.Priority.IMMEDIATE);
-    StudIPApplication.getInstance().addToRequestQueue(contactAddRequest);
+        });
   }
 
   private static void deleteUserFromContacts(final String userId, final Context context) {
-    String contactsUrl = String.format(context.getString(R.string.restip_contacts_contactid),
-        mApiUrl,
-        userId);
-    StringRequest request = new StringRequest(Method.DELETE, contactsUrl, new Listener<String>() {
-      public void onResponse(String response) {
-        context.getContentResolver()
-            .delete(ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS,
-                ContactsContract.Columns.ContactGroupMembers.USER_ID + "= ?",
-                new String[]{"'" + userId + "'"});
+    Server server = Prefs.getInstance(context)
+        .getServer();
+    StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
+    service.deleteUserFromContacts(userId)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<Void>() {
+          @Override public void onCompleted() {
+            SyncHelper.getInstance(context)
+                .performContactsSync(null);
+          }
 
-        context.getContentResolver()
-            .delete(ContactsContract.CONTENT_URI_CONTACTS.buildUpon().appendPath(userId).build(),
-                null,
-                null);
-        SyncHelper.getInstance(context)
-            .performContactsSync(null);
+          @Override public void onError(Throwable e) {
+            if (e != null) {
+              Log.e(TAG, e.getMessage());
+//              Toast.makeText(context, "Fehler: " + e.getMessage(), Toast.LENGTH_SHORT)
+//                  .show();
+            }
+          }
 
+          @Override public void onNext(Void aVoid) {
+            context.getContentResolver()
+                .delete(ContactsContract.CONTENT_URI_CONTACT_GROUP_MEMBERS,
+                    ContactsContract.Columns.ContactGroupMembers.USER_ID + "= ?",
+                    new String[]{"'" + userId + "'"});
 
-        Toast.makeText(context, R.string.successfully_deleted, Toast.LENGTH_SHORT).show();
-      }
-    }, new ErrorListener() {
-      public void onErrorResponse(VolleyError error) {
-        if (error.getMessage() != null) Log.e(TAG, error.getMessage());
+            context.getContentResolver()
+                .delete(ContactsContract.CONTENT_URI_CONTACTS.buildUpon()
+                    .appendPath(userId)
+                    .build(), null, null);
 
-        Toast.makeText(context, "Fehler: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-      }
-    }
-    );
-
-    try {
-      Server server = Prefs.getInstance(context).getServer();
-      OAuthConnector.with(server).sign(request);
-    } catch (OAuthMessageSignerException e) {
-      e.printStackTrace();
-    } catch (OAuthExpectationFailedException e) {
-      e.printStackTrace();
-    } catch (OAuthCommunicationException e) {
-      e.printStackTrace();
-    } catch (OAuthNotAuthorizedException e) {
-      StuffUtil.startSignInActivity(context);
-    }
-    request.setPriority(Request.Priority.IMMEDIATE);
-    StudIPApplication.getInstance().addToRequestQueue(request);
+            Toast.makeText(context, R.string.successfully_deleted, Toast.LENGTH_SHORT)
+                .show();
+          }
+        });
   }
 
   protected interface UsersQuery {
