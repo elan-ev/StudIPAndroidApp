@@ -36,7 +36,7 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.db.SemestersContract;
-import de.elanev.studip.android.app.data.net.SyncHelper;
+import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;

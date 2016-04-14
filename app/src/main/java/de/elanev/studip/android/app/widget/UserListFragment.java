@@ -52,7 +52,7 @@ import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.db.AbstractContract;
 import de.elanev.studip.android.app.data.db.ContactsContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
-import de.elanev.studip.android.app.data.net.SyncHelper;
+import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.auth.OAuthConnector;
 import de.elanev.studip.android.app.data.net.sync.ContactGroupHandler;
 import de.elanev.studip.android.app.data.net.sync.ContactsHandler;

@@ -45,7 +45,7 @@ import de.elanev.studip.android.app.data.datamodel.Event;
 import de.elanev.studip.android.app.data.datamodel.Events;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.db.CoursesContract;
-import de.elanev.studip.android.app.data.net.SyncHelper;
+import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.auth.OAuthConnector;
 import de.elanev.studip.android.app.data.net.util.JacksonRequest;
 import de.elanev.studip.android.app.courses.CourseViewActivity;

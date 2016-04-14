@@ -44,7 +44,7 @@ import de.elanev.studip.android.app.data.db.RecordingsContract;
 import de.elanev.studip.android.app.data.db.SemestersContract;
 import de.elanev.studip.android.app.data.db.UnizensusContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
-import de.elanev.studip.android.app.data.net.SyncHelper;
+import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.util.Config;
 
 /**
