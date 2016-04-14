@@ -16,8 +16,11 @@ import java.util.ArrayList;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.StudIPConstants;
+import de.elanev.studip.android.app.data.datamodel.ContactGroups;
+import de.elanev.studip.android.app.data.datamodel.Contacts;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.CourseItem;
+import de.elanev.studip.android.app.data.datamodel.Courses;
 import de.elanev.studip.android.app.data.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.data.datamodel.Event;
 import de.elanev.studip.android.app.data.datamodel.Events;
@@ -27,13 +30,17 @@ import de.elanev.studip.android.app.data.datamodel.ForumCategories;
 import de.elanev.studip.android.app.data.datamodel.ForumCategory;
 import de.elanev.studip.android.app.data.datamodel.ForumEntries;
 import de.elanev.studip.android.app.data.datamodel.ForumEntry;
+import de.elanev.studip.android.app.data.datamodel.Institutes;
+import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
 import de.elanev.studip.android.app.data.datamodel.Message;
+import de.elanev.studip.android.app.data.datamodel.MessageFolder;
 import de.elanev.studip.android.app.data.datamodel.MessageFolders;
 import de.elanev.studip.android.app.data.datamodel.MessageItem;
 import de.elanev.studip.android.app.data.datamodel.Messages;
-import de.elanev.studip.android.app.data.datamodel.MessagesStats;
+import de.elanev.studip.android.app.data.datamodel.News;
 import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Recording;
+import de.elanev.studip.android.app.data.datamodel.Semesters;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.User;
@@ -42,9 +49,9 @@ import de.elanev.studip.android.app.data.db.UsersContract;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Callback;
+import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-import retrofit2.Retrofit;
 import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -563,6 +570,43 @@ public class StudIpLegacyApiService {
   }
 
   /**
+   * Adds a specified user to the group specified by the group id.
+   *
+   * @param groupId The id of the group the user shall be added to.
+   * @param userId  The id of the user to add to the group.
+   * @return The refreshed list of contacts groups.
+   */
+  public Observable<ContactGroups> addUserToContactsGroup(final String groupId,
+      final String userId) {
+    return mService.addUserToContactsGroup(groupId, userId);
+  }
+
+  /**
+   * Deletes a specified user from the group specified by the passed group id.
+   *
+   * @param groupId The id of the group the user shall be deleted from.
+   * @param userId  The id of the user which shall be deleted from the group.
+   * @return Nothing
+   */
+  public Observable<Void> deleteUserFromContactsGroup(final String groupId, final String userId) {
+    return mService.deleteUserFormContactsGroup(groupId, userId);
+  }
+
+  /**
+   * Adds a specified user to the contacts.
+   *
+   * @param userId The id of the user which shall be added to the contacts.
+   * @return The new contacts list.
+   */
+  public Observable<Contacts> addUserToContacts(final String userId) {
+    return mService.addUserToContatcs(userId);
+  }
+
+  public Observable<Void> deleteUserFromContacts(final String userId) {
+    return mService.deleteUserFromContacts(userId);
+  }
+
+  /**
    * Gets a list of the users {@link Courses}.
    *
    * @return A list of the users {@link Courses}.
@@ -656,6 +700,18 @@ public class StudIpLegacyApiService {
     @GET("contacts") Observable<Contacts> getContacts();
 
     @GET("contacts/groups") Observable<ContactGroups> getContactGroups();
+
+    @PUT("contacts/groups/{group_id}/{user_id}") Observable<ContactGroups> addUserToContactsGroup(
+        @Path("group_id") String groupId, @Path("user_id") String userId);
+
+    @DELETE("contacts/groups/{group_id}/{user_id}") Observable<Void> deleteUserFormContactsGroup(
+        @Path("group_id") String groupId, @Path("user_id") String userId);
+
+    @DELETE("contacts/{user_id}") Observable<Void> deleteUserFromContacts(
+        @Path("user_id") String userId);
+
+    @PUT("contacts/{user_id}") Observable<Contacts> addUserToContatcs(
+        @Path("user_id") String userId);
 
     /* Courses */
     @GET("courses") Observable<Courses> getCourses();
