@@ -19,10 +19,10 @@ import static com.google.common.truth.Truth.assertThat;
  */
 @SmallTest
 public class SettingsUnitTest {
-  MockRestIPLegacyService mMockRestIPLegacyService = new MockRestIPLegacyService();
+  MockRestIPLegacyApiService mMockRestIPLegacyApiService = new MockRestIPLegacyApiService();
 
   @Test public void testSettingsResponse() {
-    assertThat(mMockRestIPLegacyService.getSettings()).isNotNull();
+    assertThat(mMockRestIPLegacyApiService.getSettings()).isNotNull();
   }
 
   @Test public void testMockSettings() {
