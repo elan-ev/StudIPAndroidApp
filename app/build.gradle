@@ -16,8 +16,8 @@ def versionPatch = 14 // max. 99
 
 // Beta- and Alpha-Release versioning
 def versionMajorBeta = 1 // max. 9
-def versionMinorBeta = 1 // max. 99
-def versionPatchBeta = 10 // max. 99
+def versionMinorBeta = 2 // max. 99
+def versionPatchBeta = 0 // max. 99
 
 buildscript {
 
@@ -175,12 +175,6 @@ android {
     minSdkVersion 10
     targetSdkVersion 23
 
-    // Generate versionCode and versionName
-    versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
-    versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-    // Set output file name based on versionName
-    setProperty("archivesBaseName", "studip_mobil-$versionName")
-
     buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
 
     // Testing settings
@@ -189,6 +183,9 @@ android {
 
     // Enabling multidex support.
     multiDexEnabled true
+
+    // Set output file name based on versionName
+    setProperty("archivesBaseName", "studip_mobil")
   }
 
   compileOptions {
@@ -250,7 +247,7 @@ android {
       variant.outputs.each { output ->
         def file = output.outputFile
         output.outputFile = new File(file.parent, file.name.replace(".apk",
-            "-" + variant.productFlavors.versionCode + "-" + variant.name + ".apk"))
+            "-" + variant.productFlavors.versionCode + ".apk"))
       }
     }
 
