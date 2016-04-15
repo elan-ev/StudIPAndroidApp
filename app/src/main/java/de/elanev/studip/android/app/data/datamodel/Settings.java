@@ -24,20 +24,12 @@ public class Settings {
 
   @JsonProperty("SEM_TYPE") public HashMap<Integer, SeminarTypeData> semTypes;
 
-  public Settings(HashMap<Integer, SeminarTypeData> semTypes) {
-    this.semTypes = semTypes;
-  }
-
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  public static class SeminarTypeData {
-    public SeminarTypeData(String name) {
-      this.name = name;
-    }
-
-    @JsonProperty("name") public String name;
-    //    @JsonProperty("class") public int class;
   // Default Constructor
   public Settings() {
+  }
+
+  public Settings(HashMap<Integer, SeminarTypeData> semTypes) {
+    this.semTypes = semTypes;
   }
 
   public static Settings fromJson(String jsonString) {
@@ -45,8 +37,6 @@ public class Settings {
     Settings settings = null;
     try {
       settings = mapper.readValue(jsonString, Settings.class);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -64,10 +54,20 @@ public class Settings {
     return json;
   }
 
+
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class SeminarTypeData {
+
     @JsonProperty("name") public String name;
     //    @JsonProperty("class") public int class;
+
+    // Default constructor
+    public SeminarTypeData() {
+    }
+
+    public SeminarTypeData(String name) {
+      this.name = name;
+    }
   }
 
   /*
