@@ -113,18 +113,12 @@ dictionaries
 *.db
 *.trace
 
-# Crashlytics
-StudIPAndroidApp/src/main/res/values/com_crashlytics_export_strings.xml
-StudIPAndroidApp/crashlytics.properties
-StudIPAndroidApp/src/main/assets/crashlytics-build.properties
-
-
 # Project
-StudIPAndroidApp/src/release/
-StudIPAndroidApp/src/productionRelease/
-StudIPAndroidApp/src/productionDebug/
-StudIPAndroidApp/src/betaRelease/
-StudIPAndroidApp/src/betaDebug/
+app/src/release/
+app/src/productionRelease/
+app/src/productionDebug/
+app/src/betaRelease/
+app/src/betaDebug/
 
 # Fabric
 fabric.properties
