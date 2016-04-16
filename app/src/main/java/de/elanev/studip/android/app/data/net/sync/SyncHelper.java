@@ -19,7 +19,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.RemoteException;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -64,6 +63,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
 /**
  * A convenience class for interacting with the rest.IP endpoints.
@@ -153,7 +153,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Log.wtf(TAG, e.getMessage());
+              Timber.e(e.getMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_INSTITUTES_SYNC,
@@ -239,7 +239,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Log.wtf(TAG, e.getMessage());
+              Timber.e(e.getMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC,
@@ -270,7 +270,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Log.wtf(TAG, e.getMessage());
+              Timber.e(e.getMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC,
@@ -319,13 +319,13 @@ public class SyncHelper {
       return;
     }
 
-    Log.i(TAG, "SYNCING COURSES");
+    Timber.i("SYNCING COURSES");
     mCompositeSubscription.add(mApiService.getCourses()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Courses>() {
           @Override public void onCompleted() {
-            Log.i(TAG, "FINISHED SYNCING COURSES");
+            Timber.i("FINISHED SYNCING COURSES");
             if (callbacks != null) {
               callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_COURSES_SYNC);
             }
@@ -333,7 +333,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Log.wtf(TAG, e.getMessage());
+              Timber.e(e.getMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_COURSES_SYNC,
@@ -537,7 +537,7 @@ public class SyncHelper {
       return;
     }
 
-    Log.i(TAG, "SYNCING NEWS");
+    Timber.i("SYNCING NEWS");
     if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
 
     for (final String id : newsRangeIds) {
@@ -559,7 +559,7 @@ public class SyncHelper {
       return;
     }
 
-    Log.i(TAG, "Performing Sync for range: " + range);
+    Timber.i("Performing Sync for range: " + range);
     mCompositeSubscription.add(mApiService.getNews(range)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
@@ -567,13 +567,13 @@ public class SyncHelper {
           @Override public void onCompleted() {
             if (callbacks != null) {
               callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
-              Log.i(TAG, "FINISHED SYNCING NEWS");
+              Timber.i("FINISHED SYNCING NEWS");
             }
           }
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Log.wtf(TAG, e.getMessage());
+              Timber.e(e.getMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_NEWS_SYNC, e.getLocalizedMessage(),
@@ -660,7 +660,7 @@ public class SyncHelper {
         .isAppAuthorized() || mServer == null) {
       return;
     }
-    Log.i(TAG, "SYNCING SEMESTERS");
+    Timber.i("SYNCING SEMESTERS");
     mCompositeSubscription.add(mApiService.getSemesters()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
@@ -668,12 +668,12 @@ public class SyncHelper {
           @Override public void onCompleted() {
             if (callbacks != null)
               callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_SEMESTER_SYNC);
-            Log.i(TAG, "FINISHED SYNCING SEMESTERS");
+            Timber.i("FINISHED SYNCING SEMESTERS");
           }
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Log.wtf(TAG, e.getMessage());
+              Timber.e(e.getMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_SEMESTER_SYNC,
@@ -730,7 +730,7 @@ public class SyncHelper {
         .isAppAuthorized() || mServer == null) {
       return;
     }
-    Log.i(TAG, "SYNCING COURSE EVENTS: " + courseId);
+    Timber.i("SYNCING COURSE EVENTS: " + courseId);
 
     mCompositeSubscription.add(mApiService.getEvents(courseId)
         .subscribeOn(Schedulers.io())
@@ -741,7 +741,7 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            Log.wtf(TAG, e.getMessage());
+            Timber.e(e.getMessage());
           }
 
           @Override public void onNext(Events events) {
@@ -774,7 +774,7 @@ public class SyncHelper {
             }
 
             @Override public void onError(Throwable e) {
-              Log.wtf(TAG, e.getMessage());
+              Timber.e(e.getMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, e.getLocalizedMessage(),
@@ -859,12 +859,12 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            Log.e(TAG, e.getLocalizedMessage());
+            Timber.e(e, e.getLocalizedMessage());
           }
 
           @Override public void onNext(Settings settings) {
             String serialized = settings.toJson();
-            Log.d(TAG, "Storing following settings in the Prefs:\n" + serialized);
+            Timber.d("Storing following settings in the Prefs:\n" + serialized);
             Prefs.getInstance(mContext)
                 .setApiSettings(serialized);
           }
@@ -885,7 +885,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             String errMsg = e.getLocalizedMessage();
-            Log.e(TAG, errMsg);
+            Timber.e(e, errMsg);
 
             if (callbacks != null) {
               callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, errMsg, 0);

@@ -22,7 +22,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -55,6 +54,7 @@ import de.elanev.studip.android.app.util.Prefs;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -248,7 +248,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
 
           @Override public void onError(Throwable e) {
             if (e != null) {
-              Log.e(TAG, e.getMessage());
+              Timber.e(e, e.getMessage());
               //              Toast.makeText(context, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
           }
@@ -285,7 +285,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
 
           @Override public void onError(Throwable e) {
             if (e != null) {
-              Log.e(TAG, e.getMessage());
+              Timber.e(e, e.getMessage());
 
               //Toast.makeText(context, "Fehler: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -319,7 +319,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
           }
 
           @Override public void onError(Throwable e) {
-            if (e != null) Log.e(TAG, e.getMessage());
+            if (e != null) Timber.e(e, e.getMessage());
             //Toast.makeText(context, "Fehler: " + e.getMessage(), Toast.LENGTH_SHORT).show();
           }
 
@@ -352,7 +352,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
 
           @Override public void onError(Throwable e) {
             if (e != null) {
-              Log.e(TAG, e.getMessage());
+              Timber.e(e, e.getMessage());
 //              Toast.makeText(context, "Fehler: " + e.getMessage(), Toast.LENGTH_SHORT)
 //                  .show();
             }

@@ -12,7 +12,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,6 +34,7 @@ import de.elanev.studip.android.app.widget.ReactiveFragment;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -149,9 +149,9 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
           } else if (e instanceof HttpException) {
             Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
                 .show();
-            Log.e(TAG, e.getLocalizedMessage());
+            Timber.e(e, e.getLocalizedMessage());
           } else {
-            Log.e(TAG, e.getLocalizedMessage());
+            Timber.e(e, e.getLocalizedMessage());
           }
         }
         setViewsVisible(true);

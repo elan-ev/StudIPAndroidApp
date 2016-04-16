@@ -9,12 +9,12 @@ package de.elanev.studip.android.app.data.net.sync;
 
 import android.content.ContentProviderOperation;
 
+import java.util.ArrayList;
+
 import de.elanev.studip.android.app.data.datamodel.Document;
 import de.elanev.studip.android.app.data.datamodel.DocumentFolder;
 import de.elanev.studip.android.app.data.db.DocumentsContract;
 import de.elanev.studip.android.app.util.TextTools;
-
-import java.util.ArrayList;
 
 /**
  * @author joern

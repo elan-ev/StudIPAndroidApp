@@ -7,13 +7,13 @@
  */
 package de.elanev.studip.android.app.data.net.sync;
 
+import android.content.ContentProviderOperation;
+
 import java.util.ArrayList;
 
 import de.elanev.studip.android.app.data.datamodel.ContactGroup;
 import de.elanev.studip.android.app.data.datamodel.ContactGroups;
 import de.elanev.studip.android.app.data.db.ContactsContract;
-
-import android.content.ContentProviderOperation;
 
 /**
  * @author joern

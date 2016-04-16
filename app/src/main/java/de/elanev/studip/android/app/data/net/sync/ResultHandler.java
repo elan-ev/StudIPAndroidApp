@@ -7,9 +7,9 @@
  */
 package de.elanev.studip.android.app.data.net.sync;
 
-import java.util.ArrayList;
-
 import android.content.ContentProviderOperation;
+
+import java.util.ArrayList;
 
 /**
  * @author joern

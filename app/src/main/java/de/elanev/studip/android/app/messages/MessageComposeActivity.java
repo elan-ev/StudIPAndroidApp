@@ -21,7 +21,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -55,6 +54,7 @@ import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 public class MessageComposeActivity extends AppCompatActivity implements
     LoaderManager.LoaderCallbacks<Cursor> {
@@ -302,12 +302,12 @@ public class MessageComposeActivity extends AppCompatActivity implements
             if (e != null) {
               if (e instanceof TimeoutException) {
                 showToast(R.string.error_timeout);
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
               } else if (e instanceof HttpException) {
                 showToast(R.string.error_http_data_error);
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
               } else {
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
               }
             }
           }
@@ -453,8 +453,7 @@ public class MessageComposeActivity extends AppCompatActivity implements
                   .toLowerCase(Locale.getDefault()))) {
 
                 // Found matching element
-                Log.d(TAG,
-                    String.format("Found %s, searched %s", loweredFullName, loweredConstraint));
+                Timber.d("Found %s, searched %s", loweredFullName, loweredConstraint);
                 result.add(userItem);
 
               } else {
@@ -469,7 +468,7 @@ public class MessageComposeActivity extends AppCompatActivity implements
                   if (words[k].startsWith(loweredConstraint)) {
 
                     // Found a matching element
-                    Log.d(TAG, String.format("Found %s, searched %s", words[k], loweredConstraint));
+                    Timber.d("Found %s, searched %s", words[k], loweredConstraint);
                     result.add(userItem);
                     break;
                   }

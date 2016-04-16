@@ -18,7 +18,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import net.sqlcipher.DatabaseUtils;
 import net.sqlcipher.SQLException;
@@ -46,6 +45,7 @@ import de.elanev.studip.android.app.data.db.UnizensusContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.util.Config;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -1054,7 +1054,7 @@ public class RestIpProvider extends ContentProvider {
               values,
               idColumn + " = ?",
               new String[]{String.format("%d", id)});
-          Log.d(TAG, affected + " rows updated!");
+          Timber.d("%d rows updated!", affected);
         } catch (SQLException ex) {
           ex.printStackTrace();
         }

@@ -23,7 +23,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +54,7 @@ import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * Fragment that loads the list of recordings for a specific course and displays it.
@@ -118,14 +118,14 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
               }
 
               @Override public void onError(Throwable e) {
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
                 if (e instanceof TimeoutException) {
                   Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
                       .show();
                 } else if (e instanceof HttpException) {
                   Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
                       .show();
-                  Log.e(TAG, e.getLocalizedMessage());
+                  Timber.e(e, e.getLocalizedMessage());
                 } else {
                   e.printStackTrace();
                   throw new RuntimeException("See inner exception");

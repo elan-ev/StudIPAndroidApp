@@ -21,7 +21,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +39,7 @@ import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ProgressListFragment;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -268,7 +268,7 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
           }
           holder.icon.setColorFilter(tintColor);
         } catch (Exception e) {
-          Log.wtf(TAG, e.getMessage());
+          Timber.e(e, e.getMessage());
         }
       }
 

@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,6 +36,7 @@ import de.elanev.studip.android.app.widget.SimpleRecyclerViewAdapter;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -98,7 +98,7 @@ public class PlannerListFragment extends ReactiveListFragment implements Planner
 
           @Override public void onError(Throwable e) {
             if (getActivity() != null && e != null && e.getMessage() != null) {
-              Log.wtf(TAG, e.getMessage());
+              Timber.e(e, e.getMessage());
               Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
                   .show();
             }

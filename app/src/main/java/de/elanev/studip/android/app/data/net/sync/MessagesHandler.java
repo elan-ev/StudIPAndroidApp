@@ -9,11 +9,11 @@ package de.elanev.studip.android.app.data.net.sync;
 
 import android.content.ContentProviderOperation;
 
+import java.util.ArrayList;
+
 import de.elanev.studip.android.app.data.datamodel.Message;
 import de.elanev.studip.android.app.data.datamodel.Messages;
 import de.elanev.studip.android.app.data.db.MessagesContract;
-
-import java.util.ArrayList;
 
 /**
  * @author joern
