@@ -316,8 +316,13 @@ public class StudIpLegacyApiService {
     Observable<ArrayList<Recording>> recordingsObservable = courseObservable.flatMap(
         new Func1<CourseItem, Observable<ArrayList<Recording>>>() {
           @Override public Observable<ArrayList<Recording>> call(CourseItem course) {
-            return Observable.just(course.course.getAdditionalData()
-                .getRecordings());
+            if (course != null && course.course != null && course.course.getAdditionalData() !=
+                null) {
+              return Observable.just(course.course.getAdditionalData()
+                  .getRecordings());
+            } else {
+              return Observable.empty();
+            }
           }
         });
 
