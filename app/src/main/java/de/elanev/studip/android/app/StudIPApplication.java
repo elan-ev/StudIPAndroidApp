@@ -16,8 +16,10 @@ import android.os.StrictMode;
 import com.crashlytics.android.Crashlytics;
 import com.squareup.picasso.Picasso;
 
+import de.elanev.studip.android.app.internal.logging.ReleaseTimberTree;
 import de.elanev.studip.android.app.util.ApiUtils;
 import io.fabric.sdk.android.Fabric;
+import timber.log.Timber;
 
 /**
  * Application class
@@ -44,7 +46,7 @@ public class StudIPApplication extends Application {
 
     // Trigger initialization of Crashlytics
     if (BuildConfig.USE_CRASHLYTICS) {
-      Fabric.with(this, new Crashlytics());
+
     }
 
     // Enable StrictMode for debug builds
@@ -55,14 +57,28 @@ public class StudIPApplication extends Application {
           .penaltyLog()
           .build());
       StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-      builder.detectLeakedSqlLiteObjects().penaltyLog().penaltyDeath();
+      builder.detectLeakedSqlLiteObjects()
+          .penaltyLog()
+          .penaltyDeath();
       if (ApiUtils.isOverApi11()) {
         builder.detectLeakedClosableObjects();
       }
       StrictMode.setVmPolicy(builder.build());
 
-      Picasso.with(this).setIndicatorsEnabled(true);
-      Picasso.with(this).setLoggingEnabled(true);
+      Picasso.with(this)
+          .setIndicatorsEnabled(true);
+      Picasso.with(this)
+          .setLoggingEnabled(true);
+      Timber.plant(new Timber.DebugTree() {
+
+        @Override protected String createStackElementTag(StackTraceElement element) {
+          return super.createStackElementTag(element) + ":" + element.getLineNumber();
+        }
+      });
+
+    } else {
+      Fabric.with(this, new Crashlytics());
+      Timber.plant(new ReleaseTimberTree());
     }
   }
 
