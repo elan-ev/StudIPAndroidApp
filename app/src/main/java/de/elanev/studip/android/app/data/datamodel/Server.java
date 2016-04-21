@@ -88,6 +88,7 @@ public class Server implements Serializable {
     this.name = name;
   }
 
+  @JsonProperty("consumer_key")
   public String getConsumerKey() {
     return consumerKey;
   }
@@ -97,6 +98,7 @@ public class Server implements Serializable {
     this.consumerKey = consumer_key;
   }
 
+  @JsonProperty("consumer_secret")
   public String getConsumerSecret() {
     return consumerSecret;
   }
@@ -151,6 +153,7 @@ public class Server implements Serializable {
     this.apiUrl = apiUrl;
   }
 
+  @JsonProperty("contact_email")
   public String getContactEmail() {
     return contactEmail;
   }
@@ -160,4 +163,10 @@ public class Server implements Serializable {
     this.contactEmail = contactEmail;
   }
 
+
+  @Override public String toString() {
+
+    return String.format("Name: %s\nUrl: %s\nConsumer Key:%s\nConsumer Secret:%s\nContact: %s",
+        name, baseUrl, consumerKey, consumerSecret, contactEmail);
+  }
 }

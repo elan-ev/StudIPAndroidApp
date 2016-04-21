@@ -34,7 +34,7 @@
   public *** get*();
   public *** is*();
 }
--keepclassmembers class de.elanev.studip.android.app.backend.datamodel.** {
+-keepclassmembers class de.elanev.studip.android.app.data.datamodel.** {
    public *;
 }
 -keepclassmembers class **.R$* {public static <fields>;}
