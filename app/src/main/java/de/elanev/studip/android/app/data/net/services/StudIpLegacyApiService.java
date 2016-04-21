@@ -110,7 +110,7 @@ public class StudIpLegacyApiService {
     // Set log request log level based on BuildConfig
     HttpLoggingInterceptor.Level logLevel = (BuildConfig.DEBUG)
         ? HttpLoggingInterceptor.Level.BODY
-        : HttpLoggingInterceptor.Level.BASIC;
+        : HttpLoggingInterceptor.Level.NONE;
 
     HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
     logging.setLevel(logLevel);
