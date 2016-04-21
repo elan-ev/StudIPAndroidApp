@@ -7,24 +7,28 @@
  */
 package de.elanev.studip.android.app.data.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
- * Created by joern on 17.10.13.
+ * @author joern
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Servers {
-    private Server[] servers;
+  @JsonProperty("servers") private Server[] servers;
 
-    public Servers() {
-    }
+  public Servers() {
+  }
 
-    public Servers(Server[] servers) {
-        this.servers = servers;
-    }
+  public Servers(Server[] servers) {
+    this.servers = servers;
+  }
 
-    public Server[] getServers() {
-        return servers;
-    }
+  @JsonProperty("servers") public Server[] getServers() {
+    return servers;
+  }
 
-    public void setServers(Server[] servers) {
-        this.servers = servers;
-    }
+  @JsonProperty("servers") public void setServers(Server[] servers) {
+    this.servers = servers;
+  }
 }

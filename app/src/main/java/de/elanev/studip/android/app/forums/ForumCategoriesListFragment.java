@@ -11,10 +11,8 @@ package de.elanev.studip.android.app.forums;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +25,7 @@ import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -96,9 +95,9 @@ public class ForumCategoriesListFragment extends ReactiveListFragment {
                   } else if (e instanceof HttpException) {
                     Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
                         .show();
-                    Log.e(TAG, e.getLocalizedMessage());
+                    Timber.e(e, e.getLocalizedMessage());
                   } else {
-                    Log.e(TAG, e.getLocalizedMessage());
+                    Timber.e(e, e.getLocalizedMessage());
                   }
                 }
 

@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPApplication;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.Servers;
 import de.elanev.studip.android.app.data.datamodel.User;
@@ -57,6 +56,7 @@ import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.ServerData;
 import de.elanev.studip.android.app.util.StuffUtil;
+import timber.log.Timber;
 
 /**
  * The fragment that is holding the actual sign in and authorization logic.
@@ -126,7 +126,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   @Override public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
-    Log.i(TAG, "onCreateView Called!");
     View v = inflater.inflate(R.layout.fragment_sign_in, container, false);
 
     mProgressInfo = v.findViewById(R.id.progress_info);
@@ -179,7 +178,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   }
 
   @Override public void onAttach(Context context) {
-    Log.i(TAG, "onAttach Called!");
     super.onAttach(context);
     try {
       mCallbacks = (OnRequestTokenReceived) context;
@@ -189,7 +187,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   }
 
   @Override public void onCreate(Bundle savedInstanceState) {
-    Log.i(TAG, "onCreate Called!");
     super.onCreate(savedInstanceState);
 
     mContext = getActivity();
@@ -210,7 +207,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
-    Log.i(TAG, "onActivityCreated Called!");
     super.onActivityCreated(savedInstanceState);
     ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(false);
@@ -235,9 +231,9 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
       destroyInsecureCredentials();
 
     } else if (prefs.isAppAuthorized()) {
-      Log.i(TAG, "Valid secured credentials found");
+      Timber.i("Valid secured credentials found");
       if (prefs.isAppSynced()) {
-        Log.i(TAG, "App synced starting..");
+        Timber.i("App synced starting..");
         startMainActivity();
         return;
       } else if (prefs.getUserId() == null) {
@@ -274,11 +270,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   @Override public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putBoolean(REQUEST_TOKEN_RECEIVED, mRequestTokenReceived);
-  }
-
-  @Override public void onDetach() {
-    Log.i(TAG, "onDetach Called!");
-    super.onDetach();
   }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -326,7 +317,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   }
 
   private void destroyInsecureCredentials() {
-    Log.i(TAG, "Insecure credentials found, deleting...");
+    Timber.i("Insecure credentials found, deleting...");
     // Encrypt legacy database
     DatabaseHandler.deleteLegacyDatabase(getActivity());
     // Delete the app database
@@ -348,7 +339,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     startActivity(intent);
 
-    Log.i(TAG, "Starting news Activity...");
+    Timber.i("Starting news Activity...");
     if (!ApiUtils.isOverApi11()) {
       getActivity().finish();
     }
@@ -413,8 +404,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     Servers servers = null;
     try {
       servers = mapper.readValue(ServerData.serverJson, Servers.class);
-    } catch (JsonParseException e) {
-      e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -505,7 +494,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     if (getActivity() == null || errorCode == 404) {
       return;
     }
-    Log.wtf(TAG, "Sync error " + status + ". Message: " + errorMsg + ". StatusCode: " + errorCode);
+    Timber.e("Sync error %d. Message: %s . StatusCode: %d", status, errorMsg, errorCode);
 
     String errorMessage;
     String defaultError = getString(R.string.sync_error_default);

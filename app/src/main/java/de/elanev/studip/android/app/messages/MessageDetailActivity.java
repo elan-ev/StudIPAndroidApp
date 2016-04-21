@@ -18,7 +18,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +41,7 @@ import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 public class MessageDetailActivity extends AppCompatActivity {
   public static final String MESSAGE = "message";
@@ -166,12 +166,12 @@ public class MessageDetailActivity extends AppCompatActivity {
             if(e != null) {
               if (e instanceof TimeoutException) {
                 showToast(R.string.error_timeout);
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
               } else if (e instanceof HttpException) {
                 showToast(R.string.error_http_data_error);
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
               } else {
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
               }
             }
           }

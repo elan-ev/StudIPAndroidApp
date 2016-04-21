@@ -22,7 +22,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -31,15 +30,15 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import de.elanev.studip.android.app.contacts.ContactsActivity;
+import de.elanev.studip.android.app.courses.CoursesActivity;
 import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.db.AbstractContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.contacts.ContactsActivity;
-import de.elanev.studip.android.app.courses.CoursesActivity;
+import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.messages.MessagesActivity;
 import de.elanev.studip.android.app.news.NewsActivity;
 import de.elanev.studip.android.app.planner.PlannerActivity;
@@ -51,6 +50,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements
           }
 
           @Override public void onError(Throwable e) {
-            Log.e(TAG, e.getLocalizedMessage());
+            Timber.e(e, e.getMessage());
           }
 
           @Override public void onNext(Postbox postbox) {
@@ -233,7 +233,8 @@ public class MainActivity extends AppCompatActivity implements
     mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
     if (mDrawerLayout == null) {
-      Log.d(TAG, "No drawer found");
+      Timber.w("No drawer found");
+
       return;
     }
 
@@ -286,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements
             .alpha(1)
             .setDuration(250);
       } else {
-        Log.w(TAG, "No view with ID main_content to fade in.");
+        Timber.w("No view with ID main_content to fade in.");
       }
     }
   }

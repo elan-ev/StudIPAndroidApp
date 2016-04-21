@@ -19,7 +19,6 @@ import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,17 +38,18 @@ import java.util.List;
 import java.util.Locale;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.courses.CourseViewActivity;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.Event;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.courses.CourseViewActivity;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ReactiveFragment;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -96,7 +96,7 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
     super.onResume();
 
     if (!mRecreated) scrollToCurrentTime();
-    Log.d(TAG, "Recreated: " + mRecreated);
+    Timber.d("Recreated: %s", mRecreated);
   }
 
   @Override public void scrollToCurrentTime() {
@@ -250,7 +250,7 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
     //FIXME: The currently visible month is not changed correctly,
     // check wether it's an issue with the calendar view or not
 
-    //    Log.d(TAG, "Current Month: " + newMonth + " " + newYear);
+    //    Timber.d("Current Month: " + newMonth + " " + newYear);
     //    SimpleDateFormat month_date = new SimpleDateFormat("MMMM", Locale.getDefault());
     //    String monthName = month_date.format(newMonth);
     //    getActivity().setTitle(getString(R.string.Planner) + " - " + monthName + " " + newYear);
@@ -334,7 +334,7 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
 
     @Override public void onError(Throwable e) {
       if (e != null) {
-        Log.e(TAG, e.getLocalizedMessage());
+        Timber.e(e, e.getLocalizedMessage());
         Toast.makeText(getContext(), R.string.error_loading_events, Toast.LENGTH_LONG)
           .show();
       }

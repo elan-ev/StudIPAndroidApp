@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -25,6 +24,7 @@ import android.webkit.WebViewClient;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.ApiUtils;
+import timber.log.Timber;
 
 /**
  * @author Jörn
@@ -122,7 +122,7 @@ public class WebAuthFragment extends Fragment {
     private final String TAG = LoginWebViewClient.class.getCanonicalName();
 
     @Override public void onPageStarted(WebView view, String url, Bitmap favicon) {
-      Log.i(TAG, url);
+      Timber.i(url);
       if (url.contains("user")) {
         if (mCallbacks != null) {
           mCallbacks.onAuthSuccess();

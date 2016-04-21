@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -32,6 +31,7 @@ import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -151,9 +151,9 @@ public class ForumAreasListFragment extends ReactiveListFragment {
               } else if (e instanceof HttpException) {
                 Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
                     .show();
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
               } else {
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
               }
             }
 

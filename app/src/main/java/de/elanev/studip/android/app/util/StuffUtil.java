@@ -18,10 +18,11 @@ import com.crashlytics.android.Crashlytics;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.data.datamodel.Server;
-import de.elanev.studip.android.app.auth.SignInActivity;
 import de.elanev.studip.android.app.about.AboutActivity;
+import de.elanev.studip.android.app.auth.SignInActivity;
+import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.widget.WebViewActivity;
+import timber.log.Timber;
 
 /**
  * Utility class which hold methods for various different use cases
@@ -85,7 +86,7 @@ public final class StuffUtil {
       context.startActivity(Intent.createChooser(intent,
           context.getString(R.string.feedback_form_action)));
     } catch (Exception e) {
-      if (BuildConfig.USE_CRASHLYTICS) Crashlytics.logException(e);
+      Timber.e(e, e.getMessage());
     }
   }
 

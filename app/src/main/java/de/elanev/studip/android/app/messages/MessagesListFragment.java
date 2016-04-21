@@ -14,7 +14,6 @@ import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,7 +21,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -42,6 +40,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 public class MessagesListFragment extends ReactiveListFragment {
   public static final String TAG = MessagesListFragment.class.getSimpleName();
@@ -156,7 +155,7 @@ public class MessagesListFragment extends ReactiveListFragment {
 
           @Override public void onError(Throwable e) {
             if (e != null) {
-              Log.e(TAG, e.getLocalizedMessage());
+              Timber.e(e, e.getLocalizedMessage());
             }
           }
 
@@ -192,7 +191,7 @@ public class MessagesListFragment extends ReactiveListFragment {
 
           @Override public void onError(Throwable e) {
             if (e != null) {
-              Log.e(TAG, e.getLocalizedMessage());
+              Timber.e(e, e.getLocalizedMessage());
             }
           }
 

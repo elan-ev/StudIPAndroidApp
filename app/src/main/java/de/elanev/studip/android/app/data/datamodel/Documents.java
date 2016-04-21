@@ -7,9 +7,9 @@
  */
 package de.elanev.studip.android.app.data.datamodel;
 
-import java.util.ArrayList;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.ArrayList;
 
 /**
  * @author joern

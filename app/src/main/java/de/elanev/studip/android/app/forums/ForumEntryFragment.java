@@ -16,7 +16,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -32,6 +31,7 @@ import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -207,9 +207,9 @@ public class ForumEntryFragment extends ReactiveListFragment {
               } else if (e instanceof HttpException) {
                 Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
                     .show();
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
               } else {
-                Log.e(TAG, e.getLocalizedMessage());
+                Timber.e(e, e.getLocalizedMessage());
               }
             }
             setRefreshing(false);

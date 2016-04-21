@@ -29,7 +29,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,13 +41,13 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.auth.OAuthConnector;
 import de.elanev.studip.android.app.data.datamodel.Document;
 import de.elanev.studip.android.app.data.datamodel.DocumentFolder;
 import de.elanev.studip.android.app.data.datamodel.DocumentFolders;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.db.DocumentsContract;
-import de.elanev.studip.android.app.auth.OAuthConnector;
 import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
@@ -62,6 +61,7 @@ import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * Created by joern on 03.02.14
@@ -273,11 +273,11 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
                   Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
                       .show();
                 } else if (e instanceof HttpException) {
-                  Log.e(TAG, e.getLocalizedMessage());
+                  Timber.e(e, e.getLocalizedMessage());
                   Toast.makeText(getActivity(), R.string.sync_error_default, Toast.LENGTH_LONG)
                       .show();
                 } else {
-                  Log.e(TAG, e.getLocalizedMessage());
+                  Timber.e(e, e.getLocalizedMessage());
                   Toast.makeText(getActivity(), e.getLocalizedMessage(), Toast.LENGTH_LONG)
                       .show();
                 }
@@ -337,12 +337,12 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
           if (ContextCompat.checkSelfPermission(getActivity(),
               Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
-            Log.i(TAG, "WRITE_EXTERNAL_STORAGE permission NOT granted. Asking for permission.");
+            Timber.i("WRITE_EXTERNAL_STORAGE permission NOT granted. Asking for permission.");
             // Write external storage permission has not been granted.
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE);
           } else {
-            Log.i(TAG, "WRITE_EXTERNAL_STORAGE permission already granted. Starting download.");
+            Timber.i("WRITE_EXTERNAL_STORAGE permission already granted. Starting download.");
             downloadDocument(mSelectedDocument);
           }
         }
@@ -351,7 +351,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
   }
 
   private void addToDocumentsNavigationBackStack(String folderId, String folderName) {
-    Log.d(TAG, "Adding: " + folderId + " : " + folderName + "to back stack");
+    Timber.d("Adding: " + folderId + " : " + folderName + "to back stack");
     // First check if the entry already exists
     for (int i = 0, count = mDocumentsNavigationBackstack.size(); i < count; i++) {
       DocumentsNavigationBackStackEntry stackEntry = mDocumentsNavigationBackstack.get(i);
