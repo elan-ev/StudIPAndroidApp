@@ -19,6 +19,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -403,8 +404,6 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     Servers servers = null;
     try {
       servers = mapper.readValue(ServerData.serverJson, Servers.class);
-    } catch (JsonParseException e) {
-      e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
     }

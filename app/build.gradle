@@ -209,8 +209,6 @@ android {
   buildTypes {
 
     debug {
-      buildConfigField "boolean", "USE_CRASHLYTICS", "false"
-
       // Database name configuration
       buildConfigField "String", "DATABASE", "\"studip_debug.db\""
 
@@ -225,8 +223,6 @@ android {
     }
 
     release {
-      buildConfigField "boolean", "USE_CRASHLYTICS", "true"
-
       // Database name configuration
       buildConfigField "String", "DATABASE", "\"studip_encrypted.db\""
 
