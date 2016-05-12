@@ -14,8 +14,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 
-import com.crashlytics.android.Crashlytics;
-
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.about.AboutActivity;
