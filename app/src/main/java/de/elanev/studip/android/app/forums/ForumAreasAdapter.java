@@ -40,7 +40,7 @@ class ForumAreasAdapter extends RecyclerView.Adapter<ForumAreasAdapter.ViewHolde
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
     View v = LayoutInflater.from(viewGroup.getContext())
-        .inflate(R.layout.list_item_forum, viewGroup, false);
+        .inflate(R.layout.list_item_single_text, viewGroup, false);
 
     return new ViewHolder(v, new ViewHolder.ViewHolderClicks() {
       @Override public void onListItemClicked(View caller, int position) {
@@ -98,13 +98,11 @@ class ForumAreasAdapter extends RecyclerView.Adapter<ForumAreasAdapter.ViewHolde
     public final View mContainerView;
     public final TextView mAreaNameTextView;
     public final ViewHolder.ViewHolderClicks mListener;
-    public final TextView mNewEntriesCounter;
 
     public ViewHolder(View itemView, ViewHolder.ViewHolderClicks clickListener) {
       super(itemView);
       mListener = clickListener;
-      mAreaNameTextView = (TextView) itemView.findViewById(R.id.area_name);
-      mNewEntriesCounter = (TextView) itemView.findViewById(R.id.new_counter);
+      mAreaNameTextView = (TextView) itemView.findViewById(android.R.id.text1);
       mContainerView = itemView.findViewById(R.id.list_item);
       mContainerView.setOnClickListener(this);
     }
