@@ -14,11 +14,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
@@ -34,9 +33,9 @@ public class MessagesActivity extends MainActivity {
   public static final String FOLDER_ID = "folder-id";
   public static final String BOX_TYPE = "box-type";
   private static final String TAG = MessagesActivity.class.getSimpleName();
-  @Bind(R.id.sliding_tabs) TabLayout mTabLayout;
-  @Bind(R.id.pager) ViewPager mViewPager;
-  @Bind(R.id.fab) FloatingActionButton mFab;
+  @BindView(R.id.sliding_tabs) TabLayout mTabLayout;
+  @BindView(R.id.pager) ViewPager mViewPager;
+  @BindView(R.id.fab) FloatingActionButton mFab;
 
   @Override protected int getCurrentNavDrawerItem() {
     return R.id.navigation_messages;

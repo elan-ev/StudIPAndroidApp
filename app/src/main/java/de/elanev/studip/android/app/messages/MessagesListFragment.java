@@ -26,7 +26,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPConstants;
@@ -272,9 +272,9 @@ public class MessagesListFragment extends ReactiveListFragment {
     }
 
     public static class ViewHolder extends SimpleRecyclerViewAdapter.ViewHolder {
-      @Bind(R.id.message_subject) TextView mSubject;
-      @Bind(R.id.message_sender) TextView mUserName;
-      @Bind(R.id.user_image) CircleImageView userImage;
+      @BindView(R.id.message_subject) TextView mSubject;
+      @BindView(R.id.message_sender) TextView mUserName;
+      @BindView(R.id.user_image) CircleImageView userImage;
 
       public ViewHolder(View itemView, ViewHolderClicks listener) {
         super(itemView, listener);

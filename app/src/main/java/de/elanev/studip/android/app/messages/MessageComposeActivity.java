@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Message;
@@ -67,13 +67,13 @@ public class MessageComposeActivity extends AppCompatActivity implements
   public static final int MESSAGE_ACTION_FORWARD = 2000;
   public static final int MESSAGE_ACTION_REPLY = 2001;
 
-  @Bind(R.id.toolbar) Toolbar mToolbar;
-  @Bind(R.id.message_subject) EditText mSubjectEditText;
-  @Bind(R.id.message_body) EditText mBodyEditText;
-  @Bind(R.id.message_receiver) AutoCompleteTextView mAutoCompleteTextView;
-  @Bind(R.id.message_receiver_text_input_layout) TextInputLayout mReceiverTextInputLayout;
-  @Bind(R.id.message_subject_text_input_layout) TextInputLayout mSubjectTextInputLayout;
-  @Bind(R.id.message_body_text_input_layout) TextInputLayout mBodyTextInputLayout;
+  @BindView(R.id.toolbar) Toolbar mToolbar;
+  @BindView(R.id.message_subject) EditText mSubjectEditText;
+  @BindView(R.id.message_body) EditText mBodyEditText;
+  @BindView(R.id.message_receiver) AutoCompleteTextView mAutoCompleteTextView;
+  @BindView(R.id.message_receiver_text_input_layout) TextInputLayout mReceiverTextInputLayout;
+  @BindView(R.id.message_subject_text_input_layout) TextInputLayout mSubjectTextInputLayout;
+  @BindView(R.id.message_body_text_input_layout) TextInputLayout mBodyTextInputLayout;
 
   private StudIpLegacyApiService mApiService;
   private int mAction = -1;

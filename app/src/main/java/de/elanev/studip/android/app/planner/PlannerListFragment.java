@@ -24,7 +24,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.courses.CourseViewActivity;
@@ -150,9 +150,9 @@ public class PlannerListFragment extends ReactiveListFragment implements Planner
     }
 
     static class ViewHolder extends SimpleRecyclerViewAdapter.ViewHolder {
-      @Bind(R.id.event_title) TextView mTitleTextView;
-      @Bind(R.id.event_description) TextView mDescriptionTextView;
-      @Bind(R.id.event_room) TextView mRoomTextView;
+      @BindView(R.id.event_title) TextView mTitleTextView;
+      @BindView(R.id.event_description) TextView mDescriptionTextView;
+      @BindView(R.id.event_room) TextView mRoomTextView;
 
       public ViewHolder(View itemView, ViewHolderClicks listener) {
         super(itemView, listener);

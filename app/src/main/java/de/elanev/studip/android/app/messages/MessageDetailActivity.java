@@ -26,7 +26,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.TimeoutException;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPConstants;
@@ -48,13 +48,13 @@ public class MessageDetailActivity extends AppCompatActivity {
   public static final String SENDER_INFO = "sender-info";
   private static final String TAG = MessageDetailActivity.class.getSimpleName();
 
-  @Bind(R.id.toolbar) Toolbar mToolbar;
-  @Bind(R.id.message_subject) TextView mSubjectTextView;
-  @Bind(R.id.message_body) TextView mBodyTextView;
-  @Bind(R.id.user_image) CircleImageView mSenderImageView;
-  @Bind(R.id.text1) TextView mSenderTextView;
-  @Bind(R.id.text2) TextView mDateTextView;
-  @Bind(R.id.speed_dial_fab) FabSpeedDial mFab;
+  @BindView(R.id.toolbar) Toolbar mToolbar;
+  @BindView(R.id.message_subject) TextView mSubjectTextView;
+  @BindView(R.id.message_body) TextView mBodyTextView;
+  @BindView(R.id.user_image) CircleImageView mSenderImageView;
+  @BindView(R.id.text1) TextView mSenderTextView;
+  @BindView(R.id.text2) TextView mDateTextView;
+  @BindView(R.id.speed_dial_fab) FabSpeedDial mFab;
 
   private Message mMessage;
   private User mSender;

@@ -18,7 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Server;
@@ -32,10 +32,10 @@ import rx.subscriptions.CompositeSubscription;
 public abstract class ReactiveListFragment extends ReactiveFragment {
   private static final String TAG = ReactiveListFragment.class.getSimpleName();
   protected final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-  @Bind(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayout;
-  @Bind(R.id.list) protected EmptyRecyclerView mRecyclerView;
-  @Bind(R.id.empty) protected TextView mEmptyView;
-  @Bind(R.id.layout_container) protected  View mContainerLayout;
+  @BindView(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayout;
+  @BindView(R.id.list) protected EmptyRecyclerView mRecyclerView;
+  @BindView(R.id.empty) protected TextView mEmptyView;
+  @BindView(R.id.layout_container) protected  View mContainerLayout;
   protected RecyclerView.ItemDecoration mDividerItemDecoration;
   protected StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
