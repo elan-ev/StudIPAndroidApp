@@ -41,6 +41,9 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.Servers;
@@ -97,6 +100,8 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
 
   private OnRequestTokenReceived mCallbacks;
   private ImageView mLogoImageView;
+  @Inject SyncHelper mSyncHelper;
+  @Inject Prefs mPrefs;
 
   public SignInFragment() {}
 
@@ -186,6 +191,8 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    ((AbstractStudIPApplication)getActivity().getApplication()).getComponent().inject(this);
 
     mContext = getActivity();
     Bundle args = getArguments();
@@ -349,10 +356,8 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         .getUserInfo());
 
     if (currentUser != null) {
-      SyncHelper.getInstance(mContext)
-          .requestInstitutesForUserID(currentUser.userId, this);
-      SyncHelper.getInstance(mContext)
-          .requestApiRoutes(this);
+      mSyncHelper.requestInstitutesForUserID(currentUser.userId, this);
+      mSyncHelper.requestApiRoutes(this);
     } else {
       showLoginForm();
     }
@@ -372,12 +377,10 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
 
   private void resetSignInActivityState() {
     // Resetting the SyncHelper
-    SyncHelper.getInstance(mContext)
-        .resetSyncHelper();
+    mSyncHelper.resetSyncHelper();
 
     // Clear the app preferences
-    Prefs.getInstance(mContext)
-        .clearPrefs();
+    mPrefs.clearPrefs();
 
     // Delete the app database
     mContext.getContentResolver() //
@@ -444,17 +447,16 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     switch (status) {
       case SyncHelper.SyncHelperCallbacks.FINISHED_SEMESTER_SYNC:
         mSemestersSynced = true;
-        SyncHelper.getInstance(mContext).performCoursesSync(this);
+        mSyncHelper.performCoursesSync(this);
         break;
       case SyncHelper.SyncHelperCallbacks.FINISHED_COURSES_SYNC:
         mCoursesSynced = true;
-        SyncHelper.getInstance(mContext).performNewsSync(this);
+        mSyncHelper.performNewsSync(this);
         break;
       case SyncHelper.SyncHelperCallbacks.FINISHED_NEWS_SYNC:
         mNewsSynced = true;
         mMessagesSynced = true;
-        SyncHelper.getInstance(mContext)
-            .performContactsSync(this);
+        mSyncHelper.performContactsSync(this);
         break;
       case SyncHelper.SyncHelperCallbacks.FINISHED_CONTACTS_SYNC:
         mContactsSynced = true;
@@ -466,7 +468,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
         break;
       case SyncHelper.SyncHelperCallbacks.FINISHED_INSTITUTES_SYNC:
         mInstitutesSynced = true;
-        SyncHelper.getInstance(mContext).performSemestersSync(this);
+        mSyncHelper.performSemestersSync(this);
         break;
     }
 
@@ -565,11 +567,10 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
 
     mSelectedServer.setAccessToken(token);
     mSelectedServer.setAccessTokenSecret(tokenSecret);
-    Prefs.getInstance(mContext).setServer(mSelectedServer);
-    SyncHelper.getInstance(mContext).requestApiRoutes(this);
-    SyncHelper.getInstance(mContext)
-        .getSettings();
-    SyncHelper.getInstance(mContext).requestCurrentUserInfo(this);
+    mPrefs.setServer(mSelectedServer);
+    mSyncHelper.requestApiRoutes(this);
+    mSyncHelper.getSettings();
+    mSyncHelper.requestCurrentUserInfo(this);
   }
 
   @Override public void onRequestTokenRequestError(OAuthError e) {

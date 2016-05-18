@@ -39,6 +39,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Inject;
+
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.ContactGroups;
 import de.elanev.studip.android.app.data.datamodel.Contacts;
@@ -62,7 +65,6 @@ import timber.log.Timber;
 public abstract class UserListFragment extends ProgressListFragment implements LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
   private static final String TAG = UserListFragment.class.getCanonicalName();
   private static ContentResolver mResolver;
-  private static String mApiUrl;
 
   protected UserListFragment() {}
 
@@ -75,9 +77,6 @@ public abstract class UserListFragment extends ProgressListFragment implements L
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mResolver = mContext.getContentResolver();
-
-    mApiUrl = Prefs.getInstance(getActivity()).getServer().getApiUrl();
-
   }
 
   /*
@@ -171,7 +170,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
           }
           favCursor1.close();
 
-          addUserToGroup(userId, favGroupId, mContext);
+          addUserToGroup(userId, favGroupId, mContext, mSyncHelper);
           return true;
         }
         case R.id.remove_from_favorites: {
@@ -196,7 +195,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
           }
           favCursor2.close();
 
-          deleteUserFromGroup(userId, favGroupId, favGroupIntId, userIntId, mContext);
+          deleteUserFromGroup(userId, favGroupId, favGroupIntId, userIntId, mContext, mSyncHelper);
           return true;
         }
 
@@ -206,7 +205,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
           return true;
         }
         case R.id.remove_from_contacts: {
-          deleteUserFromContacts(userId, mContext);
+          deleteUserFromContacts(userId, mContext, mSyncHelper);
           return true;
         }
         case R.id.manage_groups: {
@@ -232,18 +231,19 @@ public abstract class UserListFragment extends ProgressListFragment implements L
   }
 
   private static void addUserToGroup(final String userId, final String groupId,
-      final Context context) {
+      final Context context, final SyncHelper syncHelper) {
 
+    // TODO: Replace with injections
     Server server = Prefs.getInstance(context)
         .getServer();
     StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
+
     service.addUserToContactsGroup(groupId, userId)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<ContactGroups>() {
           @Override public void onCompleted() {
-            SyncHelper.getInstance(context)
-                .performContactsSync(null);
+            syncHelper.performContactsSync(null);
           }
 
           @Override public void onError(Throwable e) {
@@ -269,7 +269,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
   }
 
   private static void deleteUserFromGroup(final String userId, final String groupId,
-      final int groupIntId, final int userIntId, final Context context) {
+      final int groupIntId, final int userIntId, final Context context, final SyncHelper syncHelper) {
 
     Server server = Prefs.getInstance(context)
         .getServer();
@@ -279,8 +279,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Void>() {
           @Override public void onCompleted() {
-            SyncHelper.getInstance(context)
-                .performContactsSync(null);
+            syncHelper.performContactsSync(null);
           }
 
           @Override public void onError(Throwable e) {
@@ -305,7 +304,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
         });
   }
 
-  private static void addUserToContacts(final String userId, final Context context) {
+  private void addUserToContacts(final String userId, final Context context) {
     Server server = Prefs.getInstance(context)
         .getServer();
     StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
@@ -314,8 +313,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Contacts>() {
           @Override public void onCompleted() {
-            SyncHelper.getInstance(context)
-                .performContactsSync(null);
+            mSyncHelper.performContactsSync(null);
           }
 
           @Override public void onError(Throwable e) {
@@ -337,7 +335,8 @@ public abstract class UserListFragment extends ProgressListFragment implements L
         });
   }
 
-  private static void deleteUserFromContacts(final String userId, final Context context) {
+  private static void deleteUserFromContacts(final String userId, final Context context,
+      final SyncHelper syncHelper) {
     Server server = Prefs.getInstance(context)
         .getServer();
     StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
@@ -346,8 +345,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Void>() {
           @Override public void onCompleted() {
-            SyncHelper.getInstance(context)
-                .performContactsSync(null);
+            syncHelper.performContactsSync(null);
           }
 
           @Override public void onError(Throwable e) {
@@ -393,11 +391,15 @@ public abstract class UserListFragment extends ProgressListFragment implements L
 
     private String mUserId;
     private int mIntUserId;
+    @Inject SyncHelper mSyncHelper;
 
     public ContactGroupsDialogFragment() {}
 
     @Override public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+
+      ((AbstractStudIPApplication)getActivity().getApplication()).getComponent().inject(this);
+
       mUserId = getArguments().getString(ContactsContract.Columns.Contacts.USER_ID);
       mIntUserId = getArguments().getInt(ContactsContract.Columns.Contacts._ID);
     }
@@ -481,13 +483,11 @@ public abstract class UserListFragment extends ProgressListFragment implements L
 
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
               if (isChecked) {
-                addUserToGroup(mUserId, allGroupIds.get(which).first, getActivity());
+                addUserToGroup(mUserId, allGroupIds.get(which).first, getActivity(),
+                    getSyncHelper());
               } else {
-                deleteUserFromGroup(mUserId,
-                    allGroupIds.get(which).first,
-                    allGroupIds.get(which).second,
-                    mIntUserId,
-                    getActivity());
+                deleteUserFromGroup(mUserId, allGroupIds.get(which).first,
+                    allGroupIds.get(which).second, mIntUserId, getActivity(), getSyncHelper());
               }
 
             }
@@ -508,6 +508,10 @@ public abstract class UserListFragment extends ProgressListFragment implements L
       );
 
       return builder.create();
+    }
+
+    public SyncHelper getSyncHelper() {
+      return mSyncHelper;
     }
   }
 }

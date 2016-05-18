@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
+import dagger.Lazy;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.data.datamodel.ContactGroups;
@@ -41,7 +42,6 @@ import de.elanev.studip.android.app.data.datamodel.Recording;
 import de.elanev.studip.android.app.data.datamodel.Routes;
 import de.elanev.studip.android.app.data.datamodel.Semester;
 import de.elanev.studip.android.app.data.datamodel.Semesters;
-import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.UnizensusItem;
 import de.elanev.studip.android.app.data.datamodel.User;
@@ -56,7 +56,6 @@ import de.elanev.studip.android.app.data.db.SemestersContract;
 import de.elanev.studip.android.app.data.db.UnizensusContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.data.net.services.CustomJsonConverterApiService;
-import de.elanev.studip.android.app.data.net.services.DiscoveryRouteJsonConverterFactory;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
 import rx.Subscriber;
@@ -72,29 +71,17 @@ import timber.log.Timber;
  */
 public class SyncHelper {
   public static final String TAG = SyncHelper.class.getSimpleName();
-  private static SyncHelper mInstance;
-  private static volatile Server mServer;
-  private static volatile Context mContext;
   private static ArrayList<ContentProviderOperation> mUserDbOp = new ArrayList<>();
-  private static StudIpLegacyApiService mApiService;
+  private Lazy<StudIpLegacyApiService> mApiService;
   private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+  static Context mContext;
+  Lazy<CustomJsonConverterApiService> mCustomJsonConverterApiService;
 
-  /**
-   * Returns an instance of the SyncHelper class
-   *
-   * @param context the execution context
-   * @return an instance of the SyncHelper
-   */
-  public static SyncHelper getInstance(Context context) {
-    if (mInstance == null) {
-      mInstance = new SyncHelper();
-    }
-    mContext = context.getApplicationContext();
-    mServer = Prefs.getInstance(context)
-        .getServer();
-    mApiService = new StudIpLegacyApiService(mServer, mContext);
-
-    return mInstance;
+  public SyncHelper(Context context, Lazy<StudIpLegacyApiService> apiService,
+      Lazy<CustomJsonConverterApiService> customJsonConverterApiService) {
+    this.mContext = context;
+    this.mApiService = apiService;
+    this.mCustomJsonConverterApiService = customJsonConverterApiService;
   }
 
   private static ContentValues[] parseEvents(Events events) {
@@ -136,12 +123,7 @@ public class SyncHelper {
   }
 
   public void requestInstitutesForUserID(String userId, final SyncHelperCallbacks callbacks) {
-    if (!Prefs.getInstance(mContext)
-        .isAppAuthorized() || mServer == null) {
-      return;
-    }
-
-    mCompositeSubscription.add(mApiService.getInstitutes(userId)
+    mCompositeSubscription.add(mApiService.get().getInstitutes(userId)
         .subscribeOn(Schedulers.newThread())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<InstitutesContainer>() {
@@ -224,13 +206,9 @@ public class SyncHelper {
    */
   public void performContactsSync(final SyncHelperCallbacks callbacks) {
     //TODO RxIfy the groups and contacts requests
-    if (!Prefs.getInstance(mContext)
-        .isAppAuthorized() || mServer == null) {
-      return;
-    }
     final ContentResolver resolver = mContext.getContentResolver();
 
-    mCompositeSubscription.add(mApiService.getContactGroups()
+    mCompositeSubscription.add(mApiService.get().getContactGroups()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<ContactGroups>() {
@@ -258,7 +236,7 @@ public class SyncHelper {
           }
         }));
 
-    mCompositeSubscription.add(mApiService.getContacts()
+    mCompositeSubscription.add(mApiService.get().getContacts()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Contacts>() {
@@ -314,13 +292,9 @@ public class SyncHelper {
    */
   public void performCoursesSync(final SyncHelperCallbacks callbacks) {
     //TODO Rxify the user insertion tasks
-    if (!Prefs.getInstance(mContext)
-        .isAppAuthorized() || mServer == null) {
-      return;
-    }
 
     Timber.i("SYNCING COURSES");
-    mCompositeSubscription.add(mApiService.getCourses()
+    mCompositeSubscription.add(mApiService.get().getCourses()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Courses>() {
@@ -483,11 +457,6 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void performNewsSync(final SyncHelperCallbacks callbacks) {
-
-    if (!Prefs.getInstance(mContext)
-        .isAppAuthorized() || mServer == null) {
-      return;
-    }
     final ContentResolver resolver = mContext.getContentResolver();
 
     Cursor c = resolver.query(CoursesContract.CONTENT_URI,
@@ -532,11 +501,6 @@ public class SyncHelper {
   public void performNewsSyncForIds(final HashSet<String> newsRangeIds,
       final SyncHelperCallbacks callbacks) {
 
-    if (!Prefs.getInstance(mContext)
-        .isAppAuthorized() || mServer == null) {
-      return;
-    }
-
     Timber.i("SYNCING NEWS");
     if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
 
@@ -554,13 +518,8 @@ public class SyncHelper {
    */
   public void requestNewsForRange(final String range, final SyncHelperCallbacks callbacks) {
 
-    if (!Prefs.getInstance(mContext)
-        .isAppAuthorized() || mServer == null) {
-      return;
-    }
-
     Timber.i("Performing Sync for range: " + range);
-    mCompositeSubscription.add(mApiService.getNews(range)
+    mCompositeSubscription.add(mApiService.get().getNews(range)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<News>() {
@@ -655,13 +614,8 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void performSemestersSync(final SyncHelperCallbacks callbacks) {
-
-    if (!Prefs.getInstance(mContext)
-        .isAppAuthorized() || mServer == null) {
-      return;
-    }
     Timber.i("SYNCING SEMESTERS");
-    mCompositeSubscription.add(mApiService.getSemesters()
+    mCompositeSubscription.add(mApiService.get().getSemesters()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Semesters>() {
@@ -725,14 +679,9 @@ public class SyncHelper {
    * @param courseId the course id for which the events should be requested
    */
   public void performEventsSyncForCourseId(final String courseId) {
+    Timber.i("SYNCING COURSE EVENTS: %s", courseId);
 
-    if (!Prefs.getInstance(mContext)
-        .isAppAuthorized() || mServer == null) {
-      return;
-    }
-    Timber.i("SYNCING COURSE EVENTS: " + courseId);
-
-    mCompositeSubscription.add(mApiService.getEvents(courseId)
+    mCompositeSubscription.add(mApiService.get().getEvents(courseId)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Events>() {
@@ -757,14 +706,11 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void requestUser(String userId, final SyncHelperCallbacks callbacks) {
-    if (mServer == null) {
-      return;
-    }
 
     if (!TextUtils.equals("", userId) && !TextUtils.equals(StudIPConstants.STUDIP_SYSTEM_USER_ID,
         userId)) {
       if (callbacks != null) callbacks.onSyncStarted();
-      mCompositeSubscription.add(mApiService.getUser(userId)
+      mCompositeSubscription.add(mApiService.get().getUser(userId)
           .subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread())
           .subscribe(new Subscriber<User>() {
@@ -822,10 +768,7 @@ public class SyncHelper {
   }
 
   public void requestApiRoutes(final SyncHelperCallbacks callbacks) {
-    CustomJsonConverterApiService apiService = new CustomJsonConverterApiService(mServer,
-        new DiscoveryRouteJsonConverterFactory());
-
-    mCompositeSubscription.add(apiService.discoverApi()
+    mCompositeSubscription.add(mCustomJsonConverterApiService.get().discoverApi()
         .subscribeOn(Schedulers.newThread())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Routes>() {
@@ -851,7 +794,7 @@ public class SyncHelper {
 
   public void getSettings() {
 
-    mCompositeSubscription.add(mApiService.getSettings()
+    mCompositeSubscription.add(mApiService.get().getSettings()
         .subscribeOn(Schedulers.newThread())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Settings>() {
@@ -873,7 +816,7 @@ public class SyncHelper {
 
   public void requestCurrentUserInfo(final SyncHelperCallbacks callbacks) {
 
-    mCompositeSubscription.add(mApiService.getCurrentUserInfo()
+    mCompositeSubscription.add(mApiService.get().getCurrentUserInfo()
         .subscribeOn(Schedulers.newThread())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<User>() {

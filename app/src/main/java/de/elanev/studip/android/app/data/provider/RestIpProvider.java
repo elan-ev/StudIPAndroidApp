@@ -43,7 +43,6 @@ import de.elanev.studip.android.app.data.db.RecordingsContract;
 import de.elanev.studip.android.app.data.db.SemestersContract;
 import de.elanev.studip.android.app.data.db.UnizensusContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.util.Config;
 import timber.log.Timber;
 
@@ -422,7 +421,6 @@ public class RestIpProvider extends ContentProvider {
         String cid = uri.getLastPathSegment();
         long currTime = System.currentTimeMillis();
         if ((currTime - mLastEventsSync) > SYNC_THRESHOLD) {
-          SyncHelper.getInstance(getContext()).performEventsSyncForCourseId(cid);
           mLastEventsSync = currTime;
         }
         if (TextUtils.isEmpty(sortOrder)) {
@@ -649,8 +647,9 @@ public class RestIpProvider extends ContentProvider {
         break;
       }
       case CONTACTS: {
-        SyncHelper.getInstance(getContext())
-            .performContactsSync(null);
+        //FIXME: Remove this
+//        SyncHelper.getInstance(getContext())
+//            .performContactsSync(null);
 
         if (TextUtils.isEmpty(sortOrder)) {
           orderBy = ContactsContract.DEFAULT_SORT_ORDER_CONTACTS;
@@ -709,8 +708,9 @@ public class RestIpProvider extends ContentProvider {
       case CONTACTS_GROUP_MEMBERS: {
         long currTime = System.currentTimeMillis();
         if ((currTime - mLastContactGroupsSync) > SYNC_THRESHOLD) {
-          SyncHelper.getInstance(getContext())
-              .performContactsSync(null);
+          //FIXME: This should not be here
+          //          SyncHelper.getInstance(getContext())
+          //              .performContactsSync(null);
           mLastContactGroupsSync = currTime;
         }
 
