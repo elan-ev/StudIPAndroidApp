@@ -98,7 +98,7 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
   @Override
   public void onStart() {
     super.onStart();
-    SyncHelper.getInstance(mContext).loadUsersForCourse(mCourseId, null);
+    mSyncHelper.loadUsersForCourse(mCourseId, null);
   }
 
   @Override
@@ -184,15 +184,15 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
           makeSceneTransitionAnimation(getActivity(), (View) icon, getString(R.string.Profile));
       // Start UserDetailActivity with transition if supported
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        mContext.startActivity(intent, options.toBundle());
+        getActivity().startActivity(intent, options.toBundle());
       } else {
-        mContext.startActivity(intent);
+        getActivity().startActivity(intent);
       }
     }
   }
 
   @Override public void onRefresh() {
-    SyncHelper.getInstance(mContext).loadUsersForCourse(mCourseId, this);
+    mSyncHelper.loadUsersForCourse(mCourseId, this);
   }
 
   @Override public void onSyncStarted() {

@@ -94,8 +94,7 @@ public class ContactsGroupsFragment extends UserListFragment implements
 
   @Override public void onStart() {
     super.onStart();
-    SyncHelper.getInstance(mContext)
-        .performContactsSync(this);
+    mSyncHelper.performContactsSync(this);
   }
 
   @Override public void onDetach() {
@@ -158,16 +157,15 @@ public class ContactsGroupsFragment extends UserListFragment implements
 
       // Start UserDetailActivity with transition if supported
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        mContext.startActivity(intent, options.toBundle());
+        getActivity().startActivity(intent, options.toBundle());
       } else {
-        mContext.startActivity(intent);
+        getActivity().startActivity(intent);
       }
     }
   }
 
   @Override public void onRefresh() {
-    SyncHelper.getInstance(mContext)
-        .performContactsSync(this);
+    mSyncHelper.performContactsSync(this);
   }
 
   @Override public void onSyncStarted() {

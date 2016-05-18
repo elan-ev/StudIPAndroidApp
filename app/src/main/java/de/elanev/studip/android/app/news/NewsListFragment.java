@@ -98,7 +98,7 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
     mSwipeRefreshLayoutListView.setOnRefreshListener(this);
     mSwipeRefreshLayoutListView.setRefreshing(true);
 
-    SyncHelper.getInstance(mContext).performNewsSync(this);
+    mSyncHelper.performNewsSync(this);
     // initialize CursorLoader
     getLoaderManager().initLoader(newsSelector, null, this);
   }
@@ -229,7 +229,7 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
   }
 
   @Override public void onRefresh() {
-    SyncHelper.getInstance(mContext).performNewsSync(this);
+    mSyncHelper.performNewsSync(this);
   }
 
   @Override public void onSyncStarted() {

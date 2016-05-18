@@ -7,9 +7,7 @@
  */
 package de.elanev.studip.android.app.widget;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,35 +15,31 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.util.ApiUtils;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
-public class ProgressListFragment extends Fragment {
+public class ProgressListFragment extends BaseFragment {
 
   private static final String TAG = ProgressListFragment.class.getSimpleName();
-  protected Context mContext;
-  protected StickyListHeadersListView mListView;
-  protected SwipeRefreshLayout mSwipeRefreshLayoutListView;
-  private TextView mEmptyMessageTextView;
+
+  @BindView(R.id.list) protected StickyListHeadersListView mListView;
+  @BindView(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayoutListView;
+  @BindView(R.id.empty) TextView mEmptyMessageTextView;
 
   public ProgressListFragment() {}
-
-  @Override public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    mContext = getActivity();
-
-  }
 
   @Override public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
 
     View v = inflater.inflate(R.layout.list, container, false);
-    mEmptyMessageTextView = (TextView) v.findViewById(R.id.empty);
-    mListView = (StickyListHeadersListView) v.findViewById(R.id.list);
+    ButterKnife.bind(this, v);
+
     mListView.setEmptyView(mEmptyMessageTextView);
-    mSwipeRefreshLayoutListView = (SwipeRefreshLayout) v.findViewById(R.id.swipe_layout);
+
     // Set SwipeRefreshLayout up
     mSwipeRefreshLayoutListView.setColorSchemeResources(R.color.studip_mobile_dark,
         R.color.studip_mobile_darker,

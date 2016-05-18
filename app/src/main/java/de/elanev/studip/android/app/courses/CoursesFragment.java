@@ -88,7 +88,7 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
     mListView.setAdapter(mAdapter);
     mSwipeRefreshLayoutListView.setOnRefreshListener(this);
     mSwipeRefreshLayoutListView.setRefreshing(true);
-    SyncHelper.getInstance(mContext).performNewsSync(this);
+    mSyncHelper.performNewsSync(this);
 
     getLoaderManager().initLoader(0, null, this);
   }
@@ -164,7 +164,7 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
   @Override public void onLoaderReset(Loader<Cursor> loader) {}
 
   @Override public void onRefresh() {
-    SyncHelper.getInstance(mContext).performCoursesSync(this);
+    mSyncHelper.performCoursesSync(this);
   }
 
   @Override public void onSyncStarted() {

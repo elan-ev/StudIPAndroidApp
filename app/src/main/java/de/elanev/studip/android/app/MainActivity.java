@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -29,6 +30,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+
+import javax.inject.Inject;
 
 import de.elanev.studip.android.app.contacts.ContactsActivity;
 import de.elanev.studip.android.app.courses.CoursesActivity;
@@ -73,6 +76,10 @@ public class MainActivity extends AppCompatActivity implements
   private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
   private StudIpLegacyApiService mApiService;
 
+  @Inject Prefs mPrefs;
+  @Inject @Nullable Server mServer;
+  @Inject SyncHelper mSyncHelper;
+
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.main, menu);
 
@@ -84,8 +91,7 @@ public class MainActivity extends AppCompatActivity implements
 
     switch (item.getItemId()) {
       case R.id.menu_feedback:
-        StuffUtil.startFeedback(this, Prefs.getInstance(this)
-            .getServer());
+        StuffUtil.startFeedback(this, mServer);
         return true;
       case R.id.menu_about:
         StuffUtil.startAbout(this);
@@ -106,12 +112,10 @@ public class MainActivity extends AppCompatActivity implements
    */
   private void logout() {
     // Resetting the SyncHelper
-    SyncHelper.getInstance(this)
-        .resetSyncHelper();
+    mSyncHelper.resetSyncHelper();
 
     // Clear the app preferences
-    Prefs.getInstance(this)
-        .clearPrefs();
+    mPrefs.clearPrefs();
 
     // Delete the app database
     getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
@@ -129,16 +133,15 @@ public class MainActivity extends AppCompatActivity implements
 
   private Intent createInviteIntent() {
 
-    Server server = Prefs.getInstance(this)
-        .getServer();
     String inviteText = "";
     String inviteTextHtml = "";
-    if (server == null) {
+    if (mServer == null) {
       inviteText = String.format(getString(R.string.invite_text), "");
       inviteTextHtml = String.format(getString(R.string.invite_text_html), "");
     } else {
-      inviteText = String.format(getString(R.string.invite_text), server.getName());
-      inviteTextHtml = String.format(getString(R.string.invite_text_html), server.getName());
+      inviteText = String.format(getString(R.string.invite_text), mServer.getName());
+      inviteTextHtml = String.format(getString(R.string.invite_text_html)
+          , mServer.getName());
     }
 
     return ShareCompat.IntentBuilder.from(this)
@@ -178,21 +181,22 @@ public class MainActivity extends AppCompatActivity implements
       return;
     }
 
-    if (!Prefs.getInstance(this)
-        .isAppAuthorized()) {
+    // Register Activity with the component
+    ((AbstractStudIPApplication)getApplication()).getComponent().inject(this);
+
+    if (!mPrefs.isAppAuthorized()) {
       StuffUtil.startSignInActivity(this);
       finish();
       return;
     }
-    mApiService = new StudIpLegacyApiService(Prefs.getInstance(this).getServer(), this);
+    mApiService = new StudIpLegacyApiService(mServer, this);
     mHandler = new Handler();
 
 
 
     fetchPref();
 
-    mCurrentUser = User.fromJson(Prefs.getInstance(this)
-        .getUserInfo());
+    mCurrentUser = User.fromJson(mPrefs.getUserInfo());
     if (mCurrentUser != null) {
       mUserId = mCurrentUser.userId;
     }
@@ -203,12 +207,9 @@ public class MainActivity extends AppCompatActivity implements
   private void fetchPref() {
     // Verify that the forum routes are still activated
     //TODO: Move this and other API checks to a Service or something, but not here
-    SyncHelper.getInstance(this)
-        .requestApiRoutes(null);
-    SyncHelper.getInstance(this)
-        .getSettings();
-    SyncHelper.getInstance(this)
-        .requestCurrentUserInfo(null);
+    mSyncHelper.requestApiRoutes(null);
+    mSyncHelper.getSettings();
+    mSyncHelper.requestCurrentUserInfo(null);
     mCompositeSubscription.add(mApiService.getMessageFolders(0, 10)
         .observeOn(AndroidSchedulers.mainThread())
         .subscribeOn(Schedulers.io())
@@ -222,8 +223,7 @@ public class MainActivity extends AppCompatActivity implements
           }
 
           @Override public void onNext(Postbox postbox) {
-            Prefs.getInstance(MainActivity.this)
-                .setPostbox(postbox);
+            mPrefs.setPostbox(postbox);
           }
         }));
   }

@@ -7,9 +7,9 @@
  */
 package de.elanev.studip.android.app.widget;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -74,8 +74,8 @@ public class ListAdapterUsers extends SectionedCursorAdapter {
      */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return ((Activity) context).getLayoutInflater().inflate(
-                R.layout.list_item_user, parent, false);
+        return LayoutInflater.from(context)
+            .inflate(R.layout.list_item_user, parent, false);
     }
 
     public interface UsersQuery {
