@@ -17,6 +17,7 @@ import android.os.Build;
  */
 public abstract class AbstractStudIPApplication extends Application {
   private static AbstractStudIPApplication mInstance;
+  private ApplicationComponent mComponent;
 
   public static synchronized AbstractStudIPApplication getInstance() {
     return mInstance;
@@ -25,7 +26,15 @@ public abstract class AbstractStudIPApplication extends Application {
   @TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override public void onCreate() {
     super.onCreate();
 
+    mComponent = DaggerApplicationComponent.builder()
+        .applicationModule(new ApplicationModule(this))
+        .build();
+
     // create instance
     mInstance = this;
+  }
+
+  public ApplicationComponent getComponent() {
+    return mComponent;
   }
 }
