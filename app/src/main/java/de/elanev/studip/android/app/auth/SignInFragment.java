@@ -192,7 +192,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    ((AbstractStudIPApplication)getActivity().getApplication()).getComponent().inject(this);
+    ((AbstractStudIPApplication)getActivity().getApplication()).getAppComponent().inject(this);
 
     mContext = getActivity();
     Bundle args = getArguments();

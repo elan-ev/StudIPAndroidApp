@@ -274,5 +274,6 @@ aliqua.</string>
 
     <!-- General error messages -->
     <string name="error_timeout">Request timed out, try again later</string>
+    <string name="retry">Retry</string>
 
 </resources>

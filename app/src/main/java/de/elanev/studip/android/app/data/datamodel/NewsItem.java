@@ -49,5 +49,6 @@ public class NewsItem {
 	public int allow_comments;
 	public String chdate_uid;
 	public String body_original;
+	public User author;
 
 }

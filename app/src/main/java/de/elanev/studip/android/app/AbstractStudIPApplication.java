@@ -12,12 +12,16 @@ import android.annotation.TargetApi;
 import android.app.Application;
 import android.os.Build;
 
+import de.elanev.studip.android.app.internal.di.components.ApplicationComponent;
+import de.elanev.studip.android.app.internal.di.components.DaggerApplicationComponent;
+import de.elanev.studip.android.app.internal.di.modules.ApplicationModule;
+
 /**
  * @author joern
  */
 public abstract class AbstractStudIPApplication extends Application {
   private static AbstractStudIPApplication mInstance;
-  private ApplicationComponent mComponent;
+  private ApplicationComponent mApplicationComponent;
 
   public static synchronized AbstractStudIPApplication getInstance() {
     return mInstance;
@@ -26,7 +30,7 @@ public abstract class AbstractStudIPApplication extends Application {
   @TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override public void onCreate() {
     super.onCreate();
 
-    mComponent = DaggerApplicationComponent.builder()
+    mApplicationComponent = DaggerApplicationComponent.builder()
         .applicationModule(new ApplicationModule(this))
         .build();
 
@@ -34,7 +38,7 @@ public abstract class AbstractStudIPApplication extends Application {
     mInstance = this;
   }
 
-  public ApplicationComponent getComponent() {
-    return mComponent;
+  public ApplicationComponent getAppComponent() {
+    return mApplicationComponent;
   }
 }

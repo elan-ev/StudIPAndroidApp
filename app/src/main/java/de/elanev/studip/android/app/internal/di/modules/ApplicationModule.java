@@ -6,9 +6,10 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app;
+package de.elanev.studip.android.app.internal.di.modules;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
@@ -22,6 +23,8 @@ import de.elanev.studip.android.app.data.net.services.CustomJsonConverterApiServ
 import de.elanev.studip.android.app.data.net.services.DiscoveryRouteJsonConverterFactory;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
+import de.elanev.studip.android.app.news.repository.ApiNewsRepositoryImpl;
+import de.elanev.studip.android.app.news.repository.NewsRepository;
 import de.elanev.studip.android.app.util.Prefs;
 
 /**
@@ -36,27 +39,32 @@ public class ApplicationModule {
     this.mApplication = application;
   }
 
+  // Android
   @Provides @Singleton public Context provideContext() {
     return mApplication;
   }
 
-  @Provides @Nullable public Server provideServer(Context context) {
-    return Prefs.getInstance(context)
-        .getServer();
+  @Provides @Singleton public ContentResolver provideContentResolver(Context context) {
+    return context.getContentResolver();
   }
 
   @Provides @Singleton public Prefs providePrefs(Context context) {
     return Prefs.getInstance(context);
   }
 
-  @Provides @Singleton public CustomJsonConverterApiService
-  provideCustomJsonConverterApiService(
+  // Api
+  @Provides @Nullable public Server provideServer(Context context) {
+    return Prefs.getInstance(context)
+        .getServer();
+  }
+
+  @Provides @Singleton public CustomJsonConverterApiService provideCustomJsonConverterApiService(
       @Nullable Server server) {
     return new CustomJsonConverterApiService(server, new DiscoveryRouteJsonConverterFactory());
   }
 
   @Provides @Singleton public StudIpLegacyApiService provideApiService(Context context,
-     @Nullable Server server) {
+      @Nullable Server server) {
     return new StudIpLegacyApiService(server, context);
   }
 
@@ -66,5 +74,9 @@ public class ApplicationModule {
     return new SyncHelper(context, apiService, customJsonConverterApiService);
   }
 
+  @Provides @Singleton public NewsRepository provideNewsRepository(
+      StudIpLegacyApiService apiService) {
+    return new ApiNewsRepositoryImpl(apiService);
+  }
 
 }

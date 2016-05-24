@@ -272,6 +272,7 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
 
     <!-- General error messages -->
     <string name="error_timeout">Zeitüberschreitung, versuchen Sie es später erneut</string>
+    <string name="retry">Retry</string>
 
 
 </resources>

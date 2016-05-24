@@ -136,7 +136,7 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
 
     return new CursorLoader(getActivity(),
         uri,
-        projection,
+        null,
         NewsContract.Columns.NEWS_EXPIRE + " > (strftime('%s','now')-"
             + NewsContract.Columns.NEWS_DATE + ")",
         null,
@@ -205,25 +205,25 @@ public class NewsListFragment extends ProgressListFragment implements LoaderCall
 
   @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Cursor c = (Cursor) mListView.getItemAtPosition(position);
-    String topic = c.getString(c.getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
-    String body = c.getString(c.getColumnIndex(NewsContract.Columns.NEWS_BODY));
-    String name = String.format("%s %s %s %s",
-        c.getString(c.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE)),
-        c.getString(c.getColumnIndex(UsersContract.Columns.USER_FORENAME)),
-        c.getString(c.getColumnIndex(UsersContract.Columns.USER_LASTNAME)),
-        c.getString(c.getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
-    String userImageUrl = c.getString(c.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-    long date = c.getLong(c.getColumnIndex(NewsContract.Columns.NEWS_MKDATE));
-
+//    String topic = c.getString(c.getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
+//    String body = c.getString(c.getColumnIndex(NewsContract.Columns.NEWS_BODY));
+//    String name = String.format("%s %s %s %s",
+//        c.getString(c.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE)),
+//        c.getString(c.getColumnIndex(UsersContract.Columns.USER_FORENAME)),
+//        c.getString(c.getColumnIndex(UsersContract.Columns.USER_LASTNAME)),
+//        c.getString(c.getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
+//    String userImageUrl = c.getString(c.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
+//    long date = c.getLong(c.getColumnIndex(NewsContract.Columns.NEWS_MKDATE));
+    String userId = c.getString(c.getColumnIndex(NewsContract.Qualified.NEWS_NEWS_ID));
     Bundle args = new Bundle();
-    args.putString(NewsContract.Columns.NEWS_TOPIC, topic);
-    args.putString(NewsContract.Columns.NEWS_BODY, body);
-    args.putLong(NewsContract.Columns.NEWS_DATE, date);
-    args.putString(UsersContract.Columns.USER_FORENAME, name);
-    args.putString(UsersContract.Columns.USER_AVATAR_NORMAL, userImageUrl);
+    args.putString(NewsViewFragment.NEWS_ID, userId);
+//    args.putString(NewsContract.Columns.NEWS_BODY, body);
+//    args.putLong(NewsContract.Columns.NEWS_DATE, date);
+//    args.putString(UsersContract.Columns.USER_FORENAME, name);
+//    args.putString(UsersContract.Columns.USER_AVATAR_NORMAL, userImageUrl);
 
     Intent intent = new Intent();
-    intent.setClass(getActivity(), NewsItemViewActivity.class);
+    intent.setClass(getActivity(), NewsViewActivity.class);
     intent.putExtras(args);
     startActivity(intent);
   }

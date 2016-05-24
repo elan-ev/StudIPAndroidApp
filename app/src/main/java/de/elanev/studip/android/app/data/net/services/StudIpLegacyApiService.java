@@ -38,6 +38,8 @@ import de.elanev.studip.android.app.data.datamodel.MessageFolders;
 import de.elanev.studip.android.app.data.datamodel.MessageItem;
 import de.elanev.studip.android.app.data.datamodel.Messages;
 import de.elanev.studip.android.app.data.datamodel.News;
+import de.elanev.studip.android.app.data.datamodel.NewsItem;
+import de.elanev.studip.android.app.data.datamodel.NewsItemWrapper;
 import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Recording;
 import de.elanev.studip.android.app.data.datamodel.Semesters;
@@ -205,10 +207,10 @@ public class StudIpLegacyApiService {
    * user id.
    */
   public Observable<User> getUser(final String userId) {
-    User u = getUserFromContentProvider(userId);
-    if (u != null) {
-      return Observable.just(u);
-    }
+//    User u = getUserFromContentProvider(userId);
+//    if (u != null) {
+//      return Observable.just(u);
+//    }
 
     return mService.getUser(userId)
         .flatMap(new Func1<UserItem, Observable<? extends User>>() {
@@ -316,8 +318,8 @@ public class StudIpLegacyApiService {
     Observable<ArrayList<Recording>> recordingsObservable = courseObservable.flatMap(
         new Func1<CourseItem, Observable<ArrayList<Recording>>>() {
           @Override public Observable<ArrayList<Recording>> call(CourseItem course) {
-            if (course != null && course.course != null && course.course.getAdditionalData() !=
-                null) {
+            if (course != null && course.course != null
+                && course.course.getAdditionalData() != null) {
               return Observable.just(course.course.getAdditionalData()
                   .getRecordings());
             } else {
@@ -624,6 +626,23 @@ public class StudIpLegacyApiService {
     return mService.getNews(range);
   }
 
+  public Observable<NewsItem> getNewsItem(final String id) {
+    return mService.getNewsItem(id)
+        .flatMap(new Func1<NewsItemWrapper, Observable<NewsItem>>() {
+
+          @Override public Observable<NewsItem> call(final NewsItemWrapper newsItem) {
+            return getUser(newsItem.news.user_id).flatMap(new Func1<User, Observable<NewsItem>>() {
+
+              @Override public Observable<NewsItem> call(User user) {
+                newsItem.news.author = user;
+                return Observable.just(newsItem.news);
+              }
+            });
+
+          }
+        });
+  }
+
   public Observable<Semesters> getSemesters() {
     return mService.getSemesters();
   }
@@ -723,6 +742,8 @@ public class StudIpLegacyApiService {
 
     /* News */
     @GET("news/range/{range}") Observable<News> getNews(@Path("range") String range);
+
+    @GET("news/{id}") Observable<NewsItemWrapper> getNewsItem(@Path("id") String id);
 
     /* Semesters */
     @GET("semesters") Observable<Semesters> getSemesters();

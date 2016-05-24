@@ -214,7 +214,7 @@ android {
       ext.enableCrashlytics = false
       versionNameSuffix '-DEBUG'
       debuggable = true
-      testCoverageEnabled = true
+      testCoverageEnabled false
     }
 
     release {

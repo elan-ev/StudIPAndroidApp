@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     // Register Activity with the component
-    ((AbstractStudIPApplication)getApplication()).getComponent().inject(this);
+    ((AbstractStudIPApplication)getApplication()).getAppComponent().inject(this);
 
     if (!mPrefs.isAppAuthorized()) {
       StuffUtil.startSignInActivity(this);

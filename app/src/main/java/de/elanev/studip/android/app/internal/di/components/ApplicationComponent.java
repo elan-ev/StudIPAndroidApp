@@ -6,13 +6,19 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app;
+package de.elanev.studip.android.app.internal.di.components;
+
+import android.content.Context;
 
 import javax.inject.Singleton;
 
 import dagger.Component;
+import de.elanev.studip.android.app.AbstractStudIPApplication;
+import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.auth.SignInFragment;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
+import de.elanev.studip.android.app.internal.di.modules.ApplicationModule;
+import de.elanev.studip.android.app.news.repository.NewsRepository;
 import de.elanev.studip.android.app.widget.BaseFragment;
 import de.elanev.studip.android.app.widget.UserListFragment;
 
@@ -35,4 +41,11 @@ public interface ApplicationComponent {
   void inject(SignInFragment target);
 
   void inject(UserListFragment.ContactGroupsDialogFragment target);
+
+  // Expose to subcomponents
+  Context context();
+  NewsRepository newsRepository();
+
+  //FIxme
+  SyncHelper syncHelper();
 }

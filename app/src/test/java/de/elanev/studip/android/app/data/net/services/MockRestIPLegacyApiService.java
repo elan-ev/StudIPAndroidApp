@@ -32,6 +32,7 @@ import de.elanev.studip.android.app.data.datamodel.MessageItem;
 import de.elanev.studip.android.app.data.datamodel.Messages;
 import de.elanev.studip.android.app.data.datamodel.MessagesStats;
 import de.elanev.studip.android.app.data.datamodel.News;
+import de.elanev.studip.android.app.data.datamodel.NewsItem;
 import de.elanev.studip.android.app.data.datamodel.Semesters;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.UserItem;
@@ -196,6 +197,10 @@ public class MockRestIPLegacyApiService implements StudIpLegacyApiService.RestIP
   }
 
   @Override public Observable<News> getNews(@Path("range") String range) {
+    return null;
+  }
+
+  @Override public Observable<NewsItem> getNewsItem(@Path("id") String id) {
     return null;
   }
 

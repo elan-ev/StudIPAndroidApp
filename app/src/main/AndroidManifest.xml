@@ -45,7 +45,7 @@
         </activity>
         <!-- News list and details view activity -->
         <activity
-            android:name=".news.NewsItemViewActivity"
+            android:name=".news.NewsViewActivity"
             android:parentActivityName=".news.NewsActivity">
             <category android:name="android.intent.category.MONKEY"/>
 

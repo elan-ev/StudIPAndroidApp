@@ -398,7 +398,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
     @Override public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
 
-      ((AbstractStudIPApplication)getActivity().getApplication()).getComponent().inject(this);
+      ((AbstractStudIPApplication)getActivity().getApplication()).getAppComponent().inject(this);
 
       mUserId = getArguments().getString(ContactsContract.Columns.Contacts.USER_ID);
       mIntUserId = getArguments().getInt(ContactsContract.Columns.Contacts._ID);
