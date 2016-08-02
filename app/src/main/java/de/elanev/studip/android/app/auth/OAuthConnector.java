@@ -29,29 +29,9 @@ public class OAuthConnector {
   public static final String TAG = OAuthConnector.class.getSimpleName();
 
   private static OAuthConnector sInstance;
-
-  public static synchronized OAuthConnector with(Server server) {
-    if (server == null) throw new IllegalArgumentException("Server must not be null.");
-
-    if (sInstance == null) sInstance = new OAuthConnector(server);
-
-    sInstance.setServer(server);
-
-
-    return sInstance;
-  }
-
   private CommonsHttpOAuthProvider mProvider = null;
   private Server mServer = null;
   private OkHttpOAuthConsumer mConsumer = null;
-
-  private void setServer(Server server) {
-    if (!TextUtils.equals(server.getBaseUrl(), mServer.getBaseUrl())) {
-      mServer = server;
-      mConsumer = new OkHttpOAuthConsumer(server.getConsumerKey(), server.getConsumerSecret());
-    }
-  }
-
 
   /*
    * Creates a new, unauthorized OAuthConnector. The OAuthConsumer will be initialized with
@@ -68,6 +48,24 @@ public class OAuthConnector {
 
     if (accessToken != null || accessTokenSecret != null)
       this.mConsumer.setTokenWithSecret(accessToken, accessTokenSecret);
+  }
+
+  public static synchronized OAuthConnector with(Server server) {
+    if (server == null) throw new IllegalArgumentException("Server must not be null.");
+
+    if (sInstance == null) sInstance = new OAuthConnector(server);
+
+    sInstance.setServer(server);
+
+
+    return sInstance;
+  }
+
+  private void setServer(Server server) {
+    if (!TextUtils.equals(server.getBaseUrl(), mServer.getBaseUrl())) {
+      mServer = server;
+      mConsumer = new OkHttpOAuthConsumer(server.getConsumerKey(), server.getConsumerSecret());
+    }
   }
 
   /*
@@ -130,7 +128,7 @@ public class OAuthConnector {
      *
      * @param authUrl the authorization url String send from the endpoint
      */
-    public void onRequestTokenReceived(String authUrl);
+    void onRequestTokenReceived(String authUrl);
 
     /**
      * Called when the OAuth access token request finished successfully. It will contain the
@@ -139,7 +137,7 @@ public class OAuthConnector {
      * @param accessToken       access token String returned from the endpoint
      * @param accessTokenSecret access token secret String returned from the endpoint
      */
-    public void onAccessTokenReceived(String accessToken, String accessTokenSecret);
+    void onAccessTokenReceived(String accessToken, String accessTokenSecret);
 
     /**
      * This callback will be called when some error happened during the request token request
@@ -148,7 +146,7 @@ public class OAuthConnector {
      *
      * @param e An {@link OAuthCallbacks.OAuthError} object containing informations about the error
      */
-    public void onRequestTokenRequestError(OAuthError e);
+    void onRequestTokenRequestError(OAuthError e);
 
     /**
      * This callback will be called when some error happened during the access token request
@@ -157,7 +155,7 @@ public class OAuthConnector {
      *
      * @param e An {@link OAuthCallbacks.OAuthError} object containing informations about the error
      */
-    public void onAccesTokenRequestError(OAuthError e);
+    void onAccesTokenRequestError(OAuthError e);
 
     /**
      * Simple wrapper class for an OAuth request task error.
@@ -176,6 +174,32 @@ public class OAuthConnector {
       OAuthError(String message) {
         this.errorMessage = message;
       }
+    }
+  }
+
+  private static class RequestResult {
+    private String[] mResult;
+    private Exception mException;
+
+    RequestResult(String[] result, Exception exception) {
+      mResult = result;
+      mException = exception;
+    }
+
+    public String[] getResult() {
+      return mResult;
+    }
+
+    public void setResult(String[] result) {
+      mResult = result;
+    }
+
+    public Exception getException() {
+      return mException;
+    }
+
+    public void setException(Exception exception) {
+      mException = exception;
     }
   }
 
@@ -267,32 +291,6 @@ public class OAuthConnector {
           mCallbacks.onAccesTokenRequestError(new OAuthCallbacks.OAuthError("Unkown error"));
         }
       }
-    }
-  }
-
-  private static class RequestResult {
-    private String[] mResult;
-    private Exception mException;
-
-    RequestResult(String[] result, Exception exception) {
-      mResult = result;
-      mException = exception;
-    }
-
-    public String[] getResult() {
-      return mResult;
-    }
-
-    public void setResult(String[] result) {
-      mResult = result;
-    }
-
-    public Exception getException() {
-      return mException;
-    }
-
-    public void setException(Exception exception) {
-      mException = exception;
     }
   }
 

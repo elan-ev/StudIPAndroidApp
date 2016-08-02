@@ -157,7 +157,7 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
     }
 
     public interface ViewHolderClicks {
-      public void onListItemClicked(View caller, int position);
+      void onListItemClicked(View caller, int position);
     }
   }
 

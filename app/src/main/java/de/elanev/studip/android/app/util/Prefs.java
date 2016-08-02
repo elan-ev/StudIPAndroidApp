@@ -88,15 +88,8 @@ public class Prefs {
    */
   public boolean isAppAuthorized() {
     Server server = getServer();
-    if (server != null) {
-      if (server.getAccessToken() == null || server.getAccessTokenSecret() == null) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      return false;
-    }
+    return server != null && !(server.getAccessToken() == null
+        || server.getAccessTokenSecret() == null);
   }
 
   /*
@@ -118,28 +111,30 @@ public class Prefs {
       Cursor c = mContext.getContentResolver()
           .query(AuthenticationContract.CONTENT_URI, projection, null, null, null);
 
-      c.moveToFirst();
-      if (c.getCount() > 0) {
-        String serverName = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_NAME));
-        String serverContact = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL));
-        String serverKey = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_KEY));
-        String serverSecret = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_SECRET));
-        String serverUrl = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_URL));
-        String accessToken = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN));
-        String accessSecret = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET));
+      if (c != null) {
+        c.moveToFirst();
+        if (c.getCount() > 0) {
+          String serverName = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_NAME));
+          String serverContact = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL));
+          String serverKey = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_KEY));
+          String serverSecret = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_SECRET));
+          String serverUrl = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_URL));
+          String accessToken = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN));
+          String accessSecret = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET));
 
 
-        this.mCachedServer = new Server(serverName, serverKey, serverSecret, serverUrl,
-            serverContact, accessToken, accessSecret);
+          this.mCachedServer = new Server(serverName, serverKey, serverSecret, serverUrl,
+              serverContact, accessToken, accessSecret);
+        }
+        c.close();
       }
-      c.close();
     }
 
     return mCachedServer;
@@ -166,10 +161,12 @@ public class Prefs {
     Uri returnUri = mContext.getContentResolver()
         .insert(AuthenticationContract.CONTENT_URI, values);
 
-    if (Long.parseLong(returnUri.getLastPathSegment()) != -1) {
-      mCachedServer = server;
-    } else {
-      mCachedServer = null;
+    if (returnUri != null) {
+      if (Long.parseLong(returnUri.getLastPathSegment()) != -1) {
+        mCachedServer = server;
+      } else {
+        mCachedServer = null;
+      }
     }
   }
 
@@ -207,16 +204,8 @@ public class Prefs {
     String serverKey = mPrefs.getString("serverKey", null);
     String serverSecret = mPrefs.getString("serverSecret", null);
 
-    if (accessToken != null || accessTokenSecret != null || serverName != null ||
-        serverUrl != null || serverKey != null || serverSecret != null) {
-
-      return true;
-
-    } else {
-
-      return false;
-
-    }
+    return accessToken != null || accessTokenSecret != null || serverName != null ||
+        serverUrl != null || serverKey != null || serverSecret != null;
   }
 
   /**
@@ -271,7 +260,13 @@ public class Prefs {
    * @return Stud.IP user id String.
    */
   public String getUserId() {
-    return mPrefs.getString(USER_ID, null);
+    User user = User.fromJson(mPrefs.getString(USER_INFO, null));
+    if (user != null) {
+
+      return user.userId.replaceFirst("\\s+$", "");
+    }
+
+    return null;
   }
 
   /**
@@ -451,8 +446,7 @@ public class Prefs {
 
   public Postbox getPostbox() {
     String postboxJson = mPrefs.getString(MESSAGE_POSTBOX, "");
-    Postbox postbox = Postbox.fromJson(postboxJson);
-    return postbox;
+    return Postbox.fromJson(postboxJson);
   }
 
   public void setPostbox(Postbox postbox) {

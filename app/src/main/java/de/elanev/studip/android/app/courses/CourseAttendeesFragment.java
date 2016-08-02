@@ -5,6 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+
 package de.elanev.studip.android.app.courses;
 
 import android.content.Context;
@@ -95,18 +96,16 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
     getLoaderManager().initLoader(0, mArgs, this);
   }
 
-  @Override
-  public void onStart() {
-    super.onStart();
-    mSyncHelper.loadUsersForCourse(mCourseId, null);
-  }
-
-  @Override
-  public void onAttach(Context context) {
+  @Override public void onAttach(Context context) {
     super.onAttach(context);
 
     context.getContentResolver()
         .registerContentObserver(UsersContract.CONTENT_URI, true, mObserver);
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+    mSyncHelper.loadUsersForCourse(mCourseId, null);
   }
 
   @Override
@@ -130,14 +129,14 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
       return;
     }
 
-    List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
+    List<SectionedCursorAdapter.Section> sections = new ArrayList<>();
     cursor.moveToFirst();
     int prevRole = -1;
-    int currRole = -1;
+    int currRole;
     while (!cursor.isAfterLast()) {
       currRole = cursor.getInt(cursor.getColumnIndex(CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE));
       if (currRole != prevRole) {
-        String role = null;
+        String role;
         switch (currRole) {
           case CoursesContract.USER_ROLE_TEACHER:
             role = getString(R.string.Teacher);
@@ -181,7 +180,7 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
 
       ImageView icon = (ImageView) view.findViewById(R.id.user_image);
       ActivityOptionsCompat options = ActivityOptionsCompat.
-          makeSceneTransitionAnimation(getActivity(), (View) icon, getString(R.string.Profile));
+          makeSceneTransitionAnimation(getActivity(), icon, getString(R.string.Profile));
       // Start UserDetailActivity with transition if supported
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         getActivity().startActivity(intent, options.toBundle());
