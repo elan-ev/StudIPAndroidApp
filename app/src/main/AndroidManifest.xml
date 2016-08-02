@@ -35,7 +35,7 @@
 
         <!-- News -->
         <activity
-            android:name=".news.NewsActivity"
+            android:name=".news.presentation.NewsActivity"
             android:label="@string/app_name"
             android:theme="@style/noAnimTheme">
             <intent-filter>
@@ -45,14 +45,14 @@
         </activity>
         <!-- News list and details view activity -->
         <activity
-            android:name=".news.NewsViewActivity"
-            android:parentActivityName=".news.NewsActivity">
+            android:name=".news.presentation.NewsViewActivity"
+            android:parentActivityName=".news.presentation.NewsActivity">
             <category android:name="android.intent.category.MONKEY"/>
 
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".news.NewsActivity"/>
+                android:value=".news.presentation.NewsActivity"/>
         </activity>
 
         <!-- Courses -->

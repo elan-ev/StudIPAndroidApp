@@ -207,10 +207,10 @@ public class StudIpLegacyApiService {
    * user id.
    */
   public Observable<User> getUser(final String userId) {
-//    User u = getUserFromContentProvider(userId);
-//    if (u != null) {
-//      return Observable.just(u);
-//    }
+    //    User u = getUserFromContentProvider(userId);
+    //    if (u != null) {
+    //      return Observable.just(u);
+    //    }
 
     return mService.getUser(userId)
         .flatMap(new Func1<UserItem, Observable<? extends User>>() {
@@ -622,8 +622,66 @@ public class StudIpLegacyApiService {
     return mService.getCourses();
   }
 
-  public Observable<News> getNews(final String range) {
-    return mService.getNews(range);
+  public Observable<NewsItem> getNewsGlobal() {
+    return getNewsForRange(StudIPConstants.STUDIP_NEWS_GLOBAL_RANGE);
+  }
+
+  public Observable<NewsItem> getNews(final String userId) {
+    Observable<NewsItem> globalNews = getNewsGlobal();
+    Observable<NewsItem> courseNews = getNewsCourses();
+    Observable<NewsItem> institutesNews = getNewsInstitutes(userId);
+    return Observable.merge(globalNews, courseNews, institutesNews);
+  }
+
+  public Observable<NewsItem> getNewsForRange(final String range) {
+    return mService.getNews(range)
+        .flatMap(new Func1<News, Observable<NewsItem>>() {
+          @Override public Observable<NewsItem> call(News news) {
+            return (Observable.from(news.news)
+                .flatMap(new Func1<NewsItem, Observable<NewsItem>>() {
+                  @Override public Observable<NewsItem> call(final NewsItem newsItem) {
+                    return getUser(newsItem.user_id).flatMap(
+                        new Func1<User, Observable<NewsItem>>() {
+                          @Override public Observable<NewsItem> call(User user) {
+                            newsItem.author = user;
+                            newsItem.range = range;
+                            return Observable.just(newsItem);
+                          }
+                        });
+                  }
+                }));
+          }
+        });
+  }
+
+  public Observable<NewsItem> getNewsCourses() {
+    return mService.getCourses()
+        .flatMap(new Func1<Courses, Observable<NewsItem>>() {
+          @Override public Observable<NewsItem> call(Courses courses) {
+            return Observable.from(courses.courses)
+                .flatMap(new Func1<Course, Observable<NewsItem>>() {
+                  @Override public Observable<NewsItem> call(Course course) {
+                    return getNewsForRange(course.courseId);
+                  }
+                });
+          }
+        });
+  }
+
+  public Observable<NewsItem> getNewsInstitutes(final String userId) {
+    return mService.getInstitutes(userId)
+        .flatMap(new Func1<InstitutesContainer, Observable<NewsItem>>() {
+          @Override public Observable<NewsItem> call(InstitutesContainer institutesContainer) {
+            return Observable.merge(Observable.from(institutesContainer.getInstitutes()
+                .getStudy()), Observable.from(institutesContainer.getInstitutes()
+                .getWork()))
+                .flatMap(new Func1<Institutes.Institute, Observable<NewsItem>>() {
+                  @Override public Observable<NewsItem> call(Institutes.Institute institute) {
+                    return getNewsForRange(institute.getInstituteId());
+                  }
+                });
+          }
+        });
   }
 
   public Observable<NewsItem> getNewsItem(final String id) {

@@ -79,7 +79,7 @@ public class SyncHelper {
 
   public SyncHelper(Context context, Lazy<StudIpLegacyApiService> apiService,
       Lazy<CustomJsonConverterApiService> customJsonConverterApiService) {
-    this.mContext = context;
+    mContext = context;
     this.mApiService = apiService;
     this.mCustomJsonConverterApiService = customJsonConverterApiService;
   }
@@ -519,54 +519,54 @@ public class SyncHelper {
   public void requestNewsForRange(final String range, final SyncHelperCallbacks callbacks) {
 
     Timber.i("Performing Sync for range: " + range);
-    mCompositeSubscription.add(mApiService.get().getNews(range)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<News>() {
-          @Override public void onCompleted() {
-            if (callbacks != null) {
-              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
-              Timber.i("FINISHED SYNCING NEWS");
-            }
-          }
-
-          @Override public void onError(Throwable e) {
-            if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
-
-              if (callbacks != null) {
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_NEWS_SYNC, e.getLocalizedMessage(),
-                    0);
-              }
-            }
-          }
-
-          @Override public void onNext(News news) {
-            try {
-              ArrayList<ContentProviderOperation> operations = new ArrayList<>();
-
-              // Create delete statement for current range id
-              ContentProviderOperation.Builder builder = ContentProviderOperation.newDelete(
-                  NewsContract.CONTENT_URI);
-              builder.withSelection(NewsContract.Columns.NEWS_RANGE_ID + " = ?",
-                  new String[]{range});
-              operations.add(builder.build());
-
-              // start inserting new items
-              for (NewsItem n : news.news) {
-                new UsersRequestTask().execute(n.user_id);
-                operations.add(parseNewsItem(n, range));
-              }
-
-              if (!operations.isEmpty()) {
-                mContext.getContentResolver()
-                    .applyBatch(AbstractContract.CONTENT_AUTHORITY, operations);
-              }
-            } catch (RemoteException | OperationApplicationException e) {
-              e.printStackTrace();
-            }
-          }
-        }));
+//    mCompositeSubscription.add(mApiService.get().getNews(range)
+//        .subscribeOn(Schedulers.io())
+//        .observeOn(AndroidSchedulers.mainThread());
+//        .subscribe(new Subscriber<News>() {
+//          @Override public void onCompleted() {
+//            if (callbacks != null) {
+//              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
+//              Timber.i("FINISHED SYNCING NEWS");
+//            }
+//          }
+//
+//          @Override public void onError(Throwable e) {
+//            if (e != null && e.getLocalizedMessage() != null) {
+//              Timber.e(e.getMessage());
+//
+//              if (callbacks != null) {
+//                callbacks.onSyncError(SyncHelperCallbacks.ERROR_NEWS_SYNC, e.getLocalizedMessage(),
+//                    0);
+//              }
+//            }
+//          }
+//
+//          @Override public void onNext(News news) {
+//            try {
+//              ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+//
+//              // Create delete statement for current range id
+//              ContentProviderOperation.Builder builder = ContentProviderOperation.newDelete(
+//                  NewsContract.CONTENT_URI);
+//              builder.withSelection(NewsContract.Columns.NEWS_RANGE_ID + " = ?",
+//                  new String[]{range});
+//              operations.add(builder.build());
+//
+//              // start inserting new items
+//              for (NewsItem n : news.news) {
+//                new UsersRequestTask().execute(n.user_id);
+//                operations.add(parseNewsItem(n, range));
+//              }
+//
+//              if (!operations.isEmpty()) {
+//                mContext.getContentResolver()
+//                    .applyBatch(AbstractContract.CONTENT_AUTHORITY, operations);
+//              }
+//            } catch (RemoteException | OperationApplicationException e) {
+//              e.printStackTrace();
+//            }
+//          }
+//        }));
   }
 
   private static ContentProviderOperation parseNewsItem(NewsItem news, String mCourseId) {

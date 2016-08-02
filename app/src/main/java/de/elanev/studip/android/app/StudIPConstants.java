@@ -17,4 +17,5 @@ public final class StudIPConstants {
   public static final String STUDIP_SYSTEM_USER_ID = "____%system%____";
   public static final String STUDIP_MESSAGES_INBOX_IDENTIFIER = "in";
   public static final String STUDIP_MESSAGES_OUTBOX_IDENTIFIER = "out";
+  public static final String STUDIP_NEWS_GLOBAL_RANGE = "studip";
 }

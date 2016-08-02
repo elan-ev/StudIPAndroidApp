@@ -52,7 +52,7 @@ import de.elanev.studip.android.app.data.db.AbstractContract;
 import de.elanev.studip.android.app.data.db.DatabaseHandler;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.data.net.util.NetworkUtils;
-import de.elanev.studip.android.app.news.NewsActivity;
+import de.elanev.studip.android.app.news.presentation.NewsActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.ServerData;

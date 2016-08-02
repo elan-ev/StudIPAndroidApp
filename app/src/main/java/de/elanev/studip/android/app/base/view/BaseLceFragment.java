@@ -6,32 +6,25 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.widget;
+package de.elanev.studip.android.app.base.view;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.view.View;
 import android.widget.Toast;
 
-import javax.inject.Inject;
+import com.hannesdorfmann.mosby.mvp.MvpPresenter;
+import com.hannesdorfmann.mosby.mvp.lce.MvpLceView;
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.MvpLceViewStateFragment;
 
-import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 
 /**
  * @author joern
  */
-public abstract class BaseFragment extends Fragment {
-
-  @Inject protected Context mContext;
-  @Inject protected SyncHelper mSyncHelper;
-
+public abstract class BaseLceFragment<CV extends View, M, V extends MvpLceView<M>, P extends MvpPresenter<V>> extends
+    MvpLceViewStateFragment<CV, M, V, P> {
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    ((AbstractStudIPApplication) getActivity().getApplication()).getAppComponent()
-        .inject(this);
   }
 
   protected void showToast(String message) {

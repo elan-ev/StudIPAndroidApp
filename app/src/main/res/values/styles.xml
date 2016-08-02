@@ -30,6 +30,9 @@
         <!-- Set global primary text color -->
         <item name="android:textColor">@color/primary_text</item>
         <item name="android:textColorSecondary">@color/secondary_text</item>
+
+        <!-- ProgressBar -->
+        <item name="cpbStyle">@style/CircularThemeProgressBar</item>
     </style>
 
     <style name="noAnimTheme" parent="AppTheme">
@@ -46,19 +49,12 @@
         <item name="rippleColor">@android:color/white</item>
     </style>
 
-    <style name="AppTheme.ProgressBar">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_centerInParent">true</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:visibility">visible</item>
-    </style>
-
-    <style name="AppTheme.Button">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_centerVertical">true</item>
-        <item name="android:layout_centerHorizontal">true</item>
-        <item name="android:layout_gravity">center</item>
+    <style name="CircularThemeProgressBar" parent="Base.Widget.AppCompat.ProgressBar">
+        <item name="cpb_colors">@color/studip_primary</item>
+        <item name="cpb_stroke_width">@dimen/cpb_default_stroke_width</item>
+        <item name="cpb_min_sweep_angle">@integer/cpb_default_min_sweep_angle</item>
+        <item name="cpb_max_sweep_angle">@integer/cpb_default_max_sweep_angle</item>
+        <item name="cpb_sweep_speed">@string/cpb_default_sweep_speed</item>
+        <item name="cpb_rotation_speed">@string/cpb_default_rotation_speed</item>
     </style>
 </resources>

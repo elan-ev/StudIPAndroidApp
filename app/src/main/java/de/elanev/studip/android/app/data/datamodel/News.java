@@ -6,23 +6,29 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 /**
- * 
+ *
  */
 package de.elanev.studip.android.app.data.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 
 /**
  * @author joern
- * 
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class News {
-	public ArrayList<NewsItem> news;
 
-	public News() {
-		news = new ArrayList<NewsItem>();
-	}
+  @JsonProperty("news") public ArrayList<NewsItem> news;
+  @JsonProperty("pagination") public Pagination Pagination;
+
+  public News() {
+    news = new ArrayList<NewsItem>();
+  }
+
+  public News(ArrayList<NewsItem> newsItems) {
+    news = newsItems;
+  }
 }

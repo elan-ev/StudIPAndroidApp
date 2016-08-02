@@ -43,7 +43,7 @@ import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.messages.MessagesActivity;
-import de.elanev.studip.android.app.news.NewsActivity;
+import de.elanev.studip.android.app.news.presentation.NewsActivity;
 import de.elanev.studip.android.app.planner.PlannerActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;

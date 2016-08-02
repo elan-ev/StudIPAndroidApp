@@ -12,9 +12,9 @@ import android.annotation.TargetApi;
 import android.app.Application;
 import android.os.Build;
 
-import de.elanev.studip.android.app.internal.di.components.ApplicationComponent;
-import de.elanev.studip.android.app.internal.di.components.DaggerApplicationComponent;
-import de.elanev.studip.android.app.internal.di.modules.ApplicationModule;
+import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
+import de.elanev.studip.android.app.base.internal.di.components.DaggerApplicationComponent;
+import de.elanev.studip.android.app.base.internal.di.modules.ApplicationModule;
 
 /**
  * @author joern
