@@ -11,9 +11,9 @@ package de.elanev.studip.android.app.news.presentation.presenter;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
-import de.elanev.studip.android.app.news.data.mapper.NewsModelDataMapper;
-import de.elanev.studip.android.app.news.data.model.NewsModel;
 import de.elanev.studip.android.app.news.domain.GetNewsDetails;
+import de.elanev.studip.android.app.news.domain.mapper.NewsModelDataMapper;
+import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.view.NewsView;
 
 /**
@@ -31,7 +31,7 @@ public class NewsViewPresenter extends BaseRxLcePresenter<NewsView, NewsModel> {
 
   public void loadNews() {
     this.mGetNewsDetailsUseCase.get()
-        .map(this.mNewsModelDataMapper.transformNewsItem)
+        .map(mNewsModelDataMapper::transformNewsItem)
         .subscribe(new DefaultSubscriber(false));
   }
 }

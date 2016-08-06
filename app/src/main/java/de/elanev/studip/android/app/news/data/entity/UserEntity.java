@@ -9,7 +9,7 @@
 /**
  *
  */
-package de.elanev.studip.android.app.data.datamodel;
+package de.elanev.studip.android.app.news.data.entity;
 
 import android.text.TextUtils;
 
@@ -21,16 +21,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 /**
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName(value = "user")
-public class User implements Serializable {
-  public static final String NAME = User.class.getName() + ".name";
-  public static final String AVATAR = User.class.getName() + ".avatar";
+public class UserEntity {
   @JsonProperty("user_id") public String userId;
   @JsonProperty("username") public String username;
   @JsonProperty("perms") public String perms;
@@ -39,10 +36,8 @@ public class User implements Serializable {
   @JsonProperty("lastname") public String lastname;
   @JsonProperty("title_post") public String titlePost;
   @JsonProperty("email") public String email;
-  @JsonProperty("avatar_small") public String avatarSmall;
-  @JsonProperty("avatar_medium") public String avatarMedium;
   @JsonProperty("avatar_normal") public String avatarNormal;
-  @JsonProperty("phonse") public String phone;
+  @JsonProperty("phone") public String phone;
   @JsonProperty("homepage") public String homepage;
   @JsonProperty("privadr") public String privadr;
   @JsonProperty("role") public int role;
@@ -52,28 +47,11 @@ public class User implements Serializable {
   /**
    * Default constructor
    */
-  public User() {}
+  public UserEntity() {}
 
-  /**
-   * @param userId
-   * @param username
-   * @param perms
-   * @param titlePre
-   * @param forename
-   * @param lastname
-   * @param titlePost
-   * @param email
-   * @param avatarSmall
-   * @param avatarMedium
-   * @param avatarNormal
-   * @param phone
-   * @param homepage
-   * @param privadr
-   * @param role
-   */
-  public User(String userId, String username, String perms, String titlePre, String forename,
-      String lastname, String titlePost, String email, String avatarSmall, String avatarMedium,
-      String avatarNormal, String phone, String homepage, String privadr, int role) {
+  public UserEntity(String userId, String username, String perms, String titlePre, String forename,
+      String lastname, String titlePost, String email, String avatarNormal, String phone,
+      String homepage, String privadr, int role) {
     this.userId = userId;
     this.username = username;
     this.perms = perms;
@@ -82,8 +60,6 @@ public class User implements Serializable {
     this.lastname = lastname;
     this.titlePost = titlePost;
     this.email = email;
-    this.avatarSmall = avatarSmall;
-    this.avatarMedium = avatarMedium;
     this.avatarNormal = avatarNormal;
     this.phone = phone;
     this.homepage = homepage;
@@ -91,17 +67,17 @@ public class User implements Serializable {
     this.role = role;
   }
 
-  @JsonIgnore public static User fromJson(String userJson) {
+  @JsonIgnore public static UserEntity fromJson(String userJson) {
 
     if (TextUtils.isEmpty(userJson)) {
       return null;
     }
 
     ObjectMapper mapper = new ObjectMapper();
-    User user = null;
+    UserEntity user = null;
 
     try {
-      user = mapper.readValue(userJson, User.class);
+      user = mapper.readValue(userJson, UserEntity.class);
     } catch (JsonProcessingException e) {
       e.printStackTrace();
     } catch (IOException e) {
@@ -111,7 +87,7 @@ public class User implements Serializable {
     return user;
   }
 
-  @JsonIgnore public static String toJson(User user) {
+  @JsonIgnore public static String toJson(UserEntity user) {
 
     if (user == null) {
       return null;

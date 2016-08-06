@@ -88,7 +88,6 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
     mListView.setAdapter(mAdapter);
     mSwipeRefreshLayoutListView.setOnRefreshListener(this);
     mSwipeRefreshLayoutListView.setRefreshing(true);
-    mSyncHelper.performNewsSync(this);
 
     getLoaderManager().initLoader(0, null, this);
   }
@@ -181,12 +180,10 @@ public class CoursesFragment extends ProgressListFragment implements LoaderCallb
   }
 
   @Override public void onSyncError(int status, String errorMsg, int errorCode) {
-    if (status == SyncHelper.SyncHelperCallbacks.ERROR_NEWS_SYNC && errorCode != 404) {
-      if (getActivity() != null) {
+    if (getActivity() != null) {
         Toast.makeText(mContext, R.string.sync_error_default, Toast.LENGTH_LONG).show();
       }
       mSwipeRefreshLayoutListView.setRefreshing(false);
-    }
   }
 
   public static Fragment newInstance(Bundle args) {

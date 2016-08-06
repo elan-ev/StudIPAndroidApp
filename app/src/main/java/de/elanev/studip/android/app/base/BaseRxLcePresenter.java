@@ -17,13 +17,13 @@ package de.elanev.studip.android.app.base;
  *
  */
 
-import com.fernandocejas.frodo.annotation.RxLogSubscriber;
 import com.hannesdorfmann.mosby.mvp.lce.MvpLceView;
 
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * A presenter for RxJava, that assumes that only one Observable is subscribed by this presenter.
@@ -42,6 +42,7 @@ public abstract class BaseRxLcePresenter<V extends MvpLceView<T>, T> extends
     com.hannesdorfmann.mosby.mvp.MvpPresenter<V> {
 
   protected DefaultSubscriber subscriber;
+  private CompositeSubscription compositeSubscription = new CompositeSubscription();
 
   /**
    * Subscribes the presenter himself as subscriber on the observable
@@ -55,26 +56,20 @@ public abstract class BaseRxLcePresenter<V extends MvpLceView<T>, T> extends
       getView().showLoading(pullToRefresh);
     }
 
+    // Reset subscription to prevent leaks
     unsubscribe();
-
-
-    subscriber = new DefaultSubscriber(pullToRefresh);
-
-
-    observable.subscribeOn(Schedulers.io())
+    compositeSubscription.add(observable.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(subscriber);
+        .subscribe(new DefaultSubscriber(pullToRefresh)));
   }
 
   /**
    * Unsubscribes the subscriber and set it to null
    */
   protected void unsubscribe() {
-    if (subscriber != null && !subscriber.isUnsubscribed()) {
-      subscriber.unsubscribe();
+    if (compositeSubscription.isUnsubscribed()) {
+      compositeSubscription.unsubscribe();
     }
-
-    subscriber = null;
   }
 
   protected void onCompleted() {

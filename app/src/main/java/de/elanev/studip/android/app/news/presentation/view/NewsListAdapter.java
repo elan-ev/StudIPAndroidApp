@@ -9,6 +9,7 @@
 package de.elanev.studip.android.app.news.presentation.view;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -26,7 +27,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPConstants;
-import de.elanev.studip.android.app.news.data.model.NewsModel;
+import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.util.DateTools;
 
 /**
@@ -52,23 +53,44 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
 
   @Override public void onBindViewHolder(ViewHolder holder, int position) {
     final NewsModel news = this.mData.get(position);
-    holder.title.setText(news.title);
-    holder.authorAndDate.setText(
-        DateTools.getLocalizedAuthorAndDateString(news.author.getFullName(), news.date, mContext));
-    if (TextUtils.equals(news.range, StudIPConstants.STUDIP_NEWS_GLOBAL_RANGE)) {
-      holder.icon.setImageResource(R.drawable.ic_action_global);
-    } else {
-      holder.icon.setImageResource(R.drawable.ic_seminar);
+    if (news == null) {
+      return;
     }
-    holder.icon.setColorFilter(ContextCompat.getColor(mContext, R.color.studip_mobile_dark),
-        PorterDuff.Mode.SRC_IN);
+
+    holder.title.setText(news.title);
+
+    if (news.author != null) {
+      holder.authorAndDate.setText(
+          DateTools.getLocalizedAuthorAndDateString(news.author.getFullName(), news.date,
+              mContext));
+    } else {
+      holder.authorAndDate.setText(DateTools.getLocalizedRelativeTimeString(news.date));
+    }
+
+    if (news.course != null) {
+      // We have news of a course
+      holder.icon.setImageResource(R.drawable.ic_seminar_blue);
+    } else if (TextUtils.equals(news.range, StudIPConstants.STUDIP_NEWS_GLOBAL_RANGE)) {
+      // We have general university news
+      holder.icon.setImageResource(R.drawable.ic_menu_news);
+    } else {
+      // We have institues news
+      holder.icon.setImageResource(R.drawable.ic_action_global);
+    }
 
 
-    holder.itemView.setOnClickListener(new View.OnClickListener() {
-      @Override public void onClick(View v) {
-        if (NewsListAdapter.this.onItemClickListener != null) {
-          NewsListAdapter.this.onItemClickListener.onNewsItemClicked(news);
-        }
+    int tintColor = -1;
+    if (news.course != null) {
+      tintColor = Color.parseColor(news.course.color);
+    } else {
+      tintColor = ContextCompat.getColor(mContext, R.color.studip_mobile_dark);
+    }
+    holder.icon.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
+
+
+    holder.itemView.setOnClickListener(v -> {
+      if (NewsListAdapter.this.onItemClickListener != null) {
+        NewsListAdapter.this.onItemClickListener.onNewsItemClicked(news);
       }
     });
   }

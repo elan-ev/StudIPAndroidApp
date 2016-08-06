@@ -5,18 +5,21 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+
 /**
  *
  */
-package de.elanev.studip.android.app.data.datamodel;
+package de.elanev.studip.android.app.news.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import de.elanev.studip.android.app.data.datamodel.Course;
 
 /**
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NewsItem {
+public class NewsEntity {
 
   public String news_id;
   public String topic;
@@ -29,13 +32,16 @@ public class NewsItem {
   public int allow_comments;
   public String chdate_uid;
   public String body_original;
-  public User author;
+  public UserEntity author;
   @JsonIgnoreProperties public String range;
-  public NewsItem() {
+  @JsonIgnoreProperties public Course course;
+
+  public NewsEntity() {
   }
 
-  public NewsItem(String news_id, String topic, String body, Long date, String user_id, Long chdate,
-      Long mkdate, Long expire, int allow_comments, String chdate_uid, String body_original) {
+  public NewsEntity(String news_id, String topic, String body, Long date, String user_id,
+      Long chdate, Long mkdate, Long expire, int allow_comments, String chdate_uid,
+      String body_original) {
     this.news_id = news_id;
     this.topic = topic;
     this.body = body;
@@ -48,5 +54,4 @@ public class NewsItem {
     this.chdate_uid = chdate_uid;
     this.body_original = body_original;
   }
-
 }

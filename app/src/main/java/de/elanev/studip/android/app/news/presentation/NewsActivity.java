@@ -15,10 +15,10 @@ import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
-import de.elanev.studip.android.app.base.internal.di.components.DaggerNewsComponent;
+import de.elanev.studip.android.app.news.internal.di.DaggerNewsComponent;
 import de.elanev.studip.android.app.news.internal.di.NewsComponent;
 import de.elanev.studip.android.app.news.internal.di.NewsModule;
-import de.elanev.studip.android.app.news.data.model.NewsModel;
+import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.view.NewsListFragment;
 
 /**

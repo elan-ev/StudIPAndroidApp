@@ -6,30 +6,20 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.data.datamodel;
+package de.elanev.studip.android.app.news.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
+import java.util.List;
+
+import de.elanev.studip.android.app.data.datamodel.Pagination;
 
 /**
  * @author joern
- * 
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Users {
-
-	public ArrayList<User> users;
-
-	public Users() {
-		this.users = new ArrayList<User>();
-	}
-
-	/**
-	 * @param user
-	 */
-	public Users(User user) {
-		this.users = new ArrayList<User>();
-		this.users.add(user);
-	}
+public class NewsEntityList {
+  @JsonProperty("news") public List<NewsEntity> newsEntities;
+  @JsonProperty("pagination") public Pagination pagination;
 }

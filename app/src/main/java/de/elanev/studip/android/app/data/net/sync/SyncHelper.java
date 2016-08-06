@@ -36,8 +36,6 @@ import de.elanev.studip.android.app.data.datamodel.Event;
 import de.elanev.studip.android.app.data.datamodel.Events;
 import de.elanev.studip.android.app.data.datamodel.Institutes;
 import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
-import de.elanev.studip.android.app.data.datamodel.News;
-import de.elanev.studip.android.app.data.datamodel.NewsItem;
 import de.elanev.studip.android.app.data.datamodel.Recording;
 import de.elanev.studip.android.app.data.datamodel.Routes;
 import de.elanev.studip.android.app.data.datamodel.Semester;
@@ -57,6 +55,7 @@ import de.elanev.studip.android.app.data.db.UnizensusContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.data.net.services.CustomJsonConverterApiService;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.util.Prefs;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -519,75 +518,11 @@ public class SyncHelper {
   public void requestNewsForRange(final String range, final SyncHelperCallbacks callbacks) {
 
     Timber.i("Performing Sync for range: " + range);
-//    mCompositeSubscription.add(mApiService.get().getNews(range)
-//        .subscribeOn(Schedulers.io())
-//        .observeOn(AndroidSchedulers.mainThread());
-//        .subscribe(new Subscriber<News>() {
-//          @Override public void onCompleted() {
-//            if (callbacks != null) {
-//              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
-//              Timber.i("FINISHED SYNCING NEWS");
-//            }
-//          }
-//
-//          @Override public void onError(Throwable e) {
-//            if (e != null && e.getLocalizedMessage() != null) {
-//              Timber.e(e.getMessage());
-//
-//              if (callbacks != null) {
-//                callbacks.onSyncError(SyncHelperCallbacks.ERROR_NEWS_SYNC, e.getLocalizedMessage(),
-//                    0);
-//              }
-//            }
-//          }
-//
-//          @Override public void onNext(News news) {
-//            try {
-//              ArrayList<ContentProviderOperation> operations = new ArrayList<>();
-//
-//              // Create delete statement for current range id
-//              ContentProviderOperation.Builder builder = ContentProviderOperation.newDelete(
-//                  NewsContract.CONTENT_URI);
-//              builder.withSelection(NewsContract.Columns.NEWS_RANGE_ID + " = ?",
-//                  new String[]{range});
-//              operations.add(builder.build());
-//
-//              // start inserting new items
-//              for (NewsItem n : news.news) {
-//                new UsersRequestTask().execute(n.user_id);
-//                operations.add(parseNewsItem(n, range));
-//              }
-//
-//              if (!operations.isEmpty()) {
-//                mContext.getContentResolver()
-//                    .applyBatch(AbstractContract.CONTENT_AUTHORITY, operations);
-//              }
-//            } catch (RemoteException | OperationApplicationException e) {
-//              e.printStackTrace();
-//            }
-//          }
-//        }));
+    if (callbacks != null) {
+      callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
+    }
   }
 
-  private static ContentProviderOperation parseNewsItem(NewsItem news, String mCourseId) {
-
-    ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
-        NewsContract.CONTENT_URI)
-        .withValue(NewsContract.Columns.NEWS_ID, news.news_id)
-        .withValue(NewsContract.Columns.NEWS_TOPIC, news.topic)
-        .withValue(NewsContract.Columns.NEWS_BODY, news.body)
-        .withValue(NewsContract.Columns.NEWS_DATE, news.date)
-        .withValue(NewsContract.Columns.NEWS_USER_ID, news.user_id)
-        .withValue(NewsContract.Columns.NEWS_CHDATE, news.chdate)
-        .withValue(NewsContract.Columns.NEWS_MKDATE, news.mkdate)
-        .withValue(NewsContract.Columns.NEWS_EXPIRE, news.expire)
-        .withValue(NewsContract.Columns.NEWS_ALLOW_COMMENTS, news.allow_comments)
-        .withValue(NewsContract.Columns.NEWS_CHDATE_UID, news.chdate_uid)
-        .withValue(NewsContract.Columns.NEWS_BODY_ORIGINAL, news.body_original)
-        .withValue(NewsContract.Columns.NEWS_RANGE_ID, mCourseId);
-
-    return builder.build();
-  }
 
   /**
    * Requests all users from a specific course

@@ -6,15 +6,18 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.data.datamodel;
+package de.elanev.studip.android.app.news.data.repository.datastore;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
+import rx.Observable;
 
 /**
  * @author joern
  */
-public class NewsItemWrapper {
-  @JsonProperty("news") public NewsEntity news;
+public interface NewsDataStore {
+  Observable<List<NewsEntity>> newsEntityList();
+
+  Observable<NewsEntity> newsEntity(final String newsId);
 }

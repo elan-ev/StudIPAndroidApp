@@ -31,7 +31,7 @@ import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.view.BaseLceFragment;
 import de.elanev.studip.android.app.news.internal.di.NewsComponent;
-import de.elanev.studip.android.app.news.data.model.NewsModel;
+import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.presenter.NewsListPresenter;
 import de.elanev.studip.android.app.widget.EmptyRecyclerView;
 
@@ -156,56 +156,4 @@ public class NewsListFragment extends
   public interface NewsClickListener {
     void onNewsClicked(final NewsModel news);
   }
-
-  //  private class NewsAdapter extends SectionedCursorAdapter {
-  //
-  //
-  //    public NewsAdapter(Context context) {
-  //      super(context);
-  //    }
-  //
-  //    @Override public View newView(Context context, Cursor cursor, ViewGroup parent) {
-  //      return getActivity().getLayoutInflater()
-  //          .inflate(R.layout.list_item_two_text_icon, parent, false);
-  //    }
-  //
-  //    @Override public void bindView(View view, Context context, final Cursor cursor) {
-  //      final String newsTopic = cursor.getString(
-  //          cursor.getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
-  //      final Long newsDate = cursor.getLong(cursor.getColumnIndex(NewsContract.Columns.NEWS_MKDATE));
-  //      final String userForename = cursor.getString(
-  //          cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-  //      final String userLastname = cursor.getString(
-  //          cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
-  //      final String courseId = cursor.getString(
-  //          cursor.getColumnIndex(NewsContract.Columns.NEWS_RANGE_ID));
-  //
-  //      final TextView newsTopicView = (TextView) view.findViewById(R.id.text1);
-  //      final TextView newsAuthorView = (TextView) view.findViewById(R.id.text2);
-  //      final ImageView icon = (ImageView) view.findViewById(R.id.icon);
-  //
-  //      switch (getArguments().getInt(NEWS_SELECTOR)) {
-  //        //TODO: Separate icons for different course types and global
-  //        // Seminar icon if switch fails oder entry is seminar type
-  //        default:
-  //        case NewsTabsAdapter.NEWS_COURSES:
-  //          icon.setImageResource(R.drawable.ic_seminar);
-  //          break;
-  //        // Institute icon if institute or global entry type
-  //        case NewsTabsAdapter.NEWS_INSTITUTES:
-  //        case NewsTabsAdapter.NEWS_GLOBAL:
-  //          icon.setImageResource(R.drawable.ic_action_global);
-  //          break;
-  //      }
-  //
-  //      icon.setColorFilter(ContextCompat.getColor(getContext(), R.color.studip_mobile_dark),
-  //          PorterDuff.Mode.SRC_IN);
-  //
-  //      newsTopicView.setText(newsTopic);
-  //      newsAuthorView.setText(DateTools.getLocalizedAuthorAndDateString(
-  //          String.format("%s %s", userForename, userLastname), newsDate, getActivity()));
-  //    }
-  //
-  //  }
-
 }

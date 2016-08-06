@@ -26,11 +26,8 @@ package de.elanev.studip.android.app.base;
 
 
 import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-import rx.subscriptions.Subscriptions;
 
 /**
  * Abstract class for a Use Case (Interactor in terms of Clean Architecture).
@@ -42,20 +39,8 @@ import rx.subscriptions.Subscriptions;
  */
 public abstract class UseCase<T> {
 
-
-  private Subscription subscription = Subscriptions.empty();
-
   protected UseCase() { }
 
-  /**
-   * Executes the current use case.
-   *
-   * @param UseCaseSubscriber The guy who will be listen to the observable build
-   *                          with {@link #buildUseCaseObservable()}.
-   */
-  @SuppressWarnings("unchecked") public void execute(Subscriber<T> UseCaseSubscriber) {
-    this.subscription = get().subscribe(UseCaseSubscriber);
-  }
 
   final public Observable<T> get() {
     return buildUseCaseObservable().compose(applySchedulers());
@@ -67,20 +52,8 @@ public abstract class UseCase<T> {
   protected abstract Observable<T> buildUseCaseObservable();
 
   private Observable.Transformer<T, T> applySchedulers() {
-    return new Observable.Transformer<T, T>() {
-      @Override public Observable<T> call(Observable<T> tObservable) {
-        return tObservable.subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread());
-      }
-    };
+    return tObservable -> tObservable.subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread());
   }
 
-  /**
-   * Unsubscribes from current {@link rx.Subscription}.
-   */
-  public void unsubscribe() {
-    if (!subscription.isUnsubscribed()) {
-      subscription.unsubscribe();
-    }
-  }
 }

@@ -13,8 +13,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.UseCase;
-import de.elanev.studip.android.app.data.datamodel.NewsItem;
-import de.elanev.studip.android.app.news.data.repository.NewsRepository;
 import rx.Observable;
 
 /**

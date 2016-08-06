@@ -9,6 +9,8 @@
 package de.elanev.studip.android.app.news.presentation.view;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
@@ -29,7 +31,7 @@ import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.view.BaseLceFragment;
 import de.elanev.studip.android.app.news.internal.di.NewsComponent;
-import de.elanev.studip.android.app.news.data.model.NewsModel;
+import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.presenter.NewsViewPresenter;
 import de.elanev.studip.android.app.util.DateTools;
 
@@ -57,7 +59,7 @@ public class NewsViewFragment extends
     return new NewsViewFragment();
   }
 
-  @Override public NewsViewPresenter createPresenter() {
+  @NonNull@Override public NewsViewPresenter createPresenter() {
     return mPresenter;
   }
 
@@ -66,7 +68,17 @@ public class NewsViewFragment extends
     getActivity().setTitle(R.string.News);
   }
 
-  @Override public LceViewState<NewsModel, NewsView> createViewState() {
+  @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+
+    mInfoContainer.setVisibility(View.GONE);
+  }
+
+  @Override protected String getErrorMessage(Throwable e, boolean pullToRefresh) {
+    return e.getLocalizedMessage();
+  }
+
+  @NonNull @Override public LceViewState<NewsModel, NewsView> createViewState() {
     return new RetainingLceViewState<>();
   }
 
@@ -93,13 +105,15 @@ public class NewsViewFragment extends
       mTitleTextView.setText(news.title);
       if (news.author != null) {
         Picasso.with(getContext())
-            .load(news.author.getUserImageUrl())
+            .load(news.author.getAvatarUrl())
             .resizeDimen(R.dimen.user_image_crop_size, R.dimen.user_image_crop_size)
             .centerCrop()
             .placeholder(R.drawable.nobody_normal)
             .into(mUserImageView);
 
         mAuthorTextView.setText(news.author.getFullName());
+      } else {
+        mAuthorTextView.setVisibility(View.GONE);
       }
 
       mDateTextView.setText(DateTools.getLocalizedRelativeTimeString(news.date));
@@ -131,9 +145,5 @@ public class NewsViewFragment extends
     mBodyTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
     return v;
-  }
-
-  @Override protected String getErrorMessage(Throwable e, boolean pullToRefresh) {
-    return e.getLocalizedMessage();
   }
 }

@@ -30,15 +30,13 @@ import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
 import de.elanev.studip.android.app.data.datamodel.MessageFolders;
 import de.elanev.studip.android.app.data.datamodel.MessageItem;
 import de.elanev.studip.android.app.data.datamodel.Messages;
-import de.elanev.studip.android.app.data.datamodel.MessagesStats;
 import de.elanev.studip.android.app.data.datamodel.News;
-import de.elanev.studip.android.app.data.datamodel.NewsItem;
+import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.data.datamodel.Semesters;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.UserItem;
 import de.elanev.studip.android.app.data.model.MockServer;
 import de.elanev.studip.android.app.data.model.MockSettings;
-import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import retrofit2.Callback;
 import retrofit2.http.Field;
 import retrofit2.http.Path;
@@ -200,7 +198,7 @@ public class MockRestIPLegacyApiService implements StudIpLegacyApiService.RestIP
     return null;
   }
 
-  @Override public Observable<NewsItem> getNewsItem(@Path("id") String id) {
+  @Override public Observable<NewsEntity> getNewsItem(@Path("id") String id) {
     return null;
   }
 

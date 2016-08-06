@@ -5,6 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+
 /**
  *
  */
@@ -15,20 +16,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 
+import de.elanev.studip.android.app.news.data.entity.NewsEntity;
+
 /**
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class News {
 
-  @JsonProperty("news") public ArrayList<NewsItem> news;
-  @JsonProperty("pagination") public Pagination Pagination;
+  @JsonProperty("news") public ArrayList<NewsEntity> news;
+  @JsonProperty("pagination") public de.elanev.studip.android.app.data.datamodel.Pagination Pagination;
 
   public News() {
-    news = new ArrayList<NewsItem>();
+    news = new ArrayList<NewsEntity>();
   }
 
-  public News(ArrayList<NewsItem> newsItems) {
-    news = newsItems;
+  public News(ArrayList<NewsEntity> newsEntities) {
+    news = newsEntities;
   }
 }

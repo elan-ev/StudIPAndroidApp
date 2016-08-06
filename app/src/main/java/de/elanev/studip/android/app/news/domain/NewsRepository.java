@@ -6,16 +6,17 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.news.data.model;
+package de.elanev.studip.android.app.news.domain;
+
+import java.util.List;
+
+import rx.Observable;
 
 /**
  * @author joern
  */
-public class NewsModel {
-  public String title;
-  public UserModel author;
-  public long date;
-  public String body;
-  public String range;
-  public String id;
+public interface NewsRepository {
+  Observable<NewsItem> newsItem(String id);
+
+  Observable<List<NewsItem>> newsList();
 }

@@ -8,19 +8,18 @@
 
 package de.elanev.studip.android.app.news.presentation.presenter;
 
-import com.fernandocejas.frodo.annotation.RxLogSubscriber;
-
 import java.util.List;
 
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
 import de.elanev.studip.android.app.base.UseCase;
-import de.elanev.studip.android.app.data.datamodel.NewsItem;
-import de.elanev.studip.android.app.news.data.mapper.NewsModelDataMapper;
-import de.elanev.studip.android.app.news.data.model.NewsModel;
 import de.elanev.studip.android.app.news.domain.GetNewsList;
+import de.elanev.studip.android.app.news.domain.NewsItem;
+import de.elanev.studip.android.app.news.domain.mapper.NewsModelDataMapper;
+import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.view.NewsListView;
+import rx.Observable;
 
 /**
  * @author joern
@@ -36,9 +35,10 @@ public class NewsListPresenter extends BaseRxLcePresenter<NewsListView, List<New
   }
 
   public void loadNews(boolean pullToRefresh) {
-    this.mGetNewsListUseCase.get()
-        .map(this.mNewsModelDataMapper.transformNewsItemList)
-        .subscribe(new NewsListSubscriber(pullToRefresh));
+    Observable<List<NewsModel>> getNewsListObservable = this.mGetNewsListUseCase.get()
+        .map(mNewsModelDataMapper::transformNewsList);
+
+    subscribe(getNewsListObservable, pullToRefresh);
   }
 
   @SuppressWarnings("ConstantConditions") public void onNewsClicked(NewsModel news) {

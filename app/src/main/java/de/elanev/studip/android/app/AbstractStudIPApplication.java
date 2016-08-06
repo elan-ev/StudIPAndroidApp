@@ -10,6 +10,9 @@ package de.elanev.studip.android.app;
 
 import android.annotation.TargetApi;
 import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 
 import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
@@ -25,6 +28,16 @@ public abstract class AbstractStudIPApplication extends Application {
 
   public static synchronized AbstractStudIPApplication getInstance() {
     return mInstance;
+  }
+
+  public static boolean hasNetwork() {
+    return mInstance.checkNetworkConnectivity();
+  }
+
+  private boolean checkNetworkConnectivity() {
+    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+    return networkInfo != null && networkInfo.isConnected();
   }
 
   @TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override public void onCreate() {

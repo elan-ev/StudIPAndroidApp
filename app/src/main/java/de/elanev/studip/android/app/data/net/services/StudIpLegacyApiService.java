@@ -12,9 +12,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.util.Pair;
 
+import com.fernandocejas.frodo.annotation.RxLogObservable;
+
 import java.util.ArrayList;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.data.datamodel.ContactGroups;
 import de.elanev.studip.android.app.data.datamodel.Contacts;
@@ -38,22 +39,20 @@ import de.elanev.studip.android.app.data.datamodel.MessageFolders;
 import de.elanev.studip.android.app.data.datamodel.MessageItem;
 import de.elanev.studip.android.app.data.datamodel.Messages;
 import de.elanev.studip.android.app.data.datamodel.News;
-import de.elanev.studip.android.app.data.datamodel.NewsItem;
 import de.elanev.studip.android.app.data.datamodel.NewsItemWrapper;
 import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Recording;
 import de.elanev.studip.android.app.data.datamodel.Semesters;
-import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.datamodel.UserItem;
 import de.elanev.studip.android.app.data.db.UsersContract;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
+import de.elanev.studip.android.app.news.data.entity.NewsEntity;
+import de.elanev.studip.android.app.news.data.entity.NewsEntityList;
+import de.elanev.studip.android.app.news.data.entity.UserEntity;
+import de.elanev.studip.android.app.news.data.entity.UserEntityWrapper;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -63,10 +62,9 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import rx.Observable;
+import rx.functions.Func0;
 import rx.functions.Func1;
 import rx.functions.Func2;
-import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer;
-import se.akerfeldt.okhttp.signpost.SigningInterceptor;
 
 
 /**
@@ -83,56 +81,17 @@ public class StudIpLegacyApiService {
 
   //region INSTANCE VARIABLES ----------------------------------------------------------------------
   private RestIPLegacyService mService;
-  private Context mContext;
   //endregion --------------------------------------------------------------------------------------
+  private Context mContext;
 
   //region CONSTRUCTOR
   // -----------------------------------------------------------------------------------------------
-  public StudIpLegacyApiService(Server server, Context context) {
-
-    Retrofit retrofit = getRetrofit(server);
+  public StudIpLegacyApiService(Retrofit retrofit) {
 
     // Create an instance of our RestIPLegacyService API interface.
     mService = retrofit.create(RestIPLegacyService.class);
-
-    // Other initializations
-    mContext = context.getApplicationContext();
   }
 
-  public static Retrofit getRetrofit(Server server) {
-    // Begin building the OkHttp3 client
-    OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
-
-    // Create OkHttp3 SignPost interceptor and add it to the OkHttp3 client
-    OkHttpOAuthConsumer oAuthConsumer = new OkHttpOAuthConsumer(server.getConsumerKey(),
-        server.getConsumerSecret());
-    oAuthConsumer.setTokenWithSecret(server.getAccessToken(), server.getAccessTokenSecret());
-    clientBuilder.addInterceptor(new SigningInterceptor(oAuthConsumer));
-
-    // Set log request log level based on BuildConfig
-    HttpLoggingInterceptor.Level logLevel = (BuildConfig.DEBUG)
-        ? HttpLoggingInterceptor.Level.BODY
-        : HttpLoggingInterceptor.Level.NONE;
-
-    HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-    logging.setLevel(logLevel);
-    clientBuilder.addInterceptor(logging);
-
-    // Add the necessary RestIpApiErrorInterceptor
-    clientBuilder.addInterceptor(new RestIpErrorInterceptor());
-
-    // Begin creating the Retrofit2 client
-    Retrofit.Builder retrofitBuilder = new Retrofit.Builder();
-
-    // Add API URL, JacksonConverter and the previously created OkHttp3 client
-    retrofitBuilder.baseUrl(server.getApiUrl())
-        .addConverterFactory(JacksonConverterFactory.create())
-        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-        .client(clientBuilder.build());
-
-    // Build Retrofit
-    return retrofitBuilder.build();
-  }
   //endregion --------------------------------------------------------------------------------------
 
   //region PUBLIC API ------------------------------------------------------------------------------
@@ -622,83 +581,82 @@ public class StudIpLegacyApiService {
     return mService.getCourses();
   }
 
-  public Observable<NewsItem> getNewsGlobal() {
-    return getNewsForRange(StudIPConstants.STUDIP_NEWS_GLOBAL_RANGE);
-  }
+  public Observable<NewsEntity> getNews(final String userId) {
+    Observable<NewsEntity> globalNews = getNewsGlobal();
+    Observable<NewsEntity> courseNews = getNewsCourses();
+    Observable<NewsEntity> institutesNews = getNewsInstitutes(userId);
 
-  public Observable<NewsItem> getNews(final String userId) {
-    Observable<NewsItem> globalNews = getNewsGlobal();
-    Observable<NewsItem> courseNews = getNewsCourses();
-    Observable<NewsItem> institutesNews = getNewsInstitutes(userId);
     return Observable.merge(globalNews, courseNews, institutesNews);
   }
 
-  public Observable<NewsItem> getNewsForRange(final String range) {
-    return mService.getNews(range)
-        .flatMap(new Func1<News, Observable<NewsItem>>() {
-          @Override public Observable<NewsItem> call(News news) {
-            return (Observable.from(news.news)
-                .flatMap(new Func1<NewsItem, Observable<NewsItem>>() {
-                  @Override public Observable<NewsItem> call(final NewsItem newsItem) {
-                    return getUser(newsItem.user_id).flatMap(
-                        new Func1<User, Observable<NewsItem>>() {
-                          @Override public Observable<NewsItem> call(User user) {
-                            newsItem.author = user;
-                            newsItem.range = range;
-                            return Observable.just(newsItem);
-                          }
-                        });
-                  }
-                }));
-          }
-        });
+  @RxLogObservable public Observable<NewsEntity> getNewsGlobal() {
+    return getNewsForRange(StudIPConstants.STUDIP_NEWS_GLOBAL_RANGE);
   }
 
-  public Observable<NewsItem> getNewsCourses() {
+  @RxLogObservable public Observable<NewsEntity> getNewsCourses() {
     return mService.getCourses()
-        .flatMap(new Func1<Courses, Observable<NewsItem>>() {
-          @Override public Observable<NewsItem> call(Courses courses) {
-            return Observable.from(courses.courses)
-                .flatMap(new Func1<Course, Observable<NewsItem>>() {
-                  @Override public Observable<NewsItem> call(Course course) {
-                    return getNewsForRange(course.courseId);
-                  }
-                });
-          }
-        });
+        .flatMap(courses -> Observable.defer(() -> Observable.from(courses.courses))
+            .flatMap(this::getNewsForCourse));
   }
 
-  public Observable<NewsItem> getNewsInstitutes(final String userId) {
+  private Observable<NewsEntity> getNewsForCourse(final Course course) {
+    return getNewsForRange(course.courseId).flatMap(newsEntity -> {
+      newsEntity.course = course;
+      return Observable.defer(() -> Observable.just(newsEntity));
+    });
+  }
+
+  @RxLogObservable public Observable<NewsEntity> getNewsInstitutes(final String userId) {
     return mService.getInstitutes(userId)
-        .flatMap(new Func1<InstitutesContainer, Observable<NewsItem>>() {
-          @Override public Observable<NewsItem> call(InstitutesContainer institutesContainer) {
-            return Observable.merge(Observable.from(institutesContainer.getInstitutes()
-                .getStudy()), Observable.from(institutesContainer.getInstitutes()
-                .getWork()))
-                .flatMap(new Func1<Institutes.Institute, Observable<NewsItem>>() {
-                  @Override public Observable<NewsItem> call(Institutes.Institute institute) {
-                    return getNewsForRange(institute.getInstituteId());
-                  }
-                });
-          }
+        .flatMap(institutesContainer -> {
+          final Observable studyInstitutes = Observable.from(institutesContainer.getInstitutes()
+              .getStudy());
+          final Observable workInstitutes = Observable.from(institutesContainer.getInstitutes()
+              .getWork());
+
+          return Observable.mergeDelayError(
+              Observable.defer((Func0<Observable<Institutes.Institute>>) () -> studyInstitutes),
+              Observable.defer((Func0<Observable<Institutes.Institute>>) () -> workInstitutes))
+              .flatMap(institute -> getNewsForRange(institute.getInstituteId()));
         });
   }
 
-  public Observable<NewsItem> getNewsItem(final String id) {
+  public Observable<NewsEntity> getNewsForRange(final String range) {
+    return mService.getNewsEntityForRange(range)
+        .flatMap(news -> (Observable.from(news.newsEntities)
+            .flatMap(newsEntity -> {
+              return getUserEntity(newsEntity.user_id).flatMap(userEntity -> {
+                newsEntity.author = userEntity;
+                newsEntity.range = range;
+
+                return Observable.defer(() -> Observable.just(newsEntity));
+              });
+            })));
+  }
+
+  public Observable<NewsEntity> getNewsItem(final String id) {
     return mService.getNewsItem(id)
-        .flatMap(new Func1<NewsItemWrapper, Observable<NewsItem>>() {
+        .flatMap(newsItem -> getUserEntity(newsItem.news.user_id).flatMap(user -> {
+          newsItem.news.author = user;
 
-          @Override public Observable<NewsItem> call(final NewsItemWrapper newsItem) {
-            return getUser(newsItem.news.user_id).flatMap(new Func1<User, Observable<NewsItem>>() {
+          return Observable.defer(() -> Observable.just(newsItem.news));
+        }));
+  }
 
-              @Override public Observable<NewsItem> call(User user) {
-                newsItem.news.author = user;
-                return Observable.just(newsItem.news);
-              }
-            });
+  /**
+   * Takes a user id as argument and returns an {@link Observable} wrapping the user correspondig
+   * to the {@link User}.
+   *
+   * @param userId String id identifying the user to load the info for.
+   * @return An {@link Observable} wrapping an {@link User} object corresponding to the passed
+   * user id.
+   */
+  public Observable<UserEntity> getUserEntity(final String userId) {
 
-          }
-        });
+    return mService.getUserEntity(userId)
+        .flatMap(userEntityWrapper -> Observable.defer(
+            () -> Observable.just(userEntityWrapper.getUserEntity())))
+        .onErrorReturn(throwable -> null);
   }
 
   public Observable<Semesters> getSemesters() {
@@ -727,6 +685,10 @@ public class StudIpLegacyApiService {
 
     /* User */
     @GET("user/{user_id}") Observable<UserItem> getUser(@Path("user_id") String userId);
+
+    /* User */
+    @GET("user/{user_id}") Observable<UserEntityWrapper> getUserEntity(
+        @Path("user_id") String userId);
 
     @GET("user") Observable<UserItem> getCurrentUserInfo();
 
@@ -801,7 +763,12 @@ public class StudIpLegacyApiService {
     /* News */
     @GET("news/range/{range}") Observable<News> getNews(@Path("range") String range);
 
+    @GET("news/range/{range}") Observable<NewsEntityList> getNewsEntityForRange(
+        @Path("range") String range);
+
     @GET("news/{id}") Observable<NewsItemWrapper> getNewsItem(@Path("id") String id);
+
+    @GET("news/{id}") Observable<NewsEntity> getNewsEntity(@Path("id") String id);
 
     /* Semesters */
     @GET("semesters") Observable<Semesters> getSemesters();

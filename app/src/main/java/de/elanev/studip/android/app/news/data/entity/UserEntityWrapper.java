@@ -6,15 +6,21 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.data.datamodel;
+package de.elanev.studip.android.app.news.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 
 /**
  * @author joern
  */
-public class NewsItemWrapper {
-  @JsonProperty("news") public NewsEntity news;
+public class UserEntityWrapper {
+  private UserEntity userEntity;
+
+  @JsonProperty("user") public UserEntity getUserEntity() {
+    return userEntity;
+  }
+
+  @JsonProperty("user") public void setUserEntity(UserEntity userEntity) {
+    this.userEntity = userEntity;
+  }
 }

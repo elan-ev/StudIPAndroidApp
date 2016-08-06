@@ -10,7 +10,7 @@ package de.elanev.studip.android.app.news.presentation.view;
 
 import com.hannesdorfmann.mosby.mvp.lce.MvpLceView;
 
-import de.elanev.studip.android.app.news.data.model.NewsModel;
+import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 
 /**
  * @author joern
