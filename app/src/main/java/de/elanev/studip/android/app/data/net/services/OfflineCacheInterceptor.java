@@ -9,7 +9,10 @@
 package de.elanev.studip.android.app.data.net.services;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
+import de.elanev.studip.android.app.StudIPApplication;
+import okhttp3.CacheControl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -17,23 +20,19 @@ import okhttp3.Response;
 /**
  * @author joern
  */
-public class RestIpErrorInterceptor implements Interceptor {
-
+public class OfflineCacheInterceptor implements Interceptor {
   @Override public Response intercept(Chain chain) throws IOException {
     Request request = chain.request();
-    boolean isUserRequest = request.url()
-        .toString()
-        .contains("user");
 
-    Response response = chain.proceed(chain.request());
+    if (!StudIPApplication.hasNetwork()) {
+      CacheControl cacheControl = new CacheControl.Builder().maxStale(7, TimeUnit.DAYS)
+          .build();
 
-    if (isUserRequest && response.code() == 400) {
-      Response emptyResponse = new Response.Builder().build();
-
-      return emptyResponse;
+      request = request.newBuilder()
+          .cacheControl(cacheControl)
+          .build();
     }
 
-    return response;
+    return chain.proceed(request);
   }
-
 }

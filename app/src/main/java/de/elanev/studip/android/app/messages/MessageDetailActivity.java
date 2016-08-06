@@ -26,8 +26,11 @@ import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.TimeoutException;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.data.datamodel.Message;
@@ -58,9 +61,11 @@ public class MessageDetailActivity extends AppCompatActivity {
 
   private Message mMessage;
   private User mSender;
+  @Inject StudIpLegacyApiService apiService;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ((AbstractStudIPApplication)getApplication()).getAppComponent().inject(this);
 
     Bundle extras = getIntent().getExtras();
     if (extras == null) {
@@ -150,10 +155,7 @@ public class MessageDetailActivity extends AppCompatActivity {
   private void deleteMessage() {
     String messageId = mMessage.messageId;
 
-    StudIpLegacyApiService service = new StudIpLegacyApiService(Prefs.getInstance(this)
-        .getServer(), this);
-
-    service.deleteMessage(messageId)
+    apiService.deleteMessage(messageId)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Void>() {

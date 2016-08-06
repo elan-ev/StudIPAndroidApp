@@ -40,8 +40,11 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Message;
 import de.elanev.studip.android.app.data.datamodel.MessageItem;
@@ -75,12 +78,13 @@ public class MessageComposeActivity extends AppCompatActivity implements
   @BindView(R.id.message_subject_text_input_layout) TextInputLayout mSubjectTextInputLayout;
   @BindView(R.id.message_body_text_input_layout) TextInputLayout mBodyTextInputLayout;
 
-  private StudIpLegacyApiService mApiService;
+  @Inject StudIpLegacyApiService mApiService;
   private int mAction = -1;
   private UserAdapter mAdapter;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ((AbstractStudIPApplication)getApplication()).getAppComponent().inject(this);
 
     setContentView(R.layout.activity_message_compose);
     ButterKnife.bind(this);
@@ -90,9 +94,6 @@ public class MessageComposeActivity extends AppCompatActivity implements
 
     // initialize CursorLoader
     getSupportLoaderManager().initLoader(0, null, this);
-
-    mApiService = new StudIpLegacyApiService(Prefs.getInstance(this)
-        .getServer(), this);
 
     if (savedInstanceState == null) {
       Intent intent = getIntent();

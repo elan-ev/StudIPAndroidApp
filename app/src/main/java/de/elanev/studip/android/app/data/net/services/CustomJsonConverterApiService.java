@@ -55,9 +55,6 @@ public class CustomJsonConverterApiService {
     logging.setLevel(logLevel);
     clientBuilder.addInterceptor(logging);
 
-    // Add the necessary RestIpApiErrorInterceptor
-    clientBuilder.addInterceptor(new RestIpErrorInterceptor());
-
     // Begin creating the Retrofit2 client
     Retrofit.Builder retrofitBuilder = new Retrofit.Builder();
 

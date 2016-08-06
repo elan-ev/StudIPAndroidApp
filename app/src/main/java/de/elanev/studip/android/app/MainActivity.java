@@ -74,11 +74,11 @@ public class MainActivity extends AppCompatActivity implements
   private View mHeaderView;
   private Handler mHandler;
   private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-  private StudIpLegacyApiService mApiService;
 
   @Inject Prefs mPrefs;
   @Inject @Nullable Server mServer;
   @Inject SyncHelper mSyncHelper;
+  @Inject StudIpLegacyApiService mApiService;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.main, menu);
@@ -189,7 +189,6 @@ public class MainActivity extends AppCompatActivity implements
       finish();
       return;
     }
-    mApiService = new StudIpLegacyApiService(mServer, this);
     mHandler = new Handler();
 
 

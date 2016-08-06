@@ -37,6 +37,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.courses.CourseViewActivity;
 import de.elanev.studip.android.app.data.datamodel.Course;
@@ -59,7 +62,7 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
   private static final String TAG = PlannerTimetableFragment.class.getSimpleName();
   private static final String SCROLL_POSITION_X = "scroll-position-x";
   private static final String SCROLL_POSTIION_Y = "scroll-position-y";
-  StudIpLegacyApiService mApiService;
+  @Inject  StudIpLegacyApiService mApiService;
   Prefs mPrefs;
   private WeekView mWeekView;
   private int mOrientation;
@@ -77,11 +80,12 @@ public class PlannerTimetableFragment extends ReactiveFragment implements
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ((AbstractStudIPApplication)getActivity().getApplication()).getAppComponent().inject(this);
+
     setHasOptionsMenu(true);
     mArgs = getArguments();
     mPrefs = Prefs.getInstance(getActivity());
 
-    mApiService = new StudIpLegacyApiService(mPrefs.getServer(), getActivity());
     mOrientation = getResources().getConfiguration().orientation;
     mPreferredDayCount = mPrefs.getPreferredPlannerTimetableViewDayCount();
   }

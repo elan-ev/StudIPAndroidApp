@@ -23,9 +23,12 @@ import de.elanev.studip.android.app.data.net.services.CustomJsonConverterApiServ
 import de.elanev.studip.android.app.data.net.services.DiscoveryRouteJsonConverterFactory;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
-import de.elanev.studip.android.app.news.data.repository.ApiNewsRepositoryImpl;
-import de.elanev.studip.android.app.news.data.repository.NewsRepository;
+import de.elanev.studip.android.app.news.data.repository.NewsDataRepository;
+import de.elanev.studip.android.app.news.domain.NewsRepository;
 import de.elanev.studip.android.app.util.Prefs;
+import okhttp3.Cache;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 /**
  * @author joern
@@ -52,31 +55,11 @@ public class ApplicationModule {
     return Prefs.getInstance(context);
   }
 
-  // Api
-  @Provides @Nullable public Server provideServer(Context context) {
-    return Prefs.getInstance(context)
-        .getServer();
-  }
 
-  @Provides @Singleton public CustomJsonConverterApiService provideCustomJsonConverterApiService(
-      @Nullable Server server) {
-    return new CustomJsonConverterApiService(server, new DiscoveryRouteJsonConverterFactory());
-  }
-
-  @Provides @Singleton public StudIpLegacyApiService provideApiService(Context context,
-      @Nullable Server server) {
-    return new StudIpLegacyApiService(server, context);
-  }
-
-  @Provides @Singleton public SyncHelper provideSyncHelper(Context context,
-      Lazy<StudIpLegacyApiService> apiService,
-      Lazy<CustomJsonConverterApiService> customJsonConverterApiService) {
-    return new SyncHelper(context, apiService, customJsonConverterApiService);
-  }
 
   @Provides @Singleton public NewsRepository provideNewsRepository(
-      StudIpLegacyApiService apiService, Prefs prefs) {
-    return new ApiNewsRepositoryImpl(apiService, prefs);
+      NewsDataRepository newsDataRepository) {
+    return newsDataRepository;
   }
 
 }

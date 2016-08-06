@@ -67,7 +67,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
   private static ContentResolver mResolver;
 
   protected UserListFragment() {}
-
+  @Inject StudIpLegacyApiService apiService;
   /*
    * (non-Javadoc)
    *
@@ -76,6 +76,8 @@ public abstract class UserListFragment extends ProgressListFragment implements L
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ((AbstractStudIPApplication)getActivity().getApplication()).getAppComponent().inject(this);
+
     mResolver = mContext.getContentResolver();
   }
 
@@ -209,15 +211,15 @@ public abstract class UserListFragment extends ProgressListFragment implements L
           return true;
         }
         case R.id.manage_groups: {
-          Bundle args = new Bundle();
-          args.putString(ContactsContract.Columns.Contacts.USER_ID, userId);
-          args.putInt(ContactsContract.Columns.Contacts._ID, userIntId);
-          ContactGroupsDialogFragment frag = (ContactGroupsDialogFragment) ContactGroupsDialogFragment
-              .instantiate(mContext, ContactGroupsDialogFragment.class.getName());
-          frag.setArguments(args);
-          getFragmentManager().beginTransaction()
-              .add(frag, ContactGroupsDialogFragment.class.getName())
-              .commit();
+//          Bundle args = new Bundle();
+//          args.putString(ContactsContract.Columns.Contacts.USER_ID, userId);
+//          args.putInt(ContactsContract.Columns.Contacts._ID, userIntId);
+//          ContactGroupsDialogFragment frag = (ContactGroupsDialogFragment) ContactGroupsDialogFragment
+//              .instantiate(mContext, ContactGroupsDialogFragment.class.getName());
+//          frag.setArguments(args);
+//          getFragmentManager().beginTransaction()
+//              .add(frag, ContactGroupsDialogFragment.class.getName())
+//              .commit();
           return true;
         }
 
@@ -230,15 +232,14 @@ public abstract class UserListFragment extends ProgressListFragment implements L
 
   }
 
-  private static void addUserToGroup(final String userId, final String groupId,
+  private void addUserToGroup(final String userId, final String groupId,
       final Context context, final SyncHelper syncHelper) {
 
     // TODO: Replace with injections
     Server server = Prefs.getInstance(context)
         .getServer();
-    StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
 
-    service.addUserToContactsGroup(groupId, userId)
+    apiService.addUserToContactsGroup(groupId, userId)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<ContactGroups>() {
@@ -268,13 +269,9 @@ public abstract class UserListFragment extends ProgressListFragment implements L
         });
   }
 
-  private static void deleteUserFromGroup(final String userId, final String groupId,
+  private void deleteUserFromGroup(final String userId, final String groupId,
       final int groupIntId, final int userIntId, final Context context, final SyncHelper syncHelper) {
-
-    Server server = Prefs.getInstance(context)
-        .getServer();
-    StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
-    service.deleteUserFromContactsGroup(groupId, userId)
+    apiService.deleteUserFromContactsGroup(groupId, userId)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Void>() {
@@ -305,10 +302,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
   }
 
   private void addUserToContacts(final String userId, final Context context) {
-    Server server = Prefs.getInstance(context)
-        .getServer();
-    StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
-    service.addUserToContacts(userId)
+    apiService.addUserToContacts(userId)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Contacts>() {
@@ -335,12 +329,9 @@ public abstract class UserListFragment extends ProgressListFragment implements L
         });
   }
 
-  private static void deleteUserFromContacts(final String userId, final Context context,
+  private  void deleteUserFromContacts(final String userId, final Context context,
       final SyncHelper syncHelper) {
-    Server server = Prefs.getInstance(context)
-        .getServer();
-    StudIpLegacyApiService service = new StudIpLegacyApiService(server, context);
-    service.deleteUserFromContacts(userId)
+    apiService.deleteUserFromContacts(userId)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Void>() {
@@ -387,131 +378,131 @@ public abstract class UserListFragment extends ProgressListFragment implements L
     };
   }
 
-  public static class ContactGroupsDialogFragment extends DialogFragment {
-
-    private String mUserId;
-    private int mIntUserId;
-    @Inject SyncHelper mSyncHelper;
-
-    public ContactGroupsDialogFragment() {}
-
-    @Override public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-
-      ((AbstractStudIPApplication)getActivity().getApplication()).getAppComponent().inject(this);
-
-      mUserId = getArguments().getString(ContactsContract.Columns.Contacts.USER_ID);
-      mIntUserId = getArguments().getInt(ContactsContract.Columns.Contacts._ID);
-    }
-
-    @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
-      final String[] projection = new String[]{
-          ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_GROUP_NAME,
-          ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_GROUP_ID,
-          ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_ID
-      };
-
-      final HashMap<String, Pair<Pair<String, Integer>, Boolean>> multimap = new HashMap<String, Pair<Pair<String, Integer>, Boolean>>();
-      final ArrayList<Pair<String, Integer>> allGroupIds = new ArrayList<Pair<String, Integer>>();
-      final ArrayList<String> allGroupNames = new ArrayList<String>();
-
-      // load all groups
-      CursorLoader allGroupsloader = new CursorLoader(getActivity(),
-          ContactsContract.CONTENT_URI_CONTACT_GROUPS,
-          projection,
-          ContactsContract.Columns.ContactGroups.GROUP_ID + " != ?",
-          new String[]{getString(R.string.restip_contacts_groups_unassigned_id)},
-          ContactsContract.Columns.ContactGroups.GROUP_NAME + " ASC");
-
-      final Cursor cursorAllGroups = allGroupsloader.loadInBackground();
-      cursorAllGroups.moveToFirst();
-      while (!cursorAllGroups.isAfterLast()) {
-        String groupName = cursorAllGroups.getString(cursorAllGroups.getColumnIndex(ContactsContract.Columns.ContactGroups.GROUP_NAME));
-        String groupId = cursorAllGroups.getString(cursorAllGroups.getColumnIndex(ContactsContract.Columns.ContactGroups.GROUP_ID));
-        int groupIntId = cursorAllGroups.getInt(cursorAllGroups.getColumnIndex(ContactsContract.Columns.ContactGroups._ID));
-        multimap.put(groupName,
-            new Pair<Pair<String, Integer>, Boolean>(new Pair<String, Integer>(groupId, groupIntId),
-                false)
-        );
-        cursorAllGroups.moveToNext();
-      }
-      cursorAllGroups.close();
-
-      // load only the users groups
-      CursorLoader selectedGroupsLoader = new CursorLoader(getActivity(),
-          ContactsContract.CONTENT_URI_CONTACTS.buildUpon().appendPath(mUserId).build(),
-          projection,
-          null,
-          null,
-          ContactsContract.Columns.ContactGroups.GROUP_NAME + " ASC");
-      final Cursor userGroupsCursor = selectedGroupsLoader.loadInBackground();
-      userGroupsCursor.moveToFirst();
-
-      // set selected if group is users group
-      while (!userGroupsCursor.isAfterLast()) {
-        String userGroup = userGroupsCursor.getString(cursorAllGroups.getColumnIndex(
-            ContactsContract.Columns.ContactGroups.GROUP_NAME));
-        if (multimap.containsKey(userGroup)) {
-          Pair<String, Integer> groupIdPair = multimap.get(userGroup).first;
-          multimap.put(userGroup, new Pair<Pair<String, Integer>, Boolean>(groupIdPair, true));
-        }
-        userGroupsCursor.moveToNext();
-      }
-      userGroupsCursor.close();
-
-      Iterator<Entry<String, Pair<Pair<String, Integer>, Boolean>>> it = multimap.entrySet()
-          .iterator();
-      int row = 0;
-      boolean[] primitivValuesArr = new boolean[multimap.size()];
-      while (it.hasNext()) {
-        Map.Entry<String, Pair<Pair<String, Integer>, Boolean>> pairs = it
-            .next();
-
-        allGroupNames.add(pairs.getKey());
-        allGroupIds.add(pairs.getValue().first);
-        primitivValuesArr[row] = pairs.getValue().second;
-
-        row++;
-        it.remove(); // avoids a ConcurrentModificationException
-      }
-
-      AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-      builder.setTitle(R.string.manage_groups);
-      builder.setMultiChoiceItems(allGroupNames.toArray(new CharSequence[allGroupNames.size()]),
-          primitivValuesArr,
-          new OnMultiChoiceClickListener() {
-
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-              if (isChecked) {
-                addUserToGroup(mUserId, allGroupIds.get(which).first, getActivity(),
-                    getSyncHelper());
-              } else {
-                deleteUserFromGroup(mUserId, allGroupIds.get(which).first,
-                    allGroupIds.get(which).second, mIntUserId, getActivity(), getSyncHelper());
-              }
-
-            }
-          }
-      );
-      builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             *
-             * @see
-             * android.content.DialogInterface.OnClickListener#onClick
-             * (android.content.DialogInterface, int)
-             */
-            public void onClick(DialogInterface dialog, int which) {
-              getDialog().cancel();
-            }
-          }
-      );
-
-      return builder.create();
-    }
-
-    public SyncHelper getSyncHelper() {
-      return mSyncHelper;
-    }
-  }
+//  public static class ContactGroupsDialogFragment extends DialogFragment {
+//
+//    private String mUserId;
+//    private int mIntUserId;
+//    @Inject SyncHelper mSyncHelper;
+//
+//    public ContactGroupsDialogFragment() {}
+//
+//    @Override public void onCreate(Bundle savedInstanceState) {
+//      super.onCreate(savedInstanceState);
+//
+//      ((AbstractStudIPApplication)getActivity().getApplication()).getAppComponent().inject(this);
+//
+//      mUserId = getArguments().getString(ContactsContract.Columns.Contacts.USER_ID);
+//      mIntUserId = getArguments().getInt(ContactsContract.Columns.Contacts._ID);
+//    }
+//
+//    @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
+//      final String[] projection = new String[]{
+//          ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_GROUP_NAME,
+//          ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_GROUP_ID,
+//          ContactsContract.Qualified.ContactGroups.CONTACT_GROUPS_ID
+//      };
+//
+//      final HashMap<String, Pair<Pair<String, Integer>, Boolean>> multimap = new HashMap<String, Pair<Pair<String, Integer>, Boolean>>();
+//      final ArrayList<Pair<String, Integer>> allGroupIds = new ArrayList<Pair<String, Integer>>();
+//      final ArrayList<String> allGroupNames = new ArrayList<String>();
+//
+//      // load all groups
+//      CursorLoader allGroupsloader = new CursorLoader(getActivity(),
+//          ContactsContract.CONTENT_URI_CONTACT_GROUPS,
+//          projection,
+//          ContactsContract.Columns.ContactGroups.GROUP_ID + " != ?",
+//          new String[]{getString(R.string.restip_contacts_groups_unassigned_id)},
+//          ContactsContract.Columns.ContactGroups.GROUP_NAME + " ASC");
+//
+//      final Cursor cursorAllGroups = allGroupsloader.loadInBackground();
+//      cursorAllGroups.moveToFirst();
+//      while (!cursorAllGroups.isAfterLast()) {
+//        String groupName = cursorAllGroups.getString(cursorAllGroups.getColumnIndex(ContactsContract.Columns.ContactGroups.GROUP_NAME));
+//        String groupId = cursorAllGroups.getString(cursorAllGroups.getColumnIndex(ContactsContract.Columns.ContactGroups.GROUP_ID));
+//        int groupIntId = cursorAllGroups.getInt(cursorAllGroups.getColumnIndex(ContactsContract.Columns.ContactGroups._ID));
+//        multimap.put(groupName,
+//            new Pair<Pair<String, Integer>, Boolean>(new Pair<String, Integer>(groupId, groupIntId),
+//                false)
+//        );
+//        cursorAllGroups.moveToNext();
+//      }
+//      cursorAllGroups.close();
+//
+//      // load only the users groups
+//      CursorLoader selectedGroupsLoader = new CursorLoader(getActivity(),
+//          ContactsContract.CONTENT_URI_CONTACTS.buildUpon().appendPath(mUserId).build(),
+//          projection,
+//          null,
+//          null,
+//          ContactsContract.Columns.ContactGroups.GROUP_NAME + " ASC");
+//      final Cursor userGroupsCursor = selectedGroupsLoader.loadInBackground();
+//      userGroupsCursor.moveToFirst();
+//
+//      // set selected if group is users group
+//      while (!userGroupsCursor.isAfterLast()) {
+//        String userGroup = userGroupsCursor.getString(cursorAllGroups.getColumnIndex(
+//            ContactsContract.Columns.ContactGroups.GROUP_NAME));
+//        if (multimap.containsKey(userGroup)) {
+//          Pair<String, Integer> groupIdPair = multimap.get(userGroup).first;
+//          multimap.put(userGroup, new Pair<Pair<String, Integer>, Boolean>(groupIdPair, true));
+//        }
+//        userGroupsCursor.moveToNext();
+//      }
+//      userGroupsCursor.close();
+//
+//      Iterator<Entry<String, Pair<Pair<String, Integer>, Boolean>>> it = multimap.entrySet()
+//          .iterator();
+//      int row = 0;
+//      boolean[] primitivValuesArr = new boolean[multimap.size()];
+//      while (it.hasNext()) {
+//        Map.Entry<String, Pair<Pair<String, Integer>, Boolean>> pairs = it
+//            .next();
+//
+//        allGroupNames.add(pairs.getKey());
+//        allGroupIds.add(pairs.getValue().first);
+//        primitivValuesArr[row] = pairs.getValue().second;
+//
+//        row++;
+//        it.remove(); // avoids a ConcurrentModificationException
+//      }
+//
+//      AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//      builder.setTitle(R.string.manage_groups);
+//      builder.setMultiChoiceItems(allGroupNames.toArray(new CharSequence[allGroupNames.size()]),
+//          primitivValuesArr,
+//          new OnMultiChoiceClickListener() {
+//
+//            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+//              if (isChecked) {
+//                addUserToGroup(mUserId, allGroupIds.get(which).first, getActivity(),
+//                    getSyncHelper());
+//              } else {
+//                deleteUserFromGroup(mUserId, allGroupIds.get(which).first,
+//                    allGroupIds.get(which).second, mIntUserId, getActivity(), getSyncHelper());
+//              }
+//
+//            }
+//          }
+//      );
+//      builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//            /*
+//             * (non-Javadoc)
+//             *
+//             * @see
+//             * android.content.DialogInterface.OnClickListener#onClick
+//             * (android.content.DialogInterface, int)
+//             */
+//            public void onClick(DialogInterface dialog, int which) {
+//              getDialog().cancel();
+//            }
+//          }
+//      );
+//
+//      return builder.create();
+//    }
+//
+//    public SyncHelper getSyncHelper() {
+//      return mSyncHelper;
+//    }
+//  }
 }

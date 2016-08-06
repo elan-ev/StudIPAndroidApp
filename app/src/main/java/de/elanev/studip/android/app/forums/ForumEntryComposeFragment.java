@@ -131,8 +131,8 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
 
     Server server = Prefs.getInstance(getActivity()).getServer();
 
-    StudIpLegacyApiService legacyApiService = new StudIpLegacyApiService(server, getActivity());
-    mCompositeSubscription.add(bind(legacyApiService.createForumEntry(sEntryId,
+
+    mCompositeSubscription.add(bind(mApiService.createForumEntry(sEntryId,
         subject,
         content)).subscribe(new Subscriber<ForumArea>() {
       @Override public void onCompleted() {
