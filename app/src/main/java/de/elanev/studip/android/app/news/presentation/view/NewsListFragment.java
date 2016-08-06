@@ -34,6 +34,7 @@ import de.elanev.studip.android.app.news.internal.di.NewsComponent;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.presenter.NewsListPresenter;
 import de.elanev.studip.android.app.widget.EmptyRecyclerView;
+import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
 
 /**
  * @author joern
@@ -105,6 +106,7 @@ public class NewsListFragment extends
     mRecyclerView.setEmptyView(mEmptyView);
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     mRecyclerView.setAdapter(mNewsAdapter);
+    mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
   }
 
   @Override protected String getErrorMessage(Throwable e, boolean pullToRefresh) {
