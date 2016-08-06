@@ -23,6 +23,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.fernandocejas.frodo'
+apply plugin: 'me.tatarka.retrolambda'
 
 repositories {
   maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -148,8 +149,8 @@ android {
     abortOnError false
   }
 
-  compileSdkVersion 23
-  buildToolsVersion '23.0.2'
+  compileSdkVersion 24
+  buildToolsVersion '24.0.1'
 
   // Testing option
   // Always show the result of every unit test, even if it passes.
@@ -189,11 +190,18 @@ android {
 
     // Set output file name based on versionName
     setProperty("archivesBaseName", "studip_mobil")
+
+    // Enable Jack Compiler -> currently not working with apt
+//    jackOptions {
+//      enabled true
+//    }
+
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_7
-    targetCompatibility JavaVersion.VERSION_1_7
+    // Enable Java 8 SourceCode features
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
   }
 
   productFlavors {
