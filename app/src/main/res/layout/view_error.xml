@@ -20,7 +20,7 @@
         android:indeterminate="true"
         android:layout_gravity="center"
         android:layout_centerInParent="true"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         android:padding="@dimen/keyline_1"
         tools:text="Dummy error message!"
         />
