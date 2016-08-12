@@ -20,6 +20,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -32,10 +33,10 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
-import de.elanev.studip.android.app.widget.ListAdapterUsers;
+import de.elanev.studip.android.app.user.presentation.view.ListAdapterUsers;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
-import de.elanev.studip.android.app.widget.UserDetailsActivity;
-import de.elanev.studip.android.app.widget.UserListFragment;
+import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
+import de.elanev.studip.android.app.user.presentation.view.UserListFragment;
 
 /**
  * @author joern
@@ -174,9 +175,11 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
     Cursor c = (Cursor) mListView.getItemAtPosition(position);
     String userId = c.getString(c.getColumnIndex(UsersContract.Columns.USER_ID));
 
-    if (userId != null) {
+    if (!TextUtils.isEmpty(userId)) {
       Intent intent = new Intent(mContext, UserDetailsActivity.class);
-      intent.putExtra(UsersContract.Columns.USER_ID, userId);
+      Bundle args = new Bundle();
+      args.putString(UserDetailsActivity.USER_ID, userId);
+      intent.putExtras(args);
 
       ImageView icon = (ImageView) view.findViewById(R.id.user_image);
       ActivityOptionsCompat options = ActivityOptionsCompat.

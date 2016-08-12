@@ -32,10 +32,10 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.db.ContactsContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
-import de.elanev.studip.android.app.widget.ListAdapterUsers;
+import de.elanev.studip.android.app.user.presentation.view.ListAdapterUsers;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
-import de.elanev.studip.android.app.widget.UserDetailsActivity;
-import de.elanev.studip.android.app.widget.UserListFragment;
+import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
+import de.elanev.studip.android.app.user.presentation.view.UserListFragment;
 
 /**
  * @author joern
@@ -151,7 +151,9 @@ public class ContactsGroupsFragment extends UserListFragment implements
     String userId = c.getString(c.getColumnIndex(UsersContract.Columns.USER_ID));
     if (userId != null) {
       Intent intent = new Intent(mContext, UserDetailsActivity.class);
-      intent.putExtra(UsersContract.Columns.USER_ID, userId);
+      Bundle args = new Bundle();
+      args.putString(UserDetailsActivity.USER_ID, userId);
+      intent.putExtras(args);
       ActivityOptionsCompat options = ActivityOptionsCompat.
           makeSceneTransitionAnimation(getActivity(), icon, getString(R.string.Profile));
 
