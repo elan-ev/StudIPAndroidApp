@@ -29,11 +29,7 @@ public class NewsDataRepository implements NewsRepository {
   private final NewsEntityDataMapper mEntityDataMapper;
   private final NewsDataStoreFactory mNewsDataStoreFactory;
 
-  public Func1<? super NewsEntity, ? extends NewsItem> transformNewsEntity = new Func1<NewsEntity, NewsItem>() {
-    @Override public NewsItem call(NewsEntity newsEntity) {
-      return mEntityDataMapper.transform(newsEntity);
-    }
-  };
+
   private Func1<? super List<NewsEntity>, ? extends List<NewsItem>> transformNewsEntityList = new Func1<List<NewsEntity>, List<NewsItem>>() {
     @Override public List<NewsItem> call(List<NewsEntity> newsEntities) {
       return mEntityDataMapper.transform(newsEntities);
@@ -48,12 +44,14 @@ public class NewsDataRepository implements NewsRepository {
 
 
   @Override public Observable<NewsItem> newsItem(String id) {
-    return mNewsDataStoreFactory.create().newsEntity(id)
-        .map(transformNewsEntity);
+    return mNewsDataStoreFactory.create()
+        .newsEntity(id)
+        .map(mEntityDataMapper::transform);
   }
 
   @Override public Observable<List<NewsItem>> newsList() {
-    return mNewsDataStoreFactory.create().newsEntityList()
-        .map(transformNewsEntityList);
+    return mNewsDataStoreFactory.create()
+        .newsEntityList()
+        .map(mEntityDataMapper::transform);
   }
 }

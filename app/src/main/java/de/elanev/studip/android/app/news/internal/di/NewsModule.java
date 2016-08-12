@@ -11,9 +11,9 @@ package de.elanev.studip.android.app.news.internal.di;
 import dagger.Module;
 import dagger.Provides;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
-import de.elanev.studip.android.app.news.domain.NewsRepository;
 import de.elanev.studip.android.app.news.domain.GetNewsDetails;
 import de.elanev.studip.android.app.news.domain.GetNewsList;
+import de.elanev.studip.android.app.news.domain.NewsRepository;
 
 /**
  * @author joern

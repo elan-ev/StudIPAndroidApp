@@ -23,5 +23,6 @@
         android:textSize="@dimen/text_size_medium"
         android:padding="@dimen/keyline_1"
         tools:text="Dummy error message!"
+        android:visibility="gone"
         />
 </merge>

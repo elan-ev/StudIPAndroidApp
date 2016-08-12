@@ -12,7 +12,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/news_item_content_view"/>
+    <include layout="@layout/view_news_content"/>
 
     <include layout="@layout/view_loading"/>
 

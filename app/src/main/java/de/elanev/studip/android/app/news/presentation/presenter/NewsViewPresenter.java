@@ -20,8 +20,8 @@ import de.elanev.studip.android.app.news.presentation.view.NewsView;
  * @author joern
  */
 public class NewsViewPresenter extends BaseRxLcePresenter<NewsView, NewsModel> {
-  GetNewsDetails mGetNewsDetailsUseCase;
-  NewsModelDataMapper mNewsModelDataMapper;
+  private final GetNewsDetails mGetNewsDetailsUseCase;
+  private final NewsModelDataMapper mNewsModelDataMapper;
 
   @Inject public NewsViewPresenter(GetNewsDetails getNewsDetails,
       NewsModelDataMapper newsModelDataMapper) {

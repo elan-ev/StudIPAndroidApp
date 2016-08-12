@@ -39,7 +39,6 @@ public class NewsActivity extends MainActivity implements HasComponent<NewsCompo
     setContentView(R.layout.activity_news);
 
     overridePendingTransition(0, 0);
-
   }
 
   private void initInjector() {

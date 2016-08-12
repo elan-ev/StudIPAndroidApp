@@ -23,11 +23,7 @@ public class CloudNewsDataStore implements NewsDataStore {
   private final StudIpLegacyApiService mApiService;
   private final Prefs mPrefs;
 
-  private Func2<NewsEntity, NewsEntity, Integer> mSortFunction = new Func2<NewsEntity, NewsEntity, Integer>() {
-    @Override public Integer call(NewsEntity newsEntity, NewsEntity newsEntity2) {
-      return newsEntity2.date.compareTo(newsEntity.date);
-    }
-  };
+  private Func2<NewsEntity, NewsEntity, Integer> mSortFunction = (newsEntity, newsEntity2) -> newsEntity2.date.compareTo(newsEntity.date);
 
 
   public CloudNewsDataStore(StudIpLegacyApiService apiService, Prefs prefs) {
