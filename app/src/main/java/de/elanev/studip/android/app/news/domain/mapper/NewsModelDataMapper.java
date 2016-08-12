@@ -15,9 +15,8 @@ import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.news.domain.NewsItem;
-import de.elanev.studip.android.app.news.domain.User;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
-import de.elanev.studip.android.app.news.presentation.model.UserModel;
+import de.elanev.studip.android.app.user.domain.mapper.UserModelDataMapper;
 
 /**
  * @author joern
@@ -26,7 +25,11 @@ import de.elanev.studip.android.app.news.presentation.model.UserModel;
 public class NewsModelDataMapper {
 
 
-  @Inject public NewsModelDataMapper() {}
+  private final UserModelDataMapper userModelDataMapper;
+
+  @Inject public NewsModelDataMapper(UserModelDataMapper userModelDataMapper) {
+    this.userModelDataMapper = userModelDataMapper;
+  }
 
   public List<NewsModel> transformNewsList(List<NewsItem> news) {
     if (news == null) {
@@ -48,7 +51,7 @@ public class NewsModelDataMapper {
     }
 
     NewsModel newsModel = new NewsModel();
-    newsModel.author = transformUser(newsItem.getAuthor());
+    newsModel.author = userModelDataMapper.transform(newsItem.getAuthor());
     newsModel.title = newsItem.getTitle();
     newsModel.body = newsItem.getBody();
     newsModel.date = newsItem.getDate();
@@ -59,16 +62,4 @@ public class NewsModelDataMapper {
     return newsModel;
   }
 
-  public UserModel transformUser(User user) {
-    UserModel userModel = null;
-
-    if (user != null) {
-      userModel = new UserModel();
-      userModel.setUserId(user.getUserId());
-      userModel.setFullName(user.getFullname());
-      userModel.setAvatarUrl(user.getAvatarUrl());
-    }
-
-    return userModel;
-  }
 }

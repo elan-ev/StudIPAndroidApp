@@ -16,8 +16,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
-import de.elanev.studip.android.app.news.data.entity.UserEntityDataMapper;
+import de.elanev.studip.android.app.user.data.entity.UserEntityDataMapper;
 import de.elanev.studip.android.app.news.domain.NewsItem;
+import rx.functions.Func1;
 
 /**
  * @author joern
@@ -26,7 +27,6 @@ import de.elanev.studip.android.app.news.domain.NewsItem;
 public class NewsEntityDataMapper {
 
   private UserEntityDataMapper userEntityDataMapper;
-
 
   @Inject public NewsEntityDataMapper(UserEntityDataMapper userEntityDataMapper) {
     this.userEntityDataMapper = userEntityDataMapper;

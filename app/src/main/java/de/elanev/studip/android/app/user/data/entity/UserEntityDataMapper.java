@@ -6,12 +6,12 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.news.data.entity;
+package de.elanev.studip.android.app.user.data.entity;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.elanev.studip.android.app.news.domain.User;
+import de.elanev.studip.android.app.user.domain.User;
 
 /**
  * @author joern
@@ -33,7 +33,7 @@ public class UserEntityDataMapper {
       user.setPhone(userEntity.phone);
       user.setHomepageUrl(userEntity.homepage);
       user.setSkypeAddress(userEntity.skype);
-      user.setShowSkypeAddress(userEntity.skypeShow);
+      user.setShowSkypeOnline(userEntity.skypeShow);
       user.setPrivateAddress(userEntity.privadr);
     }
 

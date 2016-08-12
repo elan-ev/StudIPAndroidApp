@@ -5,7 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
-package de.elanev.studip.android.app.widget;
+
+package de.elanev.studip.android.app.user.presentation.view;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -19,6 +20,7 @@ import com.squareup.picasso.Picasso;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.db.UsersContract;
+import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
 
 /**
  * @author joern

@@ -23,9 +23,11 @@ import de.elanev.studip.android.app.messages.MessageComposeActivity;
 import de.elanev.studip.android.app.messages.MessageDetailActivity;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
 import de.elanev.studip.android.app.planner.PlannerTimetableFragment;
+import de.elanev.studip.android.app.user.domain.UserRepository;
+import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
 import de.elanev.studip.android.app.widget.BaseFragment;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import de.elanev.studip.android.app.widget.UserListFragment;
+import de.elanev.studip.android.app.user.presentation.view.UserListFragment;
 
 /**
  * @author joern
@@ -37,6 +39,8 @@ public interface ApplicationComponent {
   void inject(AbstractStudIPApplication target);
 
   void inject(MainActivity target);
+
+  void inject(UserDetailsActivity userDetailsActivity);
 
   void inject(SyncHelper target);
 
@@ -61,6 +65,9 @@ public interface ApplicationComponent {
 
   NewsRepository newsRepository();
 
+  UserRepository userRepository();
+
   //FIxme
   SyncHelper syncHelper();
+
 }

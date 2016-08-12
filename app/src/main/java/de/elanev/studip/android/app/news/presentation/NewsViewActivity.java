@@ -8,6 +8,7 @@
 
 package de.elanev.studip.android.app.news.presentation;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
@@ -21,12 +22,15 @@ import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
 import de.elanev.studip.android.app.news.internal.di.DaggerNewsComponent;
 import de.elanev.studip.android.app.news.internal.di.NewsComponent;
 import de.elanev.studip.android.app.news.internal.di.NewsModule;
+import de.elanev.studip.android.app.user.presentation.model.UserModel;
 import de.elanev.studip.android.app.news.presentation.view.NewsViewFragment;
+import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
 
 /**
  * @author joern
  */
-public class NewsViewActivity extends AppCompatActivity implements HasComponent<NewsComponent> {
+public class NewsViewActivity extends AppCompatActivity implements HasComponent<NewsComponent>,
+    NewsViewFragment.InfoContainerClickListener {
 
   static final String NEWS_ID = "news-id";
 
@@ -88,5 +92,16 @@ public class NewsViewActivity extends AppCompatActivity implements HasComponent<
 
   @Override public NewsComponent getComponent() {
     return mNewsComponent;
+  }
+
+  @Override public void onInfoContainerClicked(UserModel userModel) {
+    if (userModel == null) return;
+
+    Intent intent = new Intent();
+    Bundle args = new Bundle();
+    args.putString(UserDetailsActivity.USER_ID, userModel.getUserId());
+    intent.setClass(this, UserDetailsActivity.class);
+    intent.putExtras(args);
+    startActivity(intent);
   }
 }

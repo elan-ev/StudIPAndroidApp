@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.news.domain;
+package de.elanev.studip.android.app.user.domain;
 
 /**
  * @author joern
@@ -25,7 +25,7 @@ public class User {
   private String homepageUrl;
   private String privateAddress;
   private String skypeAddress;
-  private boolean showSkypeAddress;
+  private boolean showSkypeOnline;
 
   public User(String userId) {this.userId = userId;}
 
@@ -47,7 +47,7 @@ public class User {
     userStr += "private address=" + this.getPrivateAddress() + "\n";
     userStr += "homepage url=" + this.getHomepageUrl() + "\n";
     userStr += "skype address=" + this.getSkypeAddress() + "\n";
-    userStr += "show skype=" + this.showSkypeAddress() + "\n";
+    userStr += "show skype=" + this.showSkypeOnline() + "\n";
     userStr += "********************************";
 
     return userStr;
@@ -105,8 +105,8 @@ public class User {
     this.skypeAddress = skypeAddress;
   }
 
-  public boolean showSkypeAddress() {
-    return showSkypeAddress;
+  public boolean showSkypeOnline() {
+    return showSkypeOnline;
   }
 
   public void setPrivateAddress(String privateAddress) {
@@ -117,7 +117,7 @@ public class User {
     this.username = username;
   }
 
-  public void setShowSkypeAddress(boolean showSkypeAddress) {
-    this.showSkypeAddress = showSkypeAddress;
+  public void setShowSkypeOnline(boolean showSkypeOnline) {
+    this.showSkypeOnline = showSkypeOnline;
   }
 }

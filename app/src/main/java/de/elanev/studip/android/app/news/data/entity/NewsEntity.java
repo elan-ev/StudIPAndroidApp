@@ -14,6 +14,7 @@ package de.elanev.studip.android.app.news.data.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import de.elanev.studip.android.app.data.datamodel.Course;
+import de.elanev.studip.android.app.user.data.entity.UserEntity;
 
 /**
  * @author joern

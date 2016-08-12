@@ -6,20 +6,13 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.news.presentation.model;
+package de.elanev.studip.android.app.user.presentation.view;
 
-import de.elanev.studip.android.app.data.datamodel.Course;
+import com.hannesdorfmann.mosby.mvp.lce.MvpLceView;
+
 import de.elanev.studip.android.app.user.presentation.model.UserModel;
 
 /**
  * @author joern
  */
-public class NewsModel {
-  public String title;
-  public UserModel author;
-  public long date;
-  public String body;
-  public String range;
-  public String id;
-  public Course course;
-}
+public interface UserDetailsView extends MvpLceView<UserModel> {}

@@ -8,6 +8,7 @@
 
 package de.elanev.studip.android.app.news.presentation.view;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -28,11 +29,13 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.view.BaseLceFragment;
 import de.elanev.studip.android.app.news.internal.di.NewsComponent;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.presenter.NewsViewPresenter;
+import de.elanev.studip.android.app.user.presentation.model.UserModel;
 import de.elanev.studip.android.app.util.DateTools;
 
 /**
@@ -48,6 +51,7 @@ public class NewsViewFragment extends
   @BindView(R.id.user_image) ImageView mUserImageView;
   @BindView(R.id.info_container) View mInfoContainer;
   private NewsModel mNews;
+  private InfoContainerClickListener infoContainerListener;
 
   public NewsViewFragment() {
     // Without this, the Activity crashes on configuration change
@@ -59,13 +63,21 @@ public class NewsViewFragment extends
     return new NewsViewFragment();
   }
 
-  @NonNull@Override public NewsViewPresenter createPresenter() {
+  @NonNull @Override public NewsViewPresenter createPresenter() {
     return mPresenter;
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     getActivity().setTitle(R.string.News);
+  }
+
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (activity instanceof InfoContainerClickListener) {
+      this.infoContainerListener = (InfoContainerClickListener) activity;
+    }
   }
 
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -137,7 +149,7 @@ public class NewsViewFragment extends
         .inject(this);
   }
 
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.fragment_news_details, container, false);
     ButterKnife.bind(this, v);
@@ -145,5 +157,13 @@ public class NewsViewFragment extends
     mBodyTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
     return v;
+  }
+
+  @OnClick(R.id.info_container) public void onInfoContainerClick() {
+    this.infoContainerListener.onInfoContainerClicked(mNews.author);
+  }
+
+  public interface InfoContainerClickListener {
+    void onInfoContainerClicked(final UserModel userModel);
   }
 }

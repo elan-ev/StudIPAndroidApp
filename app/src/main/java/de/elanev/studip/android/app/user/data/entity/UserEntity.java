@@ -9,7 +9,7 @@
 /**
  *
  */
-package de.elanev.studip.android.app.news.data.entity;
+package de.elanev.studip.android.app.user.data.entity;
 
 import android.text.TextUtils;
 

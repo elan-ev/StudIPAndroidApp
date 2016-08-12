@@ -48,7 +48,7 @@ import de.elanev.studip.android.app.planner.PlannerActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
-import de.elanev.studip.android.app.widget.UserDetailsActivity;
+import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -384,7 +384,9 @@ public class MainActivity extends AppCompatActivity implements
   @Override public void onClick(View v) {
     if (mUserId != null) {
       Intent intent = new Intent(this, UserDetailsActivity.class);
-      intent.putExtra(UsersContract.Columns.USER_ID, mUserId);
+      Bundle args = new Bundle();
+      args.putString(UserDetailsActivity.USER_ID, mUserId);
+      intent.putExtras(args);
       startActivity(intent);
       mDrawerLayout.closeDrawers();
     }

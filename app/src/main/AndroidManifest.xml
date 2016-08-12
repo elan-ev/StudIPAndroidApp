@@ -137,7 +137,7 @@
 
         <!-- Users -->
         <activity
-            android:name=".widget.UserDetailsActivity"/>
+            android:name=".user.presentation.view.UserDetailsActivity"/>
 
         <!-- About -->
         <activity

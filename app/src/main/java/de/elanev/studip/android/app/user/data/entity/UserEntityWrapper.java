@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.news.data.entity;
+package de.elanev.studip.android.app.user.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
