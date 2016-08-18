@@ -38,7 +38,6 @@ import de.elanev.studip.android.app.data.datamodel.MessageFolder;
 import de.elanev.studip.android.app.data.datamodel.MessageFolders;
 import de.elanev.studip.android.app.data.datamodel.MessageItem;
 import de.elanev.studip.android.app.data.datamodel.Messages;
-import de.elanev.studip.android.app.data.datamodel.News;
 import de.elanev.studip.android.app.data.datamodel.NewsItemWrapper;
 import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Recording;
@@ -622,7 +621,8 @@ public class StudIpLegacyApiService {
   }
 
   public Observable<NewsEntity> getNewsForRange(final String range) {
-    return mService.getNewsEntityForRange(range)
+    // FIXME: Add actual paging mechanism
+    return mService.getNewsEntityForRange(range, 0, 100)
         .flatMap(news -> (Observable.from(news.newsEntities)
             .flatMap(newsEntity -> {
               return getUserEntity(newsEntity.user_id).flatMap(userEntity -> {
@@ -761,14 +761,10 @@ public class StudIpLegacyApiService {
     @GET("courses") Observable<Courses> getCourses();
 
     /* News */
-    @GET("news/range/{range}") Observable<News> getNews(@Path("range") String range);
-
     @GET("news/range/{range}") Observable<NewsEntityList> getNewsEntityForRange(
-        @Path("range") String range);
+        @Path("range") String range, @Query("offset") int offset, @Query("limit") int limit);
 
     @GET("news/{id}") Observable<NewsItemWrapper> getNewsItem(@Path("id") String id);
-
-    @GET("news/{id}") Observable<NewsEntity> getNewsEntity(@Path("id") String id);
 
     /* Semesters */
     @GET("semesters") Observable<Semesters> getSemesters();
