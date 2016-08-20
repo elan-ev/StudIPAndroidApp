@@ -18,7 +18,7 @@ import de.elanev.studip.android.app.base.DefaultSubscriber;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.news.domain.NewsItem;
-import de.elanev.studip.android.app.news.domain.mapper.NewsModelDataMapper;
+import de.elanev.studip.android.app.news.presentation.mapper.NewsModelDataMapper;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.view.NewsListView;
 

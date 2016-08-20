@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.news.domain.mapper;
+package de.elanev.studip.android.app.news.presentation.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class NewsModelDataMapper {
 
   private final UserModelDataMapper userModelDataMapper;
 
-  @Inject public NewsModelDataMapper(UserModelDataMapper userModelDataMapper) {
+  @Inject NewsModelDataMapper(UserModelDataMapper userModelDataMapper) {
     this.userModelDataMapper = userModelDataMapper;
   }
 
