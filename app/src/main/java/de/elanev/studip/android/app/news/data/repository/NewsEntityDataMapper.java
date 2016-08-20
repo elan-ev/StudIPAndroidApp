@@ -28,7 +28,7 @@ public class NewsEntityDataMapper {
 
   private UserEntityDataMapper userEntityDataMapper;
 
-  @Inject public NewsEntityDataMapper(UserEntityDataMapper userEntityDataMapper) {
+  @Inject NewsEntityDataMapper(UserEntityDataMapper userEntityDataMapper) {
     this.userEntityDataMapper = userEntityDataMapper;
   }
 

@@ -8,7 +8,6 @@
 
 package de.elanev.studip.android.app.news.data.repository.datastore;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
@@ -22,13 +21,10 @@ import de.elanev.studip.android.app.util.Prefs;
  */
 @Singleton
 public class NewsDataStoreFactory {
-  private final Context context;
   private final StudIpLegacyApiService apiService;
   private final Prefs prefs;
 
-  @Inject public NewsDataStoreFactory(@NonNull Context context,
-      @NonNull StudIpLegacyApiService apiService, @NonNull Prefs prefs) {
-    this.context = context;
+  @Inject NewsDataStoreFactory(@NonNull StudIpLegacyApiService apiService, @NonNull Prefs prefs) {
     this.apiService = apiService;
     this.prefs = prefs;
   }

@@ -39,20 +39,4 @@ public class NewsEntity {
 
   public NewsEntity() {
   }
-
-  public NewsEntity(String news_id, String topic, String body, Long date, String user_id,
-      Long chdate, Long mkdate, Long expire, int allow_comments, String chdate_uid,
-      String body_original) {
-    this.news_id = news_id;
-    this.topic = topic;
-    this.body = body;
-    this.date = date;
-    this.user_id = user_id;
-    this.chdate = chdate;
-    this.mkdate = mkdate;
-    this.expire = expire;
-    this.allow_comments = allow_comments;
-    this.chdate_uid = chdate_uid;
-    this.body_original = body_original;
-  }
 }

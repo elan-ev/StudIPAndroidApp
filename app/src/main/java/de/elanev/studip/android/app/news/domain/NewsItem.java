@@ -27,7 +27,7 @@ public class NewsItem {
   public NewsItem(String newsId) {this.newsId = newsId;}
 
   @Override public String toString() {
-    String newsStr = "**************** News **************";
+    String newsStr = "**************** News **************\n";
     newsStr += "id=" + this.getNewsId() + "\n";
     newsStr += "topic=" + this.getTitle() + "\n";
     newsStr += "date=" + this.getDate() + "\n";

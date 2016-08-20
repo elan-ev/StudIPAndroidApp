@@ -29,14 +29,7 @@ public class NewsDataRepository implements NewsRepository {
   private final NewsEntityDataMapper mEntityDataMapper;
   private final NewsDataStoreFactory mNewsDataStoreFactory;
 
-
-  private Func1<? super List<NewsEntity>, ? extends List<NewsItem>> transformNewsEntityList = new Func1<List<NewsEntity>, List<NewsItem>>() {
-    @Override public List<NewsItem> call(List<NewsEntity> newsEntities) {
-      return mEntityDataMapper.transform(newsEntities);
-    }
-  };
-
-  @Inject public NewsDataRepository(NewsEntityDataMapper entityDataMapper,
+  @Inject NewsDataRepository(NewsEntityDataMapper entityDataMapper,
       NewsDataStoreFactory newsDataStoreFactory) {
     this.mEntityDataMapper = entityDataMapper;
     this.mNewsDataStoreFactory = newsDataStoreFactory;
