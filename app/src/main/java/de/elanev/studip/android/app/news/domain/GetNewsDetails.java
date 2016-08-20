@@ -11,6 +11,8 @@ package de.elanev.studip.android.app.news.domain;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.UseCase;
+import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
+import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import rx.Observable;
 
 /**
@@ -21,7 +23,10 @@ public class GetNewsDetails extends UseCase<NewsItem> {
   private final NewsRepository mRepository;
 
 
-  @Inject public GetNewsDetails(String newsId, NewsRepository repository) {
+  @Inject public GetNewsDetails(String newsId, NewsRepository repository,
+      ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
+    super(threadExecutor, postExecutionThread);
+
     this.mNewsId = newsId;
     this.mRepository = repository;
   }

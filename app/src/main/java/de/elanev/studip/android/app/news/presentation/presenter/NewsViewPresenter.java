@@ -9,9 +9,13 @@
 package de.elanev.studip.android.app.news.presentation.presenter;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
-import de.elanev.studip.android.app.news.domain.GetNewsDetails;
+import de.elanev.studip.android.app.base.DefaultSubscriber;
+import de.elanev.studip.android.app.base.UseCase;
+import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.domain.mapper.NewsModelDataMapper;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.view.NewsView;
@@ -19,19 +23,45 @@ import de.elanev.studip.android.app.news.presentation.view.NewsView;
 /**
  * @author joern
  */
+@PerActivity
 public class NewsViewPresenter extends BaseRxLcePresenter<NewsView, NewsModel> {
-  private final GetNewsDetails mGetNewsDetailsUseCase;
-  private final NewsModelDataMapper mNewsModelDataMapper;
+  private final UseCase mGetNewsDetailsUseCase;
+  private final NewsModelDataMapper newsModelMapper;
 
-  @Inject public NewsViewPresenter(GetNewsDetails getNewsDetails,
-      NewsModelDataMapper newsModelDataMapper) {
+  @Inject NewsViewPresenter(@Named("newsDetails") UseCase getNewsDetails, NewsModelDataMapper
+      newsModelDataMapper) {
     this.mGetNewsDetailsUseCase = getNewsDetails;
-    this.mNewsModelDataMapper = newsModelDataMapper;
+    this.newsModelMapper = newsModelDataMapper;
   }
 
-  public void loadNews() {
-    this.mGetNewsDetailsUseCase.get()
-        .map(mNewsModelDataMapper::transformNewsItem)
-        .subscribe(new DefaultSubscriber(false));
+  @SuppressWarnings("ConstantConditions") public void loadNews() {
+    if (isViewAttached()) {
+      getView().showLoading(false);
+    }
+
+    this.mGetNewsDetailsUseCase.execute(new NewsViewSubscriber(false));
+  }
+
+  @Override protected void unsubscribe() {
+    mGetNewsDetailsUseCase.unsubscribe();
+  }
+
+  private final class NewsViewSubscriber extends DefaultSubscriber<NewsItem> {
+
+    NewsViewSubscriber(boolean ptr) {
+      super(ptr);
+    }
+
+    @Override public void onCompleted() {
+      NewsViewPresenter.this.onCompleted();
+    }
+
+    @Override public void onError(Throwable e) {
+      NewsViewPresenter.this.onError(e, ptr);
+    }
+
+    @Override public void onNext(NewsItem newsItem) {
+      NewsViewPresenter.this.onNext(newsModelMapper.transformNewsItem(newsItem));
+    }
   }
 }

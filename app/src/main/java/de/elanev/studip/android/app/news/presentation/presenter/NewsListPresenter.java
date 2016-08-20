@@ -11,34 +11,34 @@ package de.elanev.studip.android.app.news.presentation.presenter;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
+import de.elanev.studip.android.app.base.DefaultSubscriber;
 import de.elanev.studip.android.app.base.UseCase;
-import de.elanev.studip.android.app.news.domain.GetNewsList;
+import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.domain.mapper.NewsModelDataMapper;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.view.NewsListView;
-import rx.Observable;
 
 /**
  * @author joern
  */
+@PerActivity
 public class NewsListPresenter extends BaseRxLcePresenter<NewsListView, List<NewsModel>> {
 
-  private final UseCase<List<NewsItem>> mGetNewsListUseCase;
+  private final UseCase getNewsList;
   private final NewsModelDataMapper mNewsModelDataMapper;
 
-  @Inject public NewsListPresenter(GetNewsList getNewsListUseCase, NewsModelDataMapper dataMapper) {
-    this.mGetNewsListUseCase = getNewsListUseCase;
+  @Inject NewsListPresenter(@Named("newsList") UseCase getNewsListUseCase,
+      NewsModelDataMapper dataMapper) {
+    this.getNewsList = getNewsListUseCase;
     this.mNewsModelDataMapper = dataMapper;
   }
 
   public void loadNews(boolean pullToRefresh) {
-    Observable<List<NewsModel>> getNewsListObservable = this.mGetNewsListUseCase.get()
-        .map(mNewsModelDataMapper::transformNewsList);
-
-    subscribe(getNewsListObservable, pullToRefresh);
+    getNewsList.execute(new NewsListSubscriber(pullToRefresh));
   }
 
   @SuppressWarnings("ConstantConditions") public void onNewsClicked(NewsModel news) {
@@ -47,22 +47,29 @@ public class NewsListPresenter extends BaseRxLcePresenter<NewsListView, List<New
     }
   }
 
-  private final class NewsListSubscriber extends DefaultSubscriber {
+  @Override protected void unsubscribe() {
+    getNewsList.unsubscribe();
+  }
+
+  private final class NewsListSubscriber extends DefaultSubscriber<List<NewsItem>> {
 
     public NewsListSubscriber(boolean ptr) {
       super(ptr);
     }
 
     @Override public void onCompleted() {
-      super.onCompleted();
+      NewsListPresenter.this.onCompleted();
     }
 
     @Override public void onError(Throwable e) {
-      super.onError(e);
+      NewsListPresenter.this.onError(e, ptr);
     }
 
-    @Override public void onNext(List<NewsModel> newsModels) {
-      super.onNext(newsModels);
+    @Override public void onNext(List<NewsItem> newsItems) {
+      NewsListPresenter.this.onNext(
+          NewsListPresenter.this.mNewsModelDataMapper.transformNewsList(newsItems));
     }
+
+
   }
 }

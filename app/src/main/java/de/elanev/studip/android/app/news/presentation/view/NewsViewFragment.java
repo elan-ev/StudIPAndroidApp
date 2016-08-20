@@ -31,7 +31,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.base.view.BaseLceFragment;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.news.internal.di.NewsComponent;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.presenter.NewsViewPresenter;

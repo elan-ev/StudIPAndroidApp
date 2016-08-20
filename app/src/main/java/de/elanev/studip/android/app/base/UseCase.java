@@ -25,9 +25,11 @@ package de.elanev.studip.android.app.base;
  */
 
 
+import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
+import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import rx.Subscriber;
+import rx.Subscription;
 
 /**
  * Abstract class for a Use Case (Interactor in terms of Clean Architecture).
@@ -39,11 +41,19 @@ import rx.schedulers.Schedulers;
  */
 public abstract class UseCase<T> {
 
-  protected UseCase() { }
+  private final ThreadExecutor threadExecutor;
+  private final PostExecutionThread postExecutionThread;
+  private Subscription subscription;
 
+  protected UseCase(ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
+    this.threadExecutor = threadExecutor;
+    this.postExecutionThread = postExecutionThread;
+  }
 
-  final public Observable<T> get() {
-    return buildUseCaseObservable().compose(applySchedulers());
+  public void execute(Subscriber subscriber) {
+    this.subscription = this.buildUseCaseObservable()
+        .compose(applySchedulers())
+        .subscribe(subscriber);
   }
 
   /**
@@ -52,8 +62,17 @@ public abstract class UseCase<T> {
   protected abstract Observable<T> buildUseCaseObservable();
 
   private Observable.Transformer<T, T> applySchedulers() {
-    return tObservable -> tObservable.subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread());
+    return tObservable -> tObservable.subscribeOn(threadExecutor.getScheduler())
+        .observeOn(postExecutionThread.getScheduler());
   }
 
+  public void unsubscribe() {
+    if (!subscription.isUnsubscribed()) {
+      subscription.unsubscribe();
+    }
+  }
+
+  public boolean isUnsubscribed() {
+    return subscription.isUnsubscribed();
+  }
 }

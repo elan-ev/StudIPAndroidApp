@@ -16,6 +16,8 @@ import dagger.Component;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.auth.SignInFragment;
+import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
+import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.modules.ApplicationModule;
 import de.elanev.studip.android.app.base.internal.di.modules.NetworkModule;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
@@ -66,6 +68,9 @@ public interface ApplicationComponent {
   NewsRepository newsRepository();
 
   UserRepository userRepository();
+
+  ThreadExecutor threadExecutor();
+  PostExecutionThread postExecutionThread();
 
   //FIxme
   SyncHelper syncHelper();

@@ -16,6 +16,10 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.elanev.studip.android.app.base.data.executor.ThreadExecutorImpl;
+import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
+import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
+import de.elanev.studip.android.app.base.presentation.executor.PostExecutionThreadImpl;
 import de.elanev.studip.android.app.news.data.repository.NewsDataRepository;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
 import de.elanev.studip.android.app.user.data.repository.UserDataRepository;
@@ -47,13 +51,23 @@ public class ApplicationModule {
     return Prefs.getInstance(context);
   }
 
-  @Provides @Singleton public NewsRepository providesNewsRepository(
+  @Provides @Singleton public NewsRepository provideNewsRepository(
       NewsDataRepository newsDataRepository) {
     return newsDataRepository;
   }
 
-  @Provides @Singleton public UserRepository providesUserRepository(
+  @Provides @Singleton public UserRepository provideUserRepository(
       UserDataRepository userDataRepository) {
     return userDataRepository;
+  }
+
+  // Scheduling
+  @Provides @Singleton PostExecutionThread providePostExecutionExecutor(
+      PostExecutionThreadImpl postExecutionExecutor) {
+    return postExecutionExecutor;
+  }
+
+  @Provides @Singleton ThreadExecutor provideThreadExecutor(ThreadExecutorImpl threadExecutor) {
+    return threadExecutor;
   }
 }

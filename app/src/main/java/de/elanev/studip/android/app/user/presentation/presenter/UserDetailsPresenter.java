@@ -11,7 +11,10 @@ package de.elanev.studip.android.app.user.presentation.presenter;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
-import de.elanev.studip.android.app.user.domain.GetUserDetails;
+import de.elanev.studip.android.app.base.DefaultSubscriber;
+import de.elanev.studip.android.app.base.UseCase;
+import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.user.domain.User;
 import de.elanev.studip.android.app.user.domain.mapper.UserModelDataMapper;
 import de.elanev.studip.android.app.user.presentation.model.UserModel;
 import de.elanev.studip.android.app.user.presentation.view.UserDetailsView;
@@ -19,19 +22,41 @@ import de.elanev.studip.android.app.user.presentation.view.UserDetailsView;
 /**
  * @author joern
  */
+@PerActivity
 public class UserDetailsPresenter extends BaseRxLcePresenter<UserDetailsView, UserModel> {
   private final UserModelDataMapper userModelDataMapper;
-  private final GetUserDetails userDetailsUseCase;
+  private final UseCase userDetailsUseCase;
 
-  @Inject public UserDetailsPresenter(GetUserDetails getUserDetailsUseCase,
+  @Inject UserDetailsPresenter(UseCase getUserDetailsUseCase,
       UserModelDataMapper userModelDataMapper) {
     this.userDetailsUseCase = getUserDetailsUseCase;
     this.userModelDataMapper = userModelDataMapper;
   }
 
   public void loadUser() {
-    this.userDetailsUseCase.get()
-        .map(userModelDataMapper::transform)
-        .subscribe(new DefaultSubscriber(false));
+    this.userDetailsUseCase.execute(new UserDetailsSubscriber(false));
+  }
+
+  @Override protected void unsubscribe() {
+    userDetailsUseCase.unsubscribe();
+  }
+
+  private final class UserDetailsSubscriber extends DefaultSubscriber<User> {
+
+    UserDetailsSubscriber(boolean ptr) {
+      super(ptr);
+    }
+
+    @Override public void onCompleted() {
+      UserDetailsPresenter.this.onCompleted();
+    }
+
+    @Override public void onError(Throwable e) {
+      UserDetailsPresenter.this.onError(e, ptr);
+    }
+
+    @Override public void onNext(User userModel) {
+      UserDetailsPresenter.this.onNext(userModelDataMapper.transform(userModel));
+    }
   }
 }

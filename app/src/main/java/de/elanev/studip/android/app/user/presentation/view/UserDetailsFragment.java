@@ -36,7 +36,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.base.view.BaseLceFragment;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.user.interal.di.UserComponent;
 import de.elanev.studip.android.app.user.presentation.model.UserModel;
 import de.elanev.studip.android.app.user.presentation.presenter.UserDetailsPresenter;

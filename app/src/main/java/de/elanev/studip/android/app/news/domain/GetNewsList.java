@@ -13,6 +13,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.UseCase;
+import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
+import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import rx.Observable;
 
 /**
@@ -21,7 +23,10 @@ import rx.Observable;
 public class GetNewsList extends UseCase<List<NewsItem>> {
   private final NewsRepository mRepository;
 
-  @Inject public GetNewsList(NewsRepository repository) {
+  @Inject public GetNewsList(NewsRepository repository, ThreadExecutor threadExecutor,
+      PostExecutionThread postExecutionThread) {
+    super(threadExecutor, postExecutionThread);
+
     this.mRepository = repository;
   }
 

@@ -8,12 +8,12 @@
 
 package de.elanev.studip.android.app.user.interal.di;
 
-import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.Provides;
+import de.elanev.studip.android.app.base.UseCase;
+import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
+import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
-import de.elanev.studip.android.app.user.data.repository.UserDataRepository;
 import de.elanev.studip.android.app.user.domain.GetUserDetails;
 import de.elanev.studip.android.app.user.domain.UserRepository;
 
@@ -28,8 +28,8 @@ public class UserModule {
     this.userId = userId;
   }
 
-  @PerActivity @Provides GetUserDetails providesGetUserDetailsUseCase(
-      UserRepository userRepository) {
-    return new GetUserDetails(userId, userRepository);
+  @PerActivity @Provides UseCase providesGetUserDetailsUseCase(UserRepository userRepository,
+      ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
+    return new GetUserDetails(userId, userRepository, threadExecutor, postExecutionThread);
   }
 }

@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.base.view;
+package de.elanev.studip.android.app.base.presentation.view;
 
 import android.os.Bundle;
 import android.view.View;

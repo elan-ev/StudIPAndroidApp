@@ -8,8 +8,13 @@
 
 package de.elanev.studip.android.app.news.internal.di;
 
+import javax.inject.Named;
+
 import dagger.Module;
 import dagger.Provides;
+import de.elanev.studip.android.app.base.UseCase;
+import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
+import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.news.domain.GetNewsDetails;
 import de.elanev.studip.android.app.news.domain.GetNewsList;
@@ -29,13 +34,16 @@ public class NewsModule {
     this.newsId = id;
   }
 
-  @Provides @PerActivity public GetNewsDetails providesGetNewsDetailsUseCase(
-      NewsRepository newsRepository) {
-    return new GetNewsDetails(newsId, newsRepository);
+  @Provides @PerActivity @Named("newsDetails") UseCase providesGetNewsDetailsUseCase(
+      NewsRepository newsRepository, ThreadExecutor threadExecutor,
+      PostExecutionThread postExecutionThread) {
+
+    return new GetNewsDetails(newsId, newsRepository, threadExecutor, postExecutionThread);
   }
 
-  @Provides @PerActivity public GetNewsList provideGetNewsListUseCase(
-      NewsRepository newsRepository) {
-    return new GetNewsList(newsRepository);
+  @Provides @PerActivity @Named("newsList") UseCase provideGetNewsListUseCase(
+      GetNewsList getNewsList) {
+
+    return getNewsList;
   }
 }

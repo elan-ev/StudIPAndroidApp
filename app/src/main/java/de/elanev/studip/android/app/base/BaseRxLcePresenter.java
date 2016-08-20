@@ -1,76 +1,23 @@
+/*
+ * Copyright (c) 2016 ELAN e.V.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ */
+
 package de.elanev.studip.android.app.base;
 
-/*
- *  Copyright 2015 Hannes Dorfmann.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
 
 import com.hannesdorfmann.mosby.mvp.lce.MvpLceView;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
-
 /**
  * A presenter for RxJava, that assumes that only one Observable is subscribed by this presenter.
- * The idea is, that you make your (chain of) Observable and pass it to {@link
- * #subscribe(Observable, boolean)}. The presenter internally subscribes himself as Subscriber to
- * the
- * observable
- * (which executes the observable).
- *
- * @author Hannes Dorfmann
- * @since 1.0.0
  */
 @SuppressWarnings("ConstantConditions")
 public abstract class BaseRxLcePresenter<V extends MvpLceView<T>, T> extends
     com.hannesdorfmann.mosby.mvp.MvpBasePresenter<V> implements
     com.hannesdorfmann.mosby.mvp.MvpPresenter<V> {
-
-  protected DefaultSubscriber subscriber;
-  private CompositeSubscription compositeSubscription = new CompositeSubscription();
-
-  /**
-   * Subscribes the presenter himself as subscriber on the observable
-   *
-   * @param observable    The observable to subscribe
-   * @param pullToRefresh Pull to refresh?
-   */
-  public void subscribe(Observable<T> observable, final boolean pullToRefresh) {
-
-    if (isViewAttached()) {
-      getView().showLoading(pullToRefresh);
-    }
-
-    // Reset subscription to prevent leaks
-    unsubscribe();
-    compositeSubscription.add(observable.subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new DefaultSubscriber(pullToRefresh)));
-  }
-
-  /**
-   * Unsubscribes the subscriber and set it to null
-   */
-  protected void unsubscribe() {
-    if (compositeSubscription.isUnsubscribed()) {
-      compositeSubscription.unsubscribe();
-    }
-  }
 
   protected void onCompleted() {
     if (isViewAttached()) {
@@ -78,6 +25,8 @@ public abstract class BaseRxLcePresenter<V extends MvpLceView<T>, T> extends
     }
     unsubscribe();
   }
+
+  protected abstract void unsubscribe();
 
   protected void onError(Throwable e, boolean pullToRefresh) {
     if (isViewAttached()) {
@@ -99,23 +48,4 @@ public abstract class BaseRxLcePresenter<V extends MvpLceView<T>, T> extends
     }
   }
 
-  public class DefaultSubscriber extends Subscriber<T> {
-    protected boolean ptr = false;
-
-    public DefaultSubscriber(boolean ptr) {
-      this.ptr = ptr;
-    }
-
-    @Override public void onCompleted() {
-      BaseRxLcePresenter.this.onCompleted();
-    }
-
-    @Override public void onError(Throwable e) {
-      BaseRxLcePresenter.this.onError(e, ptr);
-    }
-
-    @Override public void onNext(T t) {
-      BaseRxLcePresenter.this.onNext(t);
-    }
-  }
 }
