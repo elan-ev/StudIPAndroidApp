@@ -25,8 +25,8 @@ public class NewsEntityListTest {
     entityList = new NewsEntityList();
   }
 
-  @Test public void shouldCreateEntityList() {
-    assertThat(entityList.newsEntities, is(nullValue()));
-    assertThat(entityList.pagination, is(nullValue()));
+  @Test public void shouldCreateEmptyEntityList() {
+    assertThat(entityList.getNewsEntities(), is(nullValue()));
+    assertThat(entityList.getPagination(), is(nullValue()));
   }
 }

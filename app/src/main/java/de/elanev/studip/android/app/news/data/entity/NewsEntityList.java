@@ -20,6 +20,26 @@ import de.elanev.studip.android.app.data.datamodel.Pagination;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NewsEntityList {
-  @JsonProperty("news") public List<NewsEntity> newsEntities;
-  @JsonProperty("pagination") public Pagination pagination;
+   private List<NewsEntity> newsEntities;
+   private Pagination pagination;
+
+  @JsonProperty("news")
+  public List<NewsEntity> getNewsEntities() {
+    return newsEntities;
+  }
+
+  @JsonProperty("news")
+  public void setNewsEntities(List<NewsEntity> newsEntities) {
+    this.newsEntities = newsEntities;
+  }
+
+  @JsonProperty("pagination")
+  public Pagination getPagination() {
+    return pagination;
+  }
+
+  @JsonProperty("pagination")
+  public void setPagination(Pagination pagination) {
+    this.pagination = pagination;
+  }
 }

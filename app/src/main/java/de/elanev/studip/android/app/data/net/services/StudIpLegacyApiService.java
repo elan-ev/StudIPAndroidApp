@@ -628,7 +628,7 @@ public class StudIpLegacyApiService {
   public Observable<NewsEntity> getNewsForRange(final String range) {
     // FIXME: Add actual paging mechanism
     return mService.getNewsEntityForRange(range, 0, 100)
-        .flatMap(news -> (Observable.from(news.newsEntities)
+        .flatMap(news -> (Observable.from(news.getNewsEntities())
             .flatMap(newsEntity -> {
               return getUserEntity(newsEntity.user_id).flatMap(userEntity -> {
                 newsEntity.author = userEntity;
