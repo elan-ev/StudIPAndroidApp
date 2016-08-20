@@ -19,22 +19,17 @@ import rx.functions.Func2;
 /**
  * @author joern
  */
-public class CloudNewsDataStore implements NewsDataStore {
+class CloudNewsDataStore implements NewsDataStore {
   private final StudIpLegacyApiService mApiService;
   private final Prefs mPrefs;
 
-  private Func2<NewsEntity, NewsEntity, Integer> mSortFunction = (newsEntity, newsEntity2) -> newsEntity2.date.compareTo(newsEntity.date);
-
-
-  public CloudNewsDataStore(StudIpLegacyApiService apiService, Prefs prefs) {
+  CloudNewsDataStore(StudIpLegacyApiService apiService, Prefs prefs) {
     this.mApiService = apiService;
     this.mPrefs = prefs;
   }
 
   @Override public Observable<List<NewsEntity>> newsEntityList() {
-    return mApiService.getNews(mPrefs.getUserId())
-        .toSortedList(mSortFunction);
-
+    return mApiService.getNews();
   }
 
   @Override public Observable<NewsEntity> newsEntity(String newsId) {

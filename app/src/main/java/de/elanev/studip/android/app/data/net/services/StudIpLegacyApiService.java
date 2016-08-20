@@ -15,6 +15,7 @@ import android.support.v4.util.Pair;
 import com.fernandocejas.frodo.annotation.RxLogObservable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.data.datamodel.ContactGroups;
@@ -50,6 +51,7 @@ import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.news.data.entity.NewsEntityList;
 import de.elanev.studip.android.app.user.data.entity.UserEntity;
 import de.elanev.studip.android.app.user.data.entity.UserEntityWrapper;
+import de.elanev.studip.android.app.util.Prefs;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.http.DELETE;
@@ -76,6 +78,7 @@ public class StudIpLegacyApiService {
 
   //region LOCAL CONSTANTS -------------------------------------------------------------------------
   public static final String TAG = StudIpLegacyApiService.class.getSimpleName();
+  private final Prefs prefs;
   //endregion --------------------------------------------------------------------------------------
 
   //region INSTANCE VARIABLES ----------------------------------------------------------------------
@@ -85,10 +88,11 @@ public class StudIpLegacyApiService {
 
   //region CONSTRUCTOR
   // -----------------------------------------------------------------------------------------------
-  public StudIpLegacyApiService(Retrofit retrofit) {
+  public StudIpLegacyApiService(Retrofit retrofit, Prefs prefs) {
 
     // Create an instance of our RestIPLegacyService API interface.
-    mService = retrofit.create(RestIPLegacyService.class);
+    this.mService = retrofit.create(RestIPLegacyService.class);
+    this.prefs = prefs;
   }
 
   //endregion --------------------------------------------------------------------------------------
@@ -580,12 +584,13 @@ public class StudIpLegacyApiService {
     return mService.getCourses();
   }
 
-  public Observable<NewsEntity> getNews(final String userId) {
+  public Observable<List<NewsEntity>> getNews() {
     Observable<NewsEntity> globalNews = getNewsGlobal();
     Observable<NewsEntity> courseNews = getNewsCourses();
-    Observable<NewsEntity> institutesNews = getNewsInstitutes(userId);
+    Observable<NewsEntity> institutesNews = getNewsInstitutes(prefs.getUserId());
 
-    return Observable.merge(globalNews, courseNews, institutesNews);
+    return Observable.merge(globalNews, courseNews, institutesNews)
+        .toSortedList((newsEntity, newsEntity2) -> newsEntity2.date.compareTo(newsEntity.date));
   }
 
   @RxLogObservable public Observable<NewsEntity> getNewsGlobal() {

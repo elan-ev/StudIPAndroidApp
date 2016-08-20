@@ -50,8 +50,9 @@ public class NetworkModule {
     return new CustomJsonConverterApiService(server, new DiscoveryRouteJsonConverterFactory());
   }
 
-  @Provides @Singleton public StudIpLegacyApiService provideApiService(Retrofit retrofit) {
-    return new StudIpLegacyApiService(retrofit);
+  @Provides @Singleton public StudIpLegacyApiService provideApiService(Retrofit retrofit,
+      Prefs prefs) {
+    return new StudIpLegacyApiService(retrofit, prefs);
   }
 
   @Provides @Singleton public SyncHelper provideSyncHelper(Context context,
