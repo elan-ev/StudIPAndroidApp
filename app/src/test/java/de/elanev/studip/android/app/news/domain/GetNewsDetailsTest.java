@@ -29,8 +29,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author joern
  */
 public class GetNewsDetailsTest {
-  private static final String FAKE_UID = UUID.randomUUID()
-      .toString();
+  private static final String FAKE_UID = "123";
 
   private GetNewsDetails getNewsDetails;
 
