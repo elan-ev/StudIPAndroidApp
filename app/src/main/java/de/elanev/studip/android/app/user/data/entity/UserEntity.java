@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
+import de.elanev.studip.android.app.util.TextTools;
+
 /**
  * @author joern
  */
@@ -49,27 +51,9 @@ public class UserEntity {
    */
   public UserEntity() {}
 
-  public UserEntity(String userId, String username, String perms, String titlePre, String forename,
-      String lastname, String titlePost, String email, String avatarNormal, String phone,
-      String homepage, String privadr, int role) {
-    this.userId = userId;
-    this.username = username;
-    this.perms = perms;
-    this.titlePre = titlePre;
-    this.forename = forename;
-    this.lastname = lastname;
-    this.titlePost = titlePost;
-    this.email = email;
-    this.avatarNormal = avatarNormal;
-    this.phone = phone;
-    this.homepage = homepage;
-    this.privadr = privadr;
-    this.role = role;
-  }
-
   @JsonIgnore public static UserEntity fromJson(String userJson) {
 
-    if (TextUtils.isEmpty(userJson)) {
+    if (TextTools.isEmpty(userJson)) {
       return null;
     }
 
@@ -78,8 +62,6 @@ public class UserEntity {
 
     try {
       user = mapper.readValue(userJson, UserEntity.class);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -107,21 +89,22 @@ public class UserEntity {
 
   public String getFullName() {
     StringBuilder builder = new StringBuilder();
-    if (!TextUtils.isEmpty(this.titlePre)) {
+    if (!TextTools.isEmpty(this.titlePre)) {
       builder.append(this.titlePre)
           .append(" ");
     }
-    if (!TextUtils.isEmpty(this.forename)) {
+    if (!TextTools.isEmpty(this.forename)) {
       builder.append(this.forename)
           .append(" ");
     }
-    if (!TextUtils.isEmpty(this.lastname)) {
+    if (!TextTools.isEmpty(this.lastname)) {
       builder.append(this.lastname)
           .append(" ");
     }
-    if (!TextUtils.isEmpty(this.titlePost)) {
+    if (!TextTools.isEmpty(this.titlePost)) {
       builder.append(this.titlePost);
     }
+
     return builder.toString();
   }
 
