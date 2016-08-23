@@ -32,13 +32,12 @@ public class CloudNewsDataStoreTest {
   private static final String FAKE_NEWS_ID = "123";
 
   @Mock StudIpLegacyApiService mockApiService;
-  @Mock Prefs mockPrefs;
   private CloudNewsDataStore cloudNewsDataStore;
 
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
-    cloudNewsDataStore = new CloudNewsDataStore(mockApiService, mockPrefs);
+    cloudNewsDataStore = new CloudNewsDataStore(mockApiService);
   }
 
   @Test public void newsEntityList() throws Exception {

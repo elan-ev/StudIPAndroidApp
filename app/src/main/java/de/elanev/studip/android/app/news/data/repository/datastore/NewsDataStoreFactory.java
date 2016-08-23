@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * @author joern
@@ -22,15 +21,13 @@ import de.elanev.studip.android.app.util.Prefs;
 @Singleton
 public class NewsDataStoreFactory {
   private final StudIpLegacyApiService apiService;
-  private final Prefs prefs;
 
-  @Inject NewsDataStoreFactory(@NonNull StudIpLegacyApiService apiService, @NonNull Prefs prefs) {
+  @Inject NewsDataStoreFactory(@NonNull StudIpLegacyApiService apiService) {
     this.apiService = apiService;
-    this.prefs = prefs;
   }
 
 
   public NewsDataStore create() {
-    return new CloudNewsDataStore(apiService, prefs);
+    return new CloudNewsDataStore(apiService);
   }
 }

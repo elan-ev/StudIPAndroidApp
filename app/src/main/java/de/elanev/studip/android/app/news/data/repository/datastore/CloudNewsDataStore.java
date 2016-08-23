@@ -21,11 +21,9 @@ import rx.functions.Func2;
  */
 class CloudNewsDataStore implements NewsDataStore {
   private final StudIpLegacyApiService mApiService;
-  private final Prefs mPrefs;
 
-  CloudNewsDataStore(StudIpLegacyApiService apiService, Prefs prefs) {
+  CloudNewsDataStore(StudIpLegacyApiService apiService) {
     this.mApiService = apiService;
-    this.mPrefs = prefs;
   }
 
   @Override public Observable<List<NewsEntity>> newsEntityList() {

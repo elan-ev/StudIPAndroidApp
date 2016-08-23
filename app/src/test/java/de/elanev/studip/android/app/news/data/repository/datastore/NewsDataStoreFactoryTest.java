@@ -26,13 +26,12 @@ import static org.junit.Assert.assertThat;
  */
 public class NewsDataStoreFactoryTest {
   @Mock StudIpLegacyApiService mockApiService;
-  @Mock Prefs mockPrefs;
   private NewsDataStoreFactory newsDataStoreFactory;
 
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
-    newsDataStoreFactory = new NewsDataStoreFactory(mockApiService, mockPrefs);
+    newsDataStoreFactory = new NewsDataStoreFactory(mockApiService);
   }
 
   @Test public void shouldCreateCloudDataStore() throws Exception {
