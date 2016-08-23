@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
-import de.elanev.studip.android.app.user.domain.mapper.UserModelDataMapper;
+import de.elanev.studip.android.app.user.presentation.mapper.UserModelDataMapper;
 
 /**
  * @author joern

@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.user.domain.mapper;
+package de.elanev.studip.android.app.user.presentation.mapper;
 
 import javax.inject.Inject;
 

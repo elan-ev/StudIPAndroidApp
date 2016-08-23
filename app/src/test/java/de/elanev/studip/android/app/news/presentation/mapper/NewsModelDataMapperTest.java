@@ -20,7 +20,7 @@ import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.user.domain.User;
-import de.elanev.studip.android.app.user.domain.mapper.UserModelDataMapper;
+import de.elanev.studip.android.app.user.presentation.mapper.UserModelDataMapper;
 import de.elanev.studip.android.app.user.presentation.model.UserModel;
 
 import static org.hamcrest.MatcherAssert.assertThat;

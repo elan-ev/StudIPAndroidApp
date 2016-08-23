@@ -15,7 +15,7 @@ import de.elanev.studip.android.app.base.DefaultSubscriber;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.user.domain.User;
-import de.elanev.studip.android.app.user.domain.mapper.UserModelDataMapper;
+import de.elanev.studip.android.app.user.presentation.mapper.UserModelDataMapper;
 import de.elanev.studip.android.app.user.presentation.model.UserModel;
 import de.elanev.studip.android.app.user.presentation.view.UserDetailsView;
 
