@@ -101,12 +101,13 @@ public class NewsListFragment extends
   }
 
   private void setupRecyclerView() {
-    mNewsAdapter = new NewsListAdapter(getContext());
+    this.mNewsAdapter = new NewsListAdapter(getContext());
     this.mNewsAdapter.setOnItemClickListener(onClickListener);
-    mRecyclerView.setEmptyView(mEmptyView);
-    mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    mRecyclerView.setAdapter(mNewsAdapter);
-    mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
+    this.mRecyclerView.setEmptyView(mEmptyView);
+    this.mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    this.mRecyclerView.setAdapter(mNewsAdapter);
+    this.mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
+    this.mRecyclerView.setHasFixedSize(true);
   }
 
   @Override protected String getErrorMessage(Throwable e, boolean pullToRefresh) {
@@ -154,8 +155,4 @@ public class NewsListFragment extends
     void onNewsClicked(NewsModel news);
   }
 
-
-  public interface NewsClickListener {
-    void onNewsClicked(final NewsModel news);
-  }
 }
