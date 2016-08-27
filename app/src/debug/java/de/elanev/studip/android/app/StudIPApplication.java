@@ -36,8 +36,7 @@ public class StudIPApplication extends AbstractStudIPApplication {
         .build());
     StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
     builder.detectLeakedSqlLiteObjects()
-        .penaltyLog()
-        .penaltyDeath();
+        .penaltyLog();
 
     if (ApiUtils.isOverApi11()) {
       builder.detectLeakedClosableObjects();
