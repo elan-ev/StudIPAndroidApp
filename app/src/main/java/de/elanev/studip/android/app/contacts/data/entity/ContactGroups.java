@@ -5,30 +5,29 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+
 /**
- * 
+ *
  */
-package de.elanev.studip.android.app.data.datamodel;
+package de.elanev.studip.android.app.contacts.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author joern
- * 
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContactGroups {
-	public ArrayList<ContactGroup> groups;
-	public ContactGroup group;
+  private List<ContactGroup> groups;
 
-	public ContactGroups() {
-		this.groups = new ArrayList<ContactGroup>();
-	}
+  @JsonProperty("groups") public List<ContactGroup> getGroups() {
+    return groups;
+  }
 
-	public ContactGroups(ContactGroup groups) {
-		this();
-		this.groups.add(groups);
-	}
+  @JsonProperty("groups") public void setGroups(List<ContactGroup> groups) {
+    this.groups = groups;
+  }
 }

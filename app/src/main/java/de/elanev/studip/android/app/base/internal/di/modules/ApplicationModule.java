@@ -20,6 +20,8 @@ import de.elanev.studip.android.app.base.data.executor.ThreadExecutorImpl;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.presentation.executor.PostExecutionThreadImpl;
+import de.elanev.studip.android.app.contacts.data.repository.ContactsDataRepository;
+import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.news.data.repository.NewsDataRepository;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
 import de.elanev.studip.android.app.user.data.repository.UserDataRepository;
@@ -47,10 +49,12 @@ public class ApplicationModule {
     return context.getContentResolver();
   }
 
+  // Prefs
   @Provides @Singleton public Prefs providePrefs(Context context) {
     return Prefs.getInstance(context);
   }
 
+  // Repositories
   @Provides @Singleton public NewsRepository provideNewsRepository(
       NewsDataRepository newsDataRepository) {
     return newsDataRepository;
@@ -59,6 +63,11 @@ public class ApplicationModule {
   @Provides @Singleton public UserRepository provideUserRepository(
       UserDataRepository userDataRepository) {
     return userDataRepository;
+  }
+
+  @Provides @Singleton public ContactsRepository provideContactsRepository(
+      ContactsDataRepository contactsDataRepository) {
+    return contactsDataRepository;
   }
 
   // Scheduling

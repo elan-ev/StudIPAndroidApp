@@ -28,7 +28,6 @@ import java.util.concurrent.RejectedExecutionException;
 import dagger.Lazy;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPConstants;
-import de.elanev.studip.android.app.data.datamodel.ContactGroups;
 import de.elanev.studip.android.app.data.datamodel.Contacts;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.Courses;
@@ -48,14 +47,12 @@ import de.elanev.studip.android.app.data.db.ContactsContract;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.db.EventsContract;
 import de.elanev.studip.android.app.data.db.InstitutesContract;
-import de.elanev.studip.android.app.data.db.NewsContract;
 import de.elanev.studip.android.app.data.db.RecordingsContract;
 import de.elanev.studip.android.app.data.db.SemestersContract;
 import de.elanev.studip.android.app.data.db.UnizensusContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.data.net.services.CustomJsonConverterApiService;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.util.Prefs;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -204,71 +201,74 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void performContactsSync(final SyncHelperCallbacks callbacks) {
-    //TODO RxIfy the groups and contacts requests
-    final ContentResolver resolver = mContext.getContentResolver();
-
-    mCompositeSubscription.add(mApiService.get().getContactGroups()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<ContactGroups>() {
-          @Override public void onCompleted() {
-          }
-
-          @Override public void onError(Throwable e) {
-            if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
-
-              if (callbacks != null) {
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC,
-                    e.getLocalizedMessage(), 0);
-              }
-            }
-          }
-
-          @Override public void onNext(ContactGroups contactGroups) {
-            try {
-              resolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
-                  new ContactGroupsHandler(contactGroups).parse());
-            } catch (RemoteException | OperationApplicationException e) {
-              e.printStackTrace();
-            }
-          }
-        }));
-
-    mCompositeSubscription.add(mApiService.get().getContacts()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<Contacts>() {
-          @Override public void onCompleted() {
-            if (callbacks != null) {
-              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
-            }
-          }
-
-          @Override public void onError(Throwable e) {
-            if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
-
-              if (callbacks != null) {
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC,
-                    e.getLocalizedMessage(), 0);
-              }
-            }
-          }
-
-          @Override public void onNext(Contacts contacts) {
-            try {
-              resolver.applyBatch(AbstractContract.CONTENT_AUTHORITY, parseContacts(contacts));
-              new UsersRequestTask().execute(
-                  contacts.contacts.toArray(new String[contacts.contacts.size()]));
-              if (callbacks != null) {
-                callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
-              }
-            } catch (RemoteException | OperationApplicationException e) {
-              e.printStackTrace();
-            }
-          }
-        }));
+    if (callbacks != null) {
+      callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
+    }
+//    //TODO RxIfy the groups and contacts requests
+//    final ContentResolver resolver = mContext.getContentResolver();
+//
+//    mCompositeSubscription.add(mApiService.get().getContactGroups()
+//        .subscribeOn(Schedulers.io())
+//        .observeOn(AndroidSchedulers.mainThread())
+//        .subscribe(new Subscriber<ContactGroups>() {
+//          @Override public void onCompleted() {
+//          }
+//
+//          @Override public void onError(Throwable e) {
+//            if (e != null && e.getLocalizedMessage() != null) {
+//              Timber.e(e.getMessage());
+//
+//              if (callbacks != null) {
+//                callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC,
+//                    e.getLocalizedMessage(), 0);
+//              }
+//            }
+//          }
+//
+//          @Override public void onNext(ContactGroups contactGroups) {
+//            try {
+//              resolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
+//                  new ContactGroupsHandler(contactGroups).parse());
+//            } catch (RemoteException | OperationApplicationException e) {
+//              e.printStackTrace();
+//            }
+//          }
+//        }));
+//
+//    mCompositeSubscription.add(mApiService.get().getContacts()
+//        .subscribeOn(Schedulers.io())
+//        .observeOn(AndroidSchedulers.mainThread())
+//        .subscribe(new Subscriber<Contacts>() {
+//          @Override public void onCompleted() {
+//            if (callbacks != null) {
+//              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
+//            }
+//          }
+//
+//          @Override public void onError(Throwable e) {
+//            if (e != null && e.getLocalizedMessage() != null) {
+//              Timber.e(e.getMessage());
+//
+//              if (callbacks != null) {
+//                callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC,
+//                    e.getLocalizedMessage(), 0);
+//              }
+//            }
+//          }
+//
+//          @Override public void onNext(Contacts contacts) {
+//            try {
+//              resolver.applyBatch(AbstractContract.CONTENT_AUTHORITY, parseContacts(contacts));
+//              new UsersRequestTask().execute(
+//                  contacts.contacts.toArray(new String[contacts.contacts.size()]));
+//              if (callbacks != null) {
+//                callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
+//              }
+//            } catch (RemoteException | OperationApplicationException e) {
+//              e.printStackTrace();
+//            }
+//          }
+//        }));
   }
 
   private static ArrayList<ContentProviderOperation> parseContacts(Contacts contacts) {

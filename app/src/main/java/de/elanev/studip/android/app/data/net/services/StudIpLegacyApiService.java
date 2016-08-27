@@ -18,8 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.elanev.studip.android.app.StudIPConstants;
-import de.elanev.studip.android.app.data.datamodel.ContactGroups;
-import de.elanev.studip.android.app.data.datamodel.Contacts;
+import de.elanev.studip.android.app.contacts.data.entity.ContactGroup;
+import de.elanev.studip.android.app.contacts.data.entity.ContactGroupEntity;
+import de.elanev.studip.android.app.contacts.data.entity.ContactGroups;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.CourseItem;
 import de.elanev.studip.android.app.data.datamodel.Courses;
@@ -62,6 +63,7 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import rx.Completable;
 import rx.Observable;
 import rx.functions.Func0;
 import rx.functions.Func1;
@@ -521,21 +523,28 @@ public class StudIpLegacyApiService {
   }
 
   /**
-   * Gets the {@link Contacts} of the user.
-   *
-   * @return A list of {@link Contacts}
-   */
-  public Observable<Contacts> getContacts() {
-    return mService.getContacts();
-  }
-
-  /**
    * Gets the {@link ContactGroups} of the user.
    *
    * @return A list of {@link ContactGroups}
    */
-  public Observable<ContactGroups> getContactGroups() {
-    return mService.getContactGroups();
+  public Observable<List<ContactGroupEntity>> getContactGroups() {
+    Observable<ContactGroup> contactGroupObs = mService.getContactGroups()
+        .flatMap(contactGroups -> Observable.from(contactGroups.getGroups()));
+
+    Observable<List<UserEntity>> usersObs = contactGroupObs.flatMap(contactGroup -> Observable.from(contactGroup.getMembers())
+        .flatMap(this::getUserEntity)
+        .toList());
+
+    Observable<ContactGroupEntity> contEntityObs = Observable.zip(contactGroupObs, usersObs,
+        (contactGroup, users) -> {
+            ContactGroupEntity entity = new ContactGroupEntity();
+            entity.setGroupId(contactGroup.getGroupId());
+            entity.setName(contactGroup.getName());
+            entity.setMembers(users);
+            return entity;
+          });
+
+    return contEntityObs.toList();
   }
 
   /**
@@ -567,10 +576,9 @@ public class StudIpLegacyApiService {
    * @param userId The id of the user which shall be added to the contacts.
    * @return The new contacts list.
    */
-  public Observable<Contacts> addUserToContacts(final String userId) {
-    return mService.addUserToContatcs(userId);
-  }
-
+  //  public Observable<Contacts> addUserToContacts(final String userId) {
+  //    return mService.addUserToContatcs(userId);
+  //  }
   public Observable<Void> deleteUserFromContacts(final String userId) {
     return mService.deleteUserFromContacts(userId);
   }
@@ -610,21 +618,6 @@ public class StudIpLegacyApiService {
     });
   }
 
-  @RxLogObservable public Observable<NewsEntity> getNewsInstitutes(final String userId) {
-    return mService.getInstitutes(userId)
-        .flatMap(institutesContainer -> {
-          final Observable studyInstitutes = Observable.from(institutesContainer.getInstitutes()
-              .getStudy());
-          final Observable workInstitutes = Observable.from(institutesContainer.getInstitutes()
-              .getWork());
-
-          return Observable.mergeDelayError(
-              Observable.defer((Func0<Observable<Institutes.Institute>>) () -> studyInstitutes),
-              Observable.defer((Func0<Observable<Institutes.Institute>>) () -> workInstitutes))
-              .flatMap(institute -> getNewsForRange(institute.getInstituteId()));
-        });
-  }
-
   public Observable<NewsEntity> getNewsForRange(final String range) {
     // FIXME: Add actual paging mechanism
     return mService.getNewsEntityForRange(range, 0, 100)
@@ -637,15 +630,6 @@ public class StudIpLegacyApiService {
                 return Observable.defer(() -> Observable.just(newsEntity));
               });
             })));
-  }
-
-  public Observable<NewsEntity> getNewsItem(final String id) {
-    return mService.getNewsItem(id)
-        .flatMap(newsItem -> getUserEntity(newsItem.news.user_id).flatMap(user -> {
-          newsItem.news.author = user;
-
-          return Observable.defer(() -> Observable.just(newsItem.news));
-        }));
   }
 
   /**
@@ -664,8 +648,36 @@ public class StudIpLegacyApiService {
         .onErrorReturn(throwable -> null);
   }
 
+  @RxLogObservable public Observable<NewsEntity> getNewsInstitutes(final String userId) {
+    return mService.getInstitutes(userId)
+        .flatMap(institutesContainer -> {
+          final Observable studyInstitutes = Observable.from(institutesContainer.getInstitutes()
+              .getStudy());
+          final Observable workInstitutes = Observable.from(institutesContainer.getInstitutes()
+              .getWork());
+
+          return Observable.mergeDelayError(
+              Observable.defer((Func0<Observable<Institutes.Institute>>) () -> studyInstitutes),
+              Observable.defer((Func0<Observable<Institutes.Institute>>) () -> workInstitutes))
+              .flatMap(institute -> getNewsForRange(institute.getInstituteId()));
+        });
+  }
+
+  public Observable<NewsEntity> getNewsItem(final String id) {
+    return mService.getNewsItem(id)
+        .flatMap(newsItem -> getUserEntity(newsItem.news.user_id).flatMap(user -> {
+          newsItem.news.author = user;
+
+          return Observable.defer(() -> Observable.just(newsItem.news));
+        }));
+  }
+
   public Observable<Semesters> getSemesters() {
     return mService.getSemesters();
+  }
+
+  public Completable addUserToContacts(String userId) {
+    return null;
   }
   //endregion --------------------------------------------------------------------------------------
 
@@ -746,8 +758,6 @@ public class StudIpLegacyApiService {
         @Path("user_id") String userId);
 
     /* Contacts */
-    @GET("contacts") Observable<Contacts> getContacts();
-
     @GET("contacts/groups") Observable<ContactGroups> getContactGroups();
 
     @PUT("contacts/groups/{group_id}/{user_id}") Observable<ContactGroups> addUserToContactsGroup(
@@ -759,8 +769,8 @@ public class StudIpLegacyApiService {
     @DELETE("contacts/{user_id}") Observable<Void> deleteUserFromContacts(
         @Path("user_id") String userId);
 
-    @PUT("contacts/{user_id}") Observable<Contacts> addUserToContatcs(
-        @Path("user_id") String userId);
+    //    @PUT("contacts/{user_id}") Observable<Contacts> addUserToContatcs(
+    //        @Path("user_id") String userId);
 
     /* Courses */
     @GET("courses") Observable<Courses> getCourses();

@@ -8,6 +8,9 @@
 
 package de.elanev.studip.android.app.user.data.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -20,6 +23,16 @@ import de.elanev.studip.android.app.user.domain.User;
 public class UserEntityDataMapper {
 
   @Inject public UserEntityDataMapper() {}
+
+  public List<User> transform(List<UserEntity> userEntities) {
+    ArrayList<User> users = new ArrayList<>();
+
+    for (UserEntity userEntity : userEntities) {
+      users.add(transform(userEntity));
+    }
+
+    return users;
+  }
 
   public User transform(UserEntity userEntity) {
     User user = null;

@@ -33,13 +33,12 @@ import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.contacts.ContactsActivity;
+import de.elanev.studip.android.app.contacts.presentation.ContactsActivity;
 import de.elanev.studip.android.app.courses.CoursesActivity;
 import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.db.AbstractContract;
-import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.messages.MessagesActivity;

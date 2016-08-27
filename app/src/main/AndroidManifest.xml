@@ -103,7 +103,7 @@
 
         <!-- Contacts -->
          <activity
-            android:name=".contacts.ContactsActivity"
+            android:name=".contacts.presentation.ContactsActivity"
             android:label="@string/Contacts"
             android:theme="@style/noAnimTheme">
         </activity>

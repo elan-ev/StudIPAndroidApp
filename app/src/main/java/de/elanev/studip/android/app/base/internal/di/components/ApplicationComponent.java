@@ -20,6 +20,7 @@ import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.modules.ApplicationModule;
 import de.elanev.studip.android.app.base.internal.di.modules.NetworkModule;
+import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.messages.MessageComposeActivity;
 import de.elanev.studip.android.app.messages.MessageDetailActivity;
@@ -27,9 +28,9 @@ import de.elanev.studip.android.app.news.domain.NewsRepository;
 import de.elanev.studip.android.app.planner.PlannerTimetableFragment;
 import de.elanev.studip.android.app.user.domain.UserRepository;
 import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
+import de.elanev.studip.android.app.user.presentation.view.UserListFragment;
 import de.elanev.studip.android.app.widget.BaseFragment;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
-import de.elanev.studip.android.app.user.presentation.view.UserListFragment;
 
 /**
  * @author joern
@@ -69,7 +70,10 @@ public interface ApplicationComponent {
 
   UserRepository userRepository();
 
+  ContactsRepository contactsRepository();
+
   ThreadExecutor threadExecutor();
+
   PostExecutionThread postExecutionThread();
 
   //FIxme

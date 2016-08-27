@@ -32,7 +32,7 @@ import javax.inject.Inject;
 
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.data.datamodel.ContactGroups;
+import de.elanev.studip.android.app.contacts.data.entity.ContactGroups;
 import de.elanev.studip.android.app.data.datamodel.Contacts;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.db.AbstractContract;
@@ -245,13 +245,13 @@ public abstract class UserListFragment extends ProgressListFragment implements L
           }
 
           @Override public void onNext(ContactGroups contactGroups) {
-            try {
-              mResolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
-                  new ContactGroupHandler(contactGroups.group).parse());
+            //            try {
+            //              mResolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
+            //                  new ContactGroupHandler(contactGroups.group).parse());
 
-            } catch (RemoteException | OperationApplicationException e) {
-              e.printStackTrace();
-            }
+            //            } catch (RemoteException | OperationApplicationException e) {
+            //              e.printStackTrace();
+            //            }
 
             Toast.makeText(context, R.string.successfully_added, Toast.LENGTH_SHORT)
                 .show();
