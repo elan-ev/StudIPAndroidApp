@@ -10,10 +10,8 @@ package de.elanev.studip.android.app.user.presentation.view;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.text.TextUtils;
@@ -35,12 +33,9 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroups;
 import de.elanev.studip.android.app.data.datamodel.Contacts;
 import de.elanev.studip.android.app.data.datamodel.Server;
-import de.elanev.studip.android.app.data.db.AbstractContract;
 import de.elanev.studip.android.app.data.db.ContactsContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.data.net.sync.ContactGroupHandler;
-import de.elanev.studip.android.app.data.net.sync.ContactsHandler;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ProgressListFragment;
@@ -306,13 +301,6 @@ public abstract class UserListFragment extends ProgressListFragment implements L
           }
 
           @Override public void onNext(Contacts contacts) {
-            try {
-              mResolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
-                  new ContactsHandler(contacts).parse());
-            } catch (RemoteException | OperationApplicationException e) {
-              e.printStackTrace();
-            }
-
             Toast.makeText(context, R.string.successfully_added, Toast.LENGTH_SHORT)
                 .show();
           }
