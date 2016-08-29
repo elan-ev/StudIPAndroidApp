@@ -531,18 +531,19 @@ public class StudIpLegacyApiService {
     Observable<ContactGroup> contactGroupObs = mService.getContactGroups()
         .flatMap(contactGroups -> Observable.from(contactGroups.getGroups()));
 
-    Observable<List<UserEntity>> usersObs = contactGroupObs.flatMap(contactGroup -> Observable.from(contactGroup.getMembers())
-        .flatMap(this::getUserEntity)
-        .toList());
+    Observable<List<UserEntity>> usersObs = contactGroupObs.flatMap(
+        contactGroup -> Observable.from(contactGroup.getMembers())
+            .flatMap(this::getUserEntity)
+            .toList());
 
     Observable<ContactGroupEntity> contEntityObs = Observable.zip(contactGroupObs, usersObs,
         (contactGroup, users) -> {
-            ContactGroupEntity entity = new ContactGroupEntity();
-            entity.setGroupId(contactGroup.getGroupId());
-            entity.setName(contactGroup.getName());
-            entity.setMembers(users);
-            return entity;
-          });
+          ContactGroupEntity entity = new ContactGroupEntity();
+          entity.setGroupId(contactGroup.getGroupId());
+          entity.setName(contactGroup.getName());
+          entity.setMembers(users);
+          return entity;
+        });
 
     return contEntityObs.toList();
   }
@@ -622,14 +623,14 @@ public class StudIpLegacyApiService {
     // FIXME: Add actual paging mechanism
     return mService.getNewsEntityForRange(range, 0, 100)
         .flatMap(news -> (Observable.from(news.getNewsEntities())
-            .flatMap(newsEntity -> {
-              return getUserEntity(newsEntity.user_id).flatMap(userEntity -> {
-                newsEntity.author = userEntity;
-                newsEntity.range = range;
+            .filter(newsEntity -> newsEntity.date + newsEntity.expire
+                >= System.currentTimeMillis() / 1000)
+            .flatMap(newsEntity -> getUserEntity(newsEntity.user_id).flatMap(userEntity -> {
+              newsEntity.author = userEntity;
+              newsEntity.range = range;
 
-                return Observable.defer(() -> Observable.just(newsEntity));
-              });
-            })));
+              return Observable.defer(() -> Observable.just(newsEntity));
+            }))));
   }
 
   /**
