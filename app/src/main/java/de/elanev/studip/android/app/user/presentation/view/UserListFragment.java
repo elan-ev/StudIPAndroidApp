@@ -222,7 +222,7 @@ public abstract class UserListFragment extends ProgressListFragment implements L
 
     // TODO: Replace with injections
     Server server = Prefs.getInstance(context)
-        .getServer();
+        .getServer(getContext());
 
     apiService.addUserToContactsGroup(groupId, userId)
         .subscribeOn(Schedulers.io())

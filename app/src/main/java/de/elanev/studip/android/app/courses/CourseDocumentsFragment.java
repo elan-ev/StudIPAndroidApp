@@ -151,7 +151,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     String fileName = document.filename;
     String fileDescription = document.description;
     String apiUrl = Prefs.getInstance(getActivity())
-        .getServer()
+        .getServer(getContext())
         .getApiUrl();
 
     boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
@@ -185,7 +185,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
 
         // Sign the download URL with the OAuth credentials and parse the URI
         Server server = Prefs.getInstance(getActivity())
-            .getServer();
+            .getServer(getContext());
         String signedDownloadUrl = OAuthConnector.with(server)
             .sign(downloadUrl);
         Uri downloadUri = Uri.parse(signedDownloadUrl);

@@ -42,7 +42,7 @@ public class NetworkModule {
 
   @Provides public Server provideServer(Context context) {
     return Prefs.getInstance(context)
-        .getServer();
+        .getServer(context);
   }
 
   @Provides @Singleton public CustomJsonConverterApiService provideCustomJsonConverterApiService(

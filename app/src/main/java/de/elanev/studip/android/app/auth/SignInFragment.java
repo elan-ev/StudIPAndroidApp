@@ -150,7 +150,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
 
       mSelectedServer = mAdapter.getItem(position);
       if (mSelectedServer != null) {
-        Prefs.getInstance(getActivity()).setServer(mSelectedServer);
+        Prefs.getInstance(getActivity()).setServer(mSelectedServer, getContext());
         authorize(mSelectedServer);
       }
     }
@@ -235,7 +235,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     if (prefs.legacyDataExists()) {
       destroyInsecureCredentials();
 
-    } else if (prefs.isAppAuthorized()) {
+    } else if (prefs.isAppAuthorized(getContext())) {
       Timber.i("Valid secured credentials found");
       if (prefs.isAppSynced()) {
         Timber.i("App synced starting..");
@@ -250,7 +250,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
       }
 
     } else if (mRequestTokenReceived) {
-      OAuthConnector.with(prefs.getServer())
+      OAuthConnector.with(prefs.getServer(getContext()))
           .getAccessToken(this);
       return;
     }
@@ -567,7 +567,7 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
 
     mSelectedServer.setAccessToken(token);
     mSelectedServer.setAccessTokenSecret(tokenSecret);
-    mPrefs.setServer(mSelectedServer);
+    mPrefs.setServer(mSelectedServer, getContext());
     mSyncHelper.requestApiRoutes(this);
     mSyncHelper.getSettings();
     mSyncHelper.requestCurrentUserInfo(this);
