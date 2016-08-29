@@ -14,11 +14,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.util.Prefs;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -37,7 +36,7 @@ public class NewsDataStoreFactoryTest {
   @Test public void shouldCreateCloudDataStore() throws Exception {
     NewsDataStore store = newsDataStoreFactory.create();
 
-    assertNotNull(store);
+    assertThat(store, is(notNullValue()));
     assertThat(store, is(instanceOf(CloudNewsDataStore.class)));
   }
 

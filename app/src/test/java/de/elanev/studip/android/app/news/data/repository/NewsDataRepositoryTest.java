@@ -32,7 +32,7 @@ public class NewsDataRepositoryTest {
   @Mock private NewsEntityDataMapper mockNewsEntityMapper;
   @Mock private NewsDataStoreFactory mockNewsDataFactory;
   @Mock private NewsDataStore mockNewsDataStore;
-  @Mock private NewsDataRepository newsDataRepository;
+  private NewsDataRepository newsDataRepository;
 
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
