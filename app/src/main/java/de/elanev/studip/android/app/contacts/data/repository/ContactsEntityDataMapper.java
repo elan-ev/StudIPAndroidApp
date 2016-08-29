@@ -34,7 +34,9 @@ public class ContactsEntityDataMapper {
     ArrayList<ContactGroup> contactGroups = new ArrayList<>();
 
     for (ContactGroupEntity contactGroupEntity : contactGroupEntities) {
-      contactGroups.add(transform(contactGroupEntity));
+      if (contactGroupEntity != null) {
+        contactGroups.add(transform(contactGroupEntity));
+      }
     }
 
     return contactGroups;
