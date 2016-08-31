@@ -27,8 +27,8 @@ import dagger.Lazy;
 import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.Courses;
-import de.elanev.studip.android.app.data.datamodel.Event;
-import de.elanev.studip.android.app.data.datamodel.Events;
+import de.elanev.studip.android.app.planner.data.entity.EventEntity;
+import de.elanev.studip.android.app.planner.data.entity.Events;
 import de.elanev.studip.android.app.data.datamodel.Institutes;
 import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
 import de.elanev.studip.android.app.data.datamodel.Recording;
@@ -73,37 +73,6 @@ public class SyncHelper {
     mContext = context;
     this.mApiService = apiService;
     this.mCustomJsonConverterApiService = customJsonConverterApiService;
-  }
-
-  private static ContentValues[] parseEvents(Events events) {
-    // Save column references local to prevent lookup
-    final String eventIdCol = EventsContract.Columns.EVENT_ID;
-    final String eventCourseIdCol = EventsContract.Columns.EVENT_COURSE_ID;
-    final String eventStartCol = EventsContract.Columns.EVENT_START;
-    final String eventEndCol = EventsContract.Columns.EVENT_END;
-    final String eventTitleCol = EventsContract.Columns.EVENT_TITLE;
-    final String eventDescriptionCol = EventsContract.Columns.EVENT_DESCRIPTION;
-    final String eventCategoriesCol = EventsContract.Columns.EVENT_CATEGORIES;
-    final String eventRoomCol = EventsContract.Columns.EVENT_ROOM;
-
-    final int eventsCount = events.events.size();
-
-    ContentValues[] contentValues = new ContentValues[eventsCount];
-    for (int i = 0; i < eventsCount; ++i) {
-      ContentValues cv = new ContentValues();
-      Event event = events.events.get(i);
-      cv.put(eventIdCol, event.event_id);
-      cv.put(eventCourseIdCol, event.course_id);
-      cv.put(eventStartCol, event.start);
-      cv.put(eventEndCol, event.end);
-      cv.put(eventTitleCol, event.title);
-      cv.put(eventDescriptionCol, event.description);
-      cv.put(eventCategoriesCol, event.categories);
-      cv.put(eventRoomCol, event.room);
-      contentValues[i] = cv;
-    }
-
-    return contentValues;
   }
 
   /**
@@ -463,32 +432,6 @@ public class SyncHelper {
   }
 
   /**
-   * Requests the events for the passed course id
-   *
-   * @param courseId the course id for which the events should be requested
-   */
-  public void performEventsSyncForCourseId(final String courseId) {
-    Timber.i("SYNCING COURSE EVENTS: %s", courseId);
-
-    mCompositeSubscription.add(mApiService.get().getEvents(courseId)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<Events>() {
-          @Override public void onCompleted() {
-
-          }
-
-          @Override public void onError(Throwable e) {
-            Timber.e(e.getMessage());
-          }
-
-          @Override public void onNext(Events events) {
-            new EventsInsertTask(events).execute(courseId);
-          }
-        }));
-  }
-
-  /**
    * Requests a specific user from the API if no in DB
    *
    * @param userId    the ID of the user to request from the API
@@ -756,26 +699,4 @@ public class SyncHelper {
       return null;
     }
   }
-
-  private class EventsInsertTask extends AsyncTask<String, Void, Void> {
-    private Events mEvents;
-
-    public EventsInsertTask(Events events) {
-      this.mEvents = events;
-    }
-
-    @Override protected Void doInBackground(String... params) {
-      String courseId = params[0];
-      ContentValues[] values = parseEvents(mEvents);
-      Uri eventsCourseIdUri = EventsContract.CONTENT_URI //
-          .buildUpon() //
-          .appendPath(courseId) //
-          .build();
-      mContext.getContentResolver()
-          .bulkInsert(eventsCourseIdUri, values);
-
-      return null;
-    }
-  }
-
 }
