@@ -5,21 +5,19 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
-package de.elanev.studip.android.app.data.datamodel;
+
+package de.elanev.studip.android.app.planner.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 
-/**
- * @author joern
- * 
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Events {
-	public ArrayList<Event> events;
+  @JsonProperty("events") public ArrayList<EventEntity> eventEntities;
 
-	public Events() {
-		events = new ArrayList<Event>();
-	}
+  public Events() {
+    eventEntities = new ArrayList<>();
+  }
 }

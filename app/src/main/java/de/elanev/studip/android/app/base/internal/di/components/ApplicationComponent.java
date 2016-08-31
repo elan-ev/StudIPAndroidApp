@@ -25,10 +25,12 @@ import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.messages.MessageComposeActivity;
 import de.elanev.studip.android.app.messages.MessageDetailActivity;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
-import de.elanev.studip.android.app.planner.PlannerTimetableFragment;
+import de.elanev.studip.android.app.planner.domain.PlannerRepository;
+import de.elanev.studip.android.app.planner.presentation.view.PlannerTimetableFragment;
 import de.elanev.studip.android.app.user.domain.UserRepository;
 import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
 import de.elanev.studip.android.app.user.presentation.view.UserListFragment;
+import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.BaseFragment;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 
@@ -57,8 +59,6 @@ public interface ApplicationComponent {
   //FIXME: Just workaround
   void inject(MessageComposeActivity target);
 
-  void inject(PlannerTimetableFragment target);
-
   void inject(ReactiveListFragment target);
 
   void inject(MessageDetailActivity target);
@@ -66,11 +66,15 @@ public interface ApplicationComponent {
   // Expose to subcomponents
   Context context();
 
+  Prefs prefs();
+
   NewsRepository newsRepository();
 
   UserRepository userRepository();
 
   ContactsRepository contactsRepository();
+
+  PlannerRepository plannerRepository();
 
   ThreadExecutor threadExecutor();
 

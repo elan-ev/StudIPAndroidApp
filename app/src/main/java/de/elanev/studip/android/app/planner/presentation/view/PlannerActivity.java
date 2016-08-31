@@ -6,8 +6,9 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.planner;
+package de.elanev.studip.android.app.planner.presentation.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,20 +16,30 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
+import de.elanev.studip.android.app.courses.CourseViewActivity;
+import de.elanev.studip.android.app.data.db.CoursesContract;
+import de.elanev.studip.android.app.planner.internal.di.DaggerPlannerComponent;
+import de.elanev.studip.android.app.planner.internal.di.PlannerComponent;
+import de.elanev.studip.android.app.planner.internal.di.PlannerModule;
+import de.elanev.studip.android.app.planner.presentation.model.EventModel;
 import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * @author joern
  */
-public class PlannerActivity extends MainActivity {
-  private static final String TAG = PlannerActivity.class.getSimpleName();
+public class PlannerActivity extends MainActivity implements HasComponent<PlannerComponent>,
+    PlannerEventListener {
   public static final String PLANNER_VIEW_TIMETABLE = "planner-view-timetable";
   public static final String PLANNER_VIEW_LIST = "planner-view-list";
+  private static final String TAG = PlannerActivity.class.getSimpleName();
   private static final String PLANNER_PREFERRED_VIEW = "planner-preferred-view";
   private static final String FRAGMENT_TAG = "planner-fragment";
   private int mOrientation;
+  private PlannerComponent plannerComponent;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.planner_activity_menu, menu);
@@ -45,7 +56,7 @@ public class PlannerActivity extends MainActivity {
 
     switch (item.getItemId()) {
       case R.id.planner_goto_today:
-        scrollToCurrentTime();
+        onScrollToCurrent();
         return true;
       case R.id.planner_timetable:
         shouldSwitchFragment(R.id.planner_timetable);
@@ -66,6 +77,8 @@ public class PlannerActivity extends MainActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    initInjector();
+
     mOrientation = getResources().getConfiguration().orientation;
     String preferredView = Prefs.getInstance(this)
         .getPreferredPlannerView(mOrientation);
@@ -76,6 +89,13 @@ public class PlannerActivity extends MainActivity {
     }
   }
 
+  private void initInjector() {
+    this.plannerComponent = DaggerPlannerComponent.builder()
+        .applicationComponent(((AbstractStudIPApplication) getApplication()).getAppComponent())
+        .plannerModule(new PlannerModule())
+        .build();
+  }
+
   private void initFragment(String preferredView) {
     Bundle args = new Bundle();
     args.putString(PLANNER_PREFERRED_VIEW, preferredView);
@@ -84,7 +104,7 @@ public class PlannerActivity extends MainActivity {
     if (TextUtils.equals(preferredView, PLANNER_VIEW_LIST)) {
       fragment = PlannerListFragment.newInstance(args);
     } else {
-      fragment = PlannerTimetableFragment.newInstance(args);
+      fragment = PlannerTimetableFragment.newInstance();
     }
 
     fragmentManager.beginTransaction()
@@ -92,12 +112,13 @@ public class PlannerActivity extends MainActivity {
         .commit();
   }
 
-  private void scrollToCurrentTime() {
+  private void onScrollToCurrent() {
     FragmentManager fm = getSupportFragmentManager();
-    PlannerFragment fragment = (PlannerFragment) fm.findFragmentByTag(FRAGMENT_TAG);
+    PlannerScrollToCurrentListener fragment = (PlannerScrollToCurrentListener) fm.findFragmentByTag(
+        FRAGMENT_TAG);
 
     if (fragment != null) {
-      fragment.scrollToCurrentTime();
+      fragment.onScrollToCurrent();
     }
   }
 
@@ -116,12 +137,26 @@ public class PlannerActivity extends MainActivity {
         Prefs.getInstance(this)
             .setPlannerPreferredView(mOrientation, PLANNER_VIEW_TIMETABLE);
         if (fragment == null || !(fragment instanceof PlannerTimetableFragment)) {
-          fragment = PlannerTimetableFragment.newInstance(new Bundle());
+          fragment = PlannerTimetableFragment.newInstance();
         }
         break;
     }
     fm.beginTransaction()
         .replace(R.id.content_frame, fragment, FRAGMENT_TAG)
         .commit();
+  }
+
+  @Override public PlannerComponent getComponent() {
+    return plannerComponent;
+  }
+
+  @Override public void onPlannerEventSelected(EventModel model) {
+    //TODO: Create real EventActivity and start this instead
+    Intent intent = new Intent(this, CourseViewActivity.class);
+    intent.putExtra(CoursesContract.Columns.Courses.COURSE_ID, model.getCourse().courseId);
+    intent.putExtra(CoursesContract.Columns.Courses.COURSE_TITLE, model.getCourse().title);
+    intent.putExtra(CoursesContract.Columns.Courses.COURSE_MODULES,
+        model.getCourse().modules.getAsJson());
+    startActivity(intent);
   }
 }

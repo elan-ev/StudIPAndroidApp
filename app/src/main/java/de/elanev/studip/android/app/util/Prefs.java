@@ -19,7 +19,7 @@ import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.db.AuthenticationContract;
-import de.elanev.studip.android.app.planner.PlannerActivity;
+import de.elanev.studip.android.app.planner.presentation.view.PlannerActivity;
 
 
 /**

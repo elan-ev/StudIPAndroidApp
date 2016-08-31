@@ -6,27 +6,27 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.news.data.repository.datastore;
+package de.elanev.studip.android.app.planner.data.repository.datastore;
 
-import android.support.annotation.NonNull;
+import com.fernandocejas.frodo.annotation.RxLogObservable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import java.util.List;
 
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.planner.data.entity.EventEntity;
+import rx.Observable;
 
 /**
  * @author joern
  */
-@Singleton
-public class NewsDataStoreFactory {
+class PlannerCloudDataStore implements PlannerDataStore {
   private final StudIpLegacyApiService apiService;
 
-  @Inject NewsDataStoreFactory(@NonNull StudIpLegacyApiService apiService) {
+  PlannerCloudDataStore(StudIpLegacyApiService apiService) {
     this.apiService = apiService;
   }
 
-  public NewsDataStore create() {
-    return new CloudNewsDataStore(apiService);
+  @Override public Observable<List<EventEntity>> eventEntityList() {
+    return apiService.getEvents();
   }
 }

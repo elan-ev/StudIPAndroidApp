@@ -6,9 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.news.data.repository.datastore;
-
-import android.support.annotation.NonNull;
+package de.elanev.studip.android.app.planner.data.repository.datastore;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,14 +17,14 @@ import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
  * @author joern
  */
 @Singleton
-public class NewsDataStoreFactory {
+public class PlannerDataStoreFactory {
   private final StudIpLegacyApiService apiService;
 
-  @Inject NewsDataStoreFactory(@NonNull StudIpLegacyApiService apiService) {
+  @Inject public PlannerDataStoreFactory(StudIpLegacyApiService apiService) {
     this.apiService = apiService;
   }
 
-  public NewsDataStore create() {
-    return new CloudNewsDataStore(apiService);
+  public PlannerDataStore create() {
+    return new PlannerCloudDataStore(apiService);
   }
 }

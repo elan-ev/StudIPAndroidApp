@@ -6,11 +6,16 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.planner;
+package de.elanev.studip.android.app.planner.data.repository.datastore;
+
+import java.util.List;
+
+import de.elanev.studip.android.app.planner.data.entity.EventEntity;
+import rx.Observable;
 
 /**
  * @author joern
  */
-public interface PlannerFragment {
-  void scrollToCurrentTime();
+public interface PlannerDataStore {
+  Observable<List<EventEntity>> eventEntityList();
 }

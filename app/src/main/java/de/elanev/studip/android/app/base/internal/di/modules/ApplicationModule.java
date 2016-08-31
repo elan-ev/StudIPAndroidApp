@@ -24,6 +24,8 @@ import de.elanev.studip.android.app.contacts.data.repository.ContactsDataReposit
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.news.data.repository.NewsDataRepository;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
+import de.elanev.studip.android.app.planner.data.repository.PlannerDataRepository;
+import de.elanev.studip.android.app.planner.domain.PlannerRepository;
 import de.elanev.studip.android.app.user.data.repository.UserDataRepository;
 import de.elanev.studip.android.app.user.domain.UserRepository;
 import de.elanev.studip.android.app.util.Prefs;
@@ -68,6 +70,11 @@ public class ApplicationModule {
   @Provides @Singleton public ContactsRepository provideContactsRepository(
       ContactsDataRepository contactsDataRepository) {
     return contactsDataRepository;
+  }
+
+  @Provides @Singleton public PlannerRepository providesPlannerRepository(
+      PlannerDataRepository plannerDataRepository) {
+    return plannerDataRepository;
   }
 
   // Scheduling

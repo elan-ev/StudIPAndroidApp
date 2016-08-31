@@ -110,7 +110,7 @@
 
         <!-- Planer -->
         <activity
-            android:name=".planner.PlannerActivity"
+            android:name=".planner.presentation.view.PlannerActivity"
             android:label="@string/Planner"
             android:theme="@style/noAnimTheme"/>
 

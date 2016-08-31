@@ -25,8 +25,6 @@ import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.CourseItem;
 import de.elanev.studip.android.app.data.datamodel.Courses;
 import de.elanev.studip.android.app.data.datamodel.DocumentFolders;
-import de.elanev.studip.android.app.data.datamodel.Event;
-import de.elanev.studip.android.app.data.datamodel.Events;
 import de.elanev.studip.android.app.data.datamodel.ForumArea;
 import de.elanev.studip.android.app.data.datamodel.ForumAreas;
 import de.elanev.studip.android.app.data.datamodel.ForumCategories;
@@ -50,6 +48,8 @@ import de.elanev.studip.android.app.data.datamodel.UserItem;
 import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.news.data.entity.NewsEntityList;
+import de.elanev.studip.android.app.planner.data.entity.EventEntity;
+import de.elanev.studip.android.app.planner.data.entity.Events;
 import de.elanev.studip.android.app.user.data.entity.UserEntity;
 import de.elanev.studip.android.app.user.data.entity.UserEntityWrapper;
 import de.elanev.studip.android.app.util.Prefs;
@@ -343,36 +343,21 @@ public class StudIpLegacyApiService {
    *
    * @return An {@link Observable} containing the user's {@link Events} for the next two weeks.
    */
-  public Observable<Pair<Event, Course>> getEvents() {
-    // First get the events
-    return mService.getEvents()
-        // Then unwrap the events
-        .flatMap(new Func1<Events, Observable<Event>>() {
-          @Override public Observable<Event> call(Events events) {
-            return Observable.from(events.events);
-          }
-        })
-        // Then for every event get the course and emit it as Pair
-        .flatMap(new Func1<Event, Observable<Pair<Event, Course>>>() {
-          @Override public Observable<Pair<Event, Course>> call(Event event) {
+  @RxLogObservable public Observable<List<EventEntity>> getEvents() {
 
-            // Create Observable for course
-            final Observable<Course> courseObservable = mService.getCourse(event.course_id)
-                .flatMap(new Func1<CourseItem, Observable<Course>>() {
-                  @Override public Observable<Course> call(CourseItem courseItem) {
-                    return Observable.just(courseItem.course);
-                  }
-                });
+        return mService.getEvents()
+            // Then unwrap the events
+            .flatMap(events -> Observable.from(events.eventEntities))
+            .flatMap(eventEntity -> getCourse(eventEntity.getCourseId()).flatMap(course -> {
+              eventEntity.setCourse(course);
+              return Observable.just(eventEntity);
+            }))
+            .toList();
+  }
 
-            // Zip courseObservable and the event to emit the Pair of them.
-            return Observable.zip(Observable.just(event), courseObservable,
-                new Func2<Event, Course, Pair<Event, Course>>() {
-                  @Override public Pair<Event, Course> call(Event event, Course course) {
-                    return new Pair<>(event, course);
-                  }
-                });
-          }
-        });
+  public Observable<Course> getCourse(final String courseId) {
+    return mService.getCourse(courseId)
+        .flatMap(courseItem -> Observable.defer(() -> Observable.just(courseItem.course)));
   }
 
   public Observable<Events> getEvents(final String courseId) {
