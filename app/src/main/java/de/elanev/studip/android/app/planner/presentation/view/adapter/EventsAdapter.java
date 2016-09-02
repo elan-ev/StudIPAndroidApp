@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +31,14 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
 
   private final LayoutInflater inflater;
   private final List<EventModel> data = new ArrayList<>();
+  private final DateFormat timeFormat;
+  private final DateFormat dateFormat;
   private EventClickListener onItemClickListener;
 
   public EventsAdapter(Context context) {
     inflater = LayoutInflater.from(context);
+    timeFormat = android.text.format.DateFormat.getTimeFormat(context);
+    dateFormat = android.text.format.DateFormat.getDateFormat(context);
   }
 
   @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -47,7 +52,12 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
 
     if (eventModel != null) {
       holder.title.setText(eventModel.getTitle());
-      holder.description.setText(eventModel.getDescription());
+
+      String timeString = "(" + timeFormat.format(eventModel.getStart() * 1000L) + " - " +
+          timeFormat.format(eventModel.getEnd() * 1000L) + ")";
+      String dateString = dateFormat.format(eventModel.getStart() * 1000L);
+      holder.dateTime.setText(dateString + " " + timeString);
+
       holder.room.setText(eventModel.getRoom());
 
       holder.itemView.setOnClickListener(view -> {
@@ -77,7 +87,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
 
   class ViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.text1) TextView title;
-    @BindView(R.id.text3) TextView description;
+    @BindView(R.id.text3) TextView dateTime;
     @BindView(R.id.text2) TextView room;
 
     public ViewHolder(View itemView) {
