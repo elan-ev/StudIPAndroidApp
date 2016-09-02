@@ -23,7 +23,7 @@ import de.elanev.studip.android.app.planner.presentation.model.EventModel;
 @PerActivity
 public class EventsDataMapper {
 
-  @Inject public EventsDataMapper() {}
+  @Inject EventsDataMapper() {}
 
   public List<EventModel> transform(List<Event> events) {
     ArrayList<EventModel> eventModels = new ArrayList<>(events.size());

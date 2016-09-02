@@ -14,6 +14,6 @@ import de.elanev.studip.android.app.planner.presentation.model.EventModel;
  * @author joern
  */
 
-public interface PlannerEventListener {
+interface PlannerEventListener {
   void onPlannerEventSelected(EventModel model);
 }

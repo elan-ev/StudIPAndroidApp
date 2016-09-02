@@ -20,7 +20,7 @@ import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 public class PlannerDataStoreFactory {
   private final StudIpLegacyApiService apiService;
 
-  @Inject public PlannerDataStoreFactory(StudIpLegacyApiService apiService) {
+  @Inject PlannerDataStoreFactory(StudIpLegacyApiService apiService) {
     this.apiService = apiService;
   }
 

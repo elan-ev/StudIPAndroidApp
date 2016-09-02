@@ -23,7 +23,7 @@ import de.elanev.studip.android.app.planner.domain.Event;
 @Singleton
 class EventsEntityDataMapper {
 
-  @Inject public EventsEntityDataMapper() {}
+  @Inject EventsEntityDataMapper() {}
 
   public List<Event> transform(List<EventEntity> eventEntities) {
     ArrayList<Event> eventArrayList = new ArrayList<>();

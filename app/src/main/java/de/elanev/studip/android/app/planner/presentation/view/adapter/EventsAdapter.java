@@ -29,7 +29,7 @@ import de.elanev.studip.android.app.planner.presentation.model.EventModel;
 public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder> {
 
   private final LayoutInflater inflater;
-  private List<EventModel> data = new ArrayList<>();
+  private final List<EventModel> data = new ArrayList<>();
   private EventClickListener onItemClickListener;
 
   public EventsAdapter(Context context) {

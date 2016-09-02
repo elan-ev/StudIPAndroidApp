@@ -35,7 +35,6 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
     PlannerEventListener {
   public static final String PLANNER_VIEW_TIMETABLE = "planner-view-timetable";
   public static final String PLANNER_VIEW_LIST = "planner-view-list";
-  private static final String TAG = PlannerActivity.class.getSimpleName();
   private static final String PLANNER_PREFERRED_VIEW = "planner-preferred-view";
   private static final String FRAGMENT_TAG = "planner-fragment";
   private int mOrientation;

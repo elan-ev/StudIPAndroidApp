@@ -55,7 +55,7 @@ public class PlannerListFragment extends
   @BindView(R.id.list) EmptyRecyclerView mRecyclerView;
   private EventsAdapter mAdapter;
   private List<EventModel> data;
-  private EventsAdapter.EventClickListener onClickListener = eventModel -> {
+  private final EventsAdapter.EventClickListener onClickListener = eventModel -> {
     if (PlannerListFragment.this.presenter != null && eventModel != null) {
       PlannerListFragment.this.presenter.onEventClicked(eventModel);
     }

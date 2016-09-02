@@ -23,7 +23,7 @@ import rx.Observable;
 public class GetEventsList extends UseCase<List<Event>> {
   private final PlannerRepository repository;
 
-  @Inject public GetEventsList(PlannerRepository plannerRepository, ThreadExecutor threadExecutor,
+  @Inject GetEventsList(PlannerRepository plannerRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
     super(threadExecutor, postExecutionThread);
 

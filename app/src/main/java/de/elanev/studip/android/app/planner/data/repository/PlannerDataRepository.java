@@ -26,7 +26,7 @@ public class PlannerDataRepository implements PlannerRepository {
   private final EventsEntityDataMapper entityDataMapper;
   private final PlannerDataStoreFactory dataStoreFactory;
 
-  @Inject public PlannerDataRepository(EventsEntityDataMapper eventsEntityDataMapper,
+  @Inject PlannerDataRepository(EventsEntityDataMapper eventsEntityDataMapper,
       PlannerDataStoreFactory dataStoreFactory) {
     this.entityDataMapper = eventsEntityDataMapper;
     this.dataStoreFactory = dataStoreFactory;

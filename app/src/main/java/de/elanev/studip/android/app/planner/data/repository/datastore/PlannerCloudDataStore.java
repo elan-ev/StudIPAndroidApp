@@ -8,8 +8,6 @@
 
 package de.elanev.studip.android.app.planner.data.repository.datastore;
 
-import com.fernandocejas.frodo.annotation.RxLogObservable;
-
 import java.util.List;
 
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;

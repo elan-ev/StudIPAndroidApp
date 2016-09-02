@@ -11,6 +11,6 @@ package de.elanev.studip.android.app.planner.presentation.view;
 /**
  * @author joern
  */
-public interface PlannerScrollToCurrentListener {
+interface PlannerScrollToCurrentListener {
   void onScrollToCurrent();
 }

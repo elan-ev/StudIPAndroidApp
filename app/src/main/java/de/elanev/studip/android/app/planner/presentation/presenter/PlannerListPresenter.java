@@ -29,8 +29,7 @@ public class PlannerListPresenter extends BaseRxLcePresenter<PlannerListView, Li
   private final UseCase getEventsList;
   private final EventsDataMapper eventsDataMapper;
 
-  @Inject public PlannerListPresenter(UseCase getEventsListUseCase,
-      EventsDataMapper eventsDataMapper) {
+  @Inject PlannerListPresenter(UseCase getEventsListUseCase, EventsDataMapper eventsDataMapper) {
     this.getEventsList = getEventsListUseCase;
     this.eventsDataMapper = eventsDataMapper;
   }
@@ -43,14 +42,14 @@ public class PlannerListPresenter extends BaseRxLcePresenter<PlannerListView, Li
     getEventsList.unsubscribe();
   }
 
-  public void onEventClicked(EventModel eventModel) {
+  @SuppressWarnings("ConstantConditions") public void onEventClicked(EventModel eventModel) {
     if (isViewAttached()) {
       getView().viewEvent(eventModel);
     }
   }
 
   private final class PlannerListSubscriber extends DefaultSubscriber<List<Event>> {
-    public PlannerListSubscriber(boolean ptr) {
+    PlannerListSubscriber(boolean ptr) {
       super(ptr);
     }
 
