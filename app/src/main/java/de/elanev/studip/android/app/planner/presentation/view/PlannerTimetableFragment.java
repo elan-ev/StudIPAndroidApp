@@ -92,9 +92,14 @@ public class PlannerTimetableFragment extends
     super.onSaveInstanceState(outState);
   }
 
+  @Override public void onScrollToCurrent() {
+    weekView.goToToday();
+    weekView.goToHour(Calendar.getInstance(Locale.getDefault())
+        .get(Calendar.HOUR_OF_DAY));
+  }
+
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-
     weekView.setMonthChangeListener(this);
     weekView.setOnEventClickListener(this);
     weekView.setDateTimeInterpreter(new DateTimeInterpreter() {
@@ -119,7 +124,6 @@ public class PlannerTimetableFragment extends
         weekView.goToDate(scrollToDate);
       }
     }
-
   }
 
   private String localizeDate(Calendar date) {
@@ -279,12 +283,6 @@ public class PlannerTimetableFragment extends
 
   @Override public void loadData(boolean pullToRefresh) {
     this.presenter.loadData(pullToRefresh);
-  }
-
-  @Override public void onScrollToCurrent() {
-    weekView.goToToday();
-    weekView.goToHour(Calendar.getInstance(Locale.getDefault())
-        .get(Calendar.HOUR_OF_DAY));
   }
 }
 

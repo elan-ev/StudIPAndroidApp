@@ -32,6 +32,7 @@
         app:headerRowBackgroundColor="#ffefefef"
         app:dayBackgroundColor="@android:color/transparent"
         app:todayBackgroundColor="#1848adff"
-        app:headerColumnBackground="#ffffffff"/>
+        app:headerColumnBackground="#ffffffff"
+        app:firstDayOfWeek="monday"/>
 
 </FrameLayout>
