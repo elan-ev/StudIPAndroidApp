@@ -37,9 +37,9 @@ import de.elanev.studip.android.app.data.datamodel.Message;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.DateTools;
-import de.elanev.studip.android.app.util.Prefs;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.github.yavski.fabspeeddial.FabSpeedDial;
+import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -58,14 +58,14 @@ public class MessageDetailActivity extends AppCompatActivity {
   @BindView(R.id.text1) TextView mSenderTextView;
   @BindView(R.id.text2) TextView mDateTextView;
   @BindView(R.id.speed_dial_fab) FabSpeedDial mFab;
-
+  @Inject StudIpLegacyApiService apiService;
   private Message mMessage;
   private User mSender;
-  @Inject StudIpLegacyApiService apiService;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    ((AbstractStudIPApplication)getApplication()).getAppComponent().inject(this);
+    ((AbstractStudIPApplication) getApplication()).getAppComponent()
+        .inject(this);
 
     Bundle extras = getIntent().getExtras();
     if (extras == null) {
@@ -101,9 +101,11 @@ public class MessageDetailActivity extends AppCompatActivity {
   }
 
   private void initFab() {
-    mFab.setMenuListener(new FabSpeedDial.MenuListener() {
+    mFab.setMenuListener(new SimpleMenuListenerAdapter() {
       @Override public boolean onPrepareMenu(NavigationMenu navigationMenu) {
-        if (mSender.userId.equals(StudIPConstants.STUDIP_SYSTEM_USER_ID)) {
+        if (mSender == null || TextUtils.isEmpty(mSender.userId) ||
+            TextUtils.equals(mSender.userId,
+            StudIPConstants.STUDIP_SYSTEM_USER_ID)) {
           navigationMenu.removeItem(R.id.reply_message);
         }
 
@@ -125,8 +127,6 @@ public class MessageDetailActivity extends AppCompatActivity {
 
         return false;
       }
-
-
     });
   }
 
@@ -165,7 +165,7 @@ public class MessageDetailActivity extends AppCompatActivity {
           }
 
           @Override public void onError(Throwable e) {
-            if(e != null) {
+            if (e != null) {
               if (e instanceof TimeoutException) {
                 showToast(R.string.error_timeout);
                 Timber.e(e, e.getLocalizedMessage());
