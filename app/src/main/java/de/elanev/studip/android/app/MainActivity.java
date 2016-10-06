@@ -35,20 +35,18 @@ import javax.inject.Inject;
 
 import de.elanev.studip.android.app.contacts.presentation.ContactsActivity;
 import de.elanev.studip.android.app.courses.CoursesActivity;
-import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.db.AbstractContract;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
-import de.elanev.studip.android.app.messages.MessagesActivity;
+import de.elanev.studip.android.app.messages.presentation.view.MessagesActivity;
 import de.elanev.studip.android.app.news.presentation.NewsActivity;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -208,22 +206,6 @@ public class MainActivity extends AppCompatActivity implements
     mSyncHelper.requestApiRoutes(null);
     mSyncHelper.getSettings();
     mSyncHelper.requestCurrentUserInfo(null);
-    mCompositeSubscription.add(mApiService.getMessageFolders(0, 10)
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribeOn(Schedulers.io())
-        .subscribe(new Subscriber<Postbox>() {
-          @Override public void onCompleted() {
-            // Do something....
-          }
-
-          @Override public void onError(Throwable e) {
-            Timber.e(e, e.getMessage());
-          }
-
-          @Override public void onNext(Postbox postbox) {
-            mPrefs.setPostbox(postbox);
-          }
-        }));
   }
 
   private void initNavigation() {

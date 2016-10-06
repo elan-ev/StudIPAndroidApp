@@ -167,7 +167,7 @@
 
     <!-- Messages -->
     <string name="Inbox">Eingang</string>
-    <string name="Outbox">Ausgang</string>
+    <string name="Outbox">Gesendet</string>
     <string name="Compose">Erstellen</string>
     <string name="mark_as_read">als gelesen markieren</string>
     <string name="read">gelesen</string>

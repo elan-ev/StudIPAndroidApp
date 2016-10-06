@@ -20,7 +20,7 @@ import de.elanev.studip.android.app.user.presentation.model.UserModel;
 /**
  * @author joern
  */
-@PerActivity
+
 public class UserModelDataMapper {
 
   @Inject public UserModelDataMapper() {}

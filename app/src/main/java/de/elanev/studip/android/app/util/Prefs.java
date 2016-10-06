@@ -15,7 +15,6 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 
-import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.db.AuthenticationContract;
@@ -436,18 +435,6 @@ public class Prefs {
   public void setPrefPlannerTimetableViewDayCount(int count) {
     mPrefs.edit()
         .putInt(PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT, count)
-        .apply();
-  }
-
-  public Postbox getPostbox() {
-    String postboxJson = mPrefs.getString(MESSAGE_POSTBOX, "");
-    return Postbox.fromJson(postboxJson);
-  }
-
-  public void setPostbox(Postbox postbox) {
-    String postboxString = Postbox.toJson(postbox);
-    mPrefs.edit()
-        .putString(MESSAGE_POSTBOX, postboxString)
         .apply();
   }
 }

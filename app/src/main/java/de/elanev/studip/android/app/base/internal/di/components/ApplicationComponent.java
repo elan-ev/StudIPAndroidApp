@@ -22,11 +22,11 @@ import de.elanev.studip.android.app.base.internal.di.modules.ApplicationModule;
 import de.elanev.studip.android.app.base.internal.di.modules.NetworkModule;
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
-import de.elanev.studip.android.app.messages.MessageComposeActivity;
-import de.elanev.studip.android.app.messages.MessageDetailActivity;
+import de.elanev.studip.android.app.messages.domain.MessagesRepository;
+import de.elanev.studip.android.app.messages.presentation.view.MessageComposeActivity;
+import de.elanev.studip.android.app.messages.presentation.view.MessageDetailActivity;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
 import de.elanev.studip.android.app.planner.domain.PlannerRepository;
-import de.elanev.studip.android.app.planner.presentation.view.PlannerTimetableFragment;
 import de.elanev.studip.android.app.user.domain.UserRepository;
 import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
 import de.elanev.studip.android.app.user.presentation.view.UserListFragment;
@@ -75,6 +75,8 @@ public interface ApplicationComponent {
   ContactsRepository contactsRepository();
 
   PlannerRepository plannerRepository();
+
+  MessagesRepository messagesRepository();
 
   ThreadExecutor threadExecutor();
 

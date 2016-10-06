@@ -162,8 +162,8 @@
     <string name="successfully_added">Successfully added</string>
 
     <!-- Messages -->
-    <string name="Inbox">Inbox</string>
-    <string name="Outbox">Outbox</string>
+    <string name="Inbox">Received</string>
+    <string name="Outbox">Sent</string>
     <string name="Compose">Compose</string>
     <string name="Menu">Menu</string>
     <string name="mark_as_read">Mark message as read</string>

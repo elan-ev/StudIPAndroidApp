@@ -8,10 +8,12 @@
 
 package de.elanev.studip.android.app.user.presentation.model;
 
+import java.io.Serializable;
+
 /**
  * @author joern
  */
-public class UserModel {
+public class UserModel implements Serializable {
   private String userId;
   private String fullName;
   private String avatarUrl;

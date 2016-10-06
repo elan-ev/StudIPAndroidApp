@@ -47,7 +47,6 @@
         <activity
             android:name=".news.presentation.NewsViewActivity"
             android:parentActivityName=".news.presentation.NewsActivity">
-            <category android:name="android.intent.category.MONKEY"/>
 
             <!-- Support 4.0 and lower -->
             <meta-data
@@ -66,7 +65,6 @@
             android:name=".courses.CourseViewActivity"
             android:parentActivityName=".courses.CoursesActivity"
             android:launchMode="singleTop">
-            <category android:name="android.intent.category.MONKEY"/>
 
             <!-- Support 4.0 and lower -->
             <meta-data
@@ -76,23 +74,23 @@
 
         <!-- Messages list, details view and compose activities -->
          <activity
-            android:name=".messages.MessagesActivity"
+            android:name=".messages.presentation.view.MessagesActivity"
             android:label="@string/Messages"
             android:launchMode="singleTop"
             android:theme="@style/noAnimTheme">
         </activity>
         <activity
-            android:name=".messages.MessageDetailActivity"
-            android:parentActivityName=".messages.MessagesActivity"
+            android:name=".messages.presentation.view.MessageDetailActivity"
+            android:parentActivityName=".messages.presentation.view.MessagesActivity"
             android:uiOptions="splitActionBarWhenNarrow">
 
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".messages.MessagesActivity"/>
+                android:value=".messages.presentation.view.MessagesActivity"/>
         </activity>
         <activity
-            android:name=".messages.MessageComposeActivity"
+            android:name=".messages.presentation.view.MessageComposeActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>

@@ -10,7 +10,7 @@ package de.elanev.studip.android.app.data.net.services;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.util.Pair;
+import android.util.Log;
 
 import com.fernandocejas.frodo.annotation.RxLogObservable;
 
@@ -33,19 +33,17 @@ import de.elanev.studip.android.app.data.datamodel.ForumEntries;
 import de.elanev.studip.android.app.data.datamodel.ForumEntry;
 import de.elanev.studip.android.app.data.datamodel.Institutes;
 import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
-import de.elanev.studip.android.app.data.datamodel.Message;
-import de.elanev.studip.android.app.data.datamodel.MessageFolder;
-import de.elanev.studip.android.app.data.datamodel.MessageFolders;
-import de.elanev.studip.android.app.data.datamodel.MessageItem;
-import de.elanev.studip.android.app.data.datamodel.Messages;
 import de.elanev.studip.android.app.data.datamodel.NewsItemWrapper;
-import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Recording;
 import de.elanev.studip.android.app.data.datamodel.Semesters;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.datamodel.UserItem;
 import de.elanev.studip.android.app.data.db.UsersContract;
+import de.elanev.studip.android.app.messages.data.entity.MessageEntities;
+import de.elanev.studip.android.app.messages.data.entity.MessageEntity;
+import de.elanev.studip.android.app.messages.data.entity.MessageEntityWrapper;
+import de.elanev.studip.android.app.messages.data.entity.MessageFolders;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.news.data.entity.NewsEntityList;
 import de.elanev.studip.android.app.planner.data.entity.EventEntity;
@@ -68,6 +66,7 @@ import rx.Observable;
 import rx.functions.Func0;
 import rx.functions.Func1;
 import rx.functions.Func2;
+import timber.log.Timber;
 
 
 /**
@@ -345,14 +344,14 @@ public class StudIpLegacyApiService {
    */
   @RxLogObservable public Observable<List<EventEntity>> getEvents() {
 
-        return mService.getEvents()
-            // Then unwrap the events
-            .flatMap(events -> Observable.from(events.eventEntities))
-            .flatMap(eventEntity -> getCourse(eventEntity.getCourseId()).flatMap(course -> {
-              eventEntity.setCourse(course);
-              return Observable.just(eventEntity);
-            }))
-            .toList();
+    return mService.getEvents()
+        // Then unwrap the events
+        .flatMap(events -> Observable.from(events.eventEntities))
+        .flatMap(eventEntity -> getCourse(eventEntity.getCourseId()).flatMap(course -> {
+          eventEntity.setCourse(course);
+          return Observable.just(eventEntity);
+        }))
+        .toList();
   }
 
   public Observable<Course> getCourse(final String courseId) {
@@ -365,113 +364,77 @@ public class StudIpLegacyApiService {
   }
 
   /**
-   * Gets the message folders from Stud.IP.
+   * Get the users {@link MessageEntities} in the specified Stud.IP messages inbox folder.
    *
-   * @param offset The pagination offset
-   * @param limit  The limit of entries until it paginates.
-   * @return An {@link Observable} containing a list of the users {@link MessageFolders}.
-   */
-  public Observable<Postbox> getMessageFolders(int offset, int limit) {
-    Observable<MessageFolders> inboxObservable = mService.getMessageInbox(offset, limit)
-        .flatMap(new Func1<MessageFolders, Observable<MessageFolders>>() {
-          @Override public Observable<MessageFolders> call(MessageFolders messageFolders) {
-            messageFolders.boxType = StudIPConstants.STUDIP_MESSAGES_INBOX_IDENTIFIER;
-            return Observable.just(messageFolders);
-          }
-        });
-
-    Observable<MessageFolders> outboxObservable = mService.getMessageOutbox(offset, limit)
-        .flatMap(new Func1<MessageFolders, Observable<MessageFolders>>() {
-          @Override public Observable<MessageFolders> call(MessageFolders messageFolders) {
-            messageFolders.boxType = StudIPConstants.STUDIP_MESSAGES_OUTBOX_IDENTIFIER;
-            return Observable.just(messageFolders);
-          }
-        });
-
-    return Observable.zip(inboxObservable, outboxObservable,
-        new Func2<MessageFolders, MessageFolders, Postbox>() {
-          @Override public Postbox call(MessageFolders inbox, MessageFolders outbox) {
-            return new Postbox(inbox, outbox);
-          }
-        });
-  }
-
-  /**
-   * Get the users {@link Messages} in the specified Stud.IP messages inbox folder.
-   *
-   * @param folder The ID of the inbox {@link MessageFolder}
    * @param offset Offset number of the message pagination.
    * @param limit  The limit of entries until it paginates.
-   * @return An {@link Observable} containing {@link Messages} from the specified inbox folder.
+   * @return An {@link Observable} containing {@link MessageEntities} from the specified inbox folder.
    */
-  public Observable<Pair<Message, User>> getInboxMessages(String folder, int offset, int limit) {
-    return mService.getMessagesInboxFolder(folder, offset, limit)
-        // Unwrap message
-        .flatMap(new Func1<Messages, Observable<Message>>() {
-          @Override public Observable<Message> call(Messages messages) {
-            return Observable.from(messages.messages);
+  public Observable<List<MessageEntity>> getInboxMessages(int offset, int limit) {
+    Observable<String> inboxFoldersObs = mService.getMessageInbox(offset, limit)
+        .flatMap(
+            messageFolders -> Observable.defer(() -> Observable.from(messageFolders.getFolders())));
+
+    return inboxFoldersObs.flatMap(s -> mService.getMessagesInboxFolder(s, offset, limit)
+        // Unwrap messages
+        .flatMap(new Func1<MessageEntities, Observable<MessageEntity>>() {
+          @Override public Observable<MessageEntity> call(MessageEntities messageEntities) {
+            return Observable.from(messageEntities.getMessages());
           }
         })
+        .flatMap(message -> Observable.zip(getUserEntity(message.getSenderId()),
+            getUserEntity(message.getReceiverId()), (sender, receiver) -> {
+              message.setSender(sender);
+              message.setReceiver(receiver);
 
-        // For each message, load the user for senderId
-        .flatMap(new Func1<Message, Observable<Pair<Message, User>>>() {
-          @Override public Observable<Pair<Message, User>> call(Message message) {
-
-            // Zip the message and user observables together
-            return Observable.zip(Observable.just(message), getUser(message.senderId),
-                new Func2<Message, User, Pair<Message, User>>() {
-
-                  // Function to zip them together
-                  @Override public Pair<Message, User> call(Message message, User user) {
-                    return new Pair<>(message, user);
-                  }
-                });
-          }
-        });
+              return message;
+            })))
+        .toList();
   }
 
   /**
-   * Get the users {@link Messages} in the specified Stud.IP messages outbox folder.
+   * Takes a user id as argument and returns an {@link Observable} wrapping the user correspondig
+   * to the {@link User}.
    *
-   * @param folder The ID of the outbox {@link MessageFolder}
+   * @param userId String id identifying the user to load the info for.
+   * @return An {@link Observable} wrapping an {@link User} object corresponding to the passed
+   * user id.
+   */
+  public Observable<UserEntity> getUserEntity(final String userId) {
+
+    return mService.getUserEntity(userId)
+        .flatMap(userEntityWrapper -> Observable.defer(
+            () -> Observable.just(userEntityWrapper.getUserEntity())))
+        .onErrorReturn(throwable -> null);
+  }
+
+  /**
+   * Get the users {@link MessageEntities} in the specified Stud.IP messages outbox folder.
+   *
    * @param offset Offset number of the message pagination.
    * @param limit  The limit of entries until it paginates.
-   * @return An {@link Observable} containing {@link Messages} from the specified outbox folder.
+   * @return An {@link Observable} containing {@link MessageEntities} from the specified outbox folder.
    */
-  public Observable<Pair<Message, User>> getOutboxMessages(String folder, int offset, int limit) {
-    return mService.getMessagesOutboxFolder(folder, offset, limit)
+  public Observable<List<MessageEntity>> getOutboxMessages(int offset, int limit) {
+    Observable<String> outboxFoldersObs = mService.getMessageOutbox(offset, limit)
+        .flatMap(
+            messageFolders -> Observable.defer(() -> Observable.from(messageFolders.getFolders())));
+
+    return outboxFoldersObs.flatMap(s -> mService.getMessagesOutboxFolder(s, offset, limit)
         // Unwrap message
-        .flatMap(new Func1<Messages, Observable<Message>>() {
-          @Override public Observable<Message> call(Messages messages) {
-            return Observable.from(messages.messages);
+        .flatMap(new Func1<MessageEntities, Observable<MessageEntity>>() {
+          @Override public Observable<MessageEntity> call(MessageEntities messageEntities) {
+            return Observable.from(messageEntities.getMessages());
           }
         })
+        .flatMap(message -> Observable.zip(getUserEntity(message.getSenderId()),
+            getUserEntity(message.getReceiverId()), (sender, receiver) -> {
+              message.setSender(sender);
+              message.setReceiver(receiver);
 
-        // For each message, load the user for senderId
-        .flatMap(new Func1<Message, Observable<Pair<Message, User>>>() {
-          @Override public Observable<Pair<Message, User>> call(Message message) {
-
-            // Zip the message and user observables together
-            return Observable.zip(Observable.just(message), getUser(message.senderId),
-                new Func2<Message, User, Pair<Message, User>>() {
-
-                  // Function to zip them together
-                  @Override public Pair<Message, User> call(Message message, User user) {
-                    return new Pair<>(message, user);
-                  }
-                });
-          }
-        });
-  }
-
-  /**
-   * Marks the specified message as read.
-   *
-   * @param messageId The ID of the message to be marked as read.
-   * @return Nothing
-   */
-  public Observable<Void> setMessageRead(final String messageId) {
-    return mService.setMessageRead(messageId);
+              return message;
+            })))
+        .toList();
   }
 
   /**
@@ -480,11 +443,13 @@ public class StudIpLegacyApiService {
    * @param receiverId The ID of the user to send the message to.
    * @param subject    A String as subject for the message.
    * @param message    The message String.
-   * @return The newly created {@link Message}
+   * @return The newly created {@link MessageEntity}
    */
-  public Observable<MessageItem> sendMessage(final String receiverId, final String subject,
+  public Observable<MessageEntity> sendMessage(final String receiverId, final String subject,
       final String message) {
-    return mService.sendMessage(receiverId, subject, message);
+
+    return mService.sendMessage(receiverId, subject, message)
+        .map(MessageEntityWrapper::getMessageEntity);
   }
 
   /**
@@ -495,6 +460,22 @@ public class StudIpLegacyApiService {
    */
   public Observable<Void> deleteMessage(final String messageId) {
     return mService.deleteMessage(messageId);
+  }
+
+  public Observable<MessageEntity> getMessage(final String messageId) {
+    return mService.getMessage(messageId)
+        .map(MessageEntityWrapper::getMessageEntity)
+        .flatMap(message -> Observable.zip(getUserEntity(message.getSenderId()),
+            getUserEntity(message.getReceiverId()), (sender, receiver) -> {
+              message.setSender(sender);
+              message.setReceiver(receiver);
+
+              return message;
+            }))
+        .doOnNext(messageEntity -> {
+          Observable<Void> v = mService.setMessageRead(messageEntity.getMessageId());
+          Timber.d(v.toString());
+        });
   }
 
   /**
@@ -587,11 +568,11 @@ public class StudIpLegacyApiService {
         .toSortedList((newsEntity, newsEntity2) -> newsEntity2.date.compareTo(newsEntity.date));
   }
 
-  @RxLogObservable public Observable<NewsEntity> getNewsGlobal() {
+  public Observable<NewsEntity> getNewsGlobal() {
     return getNewsForRange(StudIPConstants.STUDIP_NEWS_GLOBAL_RANGE);
   }
 
-  @RxLogObservable public Observable<NewsEntity> getNewsCourses() {
+  public Observable<NewsEntity> getNewsCourses() {
     return mService.getCourses()
         .flatMap(courses -> Observable.defer(() -> Observable.from(courses.courses))
             .flatMap(this::getNewsForCourse));
@@ -618,23 +599,7 @@ public class StudIpLegacyApiService {
             }))));
   }
 
-  /**
-   * Takes a user id as argument and returns an {@link Observable} wrapping the user correspondig
-   * to the {@link User}.
-   *
-   * @param userId String id identifying the user to load the info for.
-   * @return An {@link Observable} wrapping an {@link User} object corresponding to the passed
-   * user id.
-   */
-  public Observable<UserEntity> getUserEntity(final String userId) {
-
-    return mService.getUserEntity(userId)
-        .flatMap(userEntityWrapper -> Observable.defer(
-            () -> Observable.just(userEntityWrapper.getUserEntity())))
-        .onErrorReturn(throwable -> null);
-  }
-
-  @RxLogObservable public Observable<NewsEntity> getNewsInstitutes(final String userId) {
+  public Observable<NewsEntity> getNewsInstitutes(final String userId) {
     return mService.getInstitutes(userId)
         .flatMap(institutesContainer -> {
           final Observable studyInstitutes = Observable.from(institutesContainer.getInstitutes()
@@ -720,24 +685,24 @@ public class StudIpLegacyApiService {
     @GET("messages/out") Observable<MessageFolders> getMessageOutbox(@Query("offset") int offset,
         @Query("limit") int limit);
 
-    @GET("messages/in/{folder_id}") Observable<Messages> getMessagesInboxFolder(
+    @GET("messages/in/{folder_id}") Observable<MessageEntities> getMessagesInboxFolder(
         @Path("folder_id") String folderId, @Query("offset") int offset, @Query("limit") int limit);
 
-    @GET("messages/out/{folder_id}") Observable<Messages> getMessagesOutboxFolder(
+    @GET("messages/out/{folder_id}") Observable<MessageEntities> getMessagesOutboxFolder(
         @Path("folder_id") String folderId, @Query("offset") int offset, @Query("limit") int limit);
 
-    @PUT("messages/{message_id}/read") Observable<Void> setMessageRead(
+    @PUT("messages/{message_id}/read/") Observable<Void> setMessageRead(
         @Path("message_id") String messageId);
 
-    @FormUrlEncoded @POST("messages") Observable<MessageItem> sendMessage(
+    @FormUrlEncoded @POST("messages") Observable<MessageEntityWrapper> sendMessage(
         @Field("user_id") String receiverId, @Field("subject") String subject,
         @Field("message") String message);
 
     @DELETE("messages/{message_id}") Observable<Void> deleteMessage(
         @Path("message_id") String messageId);
 
-    //TODO: Add unread counter to messages
-    //@GET("messages") Observable<MessagesStats> getMessagesStats();
+    @GET("messages/{message_id}") Observable<MessageEntityWrapper> getMessage(
+        @Path("message_id") String messageId);
 
     /* Institutes */
     @GET("user/{user_id}/institutes") Observable<InstitutesContainer> getInstitutes(

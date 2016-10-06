@@ -67,7 +67,7 @@ public abstract class UseCase<T> {
   }
 
   public void unsubscribe() {
-    if (!subscription.isUnsubscribed()) {
+    if (subscription != null && !subscription.isUnsubscribed()) {
       subscription.unsubscribe();
     }
   }
