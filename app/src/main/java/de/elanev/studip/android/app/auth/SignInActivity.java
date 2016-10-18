@@ -8,6 +8,8 @@
 
 package de.elanev.studip.android.app.auth;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 
 /**
@@ -23,18 +26,9 @@ import de.elanev.studip.android.app.util.ApiUtils;
  *
  * @author joern
  */
-public class SignInActivity extends AppCompatActivity implements
-    WebAuthFragment.OnWebViewAuthListener, SignInFragment.OnRequestTokenReceived {
-
-  private static final String TAG = SignInActivity.class.getSimpleName();
-
-  /* Disable back button on older devices */
-  @Override public void onBackPressed() {
-    if (!ApiUtils.isOverApi11()) {
-      return;
-    }
-    super.onBackPressed();
-  }
+public class SignInActivity extends BaseActivity implements
+    WebAuthFragment.OnWebViewAuthListener, SignInFragment.OnRequestTokenReceived,
+    SignInFragment.SignInListener {
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -85,4 +79,15 @@ public class SignInActivity extends AppCompatActivity implements
   }
 
 
+  public static Intent getCallingIntent(Context context) {
+    return new Intent(context, SignInActivity.class);
+  }
+
+  @Override public void onFeedbackSelected() {
+    this.navigator.navigateToFeedback(this);
+  }
+
+  @Override public void onAboutSelected() {
+    this.navigator.navigateToAbout(this);
+  }
 }

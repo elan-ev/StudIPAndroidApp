@@ -56,7 +56,6 @@ import de.elanev.studip.android.app.news.presentation.NewsActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.ServerData;
-import de.elanev.studip.android.app.util.StuffUtil;
 import timber.log.Timber;
 
 /**
@@ -88,13 +87,16 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
   private TextView mInfoBoxTextView;
   private ListView mListView;
   private boolean mRequestTokenReceived = false;
+  private SignInListener signInListener;
 
   private View.OnClickListener mMissingServerOnClickListener = new View.OnClickListener() {
     @Override public void onClick(View v) {
       Server s = new Server();
       s.setName("Stud.IP mobil developer");
       s.setContactEmail(getString(R.string.feedback_form_developer_mail));
-      StuffUtil.startFeedback(getActivity(), s);
+
+      mPrefs.setServer(s, getContext());
+      signInListener.onFeedbackSelected();
     }
   };
 
@@ -125,6 +127,13 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     return fragment;
   }
 
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (activity instanceof SignInListener) {
+      this.signInListener = (SignInListener) activity;
+    }
+  }
 
   @Override public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
@@ -309,16 +318,22 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
     switch (item.getItemId()) {
       case R.id.menu_feedback:
         if (mSelectedServer != null) {
-          StuffUtil.startFeedback(getActivity(), mSelectedServer);
+          this.mPrefs.setServer(mSelectedServer, getContext());
+          this.signInListener.onFeedbackSelected();
         }
         return true;
       case R.id.menu_about:
-        StuffUtil.startAbout(getActivity());
+        this.signInListener.onAboutSelected();
         return true;
       default:
     }
 
     return super.onOptionsItemSelected(item);
+  }
+
+  interface SignInListener {
+    void onFeedbackSelected();
+    void onAboutSelected();
   }
 
   private void destroyInsecureCredentials() {
@@ -352,6 +367,9 @@ public class SignInFragment extends ListFragment implements SyncHelper.SyncHelpe
 
   /* Simply triggers the prefetching at the SyncHelper */
   private void performPrefetchSync() {
+    mSyncHelper.requestApiRoutes(null);
+    mSyncHelper.getSettings();
+    mSyncHelper.requestCurrentUserInfo(null);
     User currentUser = User.fromJson(Prefs.getInstance(mContext)
         .getUserInfo());
 

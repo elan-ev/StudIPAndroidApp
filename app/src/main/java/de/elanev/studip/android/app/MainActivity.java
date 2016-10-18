@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -21,7 +20,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,23 +32,16 @@ import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
+import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.contacts.presentation.ContactsActivity;
 import de.elanev.studip.android.app.courses.CoursesActivity;
-import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
-import de.elanev.studip.android.app.data.db.AbstractContract;
-import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.messages.presentation.view.MessagesActivity;
 import de.elanev.studip.android.app.news.presentation.NewsActivity;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerActivity;
+import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.StuffUtil;
-import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 /**
@@ -58,11 +50,11 @@ import timber.log.Timber;
  *         Activity holding the navigation drawer and content frame.
  *         It manages the navigation and content fragments.
  */
-public class MainActivity extends AppCompatActivity implements
+public class MainActivity extends BaseActivity implements
     NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
-  private static final String TAG = MainActivity.class.getSimpleName();
   private static int mSelectedNavItem = R.id.navigation_invalid;
   protected Toolbar mToolbar;
+  @Inject Prefs mPrefs;
   private DrawerLayout mDrawerLayout;
   private ActionBarDrawerToggle mDrawerToggle;
   private String mUserId;
@@ -70,12 +62,6 @@ public class MainActivity extends AppCompatActivity implements
   private NavigationView mNavigationView;
   private View mHeaderView;
   private Handler mHandler;
-  private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-
-  @Inject Prefs mPrefs;
-  @Inject @Nullable Server mServer;
-  @Inject SyncHelper mSyncHelper;
-  @Inject StudIpLegacyApiService mApiService;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.main, menu);
@@ -88,16 +74,16 @@ public class MainActivity extends AppCompatActivity implements
 
     switch (item.getItemId()) {
       case R.id.menu_feedback:
-        StuffUtil.startFeedback(this, mServer);
+        this.navigator.navigateToFeedback(this);
         return true;
       case R.id.menu_about:
-        StuffUtil.startAbout(this);
+        navigator.navigateToAbout(this);
         return true;
       case R.id.menu_sign_out:
         logout();
         return true;
       case R.id.menu_invite:
-        startInviteIntent(createInviteIntent());
+        startInviteIntent();
         return true;
     }
 
@@ -108,45 +94,32 @@ public class MainActivity extends AppCompatActivity implements
    * Deletes the preferences and database to logout of the service
    */
   private void logout() {
-    // Resetting the SyncHelper
-    mSyncHelper.resetSyncHelper();
-
-    // Clear the app preferences
-    mPrefs.clearPrefs();
-
-    // Delete the app database
-    getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
-
-    StuffUtil.startSignInActivity(this);
-    finish();
+    new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert)
+        .setTitle(R.string.Logout)
+        .setMessage(R.string.logout_confirmation)
+        .setPositiveButton(android.R.string.yes,
+            (dialog, which) -> navigateToLogout())
+        .setNegativeButton(android.R.string.no, null)
+        .show();
   }
 
-  private void startInviteIntent(Intent intent) {
+  private void navigateToLogout() {
+    this.navigator.navigateToLogout(this);
+    this.finish();
+  }
+
+  private void startInviteIntent() {
+    Intent intent = ShareCompat.IntentBuilder.from(this)
+        .setSubject(getString(R.string.invite_subject))
+        .setText(getString(R.string.invite_text))
+        .setHtmlText(getString(R.string.invite_text_html))
+        .setType("text/plain")
+        .createChooserIntent();
+
     // Check if intent resolves to an activity to prevent ActivityNotFoundException
     if (intent.resolveActivity(getPackageManager()) != null) {
       startActivity(intent);
     }
-  }
-
-  private Intent createInviteIntent() {
-
-    String inviteText = "";
-    String inviteTextHtml = "";
-    if (mServer == null) {
-      inviteText = String.format(getString(R.string.invite_text), "");
-      inviteTextHtml = String.format(getString(R.string.invite_text_html), "");
-    } else {
-      inviteText = String.format(getString(R.string.invite_text), mServer.getName());
-      inviteTextHtml = String.format(getString(R.string.invite_text_html)
-          , mServer.getName());
-    }
-
-    return ShareCompat.IntentBuilder.from(this)
-        .setSubject(getString(R.string.invite_subject))
-        .setText(inviteText)
-        .setHtmlText(inviteTextHtml)
-        .setType("text/plain")
-        .createChooserIntent();
   }
 
   @Override public void onBackPressed() {
@@ -178,19 +151,19 @@ public class MainActivity extends AppCompatActivity implements
       return;
     }
 
+
     // Register Activity with the component
-    ((AbstractStudIPApplication)getApplication()).getAppComponent().inject(this);
+    ((AbstractStudIPApplication) getApplication()).getAppComponent()
+        .inject(this);
 
     if (!mPrefs.isAppAuthorized(this)) {
-      StuffUtil.startSignInActivity(this);
+      this.navigator.navigateToSignIn(this);
       finish();
       return;
     }
+
     mHandler = new Handler();
 
-
-
-    fetchPref();
 
     mCurrentUser = User.fromJson(mPrefs.getUserInfo());
     if (mCurrentUser != null) {
@@ -198,14 +171,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     initNavigation();
-  }
-
-  private void fetchPref() {
-    // Verify that the forum routes are still activated
-    //TODO: Move this and other API checks to a Service or something, but not here
-    mSyncHelper.requestApiRoutes(null);
-    mSyncHelper.getSettings();
-    mSyncHelper.requestCurrentUserInfo(null);
   }
 
   private void initNavigation() {

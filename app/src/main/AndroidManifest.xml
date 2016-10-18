@@ -112,7 +112,7 @@
             android:label="@string/Planner"
             android:theme="@style/noAnimTheme"/>
 
-        <!-- SignIn -->
+        <!-- Authorization -->
         <activity
             android:name=".auth.SignInActivity"
             android:screenOrientation="portrait"
@@ -132,6 +132,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".auth.SignInActivity"/>
         </activity>
+
+        <activity android:name=".authorization.presentation.view.LogoutActivity" />
 
         <!-- Users -->
         <activity
@@ -154,6 +156,9 @@
             android:name=".forums.ForumEntryActivity"/>
         <activity
             android:name=".forums.ForumEntryComposeActivity"/>
+
+        <!-- Feedback -->
+        <activity android:name=".feedback.FeedbackActivity"/>
 
 
         <!-- Providers -->
