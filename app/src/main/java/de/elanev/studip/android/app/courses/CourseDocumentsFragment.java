@@ -50,7 +50,6 @@ import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.db.DocumentsContract;
 import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -216,14 +215,8 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
           }
         }
 
-      } catch (OAuthMessageSignerException e) {
+      } catch (OAuthMessageSignerException | OAuthExpectationFailedException | OAuthCommunicationException | OAuthNotAuthorizedException e) {
         e.printStackTrace();
-      } catch (OAuthExpectationFailedException e) {
-        e.printStackTrace();
-      } catch (OAuthCommunicationException e) {
-        e.printStackTrace();
-      } catch (OAuthNotAuthorizedException e) {
-        StuffUtil.startSignInActivity(getActivity());
       }
     }
   }
