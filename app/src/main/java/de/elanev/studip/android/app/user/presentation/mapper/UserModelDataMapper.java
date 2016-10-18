@@ -54,4 +54,21 @@ public class UserModelDataMapper {
 
     return userModel;
   }
+
+  public User transform(UserModel userModel) {
+    User user = null;
+
+    if (userModel != null) {
+      user = new User(userModel.getUserId());
+      user.setFullname(userModel.getFullName());
+      user.setAvatarUrl(userModel.getAvatarUrl());
+      user.setPhone(userModel.getPhone());
+      user.setPrivateAddress(userModel.getAddress());
+      user.setEmail(userModel.getEmail());
+      user.setHomepageUrl(userModel.getHomepage());
+      user.setSkypeAddress(userModel.getSkype());
+    }
+
+    return user;
+  }
 }

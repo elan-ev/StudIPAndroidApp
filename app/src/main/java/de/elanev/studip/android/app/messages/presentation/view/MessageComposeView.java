@@ -15,6 +15,12 @@ import de.elanev.studip.android.app.messages.presentation.model.MessageModel;
 /**
  * @author joern
  */
-public interface MessageView extends MvpLceView<MessageModel> {
-  void showMessageDeleted();
+public interface MessageComposeView extends MvpLceView<MessageModel> {
+  String getReceiverId();
+
+  String getSubject();
+
+  String getMessage();
+
+  void messageSend();
 }

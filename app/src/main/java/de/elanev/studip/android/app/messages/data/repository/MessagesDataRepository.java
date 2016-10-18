@@ -55,4 +55,10 @@ public class MessagesDataRepository implements MessagesRepository {
     return messagesDataStoreFactory.create()
         .delete(messageId);
   }
+
+  @Override public Observable<Message> send(Message message) {
+    return messagesDataStoreFactory.create()
+        .send(messageEntityDataMapper.transform(message))
+        .map(messageEntityDataMapper::transform);
+  }
 }

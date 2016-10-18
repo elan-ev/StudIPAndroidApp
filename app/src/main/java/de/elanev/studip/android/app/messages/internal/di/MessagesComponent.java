@@ -12,6 +12,7 @@ import dagger.Component;
 import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
 import de.elanev.studip.android.app.messages.presentation.presenter.MessageListPresenter;
+import de.elanev.studip.android.app.messages.presentation.view.MessageComposeFragment;
 import de.elanev.studip.android.app.messages.presentation.view.MessageViewFragment;
 import de.elanev.studip.android.app.messages.presentation.view.MessagesListFragment;
 
@@ -19,11 +20,15 @@ import de.elanev.studip.android.app.messages.presentation.view.MessagesListFragm
  * @author joern
  */
 @PerFragment
-@Component(dependencies = ApplicationComponent.class, modules = {MessagesModule.class})
+@Component(dependencies = {ApplicationComponent.class}, modules = {
+    MessagesModule.class
+})
 public interface MessagesComponent {
   void inject(MessagesListFragment target);
 
   void inject(MessageViewFragment target);
 
-  MessageListPresenter presenter();
+  void inject(MessageComposeFragment target);
+
+  MessageListPresenter listPresenter();
 }

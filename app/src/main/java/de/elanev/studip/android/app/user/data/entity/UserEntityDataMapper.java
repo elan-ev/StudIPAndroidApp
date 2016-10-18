@@ -52,4 +52,24 @@ public class UserEntityDataMapper {
 
     return user;
   }
+
+  public UserEntity transform(User user) {
+    UserEntity userEntity = null;
+
+    if (user != null) {
+      userEntity = new UserEntity();
+      userEntity.setUserId(user.getUserId());
+      userEntity.setLastname(user.getFullname());
+      userEntity.setUsername(user.getUsername());
+      userEntity.setAvatarNormal(user.getAvatarUrl());
+      userEntity.setEmail(user.getEmail());
+      userEntity.setPhone(user.getPhone());
+      userEntity.setHomepage(user.getHomepageUrl());
+      userEntity.setSkype(user.getSkypeAddress());
+      userEntity.setSkypeShow(user.showSkypeOnline());
+      userEntity.setPrivadr(user.getPrivateAddress());
+    }
+
+    return userEntity;
+  }
 }

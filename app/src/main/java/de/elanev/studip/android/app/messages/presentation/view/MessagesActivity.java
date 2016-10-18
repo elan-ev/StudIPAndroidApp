@@ -32,7 +32,7 @@ public class MessagesActivity extends MainActivity implements
   public static final String BOX_TYPE = "box-type";
   @BindView(R.id.sliding_tabs) TabLayout mTabLayout;
   @BindView(R.id.pager) ViewPager mViewPager;
-  @BindView(R.id.fab) FloatingActionButton mFab;
+//  @BindView(R.id.fab) FloatingActionButton mFab;
 
   @Override protected int getCurrentNavDrawerItem() {
     return R.id.navigation_messages;
@@ -47,7 +47,9 @@ public class MessagesActivity extends MainActivity implements
     FragmentsAdapter pagerAdapter = new FragmentsAdapter(getSupportFragmentManager(), getTabs());
     mViewPager.setAdapter(pagerAdapter);
     mTabLayout.setupWithViewPager(mViewPager);
-    mFab.setOnClickListener(v -> startComposeActivity());
+
+    //FIXME: Reenable when the API user search is fixed
+    //    mFab.setOnClickListener(v -> startComposeActivity());
 
     overridePendingTransition(0, 0);
   }

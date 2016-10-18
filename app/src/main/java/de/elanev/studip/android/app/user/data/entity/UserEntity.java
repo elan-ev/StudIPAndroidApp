@@ -46,6 +46,126 @@ public class UserEntity {
   @JsonProperty("skype") public String skype;
   @JsonProperty("skype_show") public boolean skypeShow;
 
+  public String getUserId() {
+    return userId;
+  }
+
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public String getPerms() {
+    return perms;
+  }
+
+  public void setPerms(String perms) {
+    this.perms = perms;
+  }
+
+  public String getTitlePre() {
+    return titlePre;
+  }
+
+  public void setTitlePre(String titlePre) {
+    this.titlePre = titlePre;
+  }
+
+  public String getForename() {
+    return forename;
+  }
+
+  public void setForename(String forename) {
+    this.forename = forename;
+  }
+
+  public String getLastname() {
+    return lastname;
+  }
+
+  public void setLastname(String lastname) {
+    this.lastname = lastname;
+  }
+
+  public String getTitlePost() {
+    return titlePost;
+  }
+
+  public void setTitlePost(String titlePost) {
+    this.titlePost = titlePost;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getAvatarNormal() {
+    return avatarNormal;
+  }
+
+  public void setAvatarNormal(String avatarNormal) {
+    this.avatarNormal = avatarNormal;
+  }
+
+  public String getPhone() {
+    return phone;
+  }
+
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
+  public String getHomepage() {
+    return homepage;
+  }
+
+  public void setHomepage(String homepage) {
+    this.homepage = homepage;
+  }
+
+  public String getPrivadr() {
+    return privadr;
+  }
+
+  public void setPrivadr(String privadr) {
+    this.privadr = privadr;
+  }
+
+  public int getRole() {
+    return role;
+  }
+
+  public void setRole(int role) {
+    this.role = role;
+  }
+
+  public String getSkype() {
+    return skype;
+  }
+
+  public void setSkype(String skype) {
+    this.skype = skype;
+  }
+
+  public boolean isSkypeShow() {
+    return skypeShow;
+  }
+
+  public void setSkypeShow(boolean skypeShow) {
+    this.skypeShow = skypeShow;
+  }
+
   /**
    * Default constructor
    */

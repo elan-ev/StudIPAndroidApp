@@ -17,10 +17,12 @@ import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.base.internal.di.PerFragment;
+import de.elanev.studip.android.app.messages.domain.DeleteMessage;
 import de.elanev.studip.android.app.messages.domain.GetInboxMessages;
 import de.elanev.studip.android.app.messages.domain.GetMessageDetails;
 import de.elanev.studip.android.app.messages.domain.GetOutboxMessages;
 import de.elanev.studip.android.app.messages.domain.MessagesRepository;
+import de.elanev.studip.android.app.messages.domain.SendMessage;
 
 /**
  * @author joern
@@ -59,7 +61,12 @@ public class MessagesModule {
       MessagesRepository messagesRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 
-    return new GetMessageDetails(messageId, messagesRepository, threadExecutor,
-        postExecutionThread);
+    return new DeleteMessage(messageId, messagesRepository, threadExecutor, postExecutionThread);
+  }
+
+  @Provides @PerFragment @Named("sendMessage") UseCase providesSendMessageUseCase(
+      SendMessage sendMessageUseCase) {
+
+    return sendMessageUseCase;
   }
 }

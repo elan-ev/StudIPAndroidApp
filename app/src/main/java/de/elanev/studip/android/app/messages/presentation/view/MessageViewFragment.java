@@ -8,6 +8,7 @@
 
 package de.elanev.studip.android.app.messages.presentation.view;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,7 +32,6 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.messages.internal.di.MessagesComponent;
 import de.elanev.studip.android.app.messages.presentation.model.MessageModel;
@@ -59,6 +59,7 @@ public class MessageViewFragment extends
   @BindView(R.id.info_container) View mInfoContainer;
   @Inject MessageViewPresenter presenter;
   private MessageModel message;
+  private MessageListener messageListener;
 
   public MessageViewFragment() {
     setRetainInstance(true);
@@ -88,13 +89,15 @@ public class MessageViewFragment extends
   private void initFab() {
     mFab.setMenuListener(new SimpleMenuListenerAdapter() {
       @Override public boolean onPrepareMenu(NavigationMenu navigationMenu) {
-        UserModel sender = message.getSender();
+        //FIXME: Reenable this feature when the user search in the API is properly implemented
+        //        UserModel sender = message.getSender();
+        //
+        //        if (sender == null || TextUtils.isEmpty(sender.getUserId()) ||
+        //            TextUtils.equals(sender.getUserId(), StudIPConstants.STUDIP_SYSTEM_USER_ID)) {
+        //          navigationMenu.removeItem(R.id.reply_message);
+        //        }
 
-        if (sender == null || TextUtils.isEmpty(sender.getUserId()) ||
-            TextUtils.equals(sender.getUserId(), StudIPConstants.STUDIP_SYSTEM_USER_ID)) {
-          navigationMenu.removeItem(R.id.reply_message);
-        }
-
+        navigationMenu.removeItem(R.id.forward_message);
         return true;
       }
 
@@ -104,10 +107,10 @@ public class MessageViewFragment extends
             deleteMessage();
             return true;
           case R.id.reply_message:
-            //            replyMessage();
+            replyMessage();
             return true;
           case R.id.forward_message:
-            //            forwardMessage();
+            forwardMessage();
             return true;
         }
 
@@ -119,6 +122,18 @@ public class MessageViewFragment extends
 
   private void deleteMessage() {
     this.presenter.deleteMessage();
+  }
+
+  private void replyMessage() {
+    if (this.messageListener != null) {
+      this.messageListener.onReplyMessage(this.message);
+    }
+  }
+
+  private void forwardMessage() {
+    if (this.messageListener != null) {
+      this.messageListener.onForwardMessage(this.message);
+    }
   }
 
   @Override protected String getErrorMessage(Throwable e, boolean pullToRefresh) {
@@ -179,5 +194,29 @@ public class MessageViewFragment extends
 
   @NonNull @Override public MessageViewPresenter createPresenter() {
     return this.presenter;
+  }
+
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (activity instanceof MessageListener) {
+      this.messageListener = (MessageListener) activity;
+    }
+  }
+
+  @Override public void showMessageDeleted() {
+    showToast(getString(R.string.delete_message));
+
+    if (this.messageListener != null) {
+      this.messageListener.onMessageDeleted();
+    }
+  }
+
+  public interface MessageListener {
+    void onMessageDeleted();
+
+    void onReplyMessage(MessageModel messageModel);
+
+    void onForwardMessage(MessageModel messageModel);
   }
 }

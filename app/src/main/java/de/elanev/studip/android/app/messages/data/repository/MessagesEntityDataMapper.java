@@ -14,6 +14,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntity;
 import de.elanev.studip.android.app.messages.domain.Message;
 import de.elanev.studip.android.app.user.data.entity.UserEntityDataMapper;
@@ -22,7 +23,7 @@ import de.elanev.studip.android.app.user.data.entity.UserEntityDataMapper;
  * @author joern
  */
 @Singleton
-class MessagesEntityDataMapper {
+public class MessagesEntityDataMapper {
 
   private final UserEntityDataMapper userEntityMapper;
 
@@ -53,5 +54,18 @@ class MessagesEntityDataMapper {
     message.setReceiver(userEntityMapper.transform(messageEntity.getReceiver()));
 
     return message;
+  }
+
+  public MessageEntity transform(Message message) {
+    MessageEntity messageEntity = new MessageEntity();
+    messageEntity.setMessageId(message.getMessageId());
+    messageEntity.setSubject(message.getSubject());
+    messageEntity.setMessage(message.getMessage());
+    messageEntity.setDate(message.getDate());
+    messageEntity.setUnread(message.isUnread() ? 1 : 0);
+    messageEntity.setSender(userEntityMapper.transform(message.getSender()));
+    messageEntity.setReceiver(userEntityMapper.transform(message.getReceiver()));
+
+    return messageEntity;
   }
 }

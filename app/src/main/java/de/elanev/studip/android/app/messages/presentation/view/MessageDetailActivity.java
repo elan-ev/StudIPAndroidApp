@@ -27,7 +27,7 @@ import de.elanev.studip.android.app.messages.internal.di.MessagesModule;
 import de.elanev.studip.android.app.messages.presentation.model.MessageModel;
 
 public class MessageDetailActivity extends AppCompatActivity implements
-    HasComponent<MessagesComponent> {
+    HasComponent<MessagesComponent>, MessageViewFragment.MessageListener {
   public static final String MESSAGE_ID = "message-id";
   @BindView(R.id.toolbar) Toolbar mToolbar;
 
@@ -82,13 +82,6 @@ public class MessageDetailActivity extends AppCompatActivity implements
     }
   }
 
-  private void startComposeActivity(Bundle extras) {
-    Intent intent = new Intent(this, MessageComposeActivity.class);
-    intent.putExtras(extras);
-
-    startActivity(intent);
-  }
-
   @Override public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       // Respond to the action bar's Up/Home button
@@ -104,30 +97,38 @@ public class MessageDetailActivity extends AppCompatActivity implements
     return messagesComponent;
   }
 
-  //  private void replyMessage() {
-  //    Bundle extras = new Bundle();
-  //    // Add flag for reply action
-  //    extras.putInt(MessageComposeActivity.MESSAGE_ACTION_FLAG,
-  //        MessageComposeActivity.MESSAGE_ACTION_REPLY);
-  //
-  //    // Add needed information
-  //    extras.putSerializable(MessageComposeActivity.MESSAGE_SENDER, mSender);
-  //    extras.putSerializable(MessageComposeActivity.MESSAGE_RECEIVER, mSender);
-  //    extras.putSerializable(MessageComposeActivity.MESSAGE_ORIGINAL, message);
-  //
-  //    composeMessage(extras);
-  //  }
-  //
-  //  private void forwardMessage() {
-  //    Bundle extras = new Bundle();
-  //    // Add flag for forward action
-  //    extras.putInt(MessageComposeActivity.MESSAGE_ACTION_FLAG,
-  //        MessageComposeActivity.MESSAGE_ACTION_FORWARD);
-  //
-  //    // Add needed information
-  //    extras.putSerializable(MessageComposeActivity.MESSAGE_SENDER, mSender);
-  //    extras.putSerializable(MessageComposeActivity.MESSAGE_ORIGINAL, message);
-  //
-  //    composeMessage(extras);
-  //  }
+  @Override public void onMessageDeleted() {
+    finish();
+  }
+
+  @Override public void onReplyMessage(MessageModel messageModel) {
+    Bundle extras = new Bundle();
+    // Add flag for reply action
+    extras.putInt(MessageComposeActivity.MESSAGE_ACTION_FLAG,
+        MessageComposeActivity.MESSAGE_ACTION_REPLY);
+
+    // Add needed information
+    extras.putSerializable(MessageComposeActivity.MESSAGE, messageModel);
+
+    startComposeActivity(extras);
+  }
+
+  private void startComposeActivity(Bundle extras) {
+    Intent intent = new Intent(this, MessageComposeActivity.class);
+    intent.putExtras(extras);
+
+    startActivity(intent);
+  }
+
+  @Override public void onForwardMessage(MessageModel messageModel) {
+    Bundle extras = new Bundle();
+    // Add flag for forward action
+    extras.putInt(MessageComposeActivity.MESSAGE_ACTION_FLAG,
+        MessageComposeActivity.MESSAGE_ACTION_FORWARD);
+
+    // Add needed information
+    extras.putSerializable(MessageComposeActivity.MESSAGE, messageModel);
+
+    startComposeActivity(extras);
+  }
 }

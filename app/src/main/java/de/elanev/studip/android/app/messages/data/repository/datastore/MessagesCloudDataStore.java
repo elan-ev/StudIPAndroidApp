@@ -40,4 +40,10 @@ public class MessagesCloudDataStore implements MessagesDataStore {
   @Override public Observable<Void> delete(String messageId) {
     return apiService.deleteMessage(messageId);
   }
+
+  @Override public Observable<MessageEntity> send(MessageEntity message) {
+    return apiService.sendMessage(message.getReceiver()
+        .getUserId(), message.getSubject(), message.getMessage());
+  }
+
 }

@@ -10,6 +10,7 @@ package de.elanev.studip.android.app.messages.domain;
 
 import java.util.List;
 
+import de.elanev.studip.android.app.messages.data.entity.MessageEntity;
 import rx.Observable;
 
 /**
@@ -23,4 +24,6 @@ public interface MessagesRepository {
   Observable<Message> message(String messageId);
 
   Observable<Void> delete(String messageId);
+
+  Observable<Message> send(Message message);
 }

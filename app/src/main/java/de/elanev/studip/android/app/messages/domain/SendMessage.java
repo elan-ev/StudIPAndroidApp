@@ -14,26 +14,44 @@ import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.base.internal.di.PerFragment;
+import de.elanev.studip.android.app.messages.data.repository.MessagesEntityDataMapper;
 import rx.Observable;
+import rx.Subscriber;
 
 /**
  * @author joern
  */
-@PerActivity
-public class DeleteMessage extends UseCase {
-
-  private final String messageId;
+@PerFragment
+public class SendMessage extends UseCase {
   private final MessagesRepository messageRepository;
+  private Message message;
 
-  @Inject public DeleteMessage(String messageId, MessagesRepository messagesRepository,
-      ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
+  @Inject protected SendMessage(MessagesRepository messagesRepository, ThreadExecutor
+      threadExecutor,
+      PostExecutionThread postExecutionThread) {
     super(threadExecutor, postExecutionThread);
 
-    this.messageId = messageId;
     this.messageRepository = messagesRepository;
   }
 
+  @Override public void execute(Subscriber subscriber) {
+    if (this.message == null) {
+      return;
+    }
+
+    if (message.getReceiver() == null) {
+      subscriber.onError(new IllegalStateException("Message receiver must not be null!"));
+    }
+
+    super.execute(subscriber);
+  }
+
   @Override protected Observable buildUseCaseObservable() {
-    return this.messageRepository.delete(messageId);
+    return messageRepository.send(this.message);
+  }
+
+  public void setMessage(Message message) {
+    this.message = message;
   }
 }

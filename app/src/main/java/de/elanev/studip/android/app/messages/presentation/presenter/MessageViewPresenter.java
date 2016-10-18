@@ -8,17 +8,19 @@
 
 package de.elanev.studip.android.app.messages.presentation.presenter;
 
+import com.hannesdorfmann.mosby.mvp.MvpPresenter;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
 import de.elanev.studip.android.app.base.DefaultSubscriber;
 import de.elanev.studip.android.app.base.UseCase;
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.messages.domain.Message;
 import de.elanev.studip.android.app.messages.presentation.mapper.MessagesDataMapper;
 import de.elanev.studip.android.app.messages.presentation.model.MessageModel;
+import de.elanev.studip.android.app.messages.presentation.view.MessageComposeView;
 import de.elanev.studip.android.app.messages.presentation.view.MessageView;
 
 /**
@@ -38,10 +40,6 @@ public class MessageViewPresenter extends BaseRxLcePresenter<MessageView, Messag
     this.messagesDataMapper = messagesDataMapper;
   }
 
-  @Override protected void unsubscribe() {
-    getMessageDetails.unsubscribe();
-  }
-
   public void loadNews() {
     getMessageDetails.execute(new MessageDetailsSubscriber(false));
   }
@@ -50,13 +48,26 @@ public class MessageViewPresenter extends BaseRxLcePresenter<MessageView, Messag
     deleteMessage.execute(new MessageDeleteSubscriber(false));
   }
 
+  @SuppressWarnings("ConstantConditions") private void onMessageDeleteCompleted() {
+    if (isViewAttached()) {
+      getView().showMessageDeleted();
+    }
+
+    unsubscribe();
+  }
+
+  @Override protected void unsubscribe() {
+    getMessageDetails.unsubscribe();
+    deleteMessage.unsubscribe();
+  }
+
   private class MessageDeleteSubscriber extends DefaultSubscriber<Void> {
     MessageDeleteSubscriber(boolean ptr) {
       super(ptr);
     }
 
     @Override public void onCompleted() {
-      MessageViewPresenter.this.onCompleted();
+      MessageViewPresenter.this.onMessageDeleteCompleted();
     }
 
     @Override public void onError(Throwable e) {

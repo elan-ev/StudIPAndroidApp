@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.messages.domain.Message;
 import de.elanev.studip.android.app.messages.presentation.model.MessageModel;
@@ -54,5 +54,18 @@ public class MessagesDataMapper {
     messageModel.setReceiver(userDataMapper.transform(message.getReceiver()));
 
     return messageModel;
+  }
+
+  public Message transform(MessageModel messageModel) {
+    Message message = new Message();
+    message.setMessageId(messageModel.getMessageId());
+    message.setSubject(messageModel.getSubject());
+    message.setMessage(messageModel.getMessage());
+    message.setDate(messageModel.getDate());
+    message.setUnread(messageModel.isUnread());
+    message.setSender(userDataMapper.transform(messageModel.getSender()));
+    message.setReceiver(userDataMapper.transform(messageModel.getReceiver()));
+
+    return message;
   }
 }

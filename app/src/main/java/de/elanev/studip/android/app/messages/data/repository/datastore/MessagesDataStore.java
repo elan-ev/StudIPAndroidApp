@@ -25,4 +25,6 @@ public interface MessagesDataStore {
   Observable<MessageEntity> message(String messageId);
 
   Observable<Void> delete(String messageId);
+
+  Observable<MessageEntity> send(MessageEntity message);
 }
