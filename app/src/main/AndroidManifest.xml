@@ -32,16 +32,20 @@
 
 
         <!-- Activities -->
-
-        <!-- News -->
         <activity
-            android:name=".news.presentation.NewsActivity"
+            android:name=".StartupActivity"
             android:label="@string/app_name"
             android:theme="@style/noAnimTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <!-- News -->
+        <activity
+            android:name=".news.presentation.NewsActivity"
+            android:label="@string/News"
+            android:theme="@style/noAnimTheme">
         </activity>
         <!-- News list and details view activity -->
         <activity

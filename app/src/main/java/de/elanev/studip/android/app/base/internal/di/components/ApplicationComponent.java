@@ -15,6 +15,7 @@ import javax.inject.Singleton;
 import dagger.Component;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
+import de.elanev.studip.android.app.StartupActivity;
 import de.elanev.studip.android.app.auth.SignInFragment;
 import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
@@ -43,6 +44,8 @@ import de.elanev.studip.android.app.widget.ReactiveListFragment;
 @Component(modules = {ApplicationModule.class, NetworkModule.class})
 public interface ApplicationComponent {
   void inject(AbstractStudIPApplication target);
+
+  void inject(StartupActivity target);
 
   void inject(BaseActivity target);
 

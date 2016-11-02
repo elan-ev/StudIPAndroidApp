@@ -156,12 +156,6 @@ public class MainActivity extends BaseActivity implements
     ((AbstractStudIPApplication) getApplication()).getAppComponent()
         .inject(this);
 
-    if (!mPrefs.isAppAuthorized(this)) {
-      this.navigator.navigateToSignIn(this);
-      finish();
-      return;
-    }
-
     mHandler = new Handler();
 
 

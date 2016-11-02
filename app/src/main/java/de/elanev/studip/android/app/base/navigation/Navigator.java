@@ -14,10 +14,12 @@ import android.content.Intent;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import de.elanev.studip.android.app.StartupActivity;
 import de.elanev.studip.android.app.about.AboutActivity;
 import de.elanev.studip.android.app.auth.SignInActivity;
 import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;
 import de.elanev.studip.android.app.feedback.FeedbackActivity;
+import de.elanev.studip.android.app.news.presentation.NewsActivity;
 
 /**
  * @author joern
@@ -54,6 +56,13 @@ public class Navigator {
   public void navigateToSignIn(Context context) {
     if (context != null) {
       Intent intent = SignInActivity.getCallingIntent(context);
+      context.startActivity(intent);
+    }
+  }
+
+  public void navigateToNews(Context context) {
+    if (context != null) {
+      Intent intent = NewsActivity.getCallingIntent(context);
       context.startActivity(intent);
     }
   }

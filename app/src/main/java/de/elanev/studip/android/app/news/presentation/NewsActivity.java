@@ -8,6 +8,7 @@
 
 package de.elanev.studip.android.app.news.presentation;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -59,5 +60,9 @@ public class NewsActivity extends MainActivity implements HasComponent<NewsCompo
     intent.setClass(this, NewsViewActivity.class);
     intent.putExtras(args);
     startActivity(intent);
+  }
+
+  public static Intent getCallingIntent(Context context) {
+    return new Intent(context, NewsActivity.class);
   }
 }
