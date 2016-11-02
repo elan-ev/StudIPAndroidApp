@@ -79,6 +79,7 @@
 -dontwarn okio.**
 -dontwarn rx.**
 -dontwarn butterknife.internal.**
+-dontwarn java.lang.invoke.*
 
 -dontnote com.google.vending.licensing.ILicensingService
 -dontnote com.android.vending.licensing.ILicensingService
