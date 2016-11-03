@@ -16,12 +16,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 
+import de.elanev.studip.android.app.data.datamodel.Pagination;
+
 /**
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MessageEntities {
   private ArrayList<MessageEntity> messages;
+  private Pagination pagination;
 
   @JsonProperty("messages") public ArrayList<MessageEntity> getMessages() {
     return messages;
@@ -29,5 +32,13 @@ public class MessageEntities {
 
   @JsonProperty("messages") public void setMessages(ArrayList<MessageEntity> messages) {
     this.messages = messages;
+  }
+
+  @JsonProperty("pagination") public Pagination getPagination() {
+    return pagination;
+  }
+
+  @JsonProperty("pagination") public void setPagination(Pagination pagination) {
+    this.pagination = pagination;
   }
 }
