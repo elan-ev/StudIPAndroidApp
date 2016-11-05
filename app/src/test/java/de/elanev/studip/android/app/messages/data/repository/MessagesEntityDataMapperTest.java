@@ -25,6 +25,8 @@ import de.elanev.studip.android.app.user.domain.User;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author joern
@@ -37,12 +39,20 @@ public class MessagesEntityDataMapperTest {
 
 
   @Mock UserEntityDataMapper mockUserEntityDataMapper;
-  @Mock UserEntity mockUser;
-  @Mock User mockDomainUser;
+  @Mock UserEntity mockReceiver;
+  @Mock UserEntity mockSender;
+  @Mock User mockDomainReceiver;
+  @Mock User mockDomainSender;
+
   private MessagesEntityDataMapper messagesEntityDataMapper;
 
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
+
+    given(mockUserEntityDataMapper.transform(mockSender)).willReturn(mockDomainSender);
+    given(mockUserEntityDataMapper.transform(mockReceiver)).willReturn(mockDomainReceiver);
+    given(mockUserEntityDataMapper.transform(mockDomainSender)).willReturn(mockSender);
+    given(mockUserEntityDataMapper.transform(mockDomainReceiver)).willReturn(mockReceiver);
 
     messagesEntityDataMapper = new MessagesEntityDataMapper(mockUserEntityDataMapper);
   }
@@ -50,6 +60,8 @@ public class MessagesEntityDataMapperTest {
   @Test public void shouldTransformMessageEntityListToMessagesList() throws Exception {
     MessageEntity messageEntity1 = new MessageEntity();
     MessageEntity messageEntity2 = new MessageEntity();
+    messageEntity1.setDate(FAKE_DATE);
+    messageEntity2.setDate(FAKE_DATE);
 
     List<MessageEntity> messageEntityList = new ArrayList<>(5);
     messageEntityList.add(messageEntity1);
@@ -64,10 +76,48 @@ public class MessagesEntityDataMapperTest {
 
   @Test public void shouldTransformMessageEntityToMessage() throws Exception {
 
+    MessageEntity messageEntity = new MessageEntity();
+    messageEntity.setMessageId(FAKE_MESSAGE_ID);
+    messageEntity.setSubject(FAKE_SUBJCT);
+    messageEntity.setMessage(FAKE_MESSAGE);
+    messageEntity.setDate(FAKE_DATE);
+    messageEntity.setReceiver(mockReceiver);
+    messageEntity.setSender(mockSender);
+    messageEntity.setUnread(1);
+
+    Message message = messagesEntityDataMapper.transform(messageEntity);
+
+    assertThat(message, is(instanceOf(Message.class)));
+    assertThat(message.getMessageId(), is(FAKE_MESSAGE_ID));
+    assertThat(message.getSender(), is(mockDomainSender));
+    assertThat(message.getReceiver(), is(mockDomainReceiver));
+    assertThat(message.getMessage(), is(FAKE_MESSAGE));
+    assertThat(message.getSubject(), is(FAKE_SUBJCT));
+    assertThat(message.getDate(), is(FAKE_DATE));
+    assertThat(message.isUnread(), is(true));
   }
 
   @Test public void shouldTransformMessageToMessageEntity() throws Exception {
 
+    Message m = new Message();
+    m.setMessageId(FAKE_MESSAGE_ID);
+    m.setSubject(FAKE_SUBJCT);
+    m.setMessage(FAKE_MESSAGE);
+    m.setDate(FAKE_DATE);
+    m.setReceiver(mockDomainReceiver);
+    m.setSender(mockDomainSender);
+    m.setUnread(true);
+
+    MessageEntity messageEntity = messagesEntityDataMapper.transform(m);
+
+    assertThat(messageEntity, is(instanceOf(MessageEntity.class)));
+    assertThat(messageEntity.getMessageId(), is(FAKE_MESSAGE_ID));
+    assertThat(messageEntity.getSender(), is(mockSender));
+    assertThat(messageEntity.getReceiver(), is(mockReceiver));
+    assertThat(messageEntity.getMessage(), is(FAKE_MESSAGE));
+    assertThat(messageEntity.getSubject(), is(FAKE_SUBJCT));
+    assertThat(messageEntity.getDate(), is(FAKE_DATE));
+    assertThat(messageEntity.getUnread(), is(1));
   }
 
 }
