@@ -13,9 +13,7 @@ import javax.inject.Inject;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.base.internal.di.PerFragment;
-import de.elanev.studip.android.app.messages.data.repository.MessagesEntityDataMapper;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -27,9 +25,8 @@ public class SendMessage extends UseCase {
   private final MessagesRepository messageRepository;
   private Message message;
 
-  @Inject protected SendMessage(MessagesRepository messagesRepository, ThreadExecutor
-      threadExecutor,
-      PostExecutionThread postExecutionThread) {
+  @Inject protected SendMessage(MessagesRepository messagesRepository,
+      ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
     super(threadExecutor, postExecutionThread);
 
     this.messageRepository = messagesRepository;
@@ -37,11 +34,13 @@ public class SendMessage extends UseCase {
 
   @Override public void execute(Subscriber subscriber) {
     if (this.message == null) {
+      subscriber.onError(new IllegalStateException("Message must not be null!"));
       return;
     }
 
     if (message.getReceiver() == null) {
       subscriber.onError(new IllegalStateException("Message receiver must not be null!"));
+      return;
     }
 
     super.execute(subscriber);
@@ -50,6 +49,8 @@ public class SendMessage extends UseCase {
   @Override protected Observable buildUseCaseObservable() {
     return messageRepository.send(this.message);
   }
+
+  public Message getMessage() {return this.message;}
 
   public void setMessage(Message message) {
     this.message = message;
