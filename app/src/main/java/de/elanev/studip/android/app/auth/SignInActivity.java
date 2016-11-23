@@ -13,12 +13,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.FragmentTransaction;
+
+import javax.inject.Inject;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
+import de.elanev.studip.android.app.data.datamodel.Server;
+import de.elanev.studip.android.app.news.presentation.NewsActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
+import de.elanev.studip.android.app.util.Prefs;
+import timber.log.Timber;
 
 /**
  * Activity for handling the full sign in and authorization process. It triggers
@@ -27,60 +33,132 @@ import de.elanev.studip.android.app.util.ApiUtils;
  * @author joern
  */
 public class SignInActivity extends BaseActivity implements
-    WebAuthFragment.OnWebViewAuthListener, SignInFragment.OnRequestTokenReceived,
-    SignInFragment.SignInListener {
+    ServerListFragment.OnServerSelectListener, OnAuthListener,
+    SignInSyncFragment.SignInSyncListener, SignInListener,
+    SignInSyncFragment.SignInSuccessListener {
 
-  @Override public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    this.setContentView(R.layout.content_frame);
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
+  static final String SELECTED_SERVER = "selected_server";
+  static final String AUTH_SUCCESS = "auth_success";
 
-    if (savedInstanceState == null) {
-      SignInFragment signInFragment = SignInFragment.newInstance();
-      getSupportFragmentManager().beginTransaction()
-          .add(R.id.content_frame, signInFragment, SignInFragment.class.getName())
-          .commit();
-    }
-  }
-
-  @Override public void onAuthSuccess() {
-    FragmentManager fm = getSupportFragmentManager();
-    Fragment frag = fm.findFragmentByTag(SignInFragment.class.getName());
-    if (frag == null) {
-      frag = SignInFragment.newInstance();
-      fm.beginTransaction()
-          .replace(R.id.content_frame, frag, SignInFragment.class.getName())
-          .commit();
-    } else {
-      Fragment webAuthFrag = fm.findFragmentByTag(WebAuthFragment.class.getName());
-      fm.beginTransaction().remove(webAuthFrag).attach(frag).commit();
-    }
-
-  }
-
-  @Override public void onAuthCancelled() {
-    FragmentManager fm = getSupportFragmentManager();
-    SignInFragment frag = SignInFragment.newInstance();
-    fm.beginTransaction()
-        .replace(R.id.content_frame, frag, SignInFragment.class.getName())
-        .commit();
-  }
-
-  @Override public void requestTokenReceived(String authUrl) {
-    Bundle args = new Bundle();
-    args.putString(WebAuthFragment.AUTH_URL, authUrl);
-    WebAuthFragment frag = WebAuthFragment.newInstance(args);
-    Fragment signInFrag = getSupportFragmentManager().findFragmentByTag(SignInFragment.class.getName());
-    getSupportFragmentManager().beginTransaction()
-        .detach(signInFrag)
-        .add(R.id.content_frame, frag, WebAuthFragment.class.getName())
-        .commitAllowingStateLoss();
-  }
-
+  @Inject Prefs prefs;
 
   public static Intent getCallingIntent(Context context) {
     return new Intent(context, SignInActivity.class);
+  }
+
+  /* Disable back button on older devices */
+  @Override public void onBackPressed() {
+    if (!ApiUtils.isOverApi11()) {
+      return;
+    }
+
+    super.onBackPressed();
+  }
+
+  //  void showTutorial() {
+  //    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+  //
+  //    SignInTutorialDialog tutorialDialog = new SignInTutorialDialog();
+  //    tutorialDialog.show(ft, "dialog");
+  //  }
+
+  @Override public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    this.setContentView(R.layout.activity_signin);
+    setTitle(R.string.app_name);
+
+    if (savedInstanceState == null) {
+      ServerListFragment serverListFragment = ServerListFragment.newInstance();
+      getSupportFragmentManager().beginTransaction()
+          .add(R.id.content_frame, serverListFragment, ServerListFragment.class.getName())
+          .commit();
+    }
+    //TODO: Reactivate tutorial when the slides are ready
+    //    boolean isFirstStart = Prefs.getInstance(this)
+    //        .isFirstStart();
+    //
+    //    // For show tutorial for debugging purposes
+    //    if (BuildConfig.DEBUG) isFirstStart = true;
+    //    if (isFirstStart) {
+    //
+    //      // If this is the first start, show the tutorial DialogFragment
+    //      showTutorial();
+    //    }
+    //    Prefs.getInstance(this)
+    //        .setAppStarted();
+  }
+
+  @Override public void onServerSelected(Server server) {
+    FragmentManager fm = getSupportFragmentManager();
+    Bundle args = extractServerInfo(server);
+    SignInFragment frag = SignInFragment.newInstance(args);
+
+    FragmentTransaction ft = fm.beginTransaction()
+        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+    ft.replace(R.id.content_frame, frag, SignInFragment.class.getName())
+        .commit();
+  }
+
+  private Bundle extractServerInfo(Server server) {
+    Bundle args = new Bundle();
+    args.putSerializable(SELECTED_SERVER, server);
+
+    return args;
+  }
+
+  @Override public void onAuthCanceled() {
+    attachSignInServerListFragment();
+  }
+
+  @Override public void onAuthSuccess(Server server) {
+
+    FragmentManager fm = getSupportFragmentManager();
+
+    SignInSyncFragment fragment = (SignInSyncFragment) fm.findFragmentByTag(
+        SignInSyncFragment.class.getName());
+    if (fragment == null) {
+      fragment = SignInSyncFragment.newInstance();
+    }
+
+    fm.beginTransaction()
+        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        .replace(R.id.content_frame, fragment, SignInFragment.class.getName())
+        .commit();
+  }
+
+  private void attachSignInServerListFragment() {
+    FragmentManager fm = getSupportFragmentManager();
+    Fragment fragment = fm.findFragmentByTag(ServerListFragment.class.getName());
+
+    if (fragment == null) {
+      fragment = ServerListFragment.newInstance();
+    }
+
+    fm.beginTransaction()
+        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        .replace(R.id.content_frame, fragment, ServerListFragment.class.getName())
+        .commit();
+  }
+
+  @Override public void onSignInSyncCanceled() {
+    handleSignInCancel();
+
+  }
+
+  private void handleSignInCancel() {
+    // Clear the app preferences
+    Intent intent = LogoutActivity.getCallingIntent(this);
+    startActivity(intent);
+
+    attachSignInServerListFragment();
+  }
+
+  @Override public void onSignInSyncError(Exception e) {
+    if (e != null) {
+      Timber.e(e, e.getMessage());
+      // Resetting the SyncHelper
+      handleSignInCancel();
+    }
   }
 
   @Override public void onFeedbackSelected() {
@@ -89,5 +167,22 @@ public class SignInActivity extends BaseActivity implements
 
   @Override public void onAboutSelected() {
     this.navigator.navigateToAbout(this);
+  }
+
+  @Override public void onSignInSuccess() {
+    Intent intent = NewsActivity.getCallingIntent(this);
+
+    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+    startActivity(intent);
+  }
+
+  @Override public void onSignInError(Exception e) {
+    Timber.e(e, e.getMessage());
+    // Resetting the SyncHelper
+    handleSignInCancel();
   }
 }

@@ -530,13 +530,15 @@ public class SyncHelper {
         }));
   }
 
-  public void getSettings() {
+  public void getSettings(SyncHelperCallbacks callbacks) {
 
     mCompositeSubscription.add(mApiService.get().getSettings()
         .subscribeOn(Schedulers.newThread())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<Settings>() {
           @Override public void onCompleted() {
+            if (callbacks != null)
+            callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_SETTINGS_SYNC);
           }
 
           @Override public void onError(Throwable e) {
@@ -610,6 +612,7 @@ public class SyncHelper {
     int ERROR_USER_SYNC = 306;
     int ERROR_INSTITUTES_SYNC = 307;
     int ERROR_ROUTES_SYNC = 309;
+    int FINISHED_SETTINGS_SYNC = 310;
 
     void onSyncStarted();
 

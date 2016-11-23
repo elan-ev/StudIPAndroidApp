@@ -16,7 +16,9 @@ import dagger.Component;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.StartupActivity;
+import de.elanev.studip.android.app.auth.ServerListFragment;
 import de.elanev.studip.android.app.auth.SignInFragment;
+import de.elanev.studip.android.app.auth.SignInSyncFragment;
 import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -25,6 +27,7 @@ import de.elanev.studip.android.app.base.internal.di.modules.NetworkModule;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
+import de.elanev.studip.android.app.feedback.FeedbackActivity;
 import de.elanev.studip.android.app.messages.domain.MessagesRepository;
 import de.elanev.studip.android.app.messages.presentation.view.MessageDetailActivity;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
@@ -57,8 +60,14 @@ public interface ApplicationComponent {
 
   void inject(BaseFragment target);
 
+  void inject(FeedbackActivity target);
+
   //TODO: Make it extend BaseFragment
   void inject(SignInFragment target);
+
+  void inject(ServerListFragment target);
+
+  void inject(SignInSyncFragment target);
 
   void inject(UserListFragment target);
 
@@ -90,4 +99,5 @@ public interface ApplicationComponent {
 
   //FIxme
   SyncHelper syncHelper();
+
 }

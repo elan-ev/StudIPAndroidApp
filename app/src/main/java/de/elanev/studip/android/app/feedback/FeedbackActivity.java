@@ -36,7 +36,6 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.util.Prefs;
-import timber.log.Timber;
 
 /**
  * @author joern
@@ -59,6 +58,8 @@ public class FeedbackActivity extends BaseActivity implements AdapterView.OnItem
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    getApplicationComponent().inject(this);
 
     setContentView(R.layout.activity_feedback);
     ButterKnife.bind(this);
@@ -88,11 +89,10 @@ public class FeedbackActivity extends BaseActivity implements AdapterView.OnItem
   }
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
-    MenuInflater inflater = new MenuInflater(this);
-
+    MenuInflater inflater = getMenuInflater();
     inflater.inflate(R.menu.feedback_menu, menu);
 
-    return super.onCreateOptionsMenu(menu);
+    return true;
   }
 
   @Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -110,25 +110,37 @@ public class FeedbackActivity extends BaseActivity implements AdapterView.OnItem
   }
 
   private void sendFeedback() {
+    String emailAddress = getString(R.string.default_support_address);
+    String name = getString(android.R.string.unknownName);
+
     Server server = prefs.getServer(this);
+    if (server != null) {
+      emailAddress = server.getContactEmail();
+      name = server.getName();
+    }
 
-    if (server != null && validateFormFields()) {
-      try {
-        Intent intent = new Intent(Intent.ACTION_SENDTO,
-            Uri.fromParts("mailto", server.getContactEmail(), null));
+    if (validateFormFields()) {
+      // Create an email only Intent
+      Intent intent = new Intent(Intent.ACTION_SENDTO);
+      intent.setData(Uri.parse("mailto:"));
 
-        String subjectField = String.format(getString(R.string.feedback_form_subject),
-            selectedCategory, server.getName());
-        intent.putExtra(Intent.EXTRA_SUBJECT, subjectField);
+      // Set the correct TO address for Intent
+      intent.putExtra(Intent.EXTRA_EMAIL, emailAddress);
 
-        intent.putExtra(Intent.EXTRA_TEXT,
-            String.format(getString(R.string.feedback_form_message_template),
-                feedbackMessageInput.getText(), Build.VERSION.SDK_INT, BuildConfig.VERSION_NAME,
-                BuildConfig.VERSION_CODE, BuildConfig.BUILD_TIME));
+      // Generate subject string and add it to Intent
+      String subjectField = String.format(getString(R.string.feedback_form_subject),
+          selectedCategory, name);
+      intent.putExtra(Intent.EXTRA_SUBJECT, subjectField);
 
-        startActivity(Intent.createChooser(intent, getString(R.string.feedback_form_action)));
-      } catch (Exception e) {
-        Timber.e(e, e.getMessage());
+      // Generate and set the message for the Intent
+      intent.putExtra(Intent.EXTRA_TEXT,
+          String.format(getString(R.string.feedback_form_message_template),
+              feedbackMessageInput.getText(), Build.VERSION.SDK_INT, BuildConfig.VERSION_NAME,
+              BuildConfig.VERSION_CODE, BuildConfig.BUILD_TIME));
+
+      // Start email app if one is installed
+      if (intent.resolveActivity(getPackageManager()) != null) {
+        startActivity(intent);
       }
     }
   }

@@ -10,25 +10,27 @@ package de.elanev.studip.android.app.data.datamodel;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+
 /**
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Servers {
-  @JsonProperty("servers") private Server[] servers;
+  @JsonProperty("servers") private ArrayList<Server> servers;
 
   public Servers() {
   }
 
-  public Servers(Server[] servers) {
+  public Servers(ArrayList<Server> servers) {
     this.servers = servers;
   }
 
-  @JsonProperty("servers") public Server[] getServers() {
+  @JsonProperty("servers") public ArrayList<Server> getServers() {
     return servers;
   }
 
-  @JsonProperty("servers") public void setServers(Server[] servers) {
+  @JsonProperty("servers") public void setServers(ArrayList<Server> servers) {
     this.servers = servers;
   }
 }

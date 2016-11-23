@@ -18,7 +18,8 @@
     <string name="dialog_load_via_mobile_text">Sie sind über das mobile Datennetz verbinden
         . Dies kann zusätzliche Datenkosten verursachen. Möchten Sie fortfahren?</string>
     <string name="background_image">Hintergrundbild</string>
-
+    <string name="internet_connection_required">Um fortfahren zu können wird eine
+        Internetverbindung benötigt.</string>
 
     <!-- Content descriptions -->
     <string name="user_image">Benutzerbild</string>
@@ -160,6 +161,7 @@
     <string name="institutes">Ihrere Institute</string>
     <string name="your_user_data">Ihrer Benutzerdaten</string>
     <string name="search_studip">Stud.IP suchen</string>
+    <string name="tutorial">Einführung</string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Erfolgreich gelöscht</string>

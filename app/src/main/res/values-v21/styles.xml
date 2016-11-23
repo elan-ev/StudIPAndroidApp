@@ -50,4 +50,10 @@
         <item name="cpb_sweep_speed">@string/cpb_default_sweep_speed</item>
         <item name="cpb_rotation_speed">@string/cpb_default_rotation_speed</item>
     </style>
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/studip_mobile_dark</item>
+        <item name="android:textColorPrimary">@color/primary_text_light</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
 </resources>
