@@ -11,16 +11,18 @@ package de.elanev.studip.android.app.widget;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.AbstractStudIPApplication;
+import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 
 /**
  * @author joern
  */
-public class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment {
 
   @Inject protected Context mContext;
   @Inject protected SyncHelper mSyncHelper;
@@ -28,6 +30,19 @@ public class BaseFragment extends Fragment {
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    ((AbstractStudIPApplication)getActivity().getApplication()).getComponent().inject(this);
+    ((AbstractStudIPApplication) getActivity().getApplication()).getAppComponent()
+        .inject(this);
+  }
+
+  protected void showToast(String message) {
+    Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT)
+        .show();
+  }
+
+  /**
+   * Gets a component for dependency injection by its type.
+   */
+  @SuppressWarnings("unchecked") protected <C> C getComponent(Class<C> componentType) {
+    return componentType.cast(((HasComponent<C>) getActivity()).getComponent());
   }
 }

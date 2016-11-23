@@ -15,11 +15,10 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 
-import de.elanev.studip.android.app.data.datamodel.Postbox;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.db.AuthenticationContract;
-import de.elanev.studip.android.app.planner.PlannerActivity;
+import de.elanev.studip.android.app.planner.presentation.view.PlannerActivity;
 
 
 /**
@@ -29,14 +28,11 @@ import de.elanev.studip.android.app.planner.PlannerActivity;
  * @author joern
  */
 public class Prefs {
-  // TODO do DB operations in AsyncTask
   private static final String APP_PREFS_NAME = "prefs";
   private static final String APP_FIRST_START = "appFirstStart";
   private static final String APP_SYNC_COMPLETE = "appSyncComplete";
   private static final String USER_ID = "userId";
-  private static final String TAG = Prefs.class.getSimpleName();
   private static final String CURRENT_SEMESTER_ID = "currentSemesterId";
-  private static final String RECORDINGS_ENABLED = "recordingsEnabled";
   private static final String FORUM_IS_ACTIVATED = "activeRoutes";
   private static final String API_SETTINGS_STRING = "apiSettingsString";
   private static final String ALLOW_MOBILE_DATA = "allowMobileData";
@@ -46,7 +42,6 @@ public class Prefs {
   private static final String PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT = "plannerPreferredTimetableViewDayCount";
   private static final String MESSAGE_POSTBOX = "messageFolders";
   private static Prefs sInstance;
-  private Context mContext;
   private SharedPreferences mPrefs;
   private volatile Server mCachedServer;
 
@@ -54,7 +49,6 @@ public class Prefs {
   }
 
   private Prefs(Context context) {
-    this.mContext = context.getApplicationContext();
     this.mPrefs = context.getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE);
   }
 
@@ -86,23 +80,16 @@ public class Prefs {
    *
    * @return True if the app is authorized, false if the app is not authorized
    */
-  public boolean isAppAuthorized() {
-    Server server = getServer();
-    if (server != null) {
-      if (server.getAccessToken() == null || server.getAccessTokenSecret() == null) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      return false;
-    }
+  public boolean isAppAuthorized(Context context) {
+    Server server = getServer(context);
+    return server != null && !(server.getAccessToken() == null
+        || server.getAccessTokenSecret() == null);
   }
 
   /*
    * Returns a Server object containing the necessary information to communicate with the api
    */
-  public Server getServer() {
+  public Server getServer(Context context) {
 
     if (mCachedServer == null) {
       String[] projection = new String[]{
@@ -115,31 +102,33 @@ public class Prefs {
           AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET
       };
 
-      Cursor c = mContext.getContentResolver()
+      Cursor c = context.getContentResolver()
           .query(AuthenticationContract.CONTENT_URI, projection, null, null, null);
 
-      c.moveToFirst();
-      if (c.getCount() > 0) {
-        String serverName = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_NAME));
-        String serverContact = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL));
-        String serverKey = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_KEY));
-        String serverSecret = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_SECRET));
-        String serverUrl = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_URL));
-        String accessToken = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN));
-        String accessSecret = c.getString(
-            c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET));
+      if (c != null) {
+        c.moveToFirst();
+        if (c.getCount() > 0) {
+          String serverName = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_NAME));
+          String serverContact = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL));
+          String serverKey = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_KEY));
+          String serverSecret = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_SECRET));
+          String serverUrl = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_URL));
+          String accessToken = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN));
+          String accessSecret = c.getString(
+              c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET));
 
 
-        this.mCachedServer = new Server(serverName, serverKey, serverSecret, serverUrl,
-            serverContact, accessToken, accessSecret);
+          this.mCachedServer = new Server(serverName, serverKey, serverSecret, serverUrl,
+              serverContact, accessToken, accessSecret);
+        }
+        c.close();
       }
-      c.close();
     }
 
     return mCachedServer;
@@ -150,7 +139,7 @@ public class Prefs {
    *
    * @param server The Server object to store permanently
    */
-  public void setServer(Server server) {
+  public void setServer(Server server, Context context) {
     ContentValues values = new ContentValues();
     values.put(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN, server.getAccessToken());
     values.put(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET,
@@ -163,18 +152,20 @@ public class Prefs {
     values.put(AuthenticationContract.Columns.Authentication.SERVER_SECRET,
         server.getConsumerSecret());
 
-    Uri returnUri = mContext.getContentResolver()
+    Uri returnUri = context.getContentResolver()
         .insert(AuthenticationContract.CONTENT_URI, values);
 
-    if (Long.parseLong(returnUri.getLastPathSegment()) != -1) {
-      mCachedServer = server;
-    } else {
-      mCachedServer = null;
+    if (returnUri != null) {
+      if (Long.parseLong(returnUri.getLastPathSegment()) != -1) {
+        mCachedServer = server;
+      } else {
+        mCachedServer = null;
+      }
     }
   }
 
   /**
-   * Checks if the app was started before. If it was not started bevor it will return true
+   * Checks if the app was started before. If it was not started before it will return true
    *
    * @return true if the current start is the first start of the app on the current device, else
    * false
@@ -207,16 +198,8 @@ public class Prefs {
     String serverKey = mPrefs.getString("serverKey", null);
     String serverSecret = mPrefs.getString("serverSecret", null);
 
-    if (accessToken != null || accessTokenSecret != null || serverName != null ||
-        serverUrl != null || serverKey != null || serverSecret != null) {
-
-      return true;
-
-    } else {
-
-      return false;
-
-    }
+    return accessToken != null || accessTokenSecret != null || serverName != null ||
+        serverUrl != null || serverKey != null || serverSecret != null;
   }
 
   /**
@@ -271,7 +254,13 @@ public class Prefs {
    * @return Stud.IP user id String.
    */
   public String getUserId() {
-    return mPrefs.getString(USER_ID, null);
+    User user = User.fromJson(mPrefs.getString(USER_INFO, null));
+    if (user != null) {
+
+      return user.userId.replaceFirst("\\s+$", "");
+    }
+
+    return null;
   }
 
   /**
@@ -328,7 +317,7 @@ public class Prefs {
   }
 
   /**
-   * Saves the wether the forum is activated or not.
+   * Saves the whether the forum is activated or not.
    *
    * @param value Indicates an activated forum.
    */
@@ -446,19 +435,6 @@ public class Prefs {
   public void setPrefPlannerTimetableViewDayCount(int count) {
     mPrefs.edit()
         .putInt(PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT, count)
-        .apply();
-  }
-
-  public Postbox getPostbox() {
-    String postboxJson = mPrefs.getString(MESSAGE_POSTBOX, "");
-    Postbox postbox = Postbox.fromJson(postboxJson);
-    return postbox;
-  }
-
-  public void setPostbox(Postbox postbox) {
-    String postboxString = Postbox.toJson(postbox);
-    mPrefs.edit()
-        .putString(MESSAGE_POSTBOX, postboxString)
         .apply();
   }
 }

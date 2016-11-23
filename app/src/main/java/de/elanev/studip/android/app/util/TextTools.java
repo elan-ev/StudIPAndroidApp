@@ -7,6 +7,7 @@
  */
 package de.elanev.studip.android.app.util;
 
+import android.support.annotation.Nullable;
 import android.text.Html;
 
 import java.text.DecimalFormat;
@@ -85,5 +86,15 @@ public class TextTools {
 
     return builder.toString()
         .trim();
+  }
+
+  /**
+   * Checks whether the passed string is null or empty (length = 0)
+   *
+   * @param str the String to check for emptiness
+   * @return true if the passed String is null or empty, otherwise false
+   */
+  public static boolean isEmpty(@Nullable String str) {
+    return str == null || str.length() == 0;
   }
 }

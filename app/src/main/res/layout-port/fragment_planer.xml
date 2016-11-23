@@ -7,14 +7,17 @@
   ~ http://www.gnu.org/licenses/gpl.html
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <include layout="@layout/view_loading"/>
+
+    <include layout="@layout/view_error"/>
 
     <com.alamkanak.weekview.WeekView
-        android:id="@+id/weekView"
+        android:id="@+id/contentView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:eventTextColor="@android:color/white"
@@ -29,6 +32,7 @@
         app:headerRowBackgroundColor="#ffefefef"
         app:dayBackgroundColor="@android:color/transparent"
         app:todayBackgroundColor="#1848adff"
-        app:headerColumnBackground="#ffffffff"/>
+        app:headerColumnBackground="#ffffffff"
+        app:firstDayOfWeek="monday"/>
 
-</LinearLayout>
+</FrameLayout>

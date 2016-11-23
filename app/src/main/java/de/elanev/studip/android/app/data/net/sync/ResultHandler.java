@@ -5,6 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+
 package de.elanev.studip.android.app.data.net.sync;
 
 import android.content.ContentProviderOperation;
@@ -16,5 +17,5 @@ import java.util.ArrayList;
  *
  */
 public interface ResultHandler {
-	public ArrayList<ContentProviderOperation> parse();
+	ArrayList<ContentProviderOperation> parse();
 }

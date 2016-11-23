@@ -9,7 +9,6 @@
 package de.elanev.studip.android.app.data.net.sync;
 
 import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
@@ -21,23 +20,17 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
 import dagger.Lazy;
-import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.StudIPConstants;
-import de.elanev.studip.android.app.data.datamodel.ContactGroups;
-import de.elanev.studip.android.app.data.datamodel.Contacts;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.Courses;
-import de.elanev.studip.android.app.data.datamodel.Event;
-import de.elanev.studip.android.app.data.datamodel.Events;
+import de.elanev.studip.android.app.planner.data.entity.EventEntity;
+import de.elanev.studip.android.app.planner.data.entity.Events;
 import de.elanev.studip.android.app.data.datamodel.Institutes;
 import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
-import de.elanev.studip.android.app.data.datamodel.News;
-import de.elanev.studip.android.app.data.datamodel.NewsItem;
 import de.elanev.studip.android.app.data.datamodel.Recording;
 import de.elanev.studip.android.app.data.datamodel.Routes;
 import de.elanev.studip.android.app.data.datamodel.Semester;
@@ -46,11 +39,9 @@ import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.UnizensusItem;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.db.AbstractContract;
-import de.elanev.studip.android.app.data.db.ContactsContract;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.db.EventsContract;
 import de.elanev.studip.android.app.data.db.InstitutesContract;
-import de.elanev.studip.android.app.data.db.NewsContract;
 import de.elanev.studip.android.app.data.db.RecordingsContract;
 import de.elanev.studip.android.app.data.db.SemestersContract;
 import de.elanev.studip.android.app.data.db.UnizensusContract;
@@ -79,40 +70,9 @@ public class SyncHelper {
 
   public SyncHelper(Context context, Lazy<StudIpLegacyApiService> apiService,
       Lazy<CustomJsonConverterApiService> customJsonConverterApiService) {
-    this.mContext = context;
+    mContext = context;
     this.mApiService = apiService;
     this.mCustomJsonConverterApiService = customJsonConverterApiService;
-  }
-
-  private static ContentValues[] parseEvents(Events events) {
-    // Save column references local to prevent lookup
-    final String eventIdCol = EventsContract.Columns.EVENT_ID;
-    final String eventCourseIdCol = EventsContract.Columns.EVENT_COURSE_ID;
-    final String eventStartCol = EventsContract.Columns.EVENT_START;
-    final String eventEndCol = EventsContract.Columns.EVENT_END;
-    final String eventTitleCol = EventsContract.Columns.EVENT_TITLE;
-    final String eventDescriptionCol = EventsContract.Columns.EVENT_DESCRIPTION;
-    final String eventCategoriesCol = EventsContract.Columns.EVENT_CATEGORIES;
-    final String eventRoomCol = EventsContract.Columns.EVENT_ROOM;
-
-    final int eventsCount = events.events.size();
-
-    ContentValues[] contentValues = new ContentValues[eventsCount];
-    for (int i = 0; i < eventsCount; ++i) {
-      ContentValues cv = new ContentValues();
-      Event event = events.events.get(i);
-      cv.put(eventIdCol, event.event_id);
-      cv.put(eventCourseIdCol, event.course_id);
-      cv.put(eventStartCol, event.start);
-      cv.put(eventEndCol, event.end);
-      cv.put(eventTitleCol, event.title);
-      cv.put(eventDescriptionCol, event.description);
-      cv.put(eventCategoriesCol, event.categories);
-      cv.put(eventRoomCol, event.room);
-      contentValues[i] = cv;
-    }
-
-    return contentValues;
   }
 
   /**
@@ -135,7 +95,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
+              Timber.e(e.getLocalizedMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_INSTITUTES_SYNC,
@@ -205,84 +165,9 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void performContactsSync(final SyncHelperCallbacks callbacks) {
-    //TODO RxIfy the groups and contacts requests
-    final ContentResolver resolver = mContext.getContentResolver();
-
-    mCompositeSubscription.add(mApiService.get().getContactGroups()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<ContactGroups>() {
-          @Override public void onCompleted() {
-          }
-
-          @Override public void onError(Throwable e) {
-            if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
-
-              if (callbacks != null) {
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC,
-                    e.getLocalizedMessage(), 0);
-              }
-            }
-          }
-
-          @Override public void onNext(ContactGroups contactGroups) {
-            try {
-              resolver.applyBatch(AbstractContract.CONTENT_AUTHORITY,
-                  new ContactGroupsHandler(contactGroups).parse());
-            } catch (RemoteException | OperationApplicationException e) {
-              e.printStackTrace();
-            }
-          }
-        }));
-
-    mCompositeSubscription.add(mApiService.get().getContacts()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<Contacts>() {
-          @Override public void onCompleted() {
-            if (callbacks != null) {
-              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
-            }
-          }
-
-          @Override public void onError(Throwable e) {
-            if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
-
-              if (callbacks != null) {
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_CONTACTS_SYNC,
-                    e.getLocalizedMessage(), 0);
-              }
-            }
-          }
-
-          @Override public void onNext(Contacts contacts) {
-            try {
-              resolver.applyBatch(AbstractContract.CONTENT_AUTHORITY, parseContacts(contacts));
-              new UsersRequestTask().execute(
-                  contacts.contacts.toArray(new String[contacts.contacts.size()]));
-              if (callbacks != null) {
-                callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
-              }
-            } catch (RemoteException | OperationApplicationException e) {
-              e.printStackTrace();
-            }
-          }
-        }));
-  }
-
-  private static ArrayList<ContentProviderOperation> parseContacts(Contacts contacts) {
-    ArrayList<ContentProviderOperation> operations = new ArrayList<>();
-
-    for (String contact : contacts.contacts) {
-      ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
-          ContactsContract.CONTENT_URI_CONTACTS);
-      builder.withValue(ContactsContract.Columns.Contacts.USER_ID, contact);
-      operations.add(builder.build());
+    if (callbacks != null) {
+      callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_CONTACTS_SYNC);
     }
-
-    return operations;
   }
 
   /**
@@ -307,7 +192,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
+              Timber.e(e.getLocalizedMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_COURSES_SYNC,
@@ -457,136 +342,9 @@ public class SyncHelper {
    * @param callbacks SyncHelperCallbacks for calling back, can be null
    */
   public void performNewsSync(final SyncHelperCallbacks callbacks) {
-    final ContentResolver resolver = mContext.getContentResolver();
-
-    Cursor c = resolver.query(CoursesContract.CONTENT_URI,
-        new String[]{CoursesContract.Columns.Courses.COURSE_ID}, null, null, null);
-
-    HashSet<String> rangeIds = new HashSet<>();
-    if (c != null) {
-      c.moveToFirst();
-
-      while (!c.isAfterLast()) {
-        rangeIds.add(c.getString(0));
-
-        c.moveToNext();
-      }
-      c.close();
+    if (callbacks != null) {
+      callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
     }
-
-    c = resolver.query(InstitutesContract.CONTENT_URI,
-        new String[]{InstitutesContract.Columns.INSTITUTE_ID}, null, null, null);
-    if (c != null) {
-      c.moveToFirst();
-      while (!c.isAfterLast()) {
-        rangeIds.add(c.getString(0));
-
-        c.moveToNext();
-      }
-      c.close();
-    }
-    rangeIds.add(mContext.getString(R.string.restip_news_global_identifier));
-    performNewsSyncForIds(rangeIds, callbacks);
-
-    //TODO: Delete old news from database
-  }
-
-  /**
-   * Requests new news data specified in the HashSet data from the API and refreshes the DB
-   * values
-   *
-   * @param newsRangeIds HashSet with news range ids
-   * @param callbacks    SyncHelperCallbacks for calling back, can be null
-   */
-  public void performNewsSyncForIds(final HashSet<String> newsRangeIds,
-      final SyncHelperCallbacks callbacks) {
-
-    Timber.i("SYNCING NEWS");
-    if (callbacks != null) callbacks.onSyncStateChange(SyncHelperCallbacks.STARTED_NEWS_SYNC);
-
-    for (final String id : newsRangeIds) {
-      requestNewsForRange(id, callbacks);
-    }
-  }
-
-  /**
-   * Requests news for a specified range and executes the passed listener with
-   * the response
-   *
-   * @param range     the range to request
-   * @param callbacks SyncHelperCallbacks for calling back, can be null
-   */
-  public void requestNewsForRange(final String range, final SyncHelperCallbacks callbacks) {
-
-    Timber.i("Performing Sync for range: " + range);
-    mCompositeSubscription.add(mApiService.get().getNews(range)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<News>() {
-          @Override public void onCompleted() {
-            if (callbacks != null) {
-              callbacks.onSyncFinished(SyncHelperCallbacks.FINISHED_NEWS_SYNC);
-              Timber.i("FINISHED SYNCING NEWS");
-            }
-          }
-
-          @Override public void onError(Throwable e) {
-            if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
-
-              if (callbacks != null) {
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_NEWS_SYNC, e.getLocalizedMessage(),
-                    0);
-              }
-            }
-          }
-
-          @Override public void onNext(News news) {
-            try {
-              ArrayList<ContentProviderOperation> operations = new ArrayList<>();
-
-              // Create delete statement for current range id
-              ContentProviderOperation.Builder builder = ContentProviderOperation.newDelete(
-                  NewsContract.CONTENT_URI);
-              builder.withSelection(NewsContract.Columns.NEWS_RANGE_ID + " = ?",
-                  new String[]{range});
-              operations.add(builder.build());
-
-              // start inserting new items
-              for (NewsItem n : news.news) {
-                new UsersRequestTask().execute(n.user_id);
-                operations.add(parseNewsItem(n, range));
-              }
-
-              if (!operations.isEmpty()) {
-                mContext.getContentResolver()
-                    .applyBatch(AbstractContract.CONTENT_AUTHORITY, operations);
-              }
-            } catch (RemoteException | OperationApplicationException e) {
-              e.printStackTrace();
-            }
-          }
-        }));
-  }
-
-  private static ContentProviderOperation parseNewsItem(NewsItem news, String mCourseId) {
-
-    ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
-        NewsContract.CONTENT_URI)
-        .withValue(NewsContract.Columns.NEWS_ID, news.news_id)
-        .withValue(NewsContract.Columns.NEWS_TOPIC, news.topic)
-        .withValue(NewsContract.Columns.NEWS_BODY, news.body)
-        .withValue(NewsContract.Columns.NEWS_DATE, news.date)
-        .withValue(NewsContract.Columns.NEWS_USER_ID, news.user_id)
-        .withValue(NewsContract.Columns.NEWS_CHDATE, news.chdate)
-        .withValue(NewsContract.Columns.NEWS_MKDATE, news.mkdate)
-        .withValue(NewsContract.Columns.NEWS_EXPIRE, news.expire)
-        .withValue(NewsContract.Columns.NEWS_ALLOW_COMMENTS, news.allow_comments)
-        .withValue(NewsContract.Columns.NEWS_CHDATE_UID, news.chdate_uid)
-        .withValue(NewsContract.Columns.NEWS_BODY_ORIGINAL, news.body_original)
-        .withValue(NewsContract.Columns.NEWS_RANGE_ID, mCourseId);
-
-    return builder.build();
   }
 
   /**
@@ -627,7 +385,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
+              Timber.e(e.getLocalizedMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_SEMESTER_SYNC,
@@ -674,32 +432,6 @@ public class SyncHelper {
   }
 
   /**
-   * Requests the events for the passed course id
-   *
-   * @param courseId the course id for which the events should be requested
-   */
-  public void performEventsSyncForCourseId(final String courseId) {
-    Timber.i("SYNCING COURSE EVENTS: %s", courseId);
-
-    mCompositeSubscription.add(mApiService.get().getEvents(courseId)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<Events>() {
-          @Override public void onCompleted() {
-
-          }
-
-          @Override public void onError(Throwable e) {
-            Timber.e(e.getMessage());
-          }
-
-          @Override public void onNext(Events events) {
-            new EventsInsertTask(events).execute(courseId);
-          }
-        }));
-  }
-
-  /**
    * Requests a specific user from the API if no in DB
    *
    * @param userId    the ID of the user to request from the API
@@ -720,11 +452,13 @@ public class SyncHelper {
             }
 
             @Override public void onError(Throwable e) {
-              Timber.e(e.getMessage());
+              if (e != null && e.getLocalizedMessage() != null) {
+                Timber.e(e.getLocalizedMessage());
 
-              if (callbacks != null) {
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, e.getLocalizedMessage(),
-                    0);
+                if (callbacks != null) {
+                  callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, e.getLocalizedMessage(),
+                      0);
+                }
               }
             }
 
@@ -779,9 +513,13 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            if (callbacks != null) {
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_ROUTES_SYNC, e.getLocalizedMessage(),
-                  0);
+            if (e != null && e.getLocalizedMessage() != null) {
+              Timber.e(e, e.getLocalizedMessage());
+
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_ROUTES_SYNC, e.getLocalizedMessage(),
+                    0);
+              }
             }
           }
 
@@ -802,7 +540,9 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            Timber.e(e, e.getLocalizedMessage());
+            if (e != null && e.getLocalizedMessage() != null) {
+              Timber.e(e, e.getLocalizedMessage());
+            }
           }
 
           @Override public void onNext(Settings settings) {
@@ -827,11 +567,13 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            String errMsg = e.getLocalizedMessage();
-            Timber.e(e, errMsg);
+            if (e != null && e.getLocalizedMessage() != null) {
+              String errMsg = e.getLocalizedMessage();
+              Timber.e(e, errMsg);
 
-            if (callbacks != null) {
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, errMsg, 0);
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, errMsg, 0);
+              }
             }
           }
 
@@ -967,26 +709,4 @@ public class SyncHelper {
       return null;
     }
   }
-
-  private class EventsInsertTask extends AsyncTask<String, Void, Void> {
-    private Events mEvents;
-
-    public EventsInsertTask(Events events) {
-      this.mEvents = events;
-    }
-
-    @Override protected Void doInBackground(String... params) {
-      String courseId = params[0];
-      ContentValues[] values = parseEvents(mEvents);
-      Uri eventsCourseIdUri = EventsContract.CONTENT_URI //
-          .buildUpon() //
-          .appendPath(courseId) //
-          .build();
-      mContext.getContentResolver()
-          .bulkInsert(eventsCourseIdUri, values);
-
-      return null;
-    }
-  }
-
 }

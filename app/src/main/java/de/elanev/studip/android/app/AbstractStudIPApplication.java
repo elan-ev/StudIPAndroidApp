@@ -10,23 +10,40 @@ package de.elanev.studip.android.app;
 
 import android.annotation.TargetApi;
 import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
+
+import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
+import de.elanev.studip.android.app.base.internal.di.components.DaggerApplicationComponent;
+import de.elanev.studip.android.app.base.internal.di.modules.ApplicationModule;
 
 /**
  * @author joern
  */
 public abstract class AbstractStudIPApplication extends Application {
   private static AbstractStudIPApplication mInstance;
-  private ApplicationComponent mComponent;
+  private ApplicationComponent mApplicationComponent;
 
   public static synchronized AbstractStudIPApplication getInstance() {
     return mInstance;
   }
 
+  public static boolean hasNetwork() {
+    return mInstance.checkNetworkConnectivity();
+  }
+
+  private boolean checkNetworkConnectivity() {
+    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+    return networkInfo != null && networkInfo.isConnected();
+  }
+
   @TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override public void onCreate() {
     super.onCreate();
 
-    mComponent = DaggerApplicationComponent.builder()
+    mApplicationComponent = DaggerApplicationComponent.builder()
         .applicationModule(new ApplicationModule(this))
         .build();
 
@@ -34,7 +51,7 @@ public abstract class AbstractStudIPApplication extends Application {
     mInstance = this;
   }
 
-  public ApplicationComponent getComponent() {
-    return mComponent;
+  public ApplicationComponent getAppComponent() {
+    return mApplicationComponent;
   }
 }

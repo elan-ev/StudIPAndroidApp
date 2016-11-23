@@ -32,8 +32,9 @@ public class SimpleDividerItemDecoration extends RecyclerView.ItemDecoration {
     int childCount = parent.getChildCount();
     for (int i = 0; i < childCount; i++) {
       View child = parent.getChildAt(i);
+      View nextChild = parent.getChildAt(i+1);
 
-      if (child != null) {
+      if (child != null && nextChild != null) {
         // Check if it's a header view and skip the divider drawing
         RecyclerView.LayoutManager manager = parent.getLayoutManager();
         int viewType = manager.getItemViewType(child);

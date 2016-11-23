@@ -53,27 +53,12 @@ public class WebAuthFragment extends Fragment {
     }
   }
 
-  @Override public void onDetach() {
-    super.onDetach();
-    mCallbacks = null;
-  }
-
-  @Override public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-      // Respond to the action bar's Up/Home button
-      case android.R.id.home:
-        mCallbacks.onAuthCancelled();
-        return true;
-    }
-    return super.onOptionsItemSelected(item);
-  }
-
-  @Override public View onCreateView(LayoutInflater inflater,
-      ViewGroup container,
+  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.webview_view, container, false);
     mWebView = (WebView) v.findViewById(R.id.webView);
-    v.findViewById(R.id.toolbar).setVisibility(View.GONE); // Hide doubled toolbar
+    v.findViewById(R.id.toolbar)
+        .setVisibility(View.GONE); // Hide doubled toolbar
     return v;
   }
 
@@ -111,10 +96,25 @@ public class WebAuthFragment extends Fragment {
     mWebView.loadUrl(url);
   }
 
-  public interface OnWebViewAuthListener {
-    public void onAuthSuccess();
+  @Override public void onDetach() {
+    super.onDetach();
+    mCallbacks = null;
+  }
 
-    public void onAuthCancelled();
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      // Respond to the action bar's Up/Home button
+      case android.R.id.home:
+        mCallbacks.onAuthCancelled();
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  public interface OnWebViewAuthListener {
+    void onAuthSuccess();
+
+    void onAuthCancelled();
   }
 
   /* WebviewClient which overrides the onPageStarted method to intercept the OAuth result */

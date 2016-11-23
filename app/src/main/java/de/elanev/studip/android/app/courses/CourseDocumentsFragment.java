@@ -50,7 +50,6 @@ import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.db.DocumentsContract;
 import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.StuffUtil;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -151,7 +150,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     String fileName = document.filename;
     String fileDescription = document.description;
     String apiUrl = Prefs.getInstance(getActivity())
-        .getServer()
+        .getServer(getContext())
         .getApiUrl();
 
     boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
@@ -185,7 +184,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
 
         // Sign the download URL with the OAuth credentials and parse the URI
         Server server = Prefs.getInstance(getActivity())
-            .getServer();
+            .getServer(getContext());
         String signedDownloadUrl = OAuthConnector.with(server)
             .sign(downloadUrl);
         Uri downloadUri = Uri.parse(signedDownloadUrl);
@@ -216,14 +215,8 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
           }
         }
 
-      } catch (OAuthMessageSignerException e) {
+      } catch (OAuthMessageSignerException | OAuthExpectationFailedException | OAuthCommunicationException | OAuthNotAuthorizedException e) {
         e.printStackTrace();
-      } catch (OAuthExpectationFailedException e) {
-        e.printStackTrace();
-      } catch (OAuthCommunicationException e) {
-        e.printStackTrace();
-      } catch (OAuthNotAuthorizedException e) {
-        StuffUtil.startSignInActivity(getActivity());
       }
     }
   }

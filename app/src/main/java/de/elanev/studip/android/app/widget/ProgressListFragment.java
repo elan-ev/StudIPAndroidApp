@@ -5,6 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+
 package de.elanev.studip.android.app.widget;
 
 import android.os.Bundle;
@@ -27,7 +28,7 @@ public class ProgressListFragment extends BaseFragment {
 
   @BindView(R.id.list) protected StickyListHeadersListView mListView;
   @BindView(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayoutListView;
-  @BindView(R.id.empty) TextView mEmptyMessageTextView;
+  @BindView(R.id.emptyView) TextView mEmptyMessageTextView;
 
   public ProgressListFragment() {}
 

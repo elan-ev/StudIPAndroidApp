@@ -7,67 +7,67 @@
   ~ http://www.gnu.org/licenses/gpl.html
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:paddingTop="@dimen/keyline_1"
+              android:paddingBottom="20dp"
+              android:background="?android:selectableItemBackground"
     >
 
     <TextView
-        android:id="@+id/event_title"
+        android:id="@+id/text1"
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/keyline_1"
-        android:layout_marginStart="@dimen/keyline_1"
-        android:layout_marginRight="@dimen/keyline_1"
-        android:layout_marginEnd="@dimen/keyline_1"
-        android:layout_marginTop="16dp"
+        android:paddingLeft="@dimen/keyline_1"
+        android:paddingStart="@dimen/keyline_1"
+        android:paddingRight="@dimen/keyline_1"
+        android:paddingEnd="@dimen/keyline_1"
 
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/primary_text_light"
+        android:textSize="@dimen/text_size_largemedium"
+
+        tools:text="Sample Event Title"/>
+
+    <TextView
+        android:id="@+id/text2"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/keyline_1"
+        android:paddingStart="@dimen/keyline_1"
+        android:paddingRight="@dimen/keyline_1"
+        android:paddingEnd="@dimen/keyline_1"
         android:ellipsize="end"
         android:maxLines="1"
         android:singleLine="true"
         android:textColor="@color/primary_text_light"
         android:textSize="@dimen/text_size_medium"
 
-        tools:text="Sample Event Title"/>
-
-    <TextView
-        android:id="@+id/event_room"
-
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/event_title"
-        android:layout_marginLeft="@dimen/keyline_1"
-        android:layout_marginStart="@dimen/keyline_1"
-        android:layout_marginRight="@dimen/keyline_1"
-        android:layout_marginEnd="@dimen/keyline_1"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:textColor="@color/secondary_text_light"
-        android:textSize="@dimen/text_size_small"
-
         tools:text="Sample Event Room Info 1234"/>
 
 
     <TextView
-        android:id="@+id/event_description"
+        android:id="@+id/text3"
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/event_room"
-        android:layout_marginLeft="@dimen/keyline_1"
-        android:layout_marginStart="@dimen/keyline_1"
-        android:layout_marginRight="@dimen/keyline_1"
-        android:layout_marginEnd="@dimen/keyline_1"
-        android:layout_marginBottom="16dp"
+        android:paddingLeft="@dimen/keyline_1"
+        android:paddingStart="@dimen/keyline_1"
+        android:paddingRight="@dimen/keyline_1"
+        android:paddingEnd="@dimen/keyline_1"
 
         android:ellipsize="end"
         android:maxLines="2"
-        android:textColor="@color/primary_text_light"
-        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/secondary_text_light"
+        android:textSize="@dimen/text_size_medium"
 
         tools:text="@string/lipsum_short"/>
 
-</RelativeLayout>
+</LinearLayout>

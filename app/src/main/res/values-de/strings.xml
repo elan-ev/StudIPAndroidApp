@@ -167,7 +167,7 @@
 
     <!-- Messages -->
     <string name="Inbox">Eingang</string>
-    <string name="Outbox">Ausgang</string>
+    <string name="Outbox">Gesendet</string>
     <string name="Compose">Erstellen</string>
     <string name="mark_as_read">als gelesen markieren</string>
     <string name="read">gelesen</string>
@@ -207,13 +207,11 @@
     <string name="invite_subject">Stud.IP Android App Einladung</string>
     <string
         name="invite_text_html"><![CDATA["Hallo,<br /> ich möchte Dich zu Stud.IP Mobil für Android einladen.
-Ich nutze die App bereits für den Stud.IP Standort %1$s und
-habe nun jederzeit und überall Zugriff auf meine Daten. Solltest du
+Ich nutze die App bereits um jederzeit und überall Zugriff auf meine Stud.IP Daten zu haben. Solltest du
 Interesse haben, kannst du sie direkt im Google Play Store laden.
 Weitere Informationen sind unter <a href="https://goo.gl/AKQXve">https://goo.gl/AKQXve</a> verfügbar."]]></string>
     <string name="invite_text">Hallo, ich möchte Dich zu Stud.IP Mobil für Android einladen.
-Ich nutze die App bereits für den Stud.IP Standort %1$s und
-habe nun jederzeit und überall Zugriff auf meine Daten. Solltest du
+Ich nutze die App bereits um jederzeit und überall Zugriff auf meine Stud.IP Daten zu haben. Solltest du
 Interesse haben, kannst du sie direkt im Google Play Store laden.
 Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
 
@@ -272,6 +270,9 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
 
     <!-- General error messages -->
     <string name="error_timeout">Zeitüberschreitung, versuchen Sie es später erneut</string>
+    <string name="retry">Retry</string>
+
+    <string name="logout_confirmation">Sind Sie sicher, dass Sie sich abmelden möchten?</string>
 
 
 </resources>

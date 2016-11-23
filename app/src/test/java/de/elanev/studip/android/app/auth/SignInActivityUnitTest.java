@@ -14,7 +14,8 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -31,7 +32,7 @@ public class SignInActivityUnitTest {
     Application app = mock(Application.class);
     when(activity.getApplication()).thenReturn(app);
 
-    assertThat(app).isEqualTo(activity.getApplication());
+    assertThat(app, is(activity.getApplication()));
 
     verify(activity).getApplication();
     verifyNoMoreInteractions(activity);

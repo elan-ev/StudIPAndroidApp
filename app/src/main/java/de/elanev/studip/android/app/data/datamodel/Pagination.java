@@ -8,13 +8,16 @@
 
 package de.elanev.studip.android.app.data.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author joern
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Pagination {
   @JsonProperty("total") public int total;
   @JsonProperty("offset") public int offset;
   @JsonProperty("limit") public int limit;
+  @JsonProperty("next") public String next;
 }

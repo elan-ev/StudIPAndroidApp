@@ -12,8 +12,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:clickable="true"
+    android:minHeight="48dp"
     android:padding="@dimen/keyline_1"
-    android:clickable="true">
+    android:background="?android:selectableItemBackground"
+    >
 
     <TextView
         android:id="@+id/subject"

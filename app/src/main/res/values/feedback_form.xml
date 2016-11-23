@@ -9,12 +9,21 @@
 
     <string name="feedback_form_developer_mail" translatable="false">studipmobil@elan-ev.de</string>
     <string name="feedback_form_subject" translatable="false">Stud.IP mobil Android
-        Feedback [%1$s]</string>
+        %1$s [%2$s]</string>
     <string name="feedback_form_message_template">
-        Wenn Sie Fragen, Wünsche, Bemerkungen oder ein Fehler entdeckt haben,
-        können Sie uns gerne Feedback senden.\nWir kümmern uns dann darum.\n\n===============\n
-        Ihr Feedback:\n===============\n\nAndroid API Version: %1$d\nStud.IP mobil Version: %2$s \nBuild: %3$s (%4$s)
+        %1$s\n\n===============\n
+        \nAndroid API Version: %2$d\nStud.IP mobil Version: %3$s
+        \nBuild: %4$d (%5$s)
     </string>
-    <string name="feedback_form_action">Email senden</string>
 
+    <string-array name="feedback_category">
+        <item>Feedback</item>
+        <item>Issue</item>
+        <item>Missing Service</item>
+        <item>Feature Request</item>
+    </string-array>
+
+    <!-- Error messages -->
+    <string name="error_valid_email">Please enter a valid email address</string>
+    <string name="error_missing_message">Please enter a feedback message</string>
 </resources>

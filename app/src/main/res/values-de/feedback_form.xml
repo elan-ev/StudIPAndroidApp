@@ -8,10 +8,20 @@
 <resources>
 
     <string name="feedback_form_message_template">
-        Wenn Sie Fragen, Wünsche, Bemerkungen oder ein Fehler entdeckt haben,
-        können Sie uns gerne Feedback senden.\nWir kümmern uns dann darum.\n\n===============\n
-        Ihr Feedback:\n===============\n\nAndroid API Version: %1$d\nStud.IP mobil Version: %2$s \nBuild: %3$s (%4$s)
+        %1$s\n\n===============\n
+        \nAndroid API Version: %2$d\nStud.IP mobil Version: %3$s
+        \nBuild: %4$d (%5$s)
     </string>
     <string name="feedback_form_action">Send email</string>
 
+    <string-array name="feedback_category">
+        <item>Rückmeldung</item>
+        <item>Problem</item>
+        <item>Fehlendes Stud.Ip</item>
+        <item>Feature Wunsch</item>
+    </string-array>
+
+    <!-- Error messages -->
+    <string name="error_valid_email">Gültige Email Adresse fehlt</string>
+    <string name="error_missing_message">Bitte eine Feedback Nachricht angeben</string>
 </resources>

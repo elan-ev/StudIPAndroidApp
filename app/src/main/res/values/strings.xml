@@ -162,8 +162,8 @@
     <string name="successfully_added">Successfully added</string>
 
     <!-- Messages -->
-    <string name="Inbox">Inbox</string>
-    <string name="Outbox">Outbox</string>
+    <string name="Inbox">Received</string>
+    <string name="Outbox">Sent</string>
     <string name="Compose">Compose</string>
     <string name="Menu">Menu</string>
     <string name="mark_as_read">Mark message as read</string>
@@ -204,13 +204,11 @@
     <string name="invite_subject">Stud.IP Android App Invitation</string>
     <string
         name="invite_text_html"><![CDATA["Hello,<br /> I want to invite you to use Stud.IP Mobil for Android.
-I\'m already using this app for the Stud.IP of %1$s having
-access to my data anytime, anywhere now. If you want to give it a try,
+I\'m already using it for accessing my Stud.IP data anytime, anywhere. If you want to give it a try,
 get it in the Play Store. For more
 information visit https://goo.gl/AKQXve."]]></string>
     <string name="invite_text">Hello, I want to invite you to use Stud.IP Mobil for Android.
-I\'m already using this app for the Stud.IP of %1$s having
-access to my data anytime, anywhere now. If you want to give it a try,
+I\'m already using it for accessing my Stud.IP data anytime, anywhere. If you want to give it a try,
 get it in the Play Store. For more
 information visit https://goo.gl/AKQXve.</string>
 
@@ -274,5 +272,8 @@ aliqua.</string>
 
     <!-- General error messages -->
     <string name="error_timeout">Request timed out, try again later</string>
+    <string name="retry">Retry</string>
+
+    <string name="logout_confirmation">Are you sure you want to log out of your account?</string>
 
 </resources>

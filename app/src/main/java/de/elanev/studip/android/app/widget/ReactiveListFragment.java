@@ -18,35 +18,38 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.news.internal.di.NewsComponent;
 import de.elanev.studip.android.app.util.Prefs;
 import rx.subscriptions.CompositeSubscription;
 
 /**
- * Created by joern on 03.02.15.
+ * @author joern
  */
 public abstract class ReactiveListFragment extends ReactiveFragment {
   private static final String TAG = ReactiveListFragment.class.getSimpleName();
   protected final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
   @BindView(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayout;
   @BindView(R.id.list) protected EmptyRecyclerView mRecyclerView;
-  @BindView(R.id.empty) protected TextView mEmptyView;
-  @BindView(R.id.layout_container) protected  View mContainerLayout;
+  @BindView(R.id.emptyView) protected TextView mEmptyView;
+  @BindView(R.id.layout_container) protected View mContainerLayout;
   protected RecyclerView.ItemDecoration mDividerItemDecoration;
-  protected StudIpLegacyApiService mApiService;
+  @Inject public StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
   private boolean mIsRefreshing;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ((AbstractStudIPApplication)getActivity().getApplication()).getAppComponent().inject(this);
+
     setHasOptionsMenu(true);
-    Server server = Prefs.getInstance(getActivity())
-        .getServer();
-    mApiService = new StudIpLegacyApiService(server, getActivity());
   }
 
   @Override public void onResume() {
@@ -125,5 +128,4 @@ public abstract class ReactiveListFragment extends ReactiveFragment {
   public interface ListItemClicks {
     void onListItemClicked(View v, int position);
   }
-
 }

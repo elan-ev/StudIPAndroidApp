@@ -129,10 +129,10 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
     String subject = mSubjectEditText.getText().toString();
     String content = mContentEditText.getText().toString();
 
-    Server server = Prefs.getInstance(getActivity()).getServer();
+    Server server = Prefs.getInstance(getActivity()).getServer(getContext());
 
-    StudIpLegacyApiService legacyApiService = new StudIpLegacyApiService(server, getActivity());
-    mCompositeSubscription.add(bind(legacyApiService.createForumEntry(sEntryId,
+
+    mCompositeSubscription.add(bind(mApiService.createForumEntry(sEntryId,
         subject,
         content)).subscribe(new Subscriber<ForumArea>() {
       @Override public void onCompleted() {

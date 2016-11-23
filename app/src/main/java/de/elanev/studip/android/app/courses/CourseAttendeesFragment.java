@@ -5,6 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
+
 package de.elanev.studip.android.app.courses;
 
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -31,10 +33,10 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
-import de.elanev.studip.android.app.widget.ListAdapterUsers;
+import de.elanev.studip.android.app.user.presentation.view.ListAdapterUsers;
 import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
-import de.elanev.studip.android.app.widget.UserDetailsActivity;
-import de.elanev.studip.android.app.widget.UserListFragment;
+import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
+import de.elanev.studip.android.app.user.presentation.view.UserListFragment;
 
 /**
  * @author joern
@@ -95,18 +97,16 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
     getLoaderManager().initLoader(0, mArgs, this);
   }
 
-  @Override
-  public void onStart() {
-    super.onStart();
-    mSyncHelper.loadUsersForCourse(mCourseId, null);
-  }
-
-  @Override
-  public void onAttach(Context context) {
+  @Override public void onAttach(Context context) {
     super.onAttach(context);
 
     context.getContentResolver()
         .registerContentObserver(UsersContract.CONTENT_URI, true, mObserver);
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+    mSyncHelper.loadUsersForCourse(mCourseId, null);
   }
 
   @Override
@@ -130,14 +130,14 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
       return;
     }
 
-    List<SectionedCursorAdapter.Section> sections = new ArrayList<SectionedCursorAdapter.Section>();
+    List<SectionedCursorAdapter.Section> sections = new ArrayList<>();
     cursor.moveToFirst();
     int prevRole = -1;
-    int currRole = -1;
+    int currRole;
     while (!cursor.isAfterLast()) {
       currRole = cursor.getInt(cursor.getColumnIndex(CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE));
       if (currRole != prevRole) {
-        String role = null;
+        String role;
         switch (currRole) {
           case CoursesContract.USER_ROLE_TEACHER:
             role = getString(R.string.Teacher);
@@ -175,13 +175,15 @@ public class CourseAttendeesFragment extends UserListFragment implements LoaderC
     Cursor c = (Cursor) mListView.getItemAtPosition(position);
     String userId = c.getString(c.getColumnIndex(UsersContract.Columns.USER_ID));
 
-    if (userId != null) {
+    if (!TextUtils.isEmpty(userId)) {
       Intent intent = new Intent(mContext, UserDetailsActivity.class);
-      intent.putExtra(UsersContract.Columns.USER_ID, userId);
+      Bundle args = new Bundle();
+      args.putString(UserDetailsActivity.USER_ID, userId);
+      intent.putExtras(args);
 
       ImageView icon = (ImageView) view.findViewById(R.id.user_image);
       ActivityOptionsCompat options = ActivityOptionsCompat.
-          makeSceneTransitionAnimation(getActivity(), (View) icon, getString(R.string.Profile));
+          makeSceneTransitionAnimation(getActivity(), icon, getString(R.string.Profile));
       // Start UserDetailActivity with transition if supported
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         getActivity().startActivity(intent, options.toBundle());

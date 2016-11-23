@@ -16,13 +16,14 @@ def versionPatch = 14 // max. 99
 
 // Beta- and Alpha-Release versioning
 def versionMajorBeta = 1 // max. 9
-def versionMinorBeta = 2 // max. 99
+def versionMinorBeta = 3 // max. 99
 def versionPatchBeta = 0 // max. 99
 
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'com.neenbedankt.android-apt'
-//apply plugin: 'com.fernandocejas.frodo'
+apply plugin: 'com.fernandocejas.frodo'
+apply plugin: 'me.tatarka.retrolambda'
 
 repositories {
   maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -32,31 +33,31 @@ repositories {
 
 dependencies {
   // Crashlytics Kit
-  compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
-    transitive = true
+  compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
+    transitive = true;
   }
   // Android Support Libs
-  compile 'com.android.support:support-v4:23.4.0'
-  compile 'com.android.support:appcompat-v7:23.4.0'
-  compile 'com.android.support:recyclerview-v7:23.4.0'
-  compile 'com.android.support:design:23.4.0'
-  compile 'com.android.support:cardview-v7:23.4.0'
-  compile 'com.android.support:support-annotations:23.4.0'
+  compile 'com.android.support:support-v4:25.0.1'
+  compile 'com.android.support:appcompat-v7:25.0.1'
+  compile 'com.android.support:recyclerview-v7:25.0.1'
+  compile 'com.android.support:design:25.0.1'
+  compile 'com.android.support:cardview-v7:25.0.1'
+  compile 'com.android.support:support-annotations:25.0.1'
 
   // Square Libs
-  compile 'com.squareup.okhttp3:okhttp:3.2.0'
-  compile 'com.squareup.okhttp3:okhttp-urlconnection:3.2.0'
-  compile 'com.squareup.okhttp3:logging-interceptor:3.2.0'
-  compile 'com.squareup.retrofit2:retrofit:2.0.2'
-  compile 'com.squareup.retrofit2:converter-jackson:2.0.2'
-  compile 'com.squareup.retrofit2:adapter-rxjava:2.0.2'
-  compile 'com.squareup.retrofit2:retrofit-mock:2.0.2'
+  compile 'com.squareup.okhttp3:okhttp:3.4.2'
+  compile 'com.squareup.okhttp3:okhttp-urlconnection:3.4.2'
+  compile 'com.squareup.okhttp3:logging-interceptor:3.4.2'
+  compile 'com.squareup.retrofit2:retrofit:2.1.0'
+  compile 'com.squareup.retrofit2:converter-jackson:2.1.0'
+  compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+  compile 'com.squareup.retrofit2:retrofit-mock:2.1.0'
   compile 'com.squareup.picasso:picasso:2.5.2'
-  compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
+  compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
 
   // Jackson JSON Parsing
-  compile 'com.fasterxml.jackson.core:jackson-databind:2.7.3'
-  compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.3'
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.8.2'
+  compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.2'
 
   // SignPost OAuth
   compile 'oauth.signpost:oauth-signpost:1.2.1.2'
@@ -79,27 +80,37 @@ dependencies {
 //  compile 'com.trello:rxlifecycle:0.5.0'
 
   // Dependency injection
-  compile 'com.jakewharton:butterknife:8.0.1'
-  apt 'com.jakewharton:butterknife-compiler:8.0.1'
-  compile 'com.google.dagger:dagger:2.4'
-  apt 'com.google.dagger:dagger-compiler:2.4'
+  compile 'com.jakewharton:butterknife:8.4.0'
+  apt 'com.jakewharton:butterknife-compiler:8.4.0'
+  compile 'com.google.dagger:dagger:2.8'
+  compile 'com.google.dagger:dagger-android:2.8'
+  apt 'com.google.dagger:dagger-compiler:2.8'
   provided 'javax.annotation:jsr250-api:1.0'
 
+  // MVP
+  compile 'com.hannesdorfmann.mosby:mvp:2.0.1'
+  compile 'com.hannesdorfmann.mosby:viewstate:2.0.1'
+
+  // UI
+  compile 'com.github.castorflex.smoothprogressbar:library-circular:1.2.0'
+
   // Other
-  compile 'se.emilsjolander:stickylistheaders:2.7.0'
-  compile 'com.google.guava:guava:18.0'
-  compile 'de.hdodenhof:circleimageview:2.0.0'
-  compile 'net.zetetic:android-database-sqlcipher:3.4.0'
-  compile 'com.github.alamkanak:android-week-view:1.2.6'
-  compile 'io.github.yavski:fab-speed-dial:1.0.1'
-  compile 'com.jakewharton.timber:timber:4.1.3-SNAPSHOT'
+  compile 'se.emilsjolander:stickylistheaders:2.7.0' //TODO: remove and replace with RecyclerView
+  compile 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.0.4'
+  compile 'com.google.guava:guava:19.0'
+  compile 'de.hdodenhof:circleimageview:2.1.0'
+  compile 'net.zetetic:android-database-sqlcipher:3.5.4'
+  //compile 'com.github.alamkanak:android-week-view:1.2.6'
+  compile 'com.github.quivr:android-week-view:2.0.2'
+  compile 'io.github.yavski:fab-speed-dial:1.0.6'
+  compile 'com.jakewharton.timber:timber:4.3.1'
 
   // Test deps
-  androidTestCompile 'com.android.support:support-v4:23.4.0'
-  androidTestCompile 'com.android.support:appcompat-v7:23.4.0'
-  androidTestCompile 'com.android.support:recyclerview-v7:23.4.0'
-  androidTestCompile 'com.android.support:design:23.4.0'
-  androidTestCompile 'com.android.support:support-annotations:23.4.0'
+  androidTestCompile 'com.android.support:support-v4:25.0.1'
+  androidTestCompile 'com.android.support:appcompat-v7:25.0.1'
+  androidTestCompile 'com.android.support:recyclerview-v7:25.0.1'
+  androidTestCompile 'com.android.support:design:25.0.1'
+  androidTestCompile 'com.android.support:support-annotations:25.0.1'
   // Android JUnit Runner
   androidTestCompile 'com.android.support.test:runner:0.5'
   // JUnit4 Rules
@@ -116,7 +127,6 @@ dependencies {
   // Dependencies for local unit tests
   testCompile 'junit:junit:4.12'
   testCompile 'org.mockito:mockito-all:2.0.2-beta'
-  testCompile 'com.google.truth:truth:0.28'
 }
 
 def buildTime() {
@@ -141,8 +151,8 @@ android {
     abortOnError false
   }
 
-  compileSdkVersion 23
-  buildToolsVersion '23.0.2'
+  compileSdkVersion 24
+  buildToolsVersion '24.0.3'
 
   // Testing option
   // Always show the result of every unit test, even if it passes.
@@ -169,7 +179,7 @@ android {
 
   defaultConfig {
     minSdkVersion 15
-    targetSdkVersion 23
+    targetSdkVersion 24
 
     buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
 
@@ -182,11 +192,18 @@ android {
 
     // Set output file name based on versionName
     setProperty("archivesBaseName", "studip_mobil")
+
+    // Enable Jack Compiler -> currently not working with apt
+//    jackOptions {
+//      enabled true
+//    }
+
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_7
-    targetCompatibility JavaVersion.VERSION_1_7
+    // Enable Java 8 SourceCode features
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
   }
 
   productFlavors {
@@ -214,7 +231,7 @@ android {
       ext.enableCrashlytics = false
       versionNameSuffix '-DEBUG'
       debuggable = true
-      testCoverageEnabled = true
+      testCoverageEnabled false
     }
 
     release {
