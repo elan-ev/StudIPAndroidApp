@@ -27,6 +27,7 @@ import de.elanev.studip.android.app.base.internal.di.modules.NetworkModule;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
+import de.elanev.studip.android.app.feedback.FeedbackActivity;
 import de.elanev.studip.android.app.messages.domain.MessagesRepository;
 import de.elanev.studip.android.app.messages.presentation.view.MessageDetailActivity;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
@@ -58,6 +59,8 @@ public interface ApplicationComponent {
   void inject(SyncHelper target);
 
   void inject(BaseFragment target);
+
+  void inject(FeedbackActivity target);
 
   //TODO: Make it extend BaseFragment
   void inject(SignInFragment target);

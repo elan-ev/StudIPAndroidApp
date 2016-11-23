@@ -9,7 +9,6 @@
 package de.elanev.studip.android.app.auth;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
@@ -60,6 +59,7 @@ import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
  */
 public class ServerListFragment extends Fragment {
 
+  @Inject Prefs mPrefs;
   private Server mSelectedServer;
   private ServerAdapter mAdapter;
   private ImageView mLogoImageView;
@@ -68,17 +68,6 @@ public class ServerListFragment extends Fragment {
   private LinearLayoutManager mLinearLayoutManager;
   private CollapsingToolbarLayout mCollapsingToolbarLayout;
   private Toolbar mToolbar;
-  @Inject Prefs mPrefs;
-
-  // TODO: Move
-//  private View.OnClickListener mMissingServerOnClickListener = new View.OnClickListener() {
-//    @Override public void onClick(View v) {
-//      Server s = new Server();
-//      s.setName("Stud.IP mobil developer");
-//      s.setContactEmail(getString(R.string.feedback_form_developer_mail));
-//      StuffUtil.startFeedback(getActivity(), s);
-//    }
-//  };
 
   private OnServerSelectListener mCallback;
   private SignInListener signInListener;
@@ -239,22 +228,19 @@ public class ServerListFragment extends Fragment {
 
   @Override public boolean onOptionsItemSelected(MenuItem item) {
 
-    switch (item.getItemId()) {
-      case R.id.menu_feedback:
-        if (mSelectedServer != null) {
-          item.setVisible(false);
-        } else {
+    if (signInListener != null) {
+      switch (item.getItemId()) {
+        case R.id.menu_feedback:
           this.signInListener.onFeedbackSelected();
-        }
 
-        return true;
-      case R.id.menu_about:
-        this.signInListener.onAboutSelected();
+          return true;
+        case R.id.menu_about:
+          this.signInListener.onAboutSelected();
 
-        return true;
-      default:
+          return true;
+        default:
+      }
     }
-
     return super.onOptionsItemSelected(item);
   }
 

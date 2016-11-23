@@ -50,6 +50,7 @@ import timber.log.Timber;
 public class SignInFragment extends Fragment implements OAuthConnector.OAuthCallbacks,
     StudIPAuthWebViewClient.WebAuthStatusListener {
   public static final String REQUEST_TOKEN_RECEIVED = "onRequestTokenReceived";
+  @Inject Prefs mPrefs;
   private View mProgressInfo;
   private TextView mSyncStatusTextView;
   private boolean mRequestTokenReceived = false;
@@ -57,7 +58,6 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
   private Toolbar mToolbar;
   private ImageView mLogoImageView;
   private Server mSelectedServer;
-  @Inject Prefs mPrefs;
   private OnAuthListener mOnAuthListener;
   private AlertDialog mWebAuthDialog;
   private SignInListener signInListener;
@@ -216,14 +216,16 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
 
         return true;
       case R.id.menu_feedback:
-        if (mSelectedServer != null) {
-            this.mPrefs.setServer(mSelectedServer, getContext());
-            this.signInListener.onFeedbackSelected();
+        if (signInListener != null) {
+          this.mPrefs.setServer(mSelectedServer, getContext());
+          this.signInListener.onFeedbackSelected();
         }
 
         return true;
       case R.id.menu_about:
-        this.signInListener.onAboutSelected();
+        if (signInListener != null) {
+          this.signInListener.onAboutSelected();
+        }
 
         return true;
       default:

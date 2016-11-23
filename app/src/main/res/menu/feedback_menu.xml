@@ -14,8 +14,7 @@
         android:id="@+id/send_feedback"
         android:icon="@drawable/ic_action_send"
         StudIPApplication:showAsAction="ifRoom|withText"
-        android:title="@string/Send"
-        android:titleCondensed="@string/Send">
-    </item>
+        android:title="@string/Send_message"
+        android:titleCondensed="@string/Send"/>
 
 </menu>

@@ -26,4 +26,7 @@
     <!-- Error messages -->
     <string name="error_valid_email">Please enter a valid email address</string>
     <string name="error_missing_message">Please enter a feedback message</string>
+
+    <!-- Default feedback email address -->
+    <string name="default_support_address" translatable="false">studipmobil@elan-ev.de</string>
 </resources>

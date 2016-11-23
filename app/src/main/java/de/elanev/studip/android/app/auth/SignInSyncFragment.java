@@ -213,8 +213,7 @@ public class SignInSyncFragment extends Fragment implements SyncHelper.SyncHelpe
 
         return true;
       case R.id.menu_feedback:
-        if (mSelectedServer != null && signInListener != null) {
-          prefs.setServer(mSelectedServer, getContext());
+        if (signInListener != null) {
           signInListener.onFeedbackSelected();
         }
 
