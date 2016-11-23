@@ -95,7 +95,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
+              Timber.e(e.getLocalizedMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_INSTITUTES_SYNC,
@@ -192,7 +192,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
+              Timber.e(e.getLocalizedMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_COURSES_SYNC,
@@ -385,7 +385,7 @@ public class SyncHelper {
 
           @Override public void onError(Throwable e) {
             if (e != null && e.getLocalizedMessage() != null) {
-              Timber.e(e.getMessage());
+              Timber.e(e.getLocalizedMessage());
 
               if (callbacks != null) {
                 callbacks.onSyncError(SyncHelperCallbacks.ERROR_SEMESTER_SYNC,
@@ -452,11 +452,13 @@ public class SyncHelper {
             }
 
             @Override public void onError(Throwable e) {
-              Timber.e(e.getMessage());
+              if (e != null && e.getLocalizedMessage() != null) {
+                Timber.e(e.getLocalizedMessage());
 
-              if (callbacks != null) {
-                callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, e.getLocalizedMessage(),
-                    0);
+                if (callbacks != null) {
+                  callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, e.getLocalizedMessage(),
+                      0);
+                }
               }
             }
 
@@ -511,9 +513,13 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            if (callbacks != null) {
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_ROUTES_SYNC, e.getLocalizedMessage(),
-                  0);
+            if (e != null && e.getLocalizedMessage() != null) {
+              Timber.e(e, e.getLocalizedMessage());
+
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_ROUTES_SYNC, e.getLocalizedMessage(),
+                    0);
+              }
             }
           }
 
@@ -534,7 +540,9 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            Timber.e(e, e.getLocalizedMessage());
+            if (e != null && e.getLocalizedMessage() != null) {
+              Timber.e(e, e.getLocalizedMessage());
+            }
           }
 
           @Override public void onNext(Settings settings) {
@@ -559,11 +567,13 @@ public class SyncHelper {
           }
 
           @Override public void onError(Throwable e) {
-            String errMsg = e.getLocalizedMessage();
-            Timber.e(e, errMsg);
+            if (e != null && e.getLocalizedMessage() != null) {
+              String errMsg = e.getLocalizedMessage();
+              Timber.e(e, errMsg);
 
-            if (callbacks != null) {
-              callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, errMsg, 0);
+              if (callbacks != null) {
+                callbacks.onSyncError(SyncHelperCallbacks.ERROR_USER_SYNC, errMsg, 0);
+              }
             }
           }
 
