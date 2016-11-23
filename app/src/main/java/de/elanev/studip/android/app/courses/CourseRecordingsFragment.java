@@ -118,17 +118,16 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
               }
 
               @Override public void onError(Throwable e) {
-                Timber.e(e, e.getLocalizedMessage());
-                if (e instanceof TimeoutException) {
-                  Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
-                      .show();
-                } else if (e instanceof HttpException) {
-                  Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
-                      .show();
+                if (e != null && e.getLocalizedMessage() != null) {
                   Timber.e(e, e.getLocalizedMessage());
-                } else {
-                  e.printStackTrace();
-                  throw new RuntimeException("See inner exception");
+
+                  if (e instanceof TimeoutException) {
+                    Toast.makeText(getActivity(), "Request timed out", Toast.LENGTH_SHORT)
+                        .show();
+                  } else if (e instanceof HttpException) {
+                    Toast.makeText(getActivity(), "HTTP exception", Toast.LENGTH_LONG)
+                        .show();
+                  }
                 }
 
                 setRefreshing(false);
