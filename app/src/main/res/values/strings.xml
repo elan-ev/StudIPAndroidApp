@@ -19,6 +19,7 @@
     <string name="dialog_load_via_mobile_text">You are connected via mobile data. This may cause
         additional mobile data charges. Do you want to continue?</string>
     <string name="background_image">background image</string>
+    <string name="internet_connection_required">An internet connection is required to continue.</string>
 
     <!-- Content descriptions -->
     <string name="studip_logo" translatable="false">StudIP Logo</string>
@@ -156,6 +157,7 @@
     <string name="institutes">institutes</string>
     <string name="your_user_data">your user data</string>
     <string name="search_studip">Search Stud.IP</string>
+    <string name="tutorial">Tutorial</string>
 
     <!-- UserList Fragment -->
     <string name="successfully_deleted">Successfully deleted</string>

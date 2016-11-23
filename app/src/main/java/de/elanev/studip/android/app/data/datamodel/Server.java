@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
+import de.elanev.studip.android.app.R;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Server implements Serializable {
 
@@ -28,6 +30,7 @@ public class Server implements Serializable {
   private String authorizationUrl;    // = OAUTH_URL + "/authorize";
   private String apiUrl;      // = BASE_URL + "/api";
   private String contactEmail;
+  private int iconRes = R.drawable.ic_institute_blue;
 
   public String getAccessToken() {
     return accessToken;
@@ -168,5 +171,12 @@ public class Server implements Serializable {
 
     return String.format("Name: %s\nUrl: %s\nConsumer Key:%s\nConsumer Secret:%s\nContact: %s",
         name, baseUrl, consumerKey, consumerSecret, contactEmail);
+  }
+  public int getIconRes() {
+    return iconRes;
+  }
+
+  public void setIconRes(int iconRes) {
+    this.iconRes = iconRes;
   }
 }

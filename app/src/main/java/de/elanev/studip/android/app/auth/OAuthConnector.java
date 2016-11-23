@@ -93,7 +93,7 @@ public class OAuthConnector {
    * {@link OAuthCallbacks#onAccessTokenReceived(String, String)} from the passed callbacks will be called.
    * This call will have a url that has to be loaded in an browser to proceed the authentication
    * process.
-   * If the request fails the {@link OAuthCallbacks#onAccesTokenRequestError(OAuthCallbacks.OAuthError)}
+   * If the request fails the {@link OAuthCallbacks#onAccessTokenRequestError(OAuthCallbacks.OAuthError)}
    * will be called with a {@link OAuthCallbacks.OAuthError} object.
    *
    * @param callbacks {@link OAuthCallbacks} that should be called once something happens
@@ -155,7 +155,7 @@ public class OAuthConnector {
      *
      * @param e An {@link OAuthCallbacks.OAuthError} object containing informations about the error
      */
-    void onAccesTokenRequestError(OAuthError e);
+    void onAccessTokenRequestError(OAuthError e);
 
     /**
      * Simple wrapper class for an OAuth request task error.
@@ -285,10 +285,10 @@ public class OAuthConnector {
         if (result.getResult() != null) {
           mCallbacks.onAccessTokenReceived(result.getResult()[0], result.getResult()[1]);
         } else if (result.getException() != null) {
-          mCallbacks.onAccesTokenRequestError(new OAuthCallbacks.OAuthError(result.getException()
+          mCallbacks.onAccessTokenRequestError(new OAuthCallbacks.OAuthError(result.getException()
               .getLocalizedMessage()));
         } else {
-          mCallbacks.onAccesTokenRequestError(new OAuthCallbacks.OAuthError("Unkown error"));
+          mCallbacks.onAccessTokenRequestError(new OAuthCallbacks.OAuthError("Unkown error"));
         }
       }
     }
