@@ -107,9 +107,11 @@ public class PlannerTimetableFragment extends
         return localizeDate(date);
       }
 
-      @Override public String interpretTime(int hour) {
+      @Override public String interpretTime(int hour, int minutes) {
+        //FIXME: Add minutes to localizeHour()
         return localizeHour(hour);
       }
+
     });
 
     if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
