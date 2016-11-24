@@ -16,15 +16,14 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteConstraintException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDoneException;
+import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.text.TextUtils;
-
-import net.sqlcipher.DatabaseUtils;
-import net.sqlcipher.SQLException;
-import net.sqlcipher.database.SQLiteConstraintException;
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteDoneException;
-import net.sqlcipher.database.SQLiteStatement;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -43,7 +42,6 @@ import de.elanev.studip.android.app.data.db.RecordingsContract;
 import de.elanev.studip.android.app.data.db.SemestersContract;
 import de.elanev.studip.android.app.data.db.UnizensusContract;
 import de.elanev.studip.android.app.data.db.UsersContract;
-import de.elanev.studip.android.app.util.Config;
 import timber.log.Timber;
 
 /**
@@ -205,9 +203,8 @@ public class RestIpProvider extends ContentProvider {
       String selection,
       String[] selectionArgs,
       String sortOrder) {
-    String key = Config.PRIVATE_KEY;
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-        .getReadableDatabase(Config.PRIVATE_KEY);
+        .getReadableDatabase();
     String orderBy;
     final int match = sUriMatcher.match(uri);
     Cursor c = null;
@@ -862,7 +859,7 @@ public class RestIpProvider extends ContentProvider {
 
   @Override public Uri insert(Uri uri, ContentValues values) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-        .getWritableDatabase(Config.PRIVATE_KEY);
+        .getWritableDatabase();
     final int match = sUriMatcher.match(uri);
     switch (match) {
       case NEWS: {
@@ -1073,7 +1070,7 @@ public class RestIpProvider extends ContentProvider {
 
   @Override public int bulkInsert(Uri uri, ContentValues[] values) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-        .getWritableDatabase(Config.PRIVATE_KEY);
+        .getWritableDatabase();
     final int match = sUriMatcher.match(uri);
     int rowsInserted = 0;
     switch (match) {
@@ -1280,7 +1277,7 @@ public class RestIpProvider extends ContentProvider {
 
   @Override public int delete(Uri uri, String selection, String[] selectionArgs) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-        .getWritableDatabase(Config.PRIVATE_KEY);
+        .getWritableDatabase();
     int retVal = -1;
 
     // Deleting the whole db
@@ -1393,7 +1390,7 @@ public class RestIpProvider extends ContentProvider {
       String selection,
       String[] selectionArgs) {
     SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-        .getReadableDatabase(Config.PRIVATE_KEY);
+        .getReadableDatabase();
     int affectedRows = 0;
     final int match = sUriMatcher.match(uri);
 
@@ -1421,7 +1418,7 @@ public class RestIpProvider extends ContentProvider {
 
   @Override public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
     final SQLiteDatabase db = DatabaseHandler.getInstance(getContext())
-        .getWritableDatabase(Config.PRIVATE_KEY);
+        .getWritableDatabase();
     db.beginTransaction();
     try {
       final int numOperations = operations.size();

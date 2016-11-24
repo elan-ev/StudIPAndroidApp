@@ -8,15 +8,14 @@
 package de.elanev.studip.android.app.data.db;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteOpenHelper;
 
 import java.io.File;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.StudIPApplication;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
   private static final Patch[] PATCHES = new Patch[]{
@@ -62,9 +61,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
    */
   public static synchronized DatabaseHandler getInstance(Context context) {
     if (sInstance == null) {
-      // Load SQLCipher JNI Libs
-      SQLiteDatabase.loadLibs(StudIPApplication.getInstance());
-      
       sInstance = new DatabaseHandler(context.getApplicationContext());
     }
 
