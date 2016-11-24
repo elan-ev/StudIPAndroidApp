@@ -24,6 +24,7 @@ apply plugin: 'io.fabric'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.fernandocejas.frodo'
 apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'realm-android'
 
 repositories {
   maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
