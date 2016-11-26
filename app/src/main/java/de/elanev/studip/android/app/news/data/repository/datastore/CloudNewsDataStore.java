@@ -10,19 +10,21 @@ package de.elanev.studip.android.app.news.data.repository.datastore;
 
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
-import de.elanev.studip.android.app.util.Prefs;
 import rx.Observable;
-import rx.functions.Func2;
 
 /**
  * @author joern
  */
-class CloudNewsDataStore implements NewsDataStore {
+@Singleton
+public class CloudNewsDataStore implements NewsDataStore {
   private final StudIpLegacyApiService mApiService;
 
-  CloudNewsDataStore(StudIpLegacyApiService apiService) {
+  @Inject CloudNewsDataStore(StudIpLegacyApiService apiService) {
     this.mApiService = apiService;
   }
 

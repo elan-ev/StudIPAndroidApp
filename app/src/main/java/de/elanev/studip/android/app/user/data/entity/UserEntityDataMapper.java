@@ -38,16 +38,15 @@ public class UserEntityDataMapper {
     User user = null;
 
     if (userEntity != null) {
-      user = new User(userEntity.userId);
+      user = new User(userEntity.getUserId());
       user.setFullname(userEntity.getFullName());
-      user.setUsername(userEntity.username);
-      user.setAvatarUrl(userEntity.avatarNormal);
-      user.setEmail(userEntity.email);
-      user.setPhone(userEntity.phone);
-      user.setHomepageUrl(userEntity.homepage);
-      user.setSkypeAddress(userEntity.skype);
-      user.setShowSkypeOnline(userEntity.skypeShow);
-      user.setPrivateAddress(userEntity.privadr);
+      user.setUsername(userEntity.getUsername());
+      user.setAvatarUrl(userEntity.getAvatarNormal());
+      user.setEmail(userEntity.getEmail());
+      user.setPhone(userEntity.getPhone());
+      user.setHomepageUrl(userEntity.getHomepage());
+      user.setSkypeAddress(userEntity.getSkype());
+      user.setPrivateAddress(userEntity.getPrivadr());
     }
 
     return user;
@@ -66,10 +65,49 @@ public class UserEntityDataMapper {
       userEntity.setPhone(user.getPhone());
       userEntity.setHomepage(user.getHomepageUrl());
       userEntity.setSkype(user.getSkypeAddress());
-      userEntity.setSkypeShow(user.showSkypeOnline());
       userEntity.setPrivadr(user.getPrivateAddress());
     }
 
     return userEntity;
+  }
+
+  public UserEntity transform(RealmUserEntity realmUserEntity) {
+    if (realmUserEntity == null) return null;
+
+    UserEntity userEntity = new UserEntity();
+    userEntity.setUserId(realmUserEntity.getUserId());
+    userEntity.setUsername(realmUserEntity.getUsername());
+    userEntity.setTitlePre(realmUserEntity.getTitlePre());
+    userEntity.setForename(realmUserEntity.getForename());
+    userEntity.setLastname(realmUserEntity.getLastname());
+    userEntity.setTitlePost(realmUserEntity.getTitlePost());
+    userEntity.setEmail(realmUserEntity.getEmail());
+    userEntity.setAvatarNormal(realmUserEntity.getAvatarNormal());
+    userEntity.setPhone(realmUserEntity.getPhone());
+    userEntity.setHomepage(realmUserEntity.getHomepage());
+    userEntity.setPrivadr(realmUserEntity.getPrivadr());
+    userEntity.setSkype(realmUserEntity.getSkype());
+
+    return userEntity;
+  }
+
+  public RealmUserEntity transformToRealm(UserEntity userEntity) {
+    if (userEntity == null) return null;
+
+    RealmUserEntity realmUserEntity = new RealmUserEntity();
+    realmUserEntity.setUserId(userEntity.getUserId());
+    realmUserEntity.setUsername(userEntity.getUsername());
+    realmUserEntity.setTitlePre(userEntity.getTitlePre());
+    realmUserEntity.setForename(userEntity.getForename());
+    realmUserEntity.setLastname(userEntity.getLastname());
+    realmUserEntity.setTitlePost(userEntity.getTitlePost());
+    realmUserEntity.setEmail(userEntity.getEmail());
+    realmUserEntity.setAvatarNormal(userEntity.getAvatarNormal());
+    realmUserEntity.setPhone(userEntity.getPhone());
+    realmUserEntity.setHomepage(userEntity.getHomepage());
+    realmUserEntity.setPrivadr(userEntity.getPrivadr());
+    realmUserEntity.setSkype(userEntity.getSkype());
+
+    return realmUserEntity;
   }
 }

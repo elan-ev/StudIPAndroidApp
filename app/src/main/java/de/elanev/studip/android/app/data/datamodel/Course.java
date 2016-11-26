@@ -11,20 +11,12 @@
 package de.elanev.studip.android.app.data.datamodel;
 
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -34,172 +26,148 @@ import java.util.Map;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName(value = "course")
-public class Course implements Serializable {
+public class Course {
   public static final String ID = Course.class.getName() + ".id";
+  private String courseId;
+  private Long startTime;
+  private Long durationTime;
+  private String title;
+  private String subtitle;
+  private CourseModules modules;
+  private String description;
+  private String location;
+  private String semesterId;
+  private ArrayList<String> teachers;
+  private ArrayList<String> tutors;
+  private ArrayList<String> students;
+  private String color;
+  private int type;
+  private CourseAdditionalData courseAdditionalData;
 
-  @JsonProperty("course_id")
-  public String courseId;
-  @JsonProperty("start_time")
-  public Long startTime;
-  @JsonProperty("duration_time")
-  public Long durationTime;
-  @JsonProperty("title")
-  public String title;
-  @JsonProperty("subtitle")
-  public String subtitle;
-  @JsonProperty("modules")
-  public Modules modules;
-  @JsonProperty("description")
-  public String description;
-  @JsonProperty("location")
-  public String location;
-  @JsonProperty("semester_id")
-  public String semesterId;
-  @JsonProperty("teachers")
-  public ArrayList<String> teachers;
-  @JsonProperty("tutors")
-  public ArrayList<String> tutors;
-  @JsonProperty("students")
-  public ArrayList<String> students;
-  @JsonProperty("color")
-  public String color;
-  @JsonProperty("type")
-  public int type;
-  @JsonProperty("additional_data")
-  private AdditionalData additionalData;
-  @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-  public Course() {
+  @JsonIgnore public static String getID() {
+    return ID;
   }
 
-  @JsonProperty("additional_data")
-  public AdditionalData getAdditionalData() {
-    return additionalData;
+  @JsonProperty("course_id") public String getCourseId() {
+    return courseId;
   }
 
-  @JsonProperty("additional_data")
-  public void setAdditionalData(AdditionalData additionalData) {
-    this.additionalData = additionalData;
+  @JsonProperty("course_id") public void setCourseId(String courseId) {
+    this.courseId = courseId;
   }
 
-  @JsonAnyGetter
-  public Map<String, Object> getAdditionalProperties() {
-    return this.additionalProperties;
+  @JsonProperty("start_time") public Long getStartTime() {
+    return startTime;
   }
 
-  @JsonAnySetter
-  public void setAdditionalProperty(String name, Object value) {
-    this.additionalProperties.put(name, value);
+  @JsonProperty("start_time") public void setStartTime(Long startTime) {
+    this.startTime = startTime;
   }
 
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  public static class AdditionalData {
-
-    //Opencast Course Recordings
-    @JsonProperty("oc_recordings")
-    private ArrayList<Recording> recordings = new ArrayList<Recording>();
-
-    @JsonProperty("oc_recordings")
-    public ArrayList<Recording> getRecordings() {
-      return recordings;
-    }
-
-    @JsonProperty("oc_recordings")
-    public void setRecordings(ArrayList<Recording> recordings) {
-      this.recordings = recordings;
-    }
-
-    //Unizensus plugin
-    @JsonProperty("unizensus")
-    private UnizensusItem unizensusItem;
-
-    @JsonProperty("unizensus")
-    public UnizensusItem getUnizensusItem() {
-      return unizensusItem;
-    }
-
-    @JsonProperty("unizensus")
-    public void setUnizensusItem(UnizensusItem unizensusItem) {
-      this.unizensusItem = unizensusItem;
-    }
-
-    // Other not recognized data
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-      return this.additionalProperties;
-    }
-
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-      this.additionalProperties.put(name, value);
-    }
-
+  @JsonProperty("duration_time") public Long getDurationTime() {
+    return durationTime;
   }
 
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  public static class Modules {
-    // Course Overview
-    @JsonProperty("overview")
-    public boolean overview = false;
-    // Course documents
-    @JsonProperty("documents")
-    public boolean documents = false;
-    // Course schedule
-    @JsonProperty("schedule")
-    public boolean schedule = false;
-    // Course participants
-    @JsonProperty("participants")
-    public boolean participants = false;
-    // Course matterhorn recordings
-    @JsonProperty("oc_matterhorn")
-    public boolean recordings = false;
-    // Course unizensus
-    @JsonProperty("unizensus")
-    public boolean unizensus = false;
-    // Course forum
-    @JsonProperty("forum")
-    public boolean forum = false;
-
-    /* Unused modules are commented out to save parse time. Enable if implementing the feature. */
-    //      public boolean admin = false;
-    //      public boolean personal = false;
-    //      public boolean literature = false;
-    //      public boolean wiki = false;
-    //      public boolean scm = false;
-    //      public boolean elearning_interface = false;
-    //      public boolean documents_folder_permissions = false;
-    //      public boolean calendar = false;
-    //      public boolean resources = false;
-
-    @JsonIgnore
-    public String getAsJson() {
-      ObjectMapper mapper = new ObjectMapper();
-      String json = "";
-      try {
-        json = mapper.writeValueAsString(this);
-      } catch (JsonProcessingException e) {
-        e.printStackTrace();
-      }
-      return json;
-    }
-
-    @JsonIgnore
-    public static Modules fromJson(String m) {
-      ObjectMapper mapper = new ObjectMapper();
-      Modules modules = null;
-      try {
-        modules = mapper.readValue(m, Modules.class);
-      } catch (JsonProcessingException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      return modules;
-    }
+  @JsonProperty("duration_time") public void setDurationTime(Long durationTime) {
+    this.durationTime = durationTime;
   }
+
+  @JsonProperty("title") public String getTitle() {
+    return title;
+  }
+
+  @JsonProperty("title") public void setTitle(String title) {
+    this.title = title;
+  }
+
+  @JsonProperty("subtitle") public String getSubtitle() {
+    return subtitle;
+  }
+
+  @JsonProperty("subtitle") public void setSubtitle(String subtitle) {
+    this.subtitle = subtitle;
+  }
+
+  @JsonProperty("modules") public CourseModules getModules() {
+    return modules;
+  }
+
+  @JsonProperty("modules") public void setModules(CourseModules modules) {
+    this.modules = modules;
+  }
+
+  @JsonProperty("description") public String getDescription() {
+    return description;
+  }
+
+  @JsonProperty("description") public void setDescription(String description) {
+    this.description = description;
+  }
+
+  @JsonProperty("location") public String getLocation() {
+    return location;
+  }
+
+  @JsonProperty("location") public void setLocation(String location) {
+    this.location = location;
+  }
+
+  @JsonProperty("semester_id") public String getSemesterId() {
+    return semesterId;
+  }
+
+  @JsonProperty("semester_id") public void setSemesterId(String semesterId) {
+    this.semesterId = semesterId;
+  }
+
+  @JsonProperty("teachers") public ArrayList<String> getTeachers() {
+    return teachers;
+  }
+
+  @JsonProperty("teachers") public void setTeachers(ArrayList<String> teachers) {
+    this.teachers = teachers;
+  }
+
+  @JsonProperty("tutors") public ArrayList<String> getTutors() {
+    return tutors;
+  }
+
+  @JsonProperty("tutors") public void setTutors(ArrayList<String> tutors) {
+    this.tutors = tutors;
+  }
+
+  @JsonProperty("students") public ArrayList<String> getStudents() {
+    return students;
+  }
+
+  @JsonProperty("students") public void setStudents(ArrayList<String> students) {
+    this.students = students;
+  }
+
+  @JsonProperty("color") public String getColor() {
+    return color;
+  }
+
+  @JsonProperty("color") public void setColor(String color) {
+    this.color = color;
+  }
+
+  @JsonProperty("type") public int getType() {
+    return type;
+  }
+
+  @JsonProperty("type") public void setType(int type) {
+    this.type = type;
+  }
+
+  @JsonProperty("additional_data") public CourseAdditionalData getCourseAdditionalData() {
+    return courseAdditionalData;
+  }
+
+  @JsonProperty("additional_data") public void setCourseAdditionalData(
+      CourseAdditionalData courseAdditionalData) {
+    this.courseAdditionalData = courseAdditionalData;
+  }
+
 
 }

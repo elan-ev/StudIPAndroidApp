@@ -15,10 +15,11 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import de.elanev.studip.android.app.courses.CourseEntityDataMapper;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
-import de.elanev.studip.android.app.user.data.entity.UserEntityDataMapper;
+import de.elanev.studip.android.app.news.data.entity.RealmNewsEntity;
 import de.elanev.studip.android.app.news.domain.NewsItem;
-import rx.functions.Func1;
+import de.elanev.studip.android.app.user.data.entity.UserEntityDataMapper;
 
 /**
  * @author joern
@@ -26,10 +27,13 @@ import rx.functions.Func1;
 @Singleton
 public class NewsEntityDataMapper {
 
-  private UserEntityDataMapper userEntityDataMapper;
+  final private UserEntityDataMapper userEntityDataMapper;
+  final private CourseEntityDataMapper courseEntityDataMapper;
 
-  @Inject NewsEntityDataMapper(UserEntityDataMapper userEntityDataMapper) {
+  @Inject NewsEntityDataMapper(UserEntityDataMapper userEntityDataMapper,
+      CourseEntityDataMapper courseEntityDataMapper) {
     this.userEntityDataMapper = userEntityDataMapper;
+    this.courseEntityDataMapper = courseEntityDataMapper;
   }
 
   public List<NewsItem> transform(Collection<NewsEntity> newsEntities) {
@@ -50,15 +54,86 @@ public class NewsEntityDataMapper {
     NewsItem newsItem = null;
 
     if (newsEntity != null) {
-      newsItem = new NewsItem(newsEntity.news_id);
-      newsItem.setTitle(newsEntity.topic);
-      newsItem.setDate(newsEntity.date);
-      newsItem.setBody(newsEntity.body);
-      newsItem.setRange(newsEntity.range);
-      newsItem.setCourse(newsEntity.course);
-      newsItem.setAuthor(userEntityDataMapper.transform(newsEntity.author));
+      newsItem = new NewsItem(newsEntity.getNewsId());
+      newsItem.setTitle(newsEntity.getTopic());
+      newsItem.setDate(newsEntity.getDate());
+      newsItem.setBody(newsEntity.getBody());
+      newsItem.setRange(newsEntity.getRange());
+      newsItem.setCourse(newsEntity.getCourse());
+      newsItem.setAuthor(userEntityDataMapper.transform(newsEntity.getAuthor()));
     }
 
     return newsItem;
   }
+
+  public List<NewsEntity> transformFromRealm(List<RealmNewsEntity> newsEntities) {
+
+    ArrayList<NewsEntity> dataNewsEntities = new ArrayList<>(newsEntities.size());
+
+    for (RealmNewsEntity realmNewsEntity : newsEntities) {
+      NewsEntity newsEntity = transform(realmNewsEntity);
+      if (newsEntity != null) {
+        dataNewsEntities.add(newsEntity);
+      }
+    }
+
+    return dataNewsEntities;
+  }
+
+  public NewsEntity transform(RealmNewsEntity realmNewsEntity) {
+    NewsEntity newsEntity = new NewsEntity();
+    newsEntity.setNewsId(realmNewsEntity.getNewsId());
+    newsEntity.setTopic(realmNewsEntity.getTopic());
+    newsEntity.setBody(realmNewsEntity.getBody());
+    newsEntity.setDate(realmNewsEntity.getDate());
+    newsEntity.setExpire(realmNewsEntity.getExpire());
+    newsEntity.setRange(realmNewsEntity.getRange());
+    newsEntity.setAuthor(userEntityDataMapper.transform(realmNewsEntity.getAuthor()));
+    newsEntity.setCourse(courseEntityDataMapper.transform(realmNewsEntity.getCourse()));
+
+    return newsEntity;
+  }
+
+  public List<NewsItem> transform(List<NewsEntity> newsEntities) {
+
+    ArrayList<NewsItem> newsItems = new ArrayList<>(newsEntities.size());
+
+    for (NewsEntity entity : newsEntities) {
+      NewsItem newsItem = transform(entity);
+      if (newsItem != null) {
+        newsItems.add(newsItem);
+      }
+    }
+
+    return newsItems;
+  }
+
+  public List<RealmNewsEntity> transformToRealm(List<NewsEntity> newsEntities) {
+
+    ArrayList<RealmNewsEntity> realmNewsEntities = new ArrayList<>(newsEntities.size());
+
+    for (NewsEntity entity : newsEntities) {
+      RealmNewsEntity realmNewsEntity = transformToRealm(entity);
+      if (realmNewsEntity != null) {
+        realmNewsEntities.add(realmNewsEntity);
+      }
+    }
+
+    return realmNewsEntities;
+  }
+
+  public RealmNewsEntity transformToRealm(NewsEntity newsEntity) {
+    RealmNewsEntity realmNewsEntity = new RealmNewsEntity();
+    realmNewsEntity.setNewsId(newsEntity.getNewsId());
+    realmNewsEntity.setTopic(newsEntity.getTopic());
+    realmNewsEntity.setBody(newsEntity.getBody());
+    realmNewsEntity.setDate(newsEntity.getDate());
+    realmNewsEntity.setExpire(newsEntity.getExpire());
+    realmNewsEntity.setRange(newsEntity.getRange());
+    realmNewsEntity.setAuthor(userEntityDataMapper.transformToRealm(newsEntity.getAuthor()));
+    realmNewsEntity.setCourse(courseEntityDataMapper.transformToRealm(newsEntity.getCourse()));
+
+    return realmNewsEntity;
+  }
+
 }

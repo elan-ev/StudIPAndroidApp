@@ -242,16 +242,16 @@ public class PlannerTimetableFragment extends
               && eventStartCal.get(Calendar.MONTH) == newMonth) {
             String eventTitle = eventModel.getTitle();
             if (eventModel.getCourse() != null && !TextUtils.isEmpty(
-                eventModel.getCourse().location)) {
-              eventTitle += " (" + eventModel.getCourse().location + ")";
+                eventModel.getCourse().getLocation())) {
+              eventTitle += " (" + eventModel.getCourse().getLocation() + ")";
             }
 
             String eventLocation = eventModel.getRoom();
             WeekViewEvent weekViewEvent = new WeekViewEvent(i, eventTitle, eventLocation,
                 eventStartCal, eventEndCal);
             if (eventModel.getCourse() != null && !TextUtils.isEmpty(
-                eventModel.getCourse().color)) {
-              int color = Color.parseColor(eventModel.getCourse().color);
+                eventModel.getCourse().getColor())) {
+              int color = Color.parseColor(eventModel.getCourse().getColor());
               weekViewEvent.setColor(color);
             }
             events.add(weekViewEvent);

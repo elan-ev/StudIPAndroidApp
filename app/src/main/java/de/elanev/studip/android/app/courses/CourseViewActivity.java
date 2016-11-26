@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Course;
+import de.elanev.studip.android.app.data.datamodel.CourseModules;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.forums.ForumCategoriesListFragment;
 import de.elanev.studip.android.app.util.Prefs;
@@ -42,7 +43,7 @@ public class CourseViewActivity extends AppCompatActivity {
   private ViewPager mPager;
   private TabLayout mTabLayout;
   private FragmentsAdapter mPagerAdapter;
-  private Course.Modules mModules = new Course.Modules();
+  private CourseModules mModules = new CourseModules();
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -76,7 +77,7 @@ public class CourseViewActivity extends AppCompatActivity {
 
       String modulesJson = sExtras.getString(CoursesContract.Columns.Courses.COURSE_MODULES);
       if (!TextUtils.isEmpty(modulesJson)) {
-        mModules = Course.Modules.fromJson(modulesJson);
+        mModules = CourseModules.fromJson(modulesJson);
       }
     } else {
       finish();

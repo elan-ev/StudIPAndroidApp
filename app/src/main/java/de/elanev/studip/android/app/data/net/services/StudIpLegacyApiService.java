@@ -8,12 +8,6 @@
 
 package de.elanev.studip.android.app.data.net.services;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
-
-import com.fernandocejas.frodo.annotation.RxLogObservable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +33,6 @@ import de.elanev.studip.android.app.data.datamodel.Semesters;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.datamodel.UserItem;
-import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntities;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntity;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntityWrapper;
@@ -78,14 +71,12 @@ import timber.log.Timber;
 public class StudIpLegacyApiService {
 
   //region LOCAL CONSTANTS -------------------------------------------------------------------------
-  public static final String TAG = StudIpLegacyApiService.class.getSimpleName();
   private final Prefs prefs;
   //endregion --------------------------------------------------------------------------------------
 
   //region INSTANCE VARIABLES ----------------------------------------------------------------------
   private RestIPLegacyService mService;
   //endregion --------------------------------------------------------------------------------------
-  private Context mContext;
 
   //region CONSTRUCTOR
   // -----------------------------------------------------------------------------------------------
@@ -189,48 +180,48 @@ public class StudIpLegacyApiService {
         });
   }
 
-  private User getUserFromContentProvider(final String userId) {
-
-    String[] projection = {
-        UsersContract.Columns.USER_TITLE_PRE,
-        UsersContract.Columns.USER_FORENAME,
-        UsersContract.Columns.USER_LASTNAME,
-        UsersContract.Columns.USER_TITLE_POST,
-        UsersContract.Columns.USER_AVATAR_NORMAL
-    };
-    String selection = UsersContract.Columns.USER_ID + " = ?";
-
-    Cursor cursor = mContext.getContentResolver()
-        .query(UsersContract.CONTENT_URI, projection, selection, new String[]{userId},
-            UsersContract.DEFAULT_SORT_ORDER);
-
-    String userTitlePre = "";
-    String userTitlePost = "";
-    String userForename = "";
-    String userLastname = "";
-    String userAvatarUrl = "";
-
-    if (cursor != null) {
-
-      cursor.moveToFirst();
-      if (cursor.isAfterLast()) {
-        cursor.close();
-        return null;
-      }
-
-      userTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
-      userTitlePost = cursor.getString(
-          cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
-      userForename = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-      userLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
-      userAvatarUrl = cursor.getString(
-          cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-
-      cursor.close();
-    }
-    return new User(userId, null, null, userTitlePre, userForename, userLastname, userTitlePost,
-        null, null, null, userAvatarUrl, null, null, null, 0);
-  }
+  //  private User getUserFromContentProvider(final String userId) {
+  //
+  //    String[] projection = {
+  //        UsersContract.Columns.USER_TITLE_PRE,
+  //        UsersContract.Columns.USER_FORENAME,
+  //        UsersContract.Columns.USER_LASTNAME,
+  //        UsersContract.Columns.USER_TITLE_POST,
+  //        UsersContract.Columns.USER_AVATAR_NORMAL
+  //    };
+  //    String selection = UsersContract.Columns.USER_ID + " = ?";
+  //
+  //    Cursor cursor = mContext.getContentResolver()
+  //        .query(UsersContract.CONTENT_URI, projection, selection, new String[]{userId},
+  //            UsersContract.DEFAULT_SORT_ORDER);
+  //
+  //    String userTitlePre = "";
+  //    String userTitlePost = "";
+  //    String userForename = "";
+  //    String userLastname = "";
+  //    String userAvatarUrl = "";
+  //
+  //    if (cursor != null) {
+  //
+  //      cursor.moveToFirst();
+  //      if (cursor.isAfterLast()) {
+  //        cursor.close();
+  //        return null;
+  //      }
+  //
+  //      userTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
+  //      userTitlePost = cursor.getString(
+  //          cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
+  //      userForename = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
+  //      userLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
+  //      userAvatarUrl = cursor.getString(
+  //          cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
+  //
+  //      cursor.close();
+  //    }
+  //    return new User(userId, null, null, userTitlePre, userForename, userLastname, userTitlePost,
+  //        null, null, null, userAvatarUrl, null, null, null, 0);
+  //  }
 
   /**
    * Creates a new forum entry for a specific forum topic and returns the new {@link ForumEntry}
@@ -282,8 +273,8 @@ public class StudIpLegacyApiService {
         new Func1<CourseItem, Observable<ArrayList<Recording>>>() {
           @Override public Observable<ArrayList<Recording>> call(CourseItem course) {
             if (course != null && course.course != null
-                && course.course.getAdditionalData() != null) {
-              return Observable.just(course.course.getAdditionalData()
+                && course.course.getCourseAdditionalData() != null) {
+              return Observable.just(course.course.getCourseAdditionalData()
                   .getRecordings());
             } else {
               return Observable.empty();
@@ -342,7 +333,7 @@ public class StudIpLegacyApiService {
    *
    * @return An {@link Observable} containing the user's {@link Events} for the next two weeks.
    */
-  @RxLogObservable public Observable<List<EventEntity>> getEvents() {
+  public Observable<List<EventEntity>> getEvents() {
 
     return mService.getEvents()
         // Then unwrap the events
@@ -560,12 +551,14 @@ public class StudIpLegacyApiService {
   }
 
   public Observable<List<NewsEntity>> getNews() {
-    Observable<NewsEntity> globalNews = getNewsGlobal();
-    Observable<NewsEntity> courseNews = getNewsCourses();
-    Observable<NewsEntity> institutesNews = getNewsInstitutes(prefs.getUserId());
 
-    return Observable.merge(globalNews, courseNews, institutesNews)
-        .toSortedList((newsEntity, newsEntity2) -> newsEntity2.date.compareTo(newsEntity.date));
+      Observable<NewsEntity> globalNews = getNewsGlobal();
+      Observable<NewsEntity> courseNews = getNewsCourses();
+      Observable<NewsEntity> institutesNews = getNewsInstitutes(prefs.getUserId());
+
+      return Observable.merge(globalNews, courseNews, institutesNews)
+          .toSortedList((newsEntity, newsEntity2) -> newsEntity2.getDate()
+              .compareTo(newsEntity.getDate()));
   }
 
   public Observable<NewsEntity> getNewsGlobal() {
@@ -579,8 +572,9 @@ public class StudIpLegacyApiService {
   }
 
   private Observable<NewsEntity> getNewsForCourse(final Course course) {
-    return getNewsForRange(course.courseId).flatMap(newsEntity -> {
-      newsEntity.course = course;
+    return getNewsForRange(course.getCourseId()).flatMap(newsEntity -> {
+      newsEntity.setCourse(course);
+
       return Observable.defer(() -> Observable.just(newsEntity));
     });
   }
@@ -589,11 +583,11 @@ public class StudIpLegacyApiService {
     // FIXME: Add actual paging mechanism
     return mService.getNewsEntityForRange(range, 0, 100)
         .flatMap(news -> (Observable.from(news.getNewsEntities())
-            .filter(newsEntity -> newsEntity.date + newsEntity.expire
+            .filter(newsEntity -> newsEntity.getDate() + newsEntity.getExpire()
                 >= System.currentTimeMillis() / 1000)
-            .flatMap(newsEntity -> getUserEntity(newsEntity.user_id).flatMap(userEntity -> {
-              newsEntity.author = userEntity;
-              newsEntity.range = range;
+            .flatMap(newsEntity -> getUserEntity(newsEntity.getUserId()).flatMap(userEntity -> {
+              newsEntity.setAuthor(userEntity);
+              newsEntity.setRange(range);
 
               return Observable.defer(() -> Observable.just(newsEntity));
             }))));
@@ -616,8 +610,8 @@ public class StudIpLegacyApiService {
 
   public Observable<NewsEntity> getNewsItem(final String id) {
     return mService.getNewsItem(id)
-        .flatMap(newsItem -> getUserEntity(newsItem.news.user_id).flatMap(user -> {
-          newsItem.news.author = user;
+        .flatMap(newsItem -> getUserEntity(newsItem.news.getNewsId()).flatMap(user -> {
+          newsItem.news.setAuthor(user);
 
           return Observable.defer(() -> Observable.just(newsItem.news));
         }));

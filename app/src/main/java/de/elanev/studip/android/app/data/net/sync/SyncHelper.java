@@ -27,8 +27,6 @@ import dagger.Lazy;
 import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.data.datamodel.Courses;
-import de.elanev.studip.android.app.planner.data.entity.EventEntity;
-import de.elanev.studip.android.app.planner.data.entity.Events;
 import de.elanev.studip.android.app.data.datamodel.Institutes;
 import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
 import de.elanev.studip.android.app.data.datamodel.Recording;
@@ -40,7 +38,6 @@ import de.elanev.studip.android.app.data.datamodel.UnizensusItem;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.db.AbstractContract;
 import de.elanev.studip.android.app.data.db.CoursesContract;
-import de.elanev.studip.android.app.data.db.EventsContract;
 import de.elanev.studip.android.app.data.db.InstitutesContract;
 import de.elanev.studip.android.app.data.db.RecordingsContract;
 import de.elanev.studip.android.app.data.db.SemestersContract;
@@ -214,10 +211,10 @@ public class SyncHelper {
             int studentRole = CoursesContract.USER_ROLE_STUDENT;
 
             for (Course c : courses.courses) {
-              new CourseUsersInsertTask(c.teachers).execute(c.courseId, teacherRole);
-              new CourseUsersInsertTask(c.tutors).execute(c.courseId, tutorRole);
-              new CourseUsersInsertTask(c.students).execute(c.courseId, studentRole);
-              new UsersRequestTask().execute(c.teachers.toArray(new String[c.teachers.size()]));
+              new CourseUsersInsertTask(c.getTeachers()).execute(c.getCourseId(), teacherRole);
+              new CourseUsersInsertTask(c.getTutors()).execute(c.getCourseId(), tutorRole);
+              new CourseUsersInsertTask(c.getStudents()).execute(c.getCourseId(), studentRole);
+              new UsersRequestTask().execute(c.getTeachers().toArray(new String[c.getTeachers().size()]));
             }
           }
         }));
@@ -268,43 +265,43 @@ public class SyncHelper {
     // Parse the course data
     ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
         CoursesContract.CONTENT_URI)
-        .withValue(CoursesContract.Columns.Courses.COURSE_ID, course.courseId)
-        .withValue(CoursesContract.Columns.Courses.COURSE_TITLE, course.title)
-        .withValue(CoursesContract.Columns.Courses.COURSE_DESCIPTION, course.description)
-        .withValue(CoursesContract.Columns.Courses.COURSE_SUBTITLE, course.subtitle)
-        .withValue(CoursesContract.Columns.Courses.COURSE_LOCATION, course.location)
-        .withValue(CoursesContract.Columns.Courses.COURSE_DURATION_TIME, course.durationTime)
-        .withValue(CoursesContract.Columns.Courses.COURSE_COLOR, course.color)
-        .withValue(CoursesContract.Columns.Courses.COURSE_TYPE, course.type)
-        .withValue(CoursesContract.Columns.Courses.COURSE_MODULES, course.modules.getAsJson())
-        .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME, course.startTime);
+        .withValue(CoursesContract.Columns.Courses.COURSE_ID, course.getCourseId())
+        .withValue(CoursesContract.Columns.Courses.COURSE_TITLE, course.getTitle())
+        .withValue(CoursesContract.Columns.Courses.COURSE_DESCIPTION, course.getDescription())
+        .withValue(CoursesContract.Columns.Courses.COURSE_SUBTITLE, course.getSubtitle())
+        .withValue(CoursesContract.Columns.Courses.COURSE_LOCATION, course.getLocation())
+        .withValue(CoursesContract.Columns.Courses.COURSE_DURATION_TIME, course.getDurationTime())
+        .withValue(CoursesContract.Columns.Courses.COURSE_COLOR, course.getColor())
+        .withValue(CoursesContract.Columns.Courses.COURSE_TYPE, course.getType())
+        .withValue(CoursesContract.Columns.Courses.COURSE_MODULES, course.getModules().getAsJson())
+        .withValue(CoursesContract.Columns.Courses.COURSE_START_TIME, course.getStartTime());
 
-    if (course.durationTime == -1L) {
+    if (course.getDurationTime() == -1L) {
       builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
           SemestersContract.UNLIMITED_COURSES_SEMESTER_ID);
-    } else if (course.durationTime > 0L) {
+    } else if (course.getDurationTime() > 0L) {
       //TODO: Add these courses to the correct semester (c.start + duration between s.start, end)
       builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID,
           SemestersContract.UNLIMITED_COURSES_SEMESTER_ID);
     } else {
-      builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, course.semesterId);
+      builder.withValue(CoursesContract.Columns.Courses.COURSE_SEMESERT_ID, course.getSemesterId());
     }
     ops.add(builder.build());
 
-    if (course.getAdditionalData() != null) {
+    if (course.getCourseAdditionalData() != null) {
 
 
       // Parse the course recordings, if existing
-      if (course.modules.recordings && course.getAdditionalData()
+      if (course.getModules().recordings && course.getCourseAdditionalData()
           .getRecordings() != null) {
-        List<Recording> recordings = course.getAdditionalData()
+        List<Recording> recordings = course.getCourseAdditionalData()
             .getRecordings();
         for (Recording r : recordings) {
           builder = ContentProviderOperation.newInsert(recordingsContentUrl)
               .withValue(recordingId, r.getId())
               .withValue(recordingAudioUrl, r.getAudioDownload())
               .withValue(recordingAuthor, r.getAuthor())
-              .withValue(recordingCourseId, course.courseId)
+              .withValue(recordingCourseId, course.getCourseId())
               .withValue(recordingDescription, r.getDescription())
               .withValue(recordingDuration, r.getDuration())
               .withValue(recordingPlayerUrl, r.getExternalPlayerUrl())
@@ -319,15 +316,15 @@ public class SyncHelper {
       }
 
       // Parse the course unizensus items, if existing
-      if (course.modules.unizensus && course.getAdditionalData()
+      if (course.getModules().unizensus && course.getCourseAdditionalData()
           .getUnizensusItem() != null) {
-        UnizensusItem unizensusItem = course.getAdditionalData()
+        UnizensusItem unizensusItem = course.getCourseAdditionalData()
             .getUnizensusItem();
 
         builder = ContentProviderOperation.newInsert(unizensusContentUri)
             .withValue(unizensusType, unizensusItem.type)
             .withValue(unizensusUrl, unizensusItem.url)
-            .withValue(unizensusCourseId, course.courseId);
+            .withValue(unizensusCourseId, course.getCourseId());
 
         ops.add(builder.build());
       }
