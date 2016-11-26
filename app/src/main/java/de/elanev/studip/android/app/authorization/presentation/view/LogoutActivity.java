@@ -19,6 +19,8 @@ import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity
 import de.elanev.studip.android.app.data.db.AbstractContract;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.util.Prefs;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 /**
  * @author joern
@@ -30,6 +32,7 @@ public class LogoutActivity extends BaseActivity {
 
   @Inject SyncHelper syncHelper;
   @Inject Prefs prefs;
+  @Inject RealmConfiguration realmConfiguration;
 
   public static Intent getCallingIntent(Context context) {
     return new Intent(context, LogoutActivity.class);
@@ -53,5 +56,6 @@ public class LogoutActivity extends BaseActivity {
 
     // Delete the app database
     getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
+    Realm.deleteRealm(realmConfiguration);
   }
 }

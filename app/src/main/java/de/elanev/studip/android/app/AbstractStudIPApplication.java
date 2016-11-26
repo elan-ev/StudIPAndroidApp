@@ -18,6 +18,7 @@ import android.os.Build;
 import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
 import de.elanev.studip.android.app.base.internal.di.components.DaggerApplicationComponent;
 import de.elanev.studip.android.app.base.internal.di.modules.ApplicationModule;
+import io.realm.Realm;
 
 /**
  * @author joern
@@ -49,6 +50,8 @@ public abstract class AbstractStudIPApplication extends Application {
 
     // create instance
     mInstance = this;
+
+    Realm.init(this);
   }
 
   public ApplicationComponent getAppComponent() {

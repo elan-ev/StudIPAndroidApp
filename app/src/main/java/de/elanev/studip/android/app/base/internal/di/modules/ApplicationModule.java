@@ -31,6 +31,8 @@ import de.elanev.studip.android.app.planner.domain.PlannerRepository;
 import de.elanev.studip.android.app.user.data.repository.UserDataRepository;
 import de.elanev.studip.android.app.user.domain.UserRepository;
 import de.elanev.studip.android.app.util.Prefs;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 /**
  * @author joern
@@ -93,4 +95,14 @@ public class ApplicationModule {
   @Provides @Singleton ThreadExecutor provideThreadExecutor(ThreadExecutorImpl threadExecutor) {
     return threadExecutor;
   }
+
+  // Database
+  @Provides @Singleton RealmConfiguration provideRealmConfiguration(Context context) {
+    Realm.init(context);
+    RealmConfiguration.Builder builder = new RealmConfiguration.Builder();
+    builder.deleteRealmIfMigrationNeeded();
+    builder.name("studip.realm");
+    return builder.build();
+  }
+
 }
