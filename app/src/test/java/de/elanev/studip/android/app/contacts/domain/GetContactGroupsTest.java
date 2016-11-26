@@ -43,7 +43,7 @@ public class GetContactGroupsTest {
     given(mockThreadExecutor.getScheduler()).willReturn(Schedulers.immediate());
     given(mockPostExecutionThread.getScheduler()).willReturn(Schedulers.immediate());
 
-    getContactGroups.buildUseCaseObservable();
+    getContactGroups.buildUseCaseObservable(true);
 
     verify(mockContactsRepository).contactGroups();
     verifyNoMoreInteractions(mockContactsRepository);

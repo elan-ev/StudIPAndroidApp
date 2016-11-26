@@ -46,7 +46,7 @@ public class DeleteMessageTest {
     given(mockThreadExecutor.getScheduler()).willReturn(Schedulers.immediate());
     given(mockPostExecutionThread.getScheduler()).willReturn(Schedulers.immediate());
 
-    deleteMessage.buildUseCaseObservable();
+    deleteMessage.buildUseCaseObservable(true);
 
     verify(mockMessagesRepository).delete(FAKE_ID);
     verifyNoMoreInteractions(mockMessagesRepository);

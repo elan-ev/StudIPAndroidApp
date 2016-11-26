@@ -17,8 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
+import de.elanev.studip.android.app.news.data.repository.datastore.CloudNewsDataStore;
 import de.elanev.studip.android.app.news.data.repository.datastore.NewsDataStore;
-import de.elanev.studip.android.app.news.data.repository.datastore.NewsDataStoreFactory;
+import de.elanev.studip.android.app.news.data.repository.datastore.RealmNewsDataStore;
 import rx.Observable;
 
 import static org.mockito.BDDMockito.given;
@@ -30,25 +31,27 @@ import static org.mockito.Mockito.verify;
 public class NewsDataRepositoryTest {
   private static final String FAKE_NEWS_ID = "123";
   @Mock private NewsEntityDataMapper mockNewsEntityMapper;
-  @Mock private NewsDataStoreFactory mockNewsDataFactory;
-  @Mock private NewsDataStore mockNewsDataStore;
+  @Mock private CloudNewsDataStore mockCloudDataStore;
+  @Mock private RealmNewsDataStore mockRealmDataStore;
   private NewsDataRepository newsDataRepository;
 
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    given(mockNewsDataFactory.create()).willReturn(mockNewsDataStore);
 
-    newsDataRepository = new NewsDataRepository(mockNewsEntityMapper, mockNewsDataFactory);
+    newsDataRepository = new NewsDataRepository(mockNewsEntityMapper, mockRealmDataStore,
+        mockCloudDataStore);
   }
 
   @Test public void newsItem() throws Exception {
     NewsEntity newsEntity = new NewsEntity();
-    given(mockNewsDataStore.newsEntity(FAKE_NEWS_ID)).willReturn(Observable.just(newsEntity));
+    given(mockCloudDataStore.newsEntity(FAKE_NEWS_ID)).willReturn(Observable.just(newsEntity));
+    given(mockRealmDataStore.newsEntity(FAKE_NEWS_ID)).willReturn(Observable.just(newsEntity));
 
-    newsDataRepository.newsItem(FAKE_NEWS_ID);
 
-    verify(mockNewsDataFactory).create();
-    verify(mockNewsDataStore).newsEntity(FAKE_NEWS_ID);
+    newsDataRepository.newsItem(FAKE_NEWS_ID, true);
+
+    verify(mockRealmDataStore).newsEntity(FAKE_NEWS_ID);
+    verify(mockCloudDataStore).newsEntity(FAKE_NEWS_ID);
   }
 
   @Test public void newsList() throws Exception {
@@ -56,12 +59,13 @@ public class NewsDataRepositoryTest {
     newsEntities.add(new NewsEntity());
     newsEntities.add(new NewsEntity());
 
-    given(mockNewsDataStore.newsEntityList()).willReturn(Observable.just(newsEntities));
+    given(mockCloudDataStore.newsEntityList()).willReturn(Observable.just(newsEntities));
+    given(mockRealmDataStore.newsEntityList()).willReturn(Observable.just(newsEntities));
 
-    newsDataRepository.newsList();
+    newsDataRepository.newsList(true);
 
-    verify(mockNewsDataFactory).create();
-    verify(mockNewsDataStore).newsEntityList();
+    verify(mockCloudDataStore).newsEntityList();
+    verify(mockRealmDataStore).newsEntityList();
   }
 
 }

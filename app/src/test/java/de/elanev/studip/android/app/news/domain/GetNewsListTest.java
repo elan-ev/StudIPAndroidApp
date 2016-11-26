@@ -42,9 +42,9 @@ public class GetNewsListTest {
     given(mockThreadExecutor.getScheduler()).willReturn(Schedulers.immediate());
     given(mockPostExecutionThread.getScheduler()).willReturn(Schedulers.immediate());
 
-    getNewsList.buildUseCaseObservable();
+    getNewsList.buildUseCaseObservable(true);
 
-    verify(mockNewsRepository).newsList();
+    verify(mockNewsRepository).newsList(true);
     verifyNoMoreInteractions(mockNewsRepository);
 
     verifyZeroInteractions(mockThreadExecutor);

@@ -44,7 +44,7 @@ public class GetMessageDetailsTest {
     given(mockThreadExecutor.getScheduler()).willReturn(Schedulers.immediate());
     given(mockPostExecutionThread.getScheduler()).willReturn(Schedulers.immediate());
 
-    getMessageDetails.buildUseCaseObservable();
+    getMessageDetails.buildUseCaseObservable(true);
 
     verify(mockMessagesRepository).message(FAKE_ID);
     verifyNoMoreInteractions(mockMessagesRepository);

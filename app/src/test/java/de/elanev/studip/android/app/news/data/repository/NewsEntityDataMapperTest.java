@@ -16,10 +16,10 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.elanev.studip.android.app.courses.CourseEntityDataMapper;
 import de.elanev.studip.android.app.data.datamodel.Course;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.news.domain.NewsItem;
-import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.user.data.entity.UserEntity;
 import de.elanev.studip.android.app.user.data.entity.UserEntityDataMapper;
 import de.elanev.studip.android.app.user.domain.User;
@@ -41,7 +41,8 @@ public class NewsEntityDataMapperTest {
   private static final String FAKE_RANGE = "123";
 
 
-  @Mock UserEntityDataMapper mockUserModelDataMapper;
+  @Mock UserEntityDataMapper mockUserEntityDataMapper;
+  @Mock CourseEntityDataMapper mockCourseEntityDataMapper;
   @Mock UserEntity mockUser;
   @Mock Course mockCourse;
   @Mock User mockDomainUser;
@@ -50,7 +51,8 @@ public class NewsEntityDataMapperTest {
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
-    newsEntityDataMapper = new NewsEntityDataMapper(mockUserModelDataMapper);
+    newsEntityDataMapper = new NewsEntityDataMapper(mockUserEntityDataMapper,
+        mockCourseEntityDataMapper);
   }
 
   @Test public void shouldTransformNewsEntityListToNewsList() throws Exception {
@@ -69,7 +71,7 @@ public class NewsEntityDataMapperTest {
   }
 
   @Test public void shouldTransformNewsEntityToNews() throws Exception {
-    given(mockUserModelDataMapper.transform(mockUser)).willReturn(mockDomainUser);
+    given(mockUserEntityDataMapper.transform(mockUser)).willReturn(mockDomainUser);
     NewsEntity newsEntity = createFakeNewsEntity();
     NewsItem newsItem = newsEntityDataMapper.transform(newsEntity);
 
@@ -86,13 +88,13 @@ public class NewsEntityDataMapperTest {
   private NewsEntity createFakeNewsEntity() {
     NewsEntity newsEntity = new NewsEntity();
 
-    newsEntity.news_id = FAKE_NEWS_ID;
-    newsEntity.topic = FAKE_TITLE;
-    newsEntity.body = FAKE_BODY;
-    newsEntity.date = FAKE_DATE;
-    newsEntity.course = mockCourse;
-    newsEntity.range = FAKE_RANGE;
-    newsEntity.author = mockUser;
+    newsEntity.setNewsId(FAKE_NEWS_ID);
+    newsEntity.setTopic(FAKE_TITLE);
+    newsEntity.setBody(FAKE_BODY);
+    newsEntity.setDate(FAKE_DATE);
+    newsEntity.setCourse(mockCourse);
+    newsEntity.setRange(FAKE_RANGE);
+    newsEntity.setAuthor(mockUser);
 
     return newsEntity;
   }

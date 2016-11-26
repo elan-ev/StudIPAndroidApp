@@ -14,7 +14,8 @@ package de.elanev.studip.android.app.user.data.entity;
 
 public class UserEntityUtil {
   public static final String FAKE_USER_ID = "123";
-  static final String FAKE_JSON = "{\"fullName\":\"Dr. Peter Pan Msc.\",\"name\":\"Peter Pan\",\"user_id\":\"123\",\"username\":\"peterthepan\",\"perms\":null,\"title_pre\":\"Dr.\",\"forename\":\"Peter\",\"lastname\":\"Pan\",\"title_post\":\"Msc.\",\"email\":\"peter@pan.de\",\"avatar_normal\":\"http://google.de\",\"phone\":\"+49 1234 4567\",\"homepage\":\"http://www.google.de\",\"privadr\":\"Auf der Mauer 123, 12345 Auf der Lauer\",\"role\":0,\"skype\":\"peterpan\",\"skype_show\":false}";
+  static final String FAKE_JSON = "{\"user_id\":\"123\",\"username\":\"peterthepan\","
+    + "\"title_pre\":\"Dr.\",\"forename\":\"Peter\",\"lastname\":\"Pan\",\"title_post\":\"Msc.\",\"email\":\"peter@pan.de\",\"avatar_normal\":\"http://google.de\",\"phone\":\"+49 1234 4567\",\"homepage\":\"http://www.google.de\",\"privadr\":\"Auf der Mauer 123, 12345 Auf der Lauer\",\"skype\":\"peterpan\"}";
   static final String FAKE_FORENAME = "Peter";
   static final String FAKE_LASTNAME = "Pan";
   static final String FAKE_TITLE_PRE = "Dr.";
@@ -32,18 +33,18 @@ public class UserEntityUtil {
 
   public static UserEntity createFakeUserEntity() {
     UserEntity userEntity = new UserEntity();
-    userEntity.userId = FAKE_USER_ID;
-    userEntity.titlePre = FAKE_TITLE_PRE;
-    userEntity.titlePost = FAKE_TITLE_POST;
-    userEntity.forename = FAKE_FORENAME;
-    userEntity.lastname = FAKE_LASTNAME;
-    userEntity.avatarNormal = FAKE_AVATAR_URL;
-    userEntity.email = FAKE_EMAIL;
-    userEntity.homepage = FAKE_HOMEPAGE;
-    userEntity.phone = FAKE_PHONE;
-    userEntity.privadr = FAKE_PRIVATE_ADDRESS;
-    userEntity.skype = FAKE_SKYPE_NAME;
-    userEntity.username = FAKE_USERNAME;
+    userEntity.setUserId(FAKE_USER_ID);
+    userEntity.setTitlePre(FAKE_TITLE_PRE);
+    userEntity.setTitlePost(FAKE_TITLE_POST);
+    userEntity.setForename(FAKE_FORENAME);
+    userEntity.setLastname(FAKE_LASTNAME);
+    userEntity.setAvatarNormal(FAKE_AVATAR_URL);
+    userEntity.setEmail(FAKE_EMAIL);
+    userEntity.setHomepage(FAKE_HOMEPAGE);
+    userEntity.setPhone(FAKE_PHONE);
+    userEntity.setPrivadr(FAKE_PRIVATE_ADDRESS);
+    userEntity.setSkype(FAKE_SKYPE_NAME);
+    userEntity.setUsername(FAKE_USERNAME);
 
     return userEntity;
   }

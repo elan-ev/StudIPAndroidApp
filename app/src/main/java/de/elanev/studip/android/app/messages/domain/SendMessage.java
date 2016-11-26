@@ -16,6 +16,7 @@ import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import rx.Observable;
+import rx.Subscriber;
 
 /**
  * @author joern
@@ -32,7 +33,7 @@ public class SendMessage extends UseCase<Message> {
     this.messageRepository = messagesRepository;
   }
 
-  @Override public void execute(DefaultSubscriber<Message> subscriber) {
+  @Override public void execute(Subscriber<Message> subscriber) {
     if (this.message == null) {
       subscriber.onError(new IllegalStateException("Message must not be null!"));
       return;

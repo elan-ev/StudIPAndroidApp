@@ -89,14 +89,10 @@ public class NetworkModule {
   }
 
   @Provides @Singleton public OkHttpClient providesOkHttpClient(Cache cache,
-      HttpLoggingInterceptor loggingInterceptor,
-      RewriteCacheControlInterceptor rewriteCacheControlInterceptor,
-      OfflineCacheInterceptor offlineCacheInterceptor, SigningInterceptor signingInterceptor) {
+      HttpLoggingInterceptor loggingInterceptor, SigningInterceptor signingInterceptor) {
 
     return new OkHttpClient.Builder().addInterceptor(loggingInterceptor)
         .addInterceptor(signingInterceptor)
-        .addInterceptor(offlineCacheInterceptor)
-        .addNetworkInterceptor(rewriteCacheControlInterceptor)
         .cache(cache)
         .build();
   }
