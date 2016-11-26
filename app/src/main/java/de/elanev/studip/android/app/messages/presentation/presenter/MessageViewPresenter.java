@@ -71,7 +71,7 @@ public class MessageViewPresenter extends BaseRxLcePresenter<MessageView, Messag
     }
 
     @Override public void onError(Throwable e) {
-      MessageViewPresenter.this.onError(e, ptr);
+      MessageViewPresenter.this.onError(e, isPullToRefresh());
     }
 
     @Override public void onNext(Void aVoid) {}
@@ -87,7 +87,7 @@ public class MessageViewPresenter extends BaseRxLcePresenter<MessageView, Messag
     }
 
     @Override public void onError(Throwable e) {
-      MessageViewPresenter.this.onError(e, ptr);
+      MessageViewPresenter.this.onError(e, this.isPullToRefresh());
     }
 
     @Override public void onNext(Message message) {

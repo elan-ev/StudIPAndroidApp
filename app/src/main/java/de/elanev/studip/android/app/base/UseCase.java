@@ -28,7 +28,6 @@ package de.elanev.studip.android.app.base;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
 
 /**
@@ -50,8 +49,8 @@ public abstract class UseCase<T> {
     this.postExecutionThread = postExecutionThread;
   }
 
-  public void execute(Subscriber subscriber) {
-    this.subscription = this.buildUseCaseObservable()
+  public void execute(DefaultSubscriber<T> subscriber) {
+    this.subscription = this.buildUseCaseObservable(subscriber.isPullToRefresh())
         .compose(applySchedulers())
         .subscribe(subscriber);
   }
@@ -59,7 +58,7 @@ public abstract class UseCase<T> {
   /**
    * Builds an {@link rx.Observable} which will be used when executing the current {@link UseCase}.
    */
-  protected abstract Observable<T> buildUseCaseObservable();
+  protected abstract Observable<T> buildUseCaseObservable(boolean forceUpdate);
 
   private Observable.Transformer<T, T> applySchedulers() {
     return tObservable -> tObservable.subscribeOn(threadExecutor.getScheduler())

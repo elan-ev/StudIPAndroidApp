@@ -16,7 +16,7 @@ import rx.Observable;
  * @author joern
  */
 public interface NewsRepository {
-  Observable<NewsItem> newsItem(String id);
+  Observable<NewsItem> newsItem(String id, boolean forceUpdate);
 
-  Observable<List<NewsItem>> newsList();
+  Observable<List<NewsItem>> newsList(boolean forceUpdate);
 }

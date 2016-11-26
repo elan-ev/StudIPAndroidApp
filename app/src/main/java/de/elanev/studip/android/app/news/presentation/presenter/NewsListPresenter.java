@@ -21,6 +21,7 @@ import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.presentation.mapper.NewsModelDataMapper;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.view.NewsListView;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -53,7 +54,7 @@ public class NewsListPresenter extends BaseRxLcePresenter<NewsListView, List<New
 
   private final class NewsListSubscriber extends DefaultSubscriber<List<NewsItem>> {
 
-    public NewsListSubscriber(boolean ptr) {
+    NewsListSubscriber(boolean ptr) {
       super(ptr);
     }
 
@@ -62,7 +63,8 @@ public class NewsListPresenter extends BaseRxLcePresenter<NewsListView, List<New
     }
 
     @Override public void onError(Throwable e) {
-      NewsListPresenter.this.onError(e, ptr);
+      Timber.e(e, e.getLocalizedMessage());
+      NewsListPresenter.this.onError(e, this.isPullToRefresh());
     }
 
     @Override public void onNext(List<NewsItem> newsItems) {

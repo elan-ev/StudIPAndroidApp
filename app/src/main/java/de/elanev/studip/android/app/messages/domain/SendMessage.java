@@ -10,18 +10,18 @@ package de.elanev.studip.android.app.messages.domain;
 
 import javax.inject.Inject;
 
+import de.elanev.studip.android.app.base.DefaultSubscriber;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import rx.Observable;
-import rx.Subscriber;
 
 /**
  * @author joern
  */
 @PerFragment
-public class SendMessage extends UseCase {
+public class SendMessage extends UseCase<Message> {
   private final MessagesRepository messageRepository;
   private Message message;
 
@@ -32,7 +32,7 @@ public class SendMessage extends UseCase {
     this.messageRepository = messagesRepository;
   }
 
-  @Override public void execute(Subscriber subscriber) {
+  @Override public void execute(DefaultSubscriber<Message> subscriber) {
     if (this.message == null) {
       subscriber.onError(new IllegalStateException("Message must not be null!"));
       return;
@@ -46,7 +46,7 @@ public class SendMessage extends UseCase {
     super.execute(subscriber);
   }
 
-  @Override protected Observable buildUseCaseObservable() {
+  @Override protected Observable<Message> buildUseCaseObservable(boolean forceUpdate) {
     return messageRepository.send(this.message);
   }
 

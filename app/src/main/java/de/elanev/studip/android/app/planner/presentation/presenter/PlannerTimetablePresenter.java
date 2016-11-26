@@ -56,7 +56,7 @@ public class PlannerTimetablePresenter extends
     }
 
     @Override public void onError(Throwable e) {
-      PlannerTimetablePresenter.this.onError(e, ptr);
+      PlannerTimetablePresenter.this.onError(e, this.isPullToRefresh());
     }
 
     @Override public void onNext(List<Event> events) {

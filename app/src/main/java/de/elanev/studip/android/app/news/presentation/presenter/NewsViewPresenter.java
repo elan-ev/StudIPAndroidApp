@@ -57,7 +57,7 @@ public class NewsViewPresenter extends BaseRxLcePresenter<NewsView, NewsModel> {
     }
 
     @Override public void onError(Throwable e) {
-      NewsViewPresenter.this.onError(e, ptr);
+      NewsViewPresenter.this.onError(e, this.isPullToRefresh());
     }
 
     @Override public void onNext(NewsItem newsItem) {

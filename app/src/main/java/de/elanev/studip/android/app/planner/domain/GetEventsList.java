@@ -30,7 +30,7 @@ public class GetEventsList extends UseCase<List<Event>> {
     this.repository = plannerRepository;
   }
 
-  @Override protected Observable<List<Event>> buildUseCaseObservable() {
+  @Override protected Observable<List<Event>> buildUseCaseObservable(boolean forceUpdate) {
     return repository.eventsList();
   }
 }

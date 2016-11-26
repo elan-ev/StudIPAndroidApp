@@ -52,7 +52,7 @@ public class UserDetailsPresenter extends BaseRxLcePresenter<UserDetailsView, Us
     }
 
     @Override public void onError(Throwable e) {
-      UserDetailsPresenter.this.onError(e, ptr);
+      UserDetailsPresenter.this.onError(e, isPullToRefresh());
     }
 
     @Override public void onNext(User userModel) {

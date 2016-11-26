@@ -33,7 +33,7 @@ public class DeleteMessage extends UseCase {
     this.messageRepository = messagesRepository;
   }
 
-  @Override protected Observable buildUseCaseObservable() {
+  @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
     return this.messageRepository.delete(messageId);
   }
 }

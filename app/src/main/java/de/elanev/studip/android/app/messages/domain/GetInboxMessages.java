@@ -30,7 +30,7 @@ public class GetInboxMessages extends UseCase {
     this.messagesRepository = messagesRepository;
   }
 
-  @Override protected Observable buildUseCaseObservable() {
+  @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
     return messagesRepository.inboxMessages();
   }
 }

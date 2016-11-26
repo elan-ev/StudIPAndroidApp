@@ -58,7 +58,7 @@ public class PlannerListPresenter extends BaseRxLcePresenter<PlannerListView, Li
     }
 
     @Override public void onError(Throwable e) {
-      PlannerListPresenter.this.onError(e, ptr);
+      PlannerListPresenter.this.onError(e, this.isPullToRefresh());
     }
 
     @Override public void onNext(List<Event> events) {

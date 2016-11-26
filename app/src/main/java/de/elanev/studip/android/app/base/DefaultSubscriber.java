@@ -14,9 +14,17 @@ import rx.Subscriber;
  * @author joern
  */
 public abstract class DefaultSubscriber<T> extends Subscriber<T> {
-  protected boolean ptr = false;
+  private boolean pullToRefresh = false;
 
-  public DefaultSubscriber(boolean ptr) {
-    this.ptr = ptr;
+  public DefaultSubscriber(boolean pullToRefresh) {
+    this.pullToRefresh = pullToRefresh;
+  }
+
+  public boolean isPullToRefresh() {
+    return pullToRefresh;
+  }
+
+  public void setPullToRefresh(boolean pullToRefresh) {
+    this.pullToRefresh = pullToRefresh;
   }
 }
