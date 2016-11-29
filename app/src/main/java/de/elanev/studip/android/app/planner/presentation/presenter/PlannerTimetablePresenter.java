@@ -20,6 +20,7 @@ import de.elanev.studip.android.app.planner.domain.Event;
 import de.elanev.studip.android.app.planner.presentation.mapper.EventsDataMapper;
 import de.elanev.studip.android.app.planner.presentation.model.EventModel;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerTimetableView;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -56,6 +57,7 @@ public class PlannerTimetablePresenter extends
     }
 
     @Override public void onError(Throwable e) {
+      Timber.e(e, e.getLocalizedMessage());
       PlannerTimetablePresenter.this.onError(e, this.isPullToRefresh());
     }
 

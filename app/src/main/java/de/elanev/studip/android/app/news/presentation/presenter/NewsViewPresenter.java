@@ -19,6 +19,7 @@ import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.presentation.mapper.NewsModelDataMapper;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.news.presentation.view.NewsView;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -28,8 +29,8 @@ public class NewsViewPresenter extends BaseRxLcePresenter<NewsView, NewsModel> {
   private final UseCase mGetNewsDetailsUseCase;
   private final NewsModelDataMapper newsModelMapper;
 
-  @Inject NewsViewPresenter(@Named("newsDetails") UseCase getNewsDetails, NewsModelDataMapper
-      newsModelDataMapper) {
+  @Inject NewsViewPresenter(@Named("newsDetails") UseCase getNewsDetails,
+      NewsModelDataMapper newsModelDataMapper) {
     this.mGetNewsDetailsUseCase = getNewsDetails;
     this.newsModelMapper = newsModelDataMapper;
   }
@@ -57,6 +58,7 @@ public class NewsViewPresenter extends BaseRxLcePresenter<NewsView, NewsModel> {
     }
 
     @Override public void onError(Throwable e) {
+      Timber.e(e, e.getLocalizedMessage());
       NewsViewPresenter.this.onError(e, this.isPullToRefresh());
     }
 
