@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.user.domain.User;
+import io.realm.RealmList;
 
 /**
  * @author joern
@@ -25,6 +26,8 @@ public class UserEntityDataMapper {
   @Inject public UserEntityDataMapper() {}
 
   public List<User> transform(List<UserEntity> userEntities) {
+    if (userEntities == null) return null;
+
     ArrayList<User> users = new ArrayList<>();
 
     for (UserEntity userEntity : userEntities) {
@@ -71,24 +74,19 @@ public class UserEntityDataMapper {
     return userEntity;
   }
 
-  public UserEntity transform(RealmUserEntity realmUserEntity) {
-    if (realmUserEntity == null) return null;
+  public RealmList<RealmUserEntity> transformToRealm(List<UserEntity> userEntities) {
+    if (userEntities == null) return null;
 
-    UserEntity userEntity = new UserEntity();
-    userEntity.setUserId(realmUserEntity.getUserId());
-    userEntity.setUsername(realmUserEntity.getUsername());
-    userEntity.setTitlePre(realmUserEntity.getTitlePre());
-    userEntity.setForename(realmUserEntity.getForename());
-    userEntity.setLastname(realmUserEntity.getLastname());
-    userEntity.setTitlePost(realmUserEntity.getTitlePost());
-    userEntity.setEmail(realmUserEntity.getEmail());
-    userEntity.setAvatarNormal(realmUserEntity.getAvatarNormal());
-    userEntity.setPhone(realmUserEntity.getPhone());
-    userEntity.setHomepage(realmUserEntity.getHomepage());
-    userEntity.setPrivadr(realmUserEntity.getPrivadr());
-    userEntity.setSkype(realmUserEntity.getSkype());
+    RealmList<RealmUserEntity> realmList = new RealmList<>();
 
-    return userEntity;
+    for (UserEntity userEntity : userEntities) {
+      RealmUserEntity realmUserEntity = transformToRealm(userEntity);
+      if (realmUserEntity != null) {
+        realmList.add(realmUserEntity);
+      }
+    }
+
+    return realmList;
   }
 
   public RealmUserEntity transformToRealm(UserEntity userEntity) {
@@ -109,5 +107,37 @@ public class UserEntityDataMapper {
     realmUserEntity.setSkype(userEntity.getSkype());
 
     return realmUserEntity;
+  }
+
+  public List<UserEntity> transformFromRealm(RealmList<RealmUserEntity> realmUserEntities) {
+    if (realmUserEntities == null) return null;
+
+    ArrayList<UserEntity> userEntities = new ArrayList<>(realmUserEntities.size());
+
+    for (RealmUserEntity realmUserEntity : realmUserEntities) {
+      userEntities.add(transformFromRealm(realmUserEntity));
+    }
+
+    return userEntities;
+  }
+
+  public UserEntity transformFromRealm(RealmUserEntity realmUserEntity) {
+    if (realmUserEntity == null) return null;
+
+    UserEntity userEntity = new UserEntity();
+    userEntity.setUserId(realmUserEntity.getUserId());
+    userEntity.setUsername(realmUserEntity.getUsername());
+    userEntity.setTitlePre(realmUserEntity.getTitlePre());
+    userEntity.setForename(realmUserEntity.getForename());
+    userEntity.setLastname(realmUserEntity.getLastname());
+    userEntity.setTitlePost(realmUserEntity.getTitlePost());
+    userEntity.setEmail(realmUserEntity.getEmail());
+    userEntity.setAvatarNormal(realmUserEntity.getAvatarNormal());
+    userEntity.setPhone(realmUserEntity.getPhone());
+    userEntity.setHomepage(realmUserEntity.getHomepage());
+    userEntity.setPrivadr(realmUserEntity.getPrivadr());
+    userEntity.setSkype(realmUserEntity.getSkype());
+
+    return userEntity;
   }
 }

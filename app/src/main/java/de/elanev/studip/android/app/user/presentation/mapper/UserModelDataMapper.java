@@ -26,6 +26,8 @@ public class UserModelDataMapper {
   @Inject public UserModelDataMapper() {}
 
   public List<UserModel> transform(List<User> users) {
+    if (users == null) return null;
+
     ArrayList<UserModel> userModels = new ArrayList<>();
 
     for (User user : users) {
