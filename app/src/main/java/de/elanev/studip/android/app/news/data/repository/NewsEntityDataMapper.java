@@ -15,7 +15,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.elanev.studip.android.app.courses.CourseEntityDataMapper;
+import de.elanev.studip.android.app.courses.data.repository.CourseEntityDataMapper;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.news.data.entity.RealmNewsEntity;
 import de.elanev.studip.android.app.news.domain.NewsItem;
@@ -88,8 +88,8 @@ public class NewsEntityDataMapper {
     newsEntity.setDate(realmNewsEntity.getDate());
     newsEntity.setExpire(realmNewsEntity.getExpire());
     newsEntity.setRange(realmNewsEntity.getRange());
-    newsEntity.setAuthor(userEntityDataMapper.transform(realmNewsEntity.getAuthor()));
-    newsEntity.setCourse(courseEntityDataMapper.transform(realmNewsEntity.getCourse()));
+    newsEntity.setAuthor(userEntityDataMapper.transformFromRealm(realmNewsEntity.getAuthor()));
+    newsEntity.setCourse(courseEntityDataMapper.transformFromRealm(realmNewsEntity.getCourse()));
 
     return newsEntity;
   }

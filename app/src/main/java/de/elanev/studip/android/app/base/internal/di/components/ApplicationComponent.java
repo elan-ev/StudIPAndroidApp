@@ -26,6 +26,7 @@ import de.elanev.studip.android.app.base.internal.di.modules.ApplicationModule;
 import de.elanev.studip.android.app.base.internal.di.modules.NetworkModule;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
+import de.elanev.studip.android.app.courses.domain.CoursesRepository;
 import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.feedback.FeedbackActivity;
 import de.elanev.studip.android.app.messages.domain.MessagesRepository;
@@ -92,6 +93,8 @@ public interface ApplicationComponent {
   PlannerRepository plannerRepository();
 
   MessagesRepository messagesRepository();
+
+  CoursesRepository coursesRepository();
 
   ThreadExecutor threadExecutor();
 

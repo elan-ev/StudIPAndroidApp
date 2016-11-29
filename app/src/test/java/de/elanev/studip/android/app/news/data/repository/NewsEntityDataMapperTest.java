@@ -16,8 +16,8 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.elanev.studip.android.app.courses.CourseEntityDataMapper;
-import de.elanev.studip.android.app.data.datamodel.Course;
+import de.elanev.studip.android.app.courses.data.repository.CourseEntityDataMapper;
+import de.elanev.studip.android.app.courses.data.entity.Course;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.user.data.entity.UserEntity;

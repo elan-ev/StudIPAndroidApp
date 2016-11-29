@@ -34,7 +34,7 @@ import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.contacts.presentation.ContactsActivity;
-import de.elanev.studip.android.app.courses.CoursesActivity;
+import de.elanev.studip.android.app.courses.presentation.view.CoursesActivity;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.messages.presentation.view.MessagesActivity;
 import de.elanev.studip.android.app.news.presentation.NewsActivity;

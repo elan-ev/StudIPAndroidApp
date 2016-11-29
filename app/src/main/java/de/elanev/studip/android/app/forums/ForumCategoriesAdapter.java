@@ -17,7 +17,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.data.datamodel.ForumCategory;
+import de.elanev.studip.android.app.courses.data.entity.ForumCategory;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 
 /**

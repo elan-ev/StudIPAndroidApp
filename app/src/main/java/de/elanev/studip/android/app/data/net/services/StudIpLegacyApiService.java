@@ -8,27 +8,28 @@
 
 package de.elanev.studip.android.app.data.net.services;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroup;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroupEntity;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroups;
-import de.elanev.studip.android.app.data.datamodel.Course;
-import de.elanev.studip.android.app.data.datamodel.CourseItem;
-import de.elanev.studip.android.app.data.datamodel.Courses;
-import de.elanev.studip.android.app.data.datamodel.DocumentFolders;
-import de.elanev.studip.android.app.data.datamodel.ForumArea;
-import de.elanev.studip.android.app.data.datamodel.ForumAreas;
-import de.elanev.studip.android.app.data.datamodel.ForumCategories;
-import de.elanev.studip.android.app.data.datamodel.ForumCategory;
-import de.elanev.studip.android.app.data.datamodel.ForumEntries;
-import de.elanev.studip.android.app.data.datamodel.ForumEntry;
+import de.elanev.studip.android.app.courses.data.entity.Course;
+import de.elanev.studip.android.app.courses.data.entity.CourseItem;
+import de.elanev.studip.android.app.courses.data.entity.Courses;
+import de.elanev.studip.android.app.courses.data.entity.DocumentFolders;
+import de.elanev.studip.android.app.courses.data.entity.ForumArea;
+import de.elanev.studip.android.app.courses.data.entity.ForumAreas;
+import de.elanev.studip.android.app.courses.data.entity.ForumCategories;
+import de.elanev.studip.android.app.courses.data.entity.ForumCategory;
+import de.elanev.studip.android.app.courses.data.entity.ForumEntries;
+import de.elanev.studip.android.app.courses.data.entity.ForumEntry;
+import de.elanev.studip.android.app.courses.data.entity.Recording;
 import de.elanev.studip.android.app.data.datamodel.Institutes;
 import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
 import de.elanev.studip.android.app.data.datamodel.NewsItemWrapper;
-import de.elanev.studip.android.app.data.datamodel.Recording;
+import de.elanev.studip.android.app.data.datamodel.Semester;
+import de.elanev.studip.android.app.data.datamodel.SemesterWrapper;
 import de.elanev.studip.android.app.data.datamodel.Semesters;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.User;
@@ -267,22 +268,22 @@ public class StudIpLegacyApiService {
    * @return An {@link Observable} wrapping an ArrayList containing a list of {@link Recording}
    * objects corresponding to the passed course id.
    */
-  public Observable<ArrayList<Recording>> getRecordings(String courseId) {
+  public Observable<List<Recording>> getRecordings(String courseId) {
     Observable<CourseItem> courseObservable = mService.getCourse(courseId);
-    Observable<ArrayList<Recording>> recordingsObservable = courseObservable.flatMap(
-        new Func1<CourseItem, Observable<ArrayList<Recording>>>() {
-          @Override public Observable<ArrayList<Recording>> call(CourseItem course) {
-            if (course != null && course.course != null
-                && course.course.getCourseAdditionalData() != null) {
-              return Observable.just(course.course.getCourseAdditionalData()
-                  .getRecordings());
-            } else {
-              return Observable.empty();
-            }
-          }
-        });
 
-    return recordingsObservable;
+    return courseObservable.flatMap(new Func1<CourseItem, Observable<List<Recording>>>() {
+      @Override public Observable<List<Recording>> call(CourseItem course) {
+        if ((course != null) && (course.course != null) && (course.course.getCourseAdditionalData()
+            != null)) {
+
+          return Observable.just(course.course.getCourseAdditionalData()
+              .getRecordings());
+
+        } else {
+          return Observable.empty();
+        }
+      }
+    });
   }
 
   /**
@@ -545,20 +546,59 @@ public class StudIpLegacyApiService {
    * Gets a list of the users {@link Courses}.
    *
    * @return A list of the users {@link Courses}.
+   *
+   *        .flatMap(message ->
+   *            Observable.zip(
+   *                getUserEntity(message.getSenderId()),
+                    getUserEntity(message.getReceiverId()),
+                    (sender, receiver) ->
+                    {
+                      message.setSender(sender);
+                      message.setReceiver(receiver);
+
+                      return message;
+                    })))
+
+
    */
-  public Observable<Courses> getCourses() {
-    return mService.getCourses();
+  public Observable<List<Course>> getCourses() {
+    return mService.getCourses()
+        .flatMap(courses -> Observable.from(courses.courses))
+        .flatMap(course ->
+            Observable.zip(
+                Observable.from(course.getTeachersIds()).flatMap(this::getUserEntity).toList(),
+//                Observable.from(course.getTutorsIds()).flatMap(this::getUserEntity).toList(),
+//                Observable.from(course.getStudentsIds()).flatMap(this::getUserEntity).toList(),
+                getSemester(course.getSemesterId()),
+                (teachers, semester) ->
+                {
+                  course.setTeachers(teachers);
+//                  course.setTutors(tutors);
+//                  course.setStudents(students);
+                  course.setSemester(semester);
+
+                  return course;
+                }
+            )
+        ).toList();
+
+  }
+
+  private Observable<Semester> getSemester(String semesterId) {
+    return mService.getSemester(semesterId)
+        .flatMap(semesterWrapper -> Observable.defer(
+            () -> Observable.just(semesterWrapper.getSemester())));
   }
 
   public Observable<List<NewsEntity>> getNews() {
 
-      Observable<NewsEntity> globalNews = getNewsGlobal();
-      Observable<NewsEntity> courseNews = getNewsCourses();
-      Observable<NewsEntity> institutesNews = getNewsInstitutes(prefs.getUserId());
+    final Observable<NewsEntity> globalNews = getNewsGlobal();
+    final Observable<NewsEntity> courseNews = getNewsCourses();
+    final Observable<NewsEntity> institutesNews = getNewsInstitutes(prefs.getUserId());
 
-      return Observable.merge(globalNews, courseNews, institutesNews)
-          .toSortedList((newsEntity, newsEntity2) -> newsEntity2.getDate()
-              .compareTo(newsEntity.getDate()));
+    return Observable.merge(globalNews, courseNews, institutesNews)
+        .toSortedList((newsEntity, newsEntity2) -> newsEntity2.getDate()
+            .compareTo(newsEntity.getDate()));
   }
 
   public Observable<NewsEntity> getNewsGlobal() {
@@ -566,9 +606,8 @@ public class StudIpLegacyApiService {
   }
 
   public Observable<NewsEntity> getNewsCourses() {
-    return mService.getCourses()
-        .flatMap(courses -> Observable.defer(() -> Observable.from(courses.courses))
-            .flatMap(this::getNewsForCourse));
+    return getCourses().flatMap(courses -> Observable.defer(() -> Observable.from(courses))
+        .flatMap(this::getNewsForCourse));
   }
 
   private Observable<NewsEntity> getNewsForCourse(final Course course) {
@@ -728,6 +767,7 @@ public class StudIpLegacyApiService {
 
     /* Semesters */
     @GET("semesters") Observable<Semesters> getSemesters();
+    @GET("semesters/{id}") Observable<SemesterWrapper> getSemester(@Path("id") final String id);
   }
   //endregion --------------------------------------------------------------------------------------
 

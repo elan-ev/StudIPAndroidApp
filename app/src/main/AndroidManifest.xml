@@ -60,20 +60,20 @@
 
         <!-- Courses -->
         <activity
-            android:name=".courses.CoursesActivity"
+            android:name=".courses.presentation.view.CoursesActivity"
             android:label="@string/Courses"
             android:theme="@style/noAnimTheme">
         </activity>
         <!-- Courses list and detail view activities -->
         <activity
-            android:name=".courses.CourseViewActivity"
-            android:parentActivityName=".courses.CoursesActivity"
+            android:name=".courses.presentation.view.CourseViewActivity"
+            android:parentActivityName=".courses.presentation.view.CoursesActivity"
             android:launchMode="singleTop">
 
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".courses.CoursesActivity"/>
+                android:value=".courses.presentation.view.CoursesActivity"/>
         </activity>
 
         <!-- Messages list, details view and compose activities -->

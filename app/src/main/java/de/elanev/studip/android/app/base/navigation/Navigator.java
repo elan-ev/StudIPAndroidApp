@@ -18,6 +18,7 @@ import de.elanev.studip.android.app.StartupActivity;
 import de.elanev.studip.android.app.about.AboutActivity;
 import de.elanev.studip.android.app.auth.SignInActivity;
 import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;
+import de.elanev.studip.android.app.courses.presentation.view.CoursesActivity;
 import de.elanev.studip.android.app.feedback.FeedbackActivity;
 import de.elanev.studip.android.app.news.presentation.NewsActivity;
 
@@ -63,6 +64,13 @@ public class Navigator {
   public void navigateToNews(Context context) {
     if (context != null) {
       Intent intent = NewsActivity.getCallingIntent(context);
+      context.startActivity(intent);
+    }
+  }
+
+  public void navigateToCourses(Context context) {
+    if (context != null) {
+      Intent intent = CoursesActivity.getCallingIntent(context);
       context.startActivity(intent);
     }
   }

@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.elanev.studip.android.app.data.datamodel.Course;
+import de.elanev.studip.android.app.courses.data.entity.Course;
 import de.elanev.studip.android.app.planner.data.entity.EventEntity;
 import de.elanev.studip.android.app.planner.domain.Event;
 

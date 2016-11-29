@@ -22,6 +22,8 @@ import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.presentation.executor.PostExecutionThreadImpl;
 import de.elanev.studip.android.app.contacts.data.repository.ContactsDataRepository;
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
+import de.elanev.studip.android.app.courses.data.repository.CoursesDataRepository;
+import de.elanev.studip.android.app.courses.domain.CoursesRepository;
 import de.elanev.studip.android.app.messages.data.repository.MessagesDataRepository;
 import de.elanev.studip.android.app.messages.domain.MessagesRepository;
 import de.elanev.studip.android.app.news.data.repository.NewsDataRepository;
@@ -81,9 +83,14 @@ public class ApplicationModule {
     return plannerDataRepository;
   }
 
-  @Provides @Singleton public MessagesRepository providesMessagesRepository
-      (MessagesDataRepository messagesDataRepository) {
+  @Provides @Singleton public MessagesRepository providesMessagesRepository(
+      MessagesDataRepository messagesDataRepository) {
     return messagesDataRepository;
+  }
+
+  @Provides @Singleton public CoursesRepository providesCoursesRepository(
+      CoursesDataRepository coursesDataRepository) {
+    return coursesDataRepository;
   }
 
   // Scheduling

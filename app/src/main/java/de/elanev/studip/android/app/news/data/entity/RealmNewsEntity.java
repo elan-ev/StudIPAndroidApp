@@ -8,7 +8,7 @@
 
 package de.elanev.studip.android.app.news.data.entity;
 
-import de.elanev.studip.android.app.data.datamodel.RealmCourseEntity;
+import de.elanev.studip.android.app.courses.data.entity.RealmCourseEntity;
 import de.elanev.studip.android.app.user.data.entity.RealmUserEntity;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;

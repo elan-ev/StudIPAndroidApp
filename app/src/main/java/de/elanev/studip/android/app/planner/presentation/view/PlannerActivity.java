@@ -20,7 +20,7 @@ import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
-import de.elanev.studip.android.app.courses.CourseViewActivity;
+import de.elanev.studip.android.app.courses.presentation.view.CourseViewActivity;
 import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.planner.internal.di.DaggerPlannerComponent;
 import de.elanev.studip.android.app.planner.internal.di.PlannerComponent;

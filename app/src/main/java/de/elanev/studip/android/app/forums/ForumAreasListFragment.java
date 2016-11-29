@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.data.datamodel.Course;
-import de.elanev.studip.android.app.data.datamodel.ForumArea;
-import de.elanev.studip.android.app.data.datamodel.ForumAreas;
-import de.elanev.studip.android.app.data.datamodel.ForumCategory;
+import de.elanev.studip.android.app.courses.data.entity.Course;
+import de.elanev.studip.android.app.courses.data.entity.ForumArea;
+import de.elanev.studip.android.app.courses.data.entity.ForumAreas;
+import de.elanev.studip.android.app.courses.data.entity.ForumCategory;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;

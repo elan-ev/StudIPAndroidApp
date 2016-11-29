@@ -8,7 +8,7 @@
 
 package de.elanev.studip.android.app.news.presentation.model;
 
-import de.elanev.studip.android.app.data.datamodel.Course;
+import de.elanev.studip.android.app.courses.data.entity.Course;
 import de.elanev.studip.android.app.user.presentation.model.UserModel;
 
 /**
