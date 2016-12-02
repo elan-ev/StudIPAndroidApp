@@ -104,12 +104,9 @@ public class CoursesFragment extends
   }
 
   private void setupRecyclerView() {
-    this.adapter = new SectionedRecyclerViewAdapter();
-
     mEmptyView.setText(R.string.no_courses);
     this.mRecyclerView.setEmptyView(mEmptyView);
     this.mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    this.mRecyclerView.setAdapter(adapter);
     this.mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
     this.mRecyclerView.setHasFixedSize(true);
   }
@@ -139,6 +136,12 @@ public class CoursesFragment extends
   @Override public void setData(List<CourseModel> data) {
     // Let data survive configuration change
     this.data = data;
+
+    if (this.adapter == null) {
+      this.adapter = new SectionedRecyclerViewAdapter();
+      this.mRecyclerView.setAdapter(adapter);
+    }
+
     this.adapter.removeAllSections();
 
     CourseSection unlimitedSection = new CourseSection(

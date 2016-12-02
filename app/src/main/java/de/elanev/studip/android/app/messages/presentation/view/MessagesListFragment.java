@@ -99,9 +99,6 @@ public class MessagesListFragment extends
   }
 
   private void initRecyclerView() {
-    this.messagesAdapter = new MessagesAdapter(getContext());
-    this.messagesAdapter.setOnItemClickListener(onClickListener);
-    this.recyclerView.setAdapter(messagesAdapter);
     this.emptyView.setText(R.string.no_messages);
     this.recyclerView.setEmptyView(emptyView);
     this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -162,6 +159,12 @@ public class MessagesListFragment extends
   }
 
   @Override public void setData(List<MessageModel> data) {
+    if (this.messagesAdapter == null) {
+      this.messagesAdapter = new MessagesAdapter(getContext());
+      this.messagesAdapter.setOnItemClickListener(onClickListener);
+      this.recyclerView.setAdapter(messagesAdapter);
+    }
+
     this.messagesAdapter.setData(data);
   }
 

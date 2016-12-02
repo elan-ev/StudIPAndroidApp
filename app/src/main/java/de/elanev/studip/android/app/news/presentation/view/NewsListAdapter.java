@@ -110,6 +110,7 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
   public void setData(List<NewsModel> data) {
     this.mData.clear();
     this.mData.addAll(data);
+    notifyDataSetChanged();
   }
 
   public void setOnItemClickListener(NewsClickListener clickListener) {

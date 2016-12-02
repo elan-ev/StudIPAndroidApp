@@ -35,7 +35,6 @@ import de.elanev.studip.android.app.courses.presentation.presenter.CourseAttende
 import de.elanev.studip.android.app.widget.EmptyRecyclerView;
 import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
-import timber.log.Timber;
 
 /**
  * @author joern
@@ -75,11 +74,13 @@ public class CourseAttendeesFragment extends
 
   @Override public void showContent() {
     super.showContent();
+
     contentView.setRefreshing(false);
   }
 
   @Override public void showError(Throwable e, boolean pullToRefresh) {
     super.showError(e, pullToRefresh);
+
     contentView.setRefreshing(false);
   }
 
@@ -88,6 +89,11 @@ public class CourseAttendeesFragment extends
   }
 
   @Override public void setData(CourseUsersModel data) {
+    if (this.adapter == null) {
+      this.adapter = new SectionedRecyclerViewAdapter();
+      this.emptyRecyclerView.setAdapter(adapter);
+    }
+
     this.data = data;
 
     this.adapter.removeAllSections();
@@ -129,8 +135,6 @@ public class CourseAttendeesFragment extends
     super.onCreate(savedInstanceState);
     this.getComponent(CoursesComponent.class)
         .inject(this);
-
-    this.adapter = new SectionedRecyclerViewAdapter();
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater,
@@ -156,7 +160,6 @@ public class CourseAttendeesFragment extends
     this.emptyView.setText(R.string.no_attendees);
     this.emptyRecyclerView.setEmptyView(emptyView);
     this.emptyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    this.emptyRecyclerView.setAdapter(adapter);
     this.emptyRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
     this.emptyRecyclerView.setHasFixedSize(true);
   }

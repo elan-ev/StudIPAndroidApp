@@ -87,6 +87,11 @@ public class ContactsGroupsFragment extends
     // Cache data in fragment so it survives configuration changes
     this.sectionsData = data;
 
+    if (this.contactsAdapter == null) {
+      this.contactsAdapter = new SectionedRecyclerViewAdapter();
+      this.mRecyclerView.setAdapter(contactsAdapter);
+    }
+
     this.contactsAdapter.removeAllSections();
     for (ContactGroupModel groupModel : this.sectionsData) {
       ContactsSection section = new ContactsSection(groupModel.getName(), groupModel.getMembers(),
@@ -126,10 +131,8 @@ public class ContactsGroupsFragment extends
   }
 
   private void setUpRecyclerView() {
-    this.contactsAdapter = new SectionedRecyclerViewAdapter();
     mRecyclerView.setEmptyView(mEmptyView);
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    mRecyclerView.setAdapter(contactsAdapter);
     mRecyclerView.addItemDecoration(new SectionedDividerItemDecorator(getContext()));
     mRecyclerView.setHasFixedSize(true);
   }

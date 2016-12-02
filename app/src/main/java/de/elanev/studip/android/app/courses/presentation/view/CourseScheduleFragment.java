@@ -72,6 +72,11 @@ public class CourseScheduleFragment extends
   }
 
   @Override public void setData(List<CourseScheduleModel> data) {
+    if (this.adapter == null) {
+      this.adapter = new CourseScheduleListAdapter(getContext());
+      this.mRecyclerView.setAdapter(adapter);
+    }
+
     this.courseEvents = data;
     this.adapter.setData(data);
   }
@@ -99,7 +104,6 @@ public class CourseScheduleFragment extends
     mEmptyView.setText(R.string.no_appointments);
     this.mRecyclerView.setEmptyView(mEmptyView);
     this.mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    this.mRecyclerView.setAdapter(adapter);
     this.mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
     this.mRecyclerView.setHasFixedSize(true);
   }
@@ -112,8 +116,6 @@ public class CourseScheduleFragment extends
     super.onCreate(savedInstanceState);
     this.getComponent(CoursesComponent.class)
         .inject(this);
-
-    adapter = new CourseScheduleListAdapter(getContext());
   }
 
   @Override public void onRefresh() {
