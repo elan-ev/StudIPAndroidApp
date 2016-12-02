@@ -21,7 +21,7 @@ import de.elanev.studip.android.app.planner.domain.Event;
  * @author joern
  */
 @Singleton
-class EventsEntityDataMapper {
+public class EventsEntityDataMapper {
 
   @Inject EventsEntityDataMapper() {}
 
@@ -47,6 +47,7 @@ class EventsEntityDataMapper {
     event.setCourse(eventEntity.getCourse());
     event.setStart(eventEntity.getStart());
     event.setEnd(eventEntity.getEnd());
+    event.setCategory(eventEntity.getCategories());
 
     return event;
   }

@@ -17,12 +17,21 @@ import de.elanev.studip.android.app.courses.data.entity.Course;
 public class Event {
   private String eventId;
   private Course course;
-  private long start;
-  private long end;
+  private Long start;
+  private Long end;
   private String title;
   private String description;
   private String room;
   private String color;
+  private String category;
+
+  public String getCategory() {
+    return category;
+  }
+
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
   public String getColor() {
     return color;
@@ -48,19 +57,19 @@ public class Event {
     this.course = course;
   }
 
-  public long getStart() {
+  public Long getStart() {
     return start;
   }
 
-  public void setStart(long start) {
+  public void setStart(Long start) {
     this.start = start;
   }
 
-  public long getEnd() {
+  public Long getEnd() {
     return end;
   }
 
-  public void setEnd(long end) {
+  public void setEnd(Long end) {
     this.end = end;
   }
 

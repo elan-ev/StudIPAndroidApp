@@ -37,7 +37,9 @@ public class EventsDataMapper {
     return eventModels;
   }
 
-  private EventModel transform(Event event) {
+  public EventModel transform(Event event) {
+    if (event == null) return null;
+
     EventModel eventModel = new EventModel();
     eventModel.setEventId(event.getEventId());
     eventModel.setTitle(event.getTitle());
