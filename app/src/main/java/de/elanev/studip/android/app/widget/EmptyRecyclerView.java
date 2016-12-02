@@ -59,10 +59,11 @@ public class EmptyRecyclerView extends RecyclerView {
   }
 
   void checkIfEmpty() {
-    if (emptyView != null && getAdapter() !=  null) {
+    if (emptyView != null && getAdapter() != null) {
       int itemCount = 0;
       itemCount = getAdapter().getItemCount();
       emptyView.setVisibility(itemCount > 0 ? GONE : VISIBLE);
+      this.setVisibility(itemCount > 0 ? VISIBLE : GONE);
     }
   }
 
