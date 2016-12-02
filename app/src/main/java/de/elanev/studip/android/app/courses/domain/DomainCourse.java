@@ -24,13 +24,40 @@ public class DomainCourse {
   private DomainCourseModules modules;
   private String description;
   private String location;
-  private List<User> teachers;
-  private List<User> tutors;
-  private List<User> students;
+  private List<String> teachers;
+  private List<String> tutors;
+  private List<String> students;
+  private List<User> teacherEntities;
+  private List<User> tutorEntities;
+  private List<User> studentEntities;
   private String color;
   private int type;
   private DomainCourseAdditionalData courseAdditionalData;
   private DomainSemester semester;
+
+  public List<User> getStudentEntities() {
+    return studentEntities;
+  }
+
+  public void setStudentEntities(List<User> studentEntities) {
+    this.studentEntities = studentEntities;
+  }
+
+  public List<User> getTeacherEntities() {
+    return teacherEntities;
+  }
+
+  public void setTeacherEntities(List<User> teacherEntities) {
+    this.teacherEntities = teacherEntities;
+  }
+
+  public List<User> getTutorEntities() {
+    return tutorEntities;
+  }
+
+  public void setTutorEntities(List<User> tutorEntities) {
+    this.tutorEntities = tutorEntities;
+  }
 
   public DomainCourseModules getModules() {
     return modules;
@@ -96,27 +123,27 @@ public class DomainCourse {
     this.location = location;
   }
 
-  public List<User> getTeachers() {
+  public List<String> getTeachers() {
     return teachers;
   }
 
-  public void setTeachers(List<User> teachers) {
+  public void setTeachers(List<String> teachers) {
     this.teachers = teachers;
   }
 
-  public List<User> getTutors() {
+  public List<String> getTutors() {
     return tutors;
   }
 
-  public void setTutors(List<User> tutors) {
+  public void setTutors(List<String> tutors) {
     this.tutors = tutors;
   }
 
-  public List<User> getStudents() {
+  public List<String> getStudents() {
     return students;
   }
 
-  public void setStudents(List<User> students) {
+  public void setStudents(List<String> students) {
     this.students = students;
   }
 

@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.courses.data.repository.datastore;
 import java.util.List;
 
 import de.elanev.studip.android.app.courses.data.entity.Course;
+import de.elanev.studip.android.app.planner.data.entity.EventEntity;
 import rx.Observable;
 
 /**
@@ -21,4 +22,6 @@ public interface CoursesDataStore {
   Observable<List<Course>> courses();
 
   Observable<Course> course(String courseId);
+
+  Observable<List<EventEntity>> courseEvents(String courseId);
 }

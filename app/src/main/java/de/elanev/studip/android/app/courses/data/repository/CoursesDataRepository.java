@@ -18,6 +18,9 @@ import de.elanev.studip.android.app.courses.data.repository.datastore.CoursesClo
 import de.elanev.studip.android.app.courses.data.repository.datastore.CoursesRealmDataStore;
 import de.elanev.studip.android.app.courses.domain.CoursesRepository;
 import de.elanev.studip.android.app.courses.domain.DomainCourse;
+import de.elanev.studip.android.app.planner.data.entity.EventEntity;
+import de.elanev.studip.android.app.planner.data.repository.EventsEntityDataMapper;
+import de.elanev.studip.android.app.planner.domain.Event;
 import rx.Observable;
 
 /**
@@ -28,11 +31,14 @@ import rx.Observable;
 public class CoursesDataRepository implements CoursesRepository {
   private final CoursesCloudDataStore coursesCloudDataStore;
   private final CourseEntityDataMapper courseEntityDataMapper;
+  private final EventsEntityDataMapper eventsEntityDataMapper;
   private final CoursesRealmDataStore coursesRealmDataStore;
 
   @Inject public CoursesDataRepository(CourseEntityDataMapper courseEntityDataMapper,
-      CoursesRealmDataStore coursesRealmDataStore, CoursesCloudDataStore coursesCloudDataStore) {
+      EventsEntityDataMapper eventsEntityDataMapper, CoursesRealmDataStore coursesRealmDataStore,
+      CoursesCloudDataStore coursesCloudDataStore) {
     this.courseEntityDataMapper = courseEntityDataMapper;
+    this.eventsEntityDataMapper = eventsEntityDataMapper;
     this.coursesRealmDataStore = coursesRealmDataStore;
     this.coursesCloudDataStore = coursesCloudDataStore;
   }
@@ -64,10 +70,16 @@ public class CoursesDataRepository implements CoursesRepository {
 
     return localDataObs.exists(newsEntity -> newsEntity != null)
         .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
-        .flatMap(course -> {
-          coursesRealmDataStore.save(course);
-          return Observable.just(course);
-        })
         .map(courseEntityDataMapper::transform);
+  }
+
+  @Override public Observable<List<Event>> courseEvents(String id, boolean forceUpdate) {
+    Observable<List<EventEntity>> cloudDataObs = coursesCloudDataStore.courseEvents(id)
+        .doOnNext(coursesRealmDataStore::saveEvents);
+    Observable<List<EventEntity>> localDataObs = coursesRealmDataStore.courseEvents(id);
+
+    return localDataObs.exists(eventEntities -> eventEntities != null)
+        .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
+        .map(eventsEntityDataMapper::transform);
   }
 }

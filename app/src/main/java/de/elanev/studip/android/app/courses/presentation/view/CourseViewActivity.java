@@ -10,7 +10,6 @@ package de.elanev.studip.android.app.courses.presentation.view;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -19,34 +18,42 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
+import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
+import de.elanev.studip.android.app.courses.internal.di.CoursesComponent;
+import de.elanev.studip.android.app.courses.internal.di.CoursesModule;
+import de.elanev.studip.android.app.courses.internal.di.DaggerCoursesComponent;
 import de.elanev.studip.android.app.courses.presentation.model.CourseModulesModel;
-import de.elanev.studip.android.app.data.db.CoursesContract;
+import de.elanev.studip.android.app.courses.presentation.model.CourseUserModel;
 import de.elanev.studip.android.app.forums.ForumCategoriesListFragment;
+import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
 import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * Activity for displaying a ViewPager with tabs for course overview,
  * schedule, participants and documents.
  */
-public class CourseViewActivity extends AppCompatActivity {
+public class CourseViewActivity extends BaseActivity implements HasComponent<CoursesComponent>,
+    CourseAttendeesFragment.CourseUsersListListener {
   public static final String COURSE_ID = "course_id";
   public static final String COURSE_MODULES = "course_modules";
-  private static final String INTENT_EXTRAS = "intent_extras";
-  static Bundle sExtras;
-  static String sTitle;
-  private ViewPager mPager;
-  private TabLayout mTabLayout;
-  private FragmentsAdapter mPagerAdapter;
+  @BindView(R.id.pager) ViewPager mPager;
+  @BindView(R.id.sliding_tabs) TabLayout mTabLayout;
+  @BindView(R.id.toolbar) Toolbar toolbar;
+
   private CourseModulesModel modules = new CourseModulesModel();
+  private CoursesComponent component;
+  private String courseId;
 
   public static Intent getCallingIntent(Context context) {
     return new Intent(context, CourseViewActivity.class);
@@ -56,7 +63,25 @@ public class CourseViewActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.viewpager_with_toolbar);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Bundle args = getIntent().getExtras();
+    modules = (CourseModulesModel) args.getSerializable(COURSE_MODULES);
+    courseId = args.getString(COURSE_ID);
+
+    initInjector();
+
+    ButterKnife.bind(this);
+    setUpToolbar();
+    setUpViewPager();
+  }
+
+  private void initInjector() {
+    this.component = DaggerCoursesComponent.builder()
+        .applicationComponent(((AbstractStudIPApplication) getApplication()).getAppComponent())
+        .coursesModule(new CoursesModule(courseId))
+        .build();
+  }
+
+  private void setUpToolbar() {
     setSupportActionBar(toolbar);
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
@@ -64,31 +89,11 @@ public class CourseViewActivity extends AppCompatActivity {
       actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
-    mPager = (ViewPager) findViewById(R.id.pager);
-    mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+  }
+
+  private void setUpViewPager() {
     mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-
-    // Get intent data
-    if (savedInstanceState != null) {
-      sExtras = savedInstanceState.getBundle(INTENT_EXTRAS);
-    } else {
-      Bundle intentExtras = getIntent().getExtras();
-      if (intentExtras != null) {
-        sExtras = intentExtras;
-      }
-    }
-
-    if (sExtras != null) {
-      sTitle = sExtras.getString(CoursesContract.Columns.Courses.COURSE_TITLE);
-      setTitle(sTitle);
-
-      modules = (CourseModulesModel) sExtras.getSerializable(COURSE_MODULES);
-    } else {
-      finish();
-      return;
-    }
-
-    mPagerAdapter = new FragmentsAdapter(getSupportFragmentManager(), getTabs());
+    FragmentsAdapter mPagerAdapter = new FragmentsAdapter(getSupportFragmentManager(), getTabs());
     mPager.setAdapter(mPagerAdapter);
     mTabLayout.setupWithViewPager(mPager);
   }
@@ -96,34 +101,29 @@ public class CourseViewActivity extends AppCompatActivity {
   private ArrayList<Tab> getTabs() {
     ArrayList<Tab> tabs = new ArrayList<>();
     // Add the tabs to the PagerAdapter, if activated.
-    tabs.add(new Tab(getString(R.string.Overview), CourseOverviewFragment.class, sExtras));
+    tabs.add(new Tab(getString(R.string.Overview), CourseOverviewFragment.class));
 
     if (modules.isSchedule()) {
-      tabs.add(new Tab(getString(R.string.Schedule), CourseScheduleFragment.class, sExtras));
+      tabs.add(new Tab(getString(R.string.Schedule), CourseScheduleFragment.class));
     }
     if (modules.isParticipants()) {
-      tabs.add(new Tab(getString(R.string.attendees), CourseAttendeesFragment.class, sExtras));
+      tabs.add(new Tab(getString(R.string.attendees), CourseAttendeesFragment.class));
     }
     if (modules.isForum() && Prefs.getInstance(this)
         .isForumActivated()) {
-      tabs.add(new Tab(getString(R.string.forum), ForumCategoriesListFragment.class, sExtras));
+      tabs.add(new Tab(getString(R.string.forum), ForumCategoriesListFragment.class));
     }
-    if (modules.isDocuments() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-      tabs.add(new Tab(getString(R.string.Documents), CourseDocumentsFragment.class, sExtras));
+    if (modules.isDocuments()) {
+      tabs.add(new Tab(getString(R.string.Documents), CourseDocumentsFragment.class));
     }
     if (modules.isRecordings()) {
-      tabs.add(new Tab(getString(R.string.Recordings), CourseRecordingsFragment.class, sExtras));
+      tabs.add(new Tab(getString(R.string.Recordings), CourseRecordingsFragment.class));
     }
     if (modules.isUnizensus()) {
-      tabs.add(new Tab(getString(R.string.unizensus), CourseUnizensusFragment.class, sExtras));
+      tabs.add(new Tab(getString(R.string.unizensus), CourseUnizensusFragment.class));
     }
 
     return tabs;
-  }
-
-  @Override public void onSaveInstanceState(Bundle outState) {
-    outState.putBundle(INTENT_EXTRAS, sExtras);
-    super.onSaveInstanceState(outState);
   }
 
   @Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -153,39 +153,45 @@ public class CourseViewActivity extends AppCompatActivity {
     super.onBackPressed();
   }
 
+  @Override public CoursesComponent getComponent() {
+    return this.component;
+  }
+
+  @Override public void onCourseUserClicked(CourseUserModel courseUserModel) {
+
+    String userId = courseUserModel.getUserId();
+
+    if (!TextUtils.isEmpty(userId)) {
+      Intent intent = new Intent(this, UserDetailsActivity.class);
+      Bundle args = new Bundle();
+      args.putString(UserDetailsActivity.USER_ID, userId);
+      intent.putExtras(args);
+
+      startActivity(intent);
+    }
+  }
+
   public static class FragmentsAdapter extends FragmentPagerAdapter {
 
-    private ArrayList<Tab> mTabs = new ArrayList<Tab>();
+    private ArrayList<Tab> mTabs = new ArrayList<>();
 
-    public FragmentsAdapter(FragmentManager fm) {
-      super(fm);
-    }
-
-    public FragmentsAdapter(FragmentManager fm, ArrayList<Tab> tabs) {
+    FragmentsAdapter(FragmentManager fm, ArrayList<Tab> tabs) {
       super(fm);
       mTabs = tabs;
-    }
-
-    public void addTab(Tab tab) {
-      mTabs.add(tab);
     }
 
     @Override public Fragment getItem(int position) {
       Tab tab = mTabs.get(position);
 
       try {
-        Method m = tab.clss.getMethod("newInstance", Bundle.class);
-
-        return (Fragment) m.invoke(null, tab.args);
-      } catch (NoSuchMethodException e) {
-        e.printStackTrace();
-      } catch (InvocationTargetException e) {
+        return (Fragment) tab.clss.newInstance();
+      } catch (InstantiationException e) {
         e.printStackTrace();
       } catch (IllegalAccessException e) {
         e.printStackTrace();
       }
 
-      return CourseOverviewFragment.newInstance(tab.args);
+      return null;
     }
 
     @Override public int getCount() {
@@ -200,12 +206,10 @@ public class CourseViewActivity extends AppCompatActivity {
   static final class Tab {
     CharSequence title;
     Class<?> clss;
-    Bundle args;
 
-    public Tab(CharSequence title, Class clss, Bundle args) {
+    public Tab(CharSequence title, Class clss) {
       this.title = title;
       this.clss = clss;
-      this.args = args;
     }
   }
 

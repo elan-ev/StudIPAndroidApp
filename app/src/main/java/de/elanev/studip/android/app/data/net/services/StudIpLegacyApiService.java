@@ -338,21 +338,32 @@ public class StudIpLegacyApiService {
 
     return mService.getEvents()
         // Then unwrap the events
-        .flatMap(events -> Observable.from(events.eventEntities))
+        .flatMap(events -> Observable.defer(() -> Observable.from(events.eventEntities)))
         .flatMap(eventEntity -> getCourse(eventEntity.getCourseId()).flatMap(course -> {
           eventEntity.setCourse(course);
-          return Observable.just(eventEntity);
+          return Observable.defer(() -> Observable.just(eventEntity));
         }))
         .toList();
   }
 
   public Observable<Course> getCourse(final String courseId) {
     return mService.getCourse(courseId)
-        .flatMap(courseItem -> Observable.defer(() -> Observable.just(courseItem.course)));
+        .flatMap(courseItem -> Observable.defer(() -> Observable.just(courseItem.course)))
+        .flatMap(course -> getSemester(course.getSemesterId()).flatMap(semester -> {
+          course.setSemester(semester);
+          return Observable.defer(() -> Observable.just(course));
+        }));
   }
 
-  public Observable<Events> getEvents(final String courseId) {
-    return mService.getEvents(courseId);
+  public Observable<List<EventEntity>> getEvents(final String courseId) {
+    return mService.getEvents(courseId)
+        .flatMap(events -> Observable.defer(() -> Observable.just(events.eventEntities)));
+  }
+
+  public Observable<List<UserEntity>> getUsersFor(List<String> userIds) {
+    return Observable.from(userIds)
+        .flatMap(this::getUserEntity)
+        .toList();
   }
 
   /**
@@ -397,13 +408,14 @@ public class StudIpLegacyApiService {
     return mService.getUserEntity(userId)
         .flatMap(userEntityWrapper -> Observable.defer(
             () -> Observable.just(userEntityWrapper.getUserEntity())))
-        .onErrorReturn(throwable -> null);
+        .onErrorReturn(throwable -> null)
+        .filter(userEntity -> userEntity != null);
   }
 
   /**
    * Get the users {@link MessageEntities} in the specified Stud.IP messages outbox folder.
    *
-   * @param offset Offset number of the message pagination.
+   * @param offset Offset number of the== message pagination.
    * @param limit  The limit of entries until it paginates.
    * @return An {@link Observable} containing {@link MessageEntities} from the specified outbox folder.
    */
@@ -542,52 +554,27 @@ public class StudIpLegacyApiService {
     return mService.deleteUserFromContacts(userId);
   }
 
+  private Observable<Semester> getSemester(String semesterId) {
+    return mService.getSemester(semesterId)
+        .flatMap(semesterWrapper -> Observable.defer(
+            () -> Observable.just(semesterWrapper.getSemester())));
+  }
+
   /**
    * Gets a list of the users {@link Courses}.
    *
    * @return A list of the users {@link Courses}.
    *
-   *        .flatMap(message ->
-   *            Observable.zip(
-   *                getUserEntity(message.getSenderId()),
-                    getUserEntity(message.getReceiverId()),
-                    (sender, receiver) ->
-                    {
-                      message.setSender(sender);
-                      message.setReceiver(receiver);
-
-                      return message;
-                    })))
-
-
    */
   public Observable<List<Course>> getCourses() {
     return mService.getCourses()
         .flatMap(courses -> Observable.from(courses.courses))
-        .flatMap(course ->
-            Observable.zip(
-                Observable.from(course.getTeachersIds()).flatMap(this::getUserEntity).toList(),
-//                Observable.from(course.getTutorsIds()).flatMap(this::getUserEntity).toList(),
-//                Observable.from(course.getStudentsIds()).flatMap(this::getUserEntity).toList(),
-                getSemester(course.getSemesterId()),
-                (teachers, semester) ->
-                {
-                  course.setTeachers(teachers);
-//                  course.setTutors(tutors);
-//                  course.setStudents(students);
-                  course.setSemester(semester);
-
-                  return course;
-                }
-            )
-        ).toList();
-
-  }
-
-  private Observable<Semester> getSemester(String semesterId) {
-    return mService.getSemester(semesterId)
-        .flatMap(semesterWrapper -> Observable.defer(
-            () -> Observable.just(semesterWrapper.getSemester())));
+        .flatMap(course -> getSemester(course.getSemesterId()).flatMap(
+            semester -> Observable.defer(() -> {
+              course.setSemester(semester);
+              return Observable.just(course);
+            })))
+        .toList();
   }
 
   public Observable<List<NewsEntity>> getNews() {
@@ -696,7 +683,8 @@ public class StudIpLegacyApiService {
     /* Events */
     @GET("events") Observable<Events> getEvents();
 
-    @GET("events/{course_id}") Observable<Events> getEvents(@Path("course_id") String courseId);
+    @GET("courses/{course_id}/events") Observable<Events> getEvents(
+        @Path("course_id") String courseId);
 
     /* General */
     @GET("studip/settings") Observable<Settings> getSettings();

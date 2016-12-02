@@ -8,7 +8,6 @@
 
 package de.elanev.studip.android.app.courses.presentation.view;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -94,7 +93,7 @@ class CourseSection extends StatelessSection {
     viewHolder.title.setText(title);
     viewHolder.courseTyp.setText(typeTitle);
 
-    // Load study group icon if course type is set to 99
+    // Load study group imageView if course type is set to 99
     if (type == 99) {
       viewHolder.icon.setImageResource(R.drawable.ic_studygroup);
     } else {

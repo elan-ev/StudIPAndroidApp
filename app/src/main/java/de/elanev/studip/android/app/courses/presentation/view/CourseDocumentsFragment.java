@@ -293,15 +293,15 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    Bundle args = getArguments();
-    if (args == null || args.isEmpty() || !args.containsKey(
-        CoursesContract.Columns.Courses.COURSE_ID)) {
-      throw new IllegalStateException("Arguments must not be null and must contain a course_id");
-    }
-    mCourseId = args.getString(CoursesContract.Columns.Courses.COURSE_ID);
+//    Bundle args = getArguments();
+//    if (args == null || args.isEmpty() || !args.containsKey(
+//        CoursesContract.Columns.Courses.COURSE_ID)) {
+//      throw new IllegalStateException("Arguments must not be null and must contain a course_id");
+//    }
+//    mCourseId = args.getString(CoursesContract.Columns.Courses.COURSE_ID);
 
     // Get folder ID and name if available
-    mFolderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
+//    mFolderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
 
     mAdapter = new DocumentsAdapter(new ArrayList<>(), getActivity(), new ListItemClicks() {
       @Override public void onListItemClicked(View caller, int position) {

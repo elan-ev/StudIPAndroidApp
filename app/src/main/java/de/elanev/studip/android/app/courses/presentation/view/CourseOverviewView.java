@@ -6,17 +6,13 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.user.domain;
+package de.elanev.studip.android.app.courses.presentation.view;
 
-import java.util.List;
+import com.hannesdorfmann.mosby.mvp.lce.MvpLceView;
 
-import rx.Observable;
+import de.elanev.studip.android.app.courses.presentation.model.CourseOverviewModel;
 
 /**
  * @author joern
  */
-public interface UserRepository {
-  Observable<User> user(String userId);
-
-  Observable<List<User>> getUsers(List<String> userIds);
-}
+public interface CourseOverviewView extends MvpLceView<CourseOverviewModel> {}

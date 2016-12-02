@@ -33,14 +33,6 @@ public class CourseModel {
   private CourseAdditionalDataModel courseAdditionalData;
   private SemesterModel semester;
 
-  public List<UserModel> getTeachers() {
-    return teachers;
-  }
-
-  public void setTeachers(List<UserModel> teachers) {
-    this.teachers = teachers;
-  }
-
   public String getCourseId() {
     return courseId;
   }
@@ -103,6 +95,14 @@ public class CourseModel {
 
   public void setLocation(String location) {
     this.location = location;
+  }
+
+  public List<UserModel> getTeachers() {
+    return teachers;
+  }
+
+  public void setTeachers(List<UserModel> teachers) {
+    this.teachers = teachers;
   }
 
   public List<UserModel> getTutors() {

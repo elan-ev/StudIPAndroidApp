@@ -8,376 +8,219 @@
 
 package de.elanev.studip.android.app.courses.presentation.view;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.ContentObserver;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState;
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.data.RetainingLceViewState;
 import com.squareup.picasso.Picasso;
 
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
+import de.elanev.studip.android.app.courses.internal.di.CoursesComponent;
+import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
+import de.elanev.studip.android.app.courses.presentation.model.CourseOverviewModel;
+import de.elanev.studip.android.app.courses.presentation.presenter.CourseOverviewPresenter;
 import de.elanev.studip.android.app.data.datamodel.Settings;
-import de.elanev.studip.android.app.data.db.CoursesContract;
-import de.elanev.studip.android.app.data.db.EventsContract;
-import de.elanev.studip.android.app.data.db.NewsContract;
-import de.elanev.studip.android.app.data.db.UsersContract;
+import de.elanev.studip.android.app.news.presentation.model.NewsModel;
+import de.elanev.studip.android.app.planner.presentation.model.EventModel;
 import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.TextTools;
 
 /**
  * @author joern
  */
-public class CourseOverviewFragment extends Fragment implements LoaderCallbacks<Cursor> {
-  public static final String TAG = CourseOverviewFragment.class.getSimpleName();
-  private static final int COURSE_LOADER = 101;
-  private static final int COURSE_EVENTS_LOADER = 102;
-  private static final int COURSE_NEWS_LOADER = 103;
-  private static final int COURSE_TEACHERS_LOADER = 104;
-  private TextView mTitleTextView, mTeacherNameTextView, mDescriptionTextView, mNewsTitleTextView, mNewsAuthorTextView, mNewsTextTextView, mNewsShowMoreTextView;
-  private TextView mCourseTypeTextView;
-  private ImageView mUserImageView;
-  private Context mContext;
-  public static Bundle mArgs;
+public class CourseOverviewFragment extends
+    BaseLceFragment<ScrollView, CourseOverviewModel, CourseOverviewView, CourseOverviewPresenter> implements
+    CourseOverviewView {
 
-  protected final ContentObserver mObserverCourse = new ContentObserver(new Handler()) {
+  @BindView(R.id.course_title) TextView courseTitle;
+  @BindView(R.id.course_description) TextView courseDescription;
+  @BindView(R.id.text1) TextView teacherName;
+  @BindView(R.id.text2) TextView teacherCount;
+  @BindView(R.id.user_image) ImageView teacherImage;
+  @BindView(R.id.news_title) TextView newsTitle;
+  @BindView(R.id.news_author) TextView newsAuthor;
+  @BindView(R.id.news_text) TextView newsBody;
+  @BindView(R.id.show_news_body) TextView showNewsBodyButton;
+  @BindView(R.id.course_next_appointment) TextView nextEvent;
+  @BindView(R.id.course_type) TextView courseType;
+  @BindView(R.id.user_info_container) View userInfo;
+  @BindView(R.id.appointment_view) View eventView;
+  @BindView(R.id.news_view) View newsView;
+  @BindView(R.id.description_view) View descriptionView;
 
-    @Override public void onChange(boolean selfChange) {
-      if (getActivity() == null) {
-        return;
-      }
+  @Inject CourseOverviewPresenter presenter;
+  @Inject Prefs prefs;
+  private CourseOverviewModel courseOverviewModel;
 
-      Loader<Cursor> loader = getLoaderManager().getLoader(COURSE_LOADER);
-      if (loader != null) {
-        loader.forceLoad();
-      }
-    }
-  };
-  protected final ContentObserver mObserverEvents = new ContentObserver(new Handler()) {
-
-    @Override public void onChange(boolean selfChange) {
-      if (getActivity() == null) {
-        return;
-      }
-
-      Loader<Cursor> loader = getLoaderManager().getLoader(COURSE_EVENTS_LOADER);
-      if (loader != null) {
-        loader.forceLoad();
-      }
-    }
-  };
-  protected final ContentObserver mObserverNews = new ContentObserver(new Handler()) {
-
-    @Override public void onChange(boolean selfChange) {
-      if (getActivity() == null) {
-        return;
-      }
-
-      Loader<Cursor> loader = getLoaderManager().getLoader(COURSE_NEWS_LOADER);
-      if (loader != null) {
-        loader.forceLoad();
-      }
-    }
-  };
-  private TextView mNextAppointmentTextView;
-  private TextView mTeacherCountTextView;
-
-
-  public CourseOverviewFragment() {}
-
-  public static CourseOverviewFragment newInstance(Bundle arguments) {
-    CourseOverviewFragment fragment = new CourseOverviewFragment();
-
-    fragment.setArguments(arguments);
-
-    return fragment;
-  }
+  public CourseOverviewFragment() {setRetainInstance(true);}
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mArgs = getArguments();
-    mContext = getActivity();
+
+    this.getComponent(CoursesComponent.class)
+        .inject(this);
   }
 
-  @Override public View onCreateView(LayoutInflater inflater,
-      ViewGroup container,
+  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
-
     View view = inflater.inflate(R.layout.fragment_course_details, container, false);
+    ButterKnife.bind(this, view);
 
-    mTitleTextView = (TextView) view.findViewById(R.id.course_title);
-    mDescriptionTextView = (TextView) view.findViewById(R.id.course_description);
-    mTeacherNameTextView = (TextView) view.findViewById(R.id.text1);
-    mTeacherCountTextView = (TextView) view.findViewById(R.id.text2);
-    mNewsTitleTextView = (TextView) view.findViewById(R.id.news_title);
-    mNewsAuthorTextView = (TextView) view.findViewById(R.id.news_author);
-    mNewsTextTextView = (TextView) view.findViewById(R.id.news_text);
-    mNewsShowMoreTextView = (TextView) view.findViewById(R.id.show_news_body);
-    mUserImageView = (ImageView) view.findViewById(R.id.user_image);
-    mNextAppointmentTextView = (TextView) view.findViewById(R.id.course_next_appointment);
-    mCourseTypeTextView = (TextView) view.findViewById(R.id.course_type);
     return view;
   }
 
-  @Override public void onActivityCreated(Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
+  @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
 
-    // initialize CursorLoaders with IDs
-    LoaderManager lm = getLoaderManager();
-    lm.initLoader(COURSE_LOADER, mArgs, this);
-    lm.initLoader(COURSE_TEACHERS_LOADER, mArgs, this);
-    lm.initLoader(COURSE_EVENTS_LOADER, mArgs, this);
-    lm.initLoader(COURSE_NEWS_LOADER, mArgs, this);
-
-    mNewsShowMoreTextView.setOnClickListener(new OnClickListener() {
-
-      public void onClick(View v) {
-        toggleLatestNewsView();
-      }
-
-    });
+    userInfo.setVisibility(View.GONE);
+    eventView.setVisibility(View.GONE);
+    newsView.setVisibility(View.GONE);
+    descriptionView.setVisibility(View.GONE);
   }
 
-  @Override public void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(mArgs);
+  @Override protected String getErrorMessage(Throwable e, boolean pullToRefresh) {
+    return e.getLocalizedMessage();
   }
 
-  public void toggleLatestNewsView() {
-    if (mNewsShowMoreTextView != null && mNewsTextTextView != null) {
-      int viewVisibility = mNewsTextTextView.getVisibility();
+  @NonNull @Override public CourseOverviewPresenter createPresenter() {
+    return this.presenter;
+  }
+
+  @OnClick(R.id.show_news_body) public void toggleLatestNewsView() {
+    if (showNewsBodyButton != null && newsBody != null) {
+      int viewVisibility = newsBody.getVisibility();
       switch (viewVisibility) {
         case View.VISIBLE:
-          mNewsTextTextView.setVisibility(View.GONE);
-          mNewsShowMoreTextView.setText(R.string.show_more);
+          newsBody.setVisibility(View.GONE);
+          showNewsBodyButton.setText(R.string.show_more);
           break;
         case View.GONE:
-          mNewsTextTextView.setVisibility(View.VISIBLE);
-          mNewsShowMoreTextView.setText(R.string.show_less);
+          newsBody.setVisibility(View.VISIBLE);
+          showNewsBodyButton.setText(R.string.show_less);
           break;
       }
     }
   }
 
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
-    final ContentResolver contentResolver = context.getContentResolver();
-
-    contentResolver.registerContentObserver(CoursesContract.CONTENT_URI, true, mObserverCourse);
-
-    contentResolver.registerContentObserver(EventsContract.CONTENT_URI, true, mObserverEvents);
-
-    contentResolver.registerContentObserver(NewsContract.CONTENT_URI, true, mObserverNews);
+  @NonNull @Override public LceViewState<CourseOverviewModel, CourseOverviewView> createViewState() {
+    return new RetainingLceViewState<>();
   }
 
-  @Override public void onDetach() {
-    super.onDetach();
-    final ContentResolver contentResolver = getActivity().getContentResolver();
-    contentResolver.unregisterContentObserver(mObserverCourse);
-    contentResolver.unregisterContentObserver(mObserverEvents);
-    contentResolver.unregisterContentObserver(mObserverNews);
+  @Override public void showContent() {
+    super.showContent();
+
+    userInfo.setVisibility(View.VISIBLE);
+    eventView.setVisibility(View.VISIBLE);
+    newsView.setVisibility(View.VISIBLE);
+    descriptionView.setVisibility(View.VISIBLE);
   }
 
-  public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+  @Override public void showLoading(boolean pullToRefresh) {
+    super.showLoading(pullToRefresh);
 
-    if (data == null) {
-      throw new IllegalStateException("Bundle data must not be null!");
+    userInfo.setVisibility(View.GONE);
+    eventView.setVisibility(View.GONE);
+    newsView.setVisibility(View.GONE);
+    descriptionView.setVisibility(View.GONE);
+  }
+
+  @Override public CourseOverviewModel getData() {
+    return this.courseOverviewModel;
+  }
+
+  @Override public void setData(CourseOverviewModel data) {
+    this.courseOverviewModel = data;
+
+    fillFieldsWithData();
+  }
+
+  private void fillFieldsWithData() {
+    if (courseOverviewModel.getCourse() != null) {
+      fillCourseFields(courseOverviewModel.getCourse());
+    }
+    if (courseOverviewModel.getCourseEvents() != null) {
+      fillEventsList(courseOverviewModel.getCourseEvents());
+    }
+    if (courseOverviewModel.getCourseNews() != null) {
+      fillNewsList(courseOverviewModel.getCourseNews());
+    }
+  }
+
+  private void fillCourseFields(CourseModel course) {
+    courseTitle.setText(course.getTitle());
+    getActivity().setTitle(course.getTitle());
+
+    String courseTypeString = "";
+    Settings settings = Settings.fromJson(prefs.getApiSettings());
+    if (settings != null && settings.semTypes != null) {
+      courseTypeString = settings.semTypes.get(course.getType()).name;
+    }
+    courseType.setText(courseTypeString);
+    if (!TextUtils.isEmpty(course.getDescription())) {
+      courseDescription.setText(course.getDescription());
+      courseDescription.setMovementMethod(new ScrollingMovementMethod());
     }
 
-    String cid = data.getString(CoursesContract.Columns.Courses.COURSE_ID);
-    // Create loaders based on id
-    switch (id) {
-      case COURSE_LOADER:
-        return new CursorLoader(mContext,
-            CoursesContract.CONTENT_URI.buildUpon().appendPath(cid).build(),
-            CourseItemQuery.projection,
-            null,
-            null,
-            CoursesContract.DEFAULT_SORT_ORDER);
+    if (course.getTeachers() != null && course.getTeachers()
+        .size() > 0) {
+      teacherName.setText(course.getTeachers()
+          .get(0).getFullName());
 
-      case COURSE_EVENTS_LOADER:
-        return new CursorLoader(mContext,
-            CoursesContract.CONTENT_URI.buildUpon().appendPath("events").appendPath(cid).build(),
-            CourseEventQuery.projection,
-            EventsContract.Columns.EVENT_START + " >= strftime" +
-                "('%s','now')",
-            null,
-            EventsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
+      if (course.getTeachers()
+          .size() > 1) {
+        teacherCount.setText(String.format(getString(R.string.and_more_teachers),
+            (course.getTeachers()
+                .size() - 1)));
 
-      case COURSE_NEWS_LOADER:
-        return new CursorLoader(mContext,
-            NewsContract.CONTENT_URI.buildUpon().appendPath(cid).build(),
-            CourseNewsQuery.projection,
-            null,
-            null,
-            NewsContract.DEFAULT_SORT_ORDER + " LIMIT 1");
-      case COURSE_TEACHERS_LOADER:
-        return new CursorLoader(mContext,
-            UsersContract.CONTENT_URI.buildUpon().appendPath("course").appendPath(cid).build(),
-            CourseUsersQuery.projection,
-            CourseUsersQuery.selection,
-            CourseUsersQuery.selectionArgs,
-            CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_ID + " ASC");
+        teacherCount.setVisibility(View.VISIBLE);
+      }
+
+      Picasso.with(getContext())
+          .load(course.getTeachers()
+              .get(0)
+              .getAvatarUrl())
+          .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
+          .centerCrop()
+          .placeholder(R.drawable.nobody_normal)
+          .into(teacherImage);
     }
-    return null;
-
   }
 
-  public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+  private void fillEventsList(EventModel courseEvent) {
+    nextEvent.setText(String.format("%s\n%s", courseEvent.getTitle(), courseEvent.getRoom()));
+  }
 
-    if (getActivity() == null) {
-      return;
-    }
-    cursor.moveToFirst();
+  private void fillNewsList(NewsModel courseNews) {
+    newsTitle.setText(courseNews.title);
 
-    int loaderId = loader.getId();
-    switch (loaderId) {
-      case COURSE_LOADER:
-
-        if (!cursor.isAfterLast()) {
-          String courseTitle = cursor.getString(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TITLE));
-          String courseDescription = cursor.getString(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_DESCIPTION));
-          int courseTyp = cursor.getInt(cursor.getColumnIndex(CoursesContract.Columns.Courses.COURSE_TYPE));
-
-
-          mTitleTextView.setText(courseTitle);
-          getActivity().setTitle(courseTitle);
-          String courseTypeString = "";
-          Settings settings = Settings.fromJson(Prefs.getInstance(getActivity())
-              .getApiSettings());
-          if(settings != null && settings.semTypes != null) {
-            courseTypeString = settings.semTypes.get(courseTyp).name;
-          }
-          mCourseTypeTextView.setText(courseTypeString);
-          if (!TextUtils.isEmpty(courseDescription)) {
-            mDescriptionTextView.setText(courseDescription);
-            mDescriptionTextView.setMovementMethod(new ScrollingMovementMethod());
-          }
-
-        }
-        break;
-      case COURSE_EVENTS_LOADER:
-        if (cursor.getCount() >= 1) {
-
-          String room = cursor.getString(cursor.getColumnIndex(EventsContract.Columns.EVENT_ROOM));
-          String title = cursor.getString(cursor.getColumnIndex(EventsContract.Columns.EVENT_TITLE));
-          mNextAppointmentTextView.setText(String.format("%s\n%s", title, room));
-        }
-
-        break;
-      case COURSE_NEWS_LOADER:
-        if (cursor.getCount() >= 1) {
-
-          final String newsTopic = cursor.getString(cursor.getColumnIndex(NewsContract.Columns.NEWS_TOPIC));
-          final Long newsDate = cursor.getLong(cursor.getColumnIndex(NewsContract.Columns.NEWS_MKDATE));
-          final String newsBody = cursor.getString(cursor.getColumnIndex(NewsContract.Columns.NEWS_BODY));
-          final String userForename = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-          final String userLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
-
-          mNewsTitleTextView.setText(newsTopic);
-          mNewsAuthorTextView.setText(DateTools.getLocalizedAuthorAndDateString(
-              String.format("%s %s", userForename, userLastname), newsDate, getActivity()));
-          mNewsAuthorTextView.setVisibility(View.VISIBLE);
-          mNewsShowMoreTextView.setVisibility(View.VISIBLE);
-          mNewsTextTextView.setText(Html.fromHtml(newsBody));
-
-        }
-        break;
-      case COURSE_TEACHERS_LOADER:
-        String teachersString;
-        if (!cursor.isAfterLast()) {
-          String teacherAvatarUrl = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-          teachersString = TextTools.createNameSting(cursor.getString(cursor.getColumnIndex(
-                  UsersContract.Columns.USER_TITLE_PRE)),
-              cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME)),
-              cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME)),
-              cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST)));
-          mTeacherNameTextView.setText(teachersString);
-
-          int teacherCount = cursor.getCount();
-          if (teacherCount > 1) {
-            teacherCount -= 1;
-            mTeacherCountTextView.setText(String.format(getString(R.string.and_more_teachers),
-                teacherCount));
-            mTeacherCountTextView.setVisibility(View.VISIBLE);
-          }
-
-          Picasso.with(mContext)
-              .load(teacherAvatarUrl)
-              .resizeDimen(R.dimen.user_image_icon_size, R.dimen.user_image_icon_size)
-              .centerCrop()
-              .placeholder(R.drawable.nobody_normal)
-              .into(mUserImageView);
-        }
-        break;
+    if (newsAuthor != null) {
+      newsAuthor.setText(DateTools.getLocalizedAuthorAndDateString(
+          String.format("%s", courseNews.author.getFullName()), courseNews.date, getContext()));
+      newsAuthor.setVisibility(View.VISIBLE);
     }
 
+    showNewsBodyButton.setVisibility(View.VISIBLE);
+    newsBody.setText(Html.fromHtml(courseNews.body));
   }
 
-  public void onLoaderReset(Loader<Cursor> loader) {
-    // nothing to do
+  @Override public void loadData(boolean pullToRefresh) {
+    this.presenter.getCourse(pullToRefresh);
   }
-
-  private interface CourseItemQuery {
-    String[] projection = {
-        CoursesContract.Qualified.Courses.COURSES_COURSE_TITLE,
-        CoursesContract.Qualified.Courses.COURSES_COURSE_DESCIPTION,
-        CoursesContract.Qualified.Courses.COURSES_COURSE_TYPE
-    };
-  }
-
-  private interface CourseEventQuery {
-    String[] projection = {
-        EventsContract.Columns.EVENT_TITLE,
-        EventsContract.Columns.EVENT_START,
-        EventsContract.Columns.EVENT_END,
-        EventsContract.Columns.EVENT_ROOM
-    };
-  }
-
-  public interface CourseNewsQuery {
-
-    String[] projection = {
-        NewsContract.Qualified.NEWS_NEWS_TOPIC,
-        NewsContract.Qualified.NEWS_NEWS_BODY,
-        NewsContract.Qualified.NEWS_NEWS_MKDATE,
-        UsersContract.Qualified.USERS_USER_FORENAME,
-        UsersContract.Qualified.USERS_USER_LASTNAME
-    };
-
-  }
-
-  public interface CourseUsersQuery {
-    String[] projection = {
-        UsersContract.Qualified.USERS_USER_TITLE_PRE,
-        UsersContract.Qualified.USERS_USER_FORENAME,
-        UsersContract.Qualified.USERS_USER_LASTNAME,
-        UsersContract.Qualified.USERS_USER_TITLE_POST,
-        UsersContract.Qualified.USERS_USER_AVATAR_NORMAL,
-        CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_ID
-    };
-
-    String selection =
-        CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE + "= ?";
-
-    String[] selectionArgs = {
-        Integer.toString(CoursesContract.USER_ROLE_TEACHER)
-    };
-  }
-
 }

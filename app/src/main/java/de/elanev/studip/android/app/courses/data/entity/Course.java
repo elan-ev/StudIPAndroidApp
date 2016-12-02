@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.List;
 
 import de.elanev.studip.android.app.data.datamodel.Semester;
-import de.elanev.studip.android.app.user.data.entity.UserEntity;
 
 
 /**
@@ -41,12 +40,9 @@ public class Course {
   private String description;
   private String location;
   private String semesterId;
-  private List<String> teachersIds;
-  private List<String> tutorsIds;
-  private List<String> studentsIds;
-  private List<UserEntity> teachers;
-  private List<UserEntity> tutors;
-  private List<UserEntity> students;
+  private List<String> teachers;
+  private List<String> tutors;
+  private List<String> students;
   private String color;
   private int type;
   private CourseAdditionalData courseAdditionalData;
@@ -56,28 +52,28 @@ public class Course {
     return ID;
   }
 
-  @JsonProperty("teachers") public List<String> getTeachersIds() {
-    return teachersIds;
+  @JsonProperty("teachers") public List<String> getTeachers() {
+    return teachers;
   }
 
-  @JsonProperty("teachers") public void setTeachersIds(List<String> teachersIds) {
-    this.teachersIds = teachersIds;
+  @JsonProperty("teachers") public void setTeachers(List<String> teachers) {
+    this.teachers = teachers;
   }
 
-  @JsonProperty("tutors") public List<String> getTutorsIds() {
-    return tutorsIds;
+  @JsonProperty("tutors") public List<String> getTutors() {
+    return tutors;
   }
 
-  @JsonProperty("tutors") public void setTutorsIds(List<String> tutorsIds) {
-    this.tutorsIds = tutorsIds;
+  @JsonProperty("tutors") public void setTutors(List<String> tutors) {
+    this.tutors = tutors;
   }
 
-  @JsonProperty("students") public List<String> getStudentsIds() {
-    return studentsIds;
+  @JsonProperty("students") public List<String> getStudents() {
+    return students;
   }
 
-  @JsonProperty("students") public void setStudentsIds(List<String> studentsIds) {
-    this.studentsIds = studentsIds;
+  @JsonProperty("students") public void setStudents(List<String> students) {
+    this.students = students;
   }
 
   @JsonProperty("course_id") public String getCourseId() {
@@ -150,30 +146,6 @@ public class Course {
 
   @JsonProperty("semester_id") public void setSemesterId(String semesterId) {
     this.semesterId = semesterId;
-  }
-
-  @JsonIgnore public List<UserEntity> getTeachers() {
-    return teachers;
-  }
-
-  @JsonIgnore public void setTeachers(List<UserEntity> teachers) {
-    this.teachers = teachers;
-  }
-
-  @JsonIgnore public List<UserEntity> getTutors() {
-    return tutors;
-  }
-
-  @JsonIgnore public void setTutors(List<UserEntity> tutors) {
-    this.tutors = tutors;
-  }
-
-  @JsonIgnore public List<UserEntity> getStudents() {
-    return students;
-  }
-
-  @JsonIgnore public void setStudents(List<UserEntity> students) {
-    this.students = students;
   }
 
   @JsonProperty("color") public String getColor() {

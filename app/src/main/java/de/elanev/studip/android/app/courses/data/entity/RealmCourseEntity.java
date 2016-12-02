@@ -8,8 +8,8 @@
 
 package de.elanev.studip.android.app.courses.data.entity;
 
+import de.elanev.studip.android.app.base.data.db.realm.RealmString;
 import de.elanev.studip.android.app.data.datamodel.RealmSemesterEntity;
-import de.elanev.studip.android.app.user.data.entity.RealmUserEntity;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -29,9 +29,9 @@ public class RealmCourseEntity extends RealmObject {
   private String description;
   private String location;
   private int type;
-  private RealmList<RealmUserEntity> teachers;
-  private RealmList<RealmUserEntity> tutors;
-  private RealmList<RealmUserEntity> students;
+  private RealmList<RealmString> teachers;
+  private RealmList<RealmString> tutors;
+  private RealmList<RealmString> students;
   private RealmCourseAdditionalDataEntity courseAdditionalData;
 
   public RealmCourseAdditionalDataEntity getCourseAdditionalData() {
@@ -42,28 +42,28 @@ public class RealmCourseEntity extends RealmObject {
     this.courseAdditionalData = courseAdditionalData;
   }
 
-  public RealmList<RealmUserEntity> getStudents() {
-    return students;
-  }
-
-  public void setStudents(RealmList<RealmUserEntity> students) {
-    this.students = students;
-  }
-
-  public RealmList<RealmUserEntity> getTeachers() {
+  public RealmList<RealmString> getTeachers() {
     return teachers;
   }
 
-  public void setTeachers(RealmList<RealmUserEntity> teachers) {
+  public void setTeachers(RealmList<RealmString> teachers) {
     this.teachers = teachers;
   }
 
-  public RealmList<RealmUserEntity> getTutors() {
+  public RealmList<RealmString> getTutors() {
     return tutors;
   }
 
-  public void setTutors(RealmList<RealmUserEntity> tutors) {
+  public void setTutors(RealmList<RealmString> tutors) {
     this.tutors = tutors;
+  }
+
+  public RealmList<RealmString> getStudents() {
+    return students;
+  }
+
+  public void setStudents(RealmList<RealmString> students) {
+    this.students = students;
   }
 
   public String getTitle() {

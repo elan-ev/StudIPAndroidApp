@@ -14,6 +14,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import de.elanev.studip.android.app.base.data.db.realm.RealmString;
 import de.elanev.studip.android.app.user.domain.User;
 import io.realm.RealmList;
 

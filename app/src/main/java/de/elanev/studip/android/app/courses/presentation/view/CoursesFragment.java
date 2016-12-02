@@ -23,10 +23,7 @@ import android.widget.TextView;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.data.RetainingLceViewState;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -41,7 +38,6 @@ import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.EmptyRecyclerView;
 import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
-import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 
 /**
@@ -109,6 +105,8 @@ public class CoursesFragment extends
 
   private void setupRecyclerView() {
     this.adapter = new SectionedRecyclerViewAdapter();
+
+    mEmptyView.setText(R.string.no_courses);
     this.mRecyclerView.setEmptyView(mEmptyView);
     this.mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     this.mRecyclerView.setAdapter(adapter);

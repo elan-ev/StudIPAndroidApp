@@ -8,218 +8,170 @@
 
 package de.elanev.studip.android.app.courses.presentation.view;
 
-import android.content.Context;
-import android.content.Intent;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.os.Build;
+import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.TextUtils;
+import android.support.v7.widget.LinearLayoutManager;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.Toast;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState;
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.data.RetainingLceViewState;
 
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.data.db.CoursesContract;
-import de.elanev.studip.android.app.data.db.UsersContract;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
-import de.elanev.studip.android.app.user.presentation.view.ListAdapterUsers;
-import de.elanev.studip.android.app.widget.SectionedCursorAdapter;
-import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
-import de.elanev.studip.android.app.user.presentation.view.UserListFragment;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
+import de.elanev.studip.android.app.courses.internal.di.CoursesComponent;
+import de.elanev.studip.android.app.courses.presentation.model.CourseUserModel;
+import de.elanev.studip.android.app.courses.presentation.model.CourseUsersModel;
+import de.elanev.studip.android.app.courses.presentation.presenter.CourseAttendeesPresenter;
+import de.elanev.studip.android.app.widget.EmptyRecyclerView;
+import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
+import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
+import timber.log.Timber;
 
 /**
  * @author joern
  */
-public class CourseAttendeesFragment extends UserListFragment implements LoaderCallbacks<Cursor>,
-    SwipeRefreshLayout.OnRefreshListener, SyncHelper.SyncHelperCallbacks {
-  public static final String TAG = CourseAttendeesFragment.class.getSimpleName();
-  private final ContentObserver mObserver = new ContentObserver(new Handler()) {
-    @Override
-    public void onChange(boolean selfChange) {
-      if (getActivity() == null) {
-        return;
-      }
-
-      Loader<Cursor> loader = getLoaderManager().getLoader(0);
-      if (loader != null) {
-        loader.forceLoad();
-      }
+public class CourseAttendeesFragment extends
+    BaseLceFragment<SwipeRefreshLayout, CourseUsersModel, CourseAttendeesView, CourseAttendeesPresenter> implements
+    CourseAttendeesView, SwipeRefreshLayout.OnRefreshListener {
+  @Inject CourseAttendeesPresenter presenter;
+  @BindView(R.id.list) EmptyRecyclerView emptyRecyclerView;
+  @BindView(R.id.emptyView) TextView emptyView;
+  private SectionedRecyclerViewAdapter adapter;
+  private CourseUsersModel data;
+  private CourseUsersListListener courseUsersListListener;
+  private CourseUsersAdapter.CourseUserClickListener onUserClickListener = courseUserModel -> {
+    if (CourseAttendeesFragment.this.presenter != null && courseUserModel != null) {
+      CourseAttendeesFragment.this.presenter.viewUser(courseUserModel);
     }
   };
-  private ListAdapterUsers mUsersAdapter;
-  private Bundle mArgs;
-  private String mCourseId;
 
-  public CourseAttendeesFragment() {}
+  public CourseAttendeesFragment() {setRetainInstance(true);}
 
-  public static CourseAttendeesFragment newInstance(Bundle arguments) {
-    CourseAttendeesFragment fragment = new CourseAttendeesFragment();
-
-    fragment.setArguments(arguments);
-
-    return fragment;
+  @NonNull @Override public CourseAttendeesPresenter createPresenter() {
+    return this.presenter;
   }
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (activity instanceof CourseUsersListListener) {
+      this.courseUsersListListener = (CourseUsersListListener) activity;
+    }
+  }
+
+  @NonNull @Override public LceViewState<CourseUsersModel, CourseAttendeesView> createViewState() {
+    return new RetainingLceViewState<>();
+  }
+
+  @Override public void showContent() {
+    super.showContent();
+    contentView.setRefreshing(false);
+  }
+
+  @Override public void showError(Throwable e, boolean pullToRefresh) {
+    super.showError(e, pullToRefresh);
+    contentView.setRefreshing(false);
+  }
+
+  @Override public CourseUsersModel getData() {
+    return this.data;
+  }
+
+  @Override public void setData(CourseUsersModel data) {
+    this.data = data;
+
+    this.adapter.removeAllSections();
+    if (data.getTeachers() != null && data.getTeachers()
+        .size() > 0) {
+      CourseUsersAdapter section = new CourseUsersAdapter(getString(R.string.Teacher),
+          getContext());
+      section.setData(data.getTeachers());
+      section.setOnClickListener(onUserClickListener);
+      adapter.addSection(section);
+    }
+
+    if (data.getTutors() != null && data.getTutors()
+        .size() > 0) {
+      CourseUsersAdapter section = new CourseUsersAdapter(getString(R.string.Tutor), getContext());
+      section.setData(data.getTutors());
+      section.setOnClickListener(onUserClickListener);
+
+      adapter.addSection(section);
+    }
+
+    if (data.getStudents() != null && data.getStudents()
+        .size() > 0) {
+      CourseUsersAdapter section = new CourseUsersAdapter(getString(R.string.Student),
+          getContext());
+      section.setData(data.getStudents());
+      section.setOnClickListener(onUserClickListener);
+      adapter.addSection(section);
+    }
+
+    this.adapter.notifyDataSetChanged();
+  }
+
+  @Override public void loadData(boolean pullToRefresh) {
+    this.presenter.getCourseUsers(pullToRefresh);
+  }
+
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mArgs = getArguments();
+    this.getComponent(CoursesComponent.class)
+        .inject(this);
 
-    mCourseId = mArgs.getString(CoursesContract.Columns.Courses.COURSE_ID);
-    // Creating the adapters for the listview
-    mUsersAdapter = new ListAdapterUsers(mContext);
+    this.adapter = new SectionedRecyclerViewAdapter();
   }
 
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
+  @Nullable @Override public View onCreateView(LayoutInflater inflater,
+      @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    View v = inflater.inflate(R.layout.fragment_course_attendees, container, false);
+    ButterKnife.bind(this, v);
 
-    setEmptyMessage(R.string.no_attendees);
-
-    mListView.setOnItemClickListener(this);
-    mListView.setAdapter(mUsersAdapter);
-
-    mSwipeRefreshLayoutListView.setOnRefreshListener(this);
-    mSwipeRefreshLayoutListView.setRefreshing(true);
-
-    // initialize CursorLoader
-    getLoaderManager().initLoader(0, mArgs, this);
+    return v;
   }
 
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
+  @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
 
-    context.getContentResolver()
-        .registerContentObserver(UsersContract.CONTENT_URI, true, mObserver);
+    this.contentView.setOnRefreshListener(this);
+    setupRecyclerView();
   }
 
-  @Override
-  public void onDetach() {
-    super.onDetach();
-    getActivity().getContentResolver().unregisterContentObserver(mObserver);
+  @Override protected String getErrorMessage(Throwable e, boolean pullToRefresh) {
+    return e.getLocalizedMessage();
   }
 
-  public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-    setLoadingViewVisible(true);
-    return new CursorLoader(mContext,
-        UsersContract.CONTENT_URI.buildUpon().appendPath("course").appendPath(mCourseId).build(),
-        UsersQuery.projection,
-        null,
-        null,
-        CoursesContract.COURSE_USERS_DEFAULT_SORT);
-  }
-
-  public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-    if (getActivity() == null) {
-      return;
-    }
-
-    List<SectionedCursorAdapter.Section> sections = new ArrayList<>();
-    cursor.moveToFirst();
-    int prevRole = -1;
-    int currRole;
-    while (!cursor.isAfterLast()) {
-      currRole = cursor.getInt(cursor.getColumnIndex(CoursesContract.Columns.CourseUsers.COURSE_USER_USER_ROLE));
-      if (currRole != prevRole) {
-        String role;
-        switch (currRole) {
-          case CoursesContract.USER_ROLE_TEACHER:
-            role = getString(R.string.Teacher);
-            break;
-          case CoursesContract.USER_ROLE_TUTOR:
-            role = getString(R.string.Tutor);
-            break;
-          case CoursesContract.USER_ROLE_STUDENT:
-            role = getString(R.string.Student);
-            break;
-          default:
-            throw new UnknownError("unknown role type");
-        }
-        sections.add(new SectionedCursorAdapter.Section(cursor.getPosition(), role));
-      }
-
-      prevRole = currRole;
-
-      cursor.moveToNext();
-    }
-
-    mUsersAdapter.setSections(sections);
-    mUsersAdapter.changeCursor(cursor);
-
-
-    setLoadingViewVisible(false);
-  }
-
-  public void onLoaderReset(Loader<Cursor> loader) {
-    mUsersAdapter.swapCursor(null);
-  }
-
-  @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    Cursor c = (Cursor) mListView.getItemAtPosition(position);
-    String userId = c.getString(c.getColumnIndex(UsersContract.Columns.USER_ID));
-
-    if (!TextUtils.isEmpty(userId)) {
-      Intent intent = new Intent(mContext, UserDetailsActivity.class);
-      Bundle args = new Bundle();
-      args.putString(UserDetailsActivity.USER_ID, userId);
-      intent.putExtras(args);
-
-      ImageView icon = (ImageView) view.findViewById(R.id.user_image);
-      ActivityOptionsCompat options = ActivityOptionsCompat.
-          makeSceneTransitionAnimation(getActivity(), icon, getString(R.string.Profile));
-      // Start UserDetailActivity with transition if supported
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        getActivity().startActivity(intent, options.toBundle());
-      } else {
-        getActivity().startActivity(intent);
-      }
-    }
+  private void setupRecyclerView() {
+    this.emptyView.setText(R.string.no_attendees);
+    this.emptyRecyclerView.setEmptyView(emptyView);
+    this.emptyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    this.emptyRecyclerView.setAdapter(adapter);
+    this.emptyRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
+    this.emptyRecyclerView.setHasFixedSize(true);
   }
 
   @Override public void onRefresh() {
-    //TODO
+    this.loadData(true);
   }
 
-  @Override public void onSyncStarted() {
-    mSwipeRefreshLayoutListView.setRefreshing(true);
-  }
-
-  @Override public void onSyncStateChange(int status) {
-  }
-
-  @Override public void onSyncFinished(int status) {
-    mSwipeRefreshLayoutListView.setRefreshing(false);
-  }
-
-  @Override public void onSyncError(int status, String errorMsg, int errorCode) {
-    mSwipeRefreshLayoutListView.setRefreshing(false);
-    if (getActivity() != null && errorCode != 404) {
-      Toast.makeText(mContext, R.string.sync_error_default, Toast.LENGTH_LONG).show();
+  @Override public void viewUser(CourseUserModel courseUserModel) {
+    if (this.courseUsersListListener != null) {
+      this.courseUsersListListener.onCourseUserClicked(courseUserModel);
     }
   }
 
-  private interface UsersQuery {
-    String[] projection = {
-        UsersContract.Qualified.USERS_ID,
-        UsersContract.Qualified.USERS_USER_ID,
-        UsersContract.Qualified.USERS_USER_TITLE_PRE,
-        UsersContract.Qualified.USERS_USER_FORENAME,
-        UsersContract.Qualified.USERS_USER_LASTNAME,
-        UsersContract.Qualified.USERS_USER_TITLE_POST,
-        UsersContract.Qualified.USERS_USER_AVATAR_NORMAL,
-        CoursesContract.Qualified.CourseUsers.COURSES_USERS_TABLE_COURSE_USER_USER_ROLE
-    };
+  public interface CourseUsersListListener {
+    void onCourseUserClicked(CourseUserModel courseUserModel);
   }
 }

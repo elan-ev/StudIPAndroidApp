@@ -14,6 +14,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import de.elanev.studip.android.app.base.data.db.realm.RealmDataMapper;
 import de.elanev.studip.android.app.courses.data.entity.Course;
 import de.elanev.studip.android.app.courses.data.entity.CourseModules;
 import de.elanev.studip.android.app.courses.data.entity.RealmCourseEntity;
@@ -33,13 +34,16 @@ public class CourseEntityDataMapper {
   private final UserEntityDataMapper userEntityDataMapper;
   private final SemesterEntityDataMapper semesterEntityDataMapper;
   private final CourseAdditionalDataEntityDataMapper courseAdditionalDataEntityDataMapper;
+  private final RealmDataMapper realmMapper;
 
   @Inject public CourseEntityDataMapper(UserEntityDataMapper userEntityDataMapper,
       SemesterEntityDataMapper semesterEntityDataMapper,
-      CourseAdditionalDataEntityDataMapper courseAdditionalDataEntityDataMapper) {
+      CourseAdditionalDataEntityDataMapper courseAdditionalDataEntityDataMapper,
+      RealmDataMapper realmMapper) {
     this.userEntityDataMapper = userEntityDataMapper;
     this.semesterEntityDataMapper = semesterEntityDataMapper;
     this.courseAdditionalDataEntityDataMapper = courseAdditionalDataEntityDataMapper;
+    this.realmMapper = realmMapper;
   }
 
   public List<Course> transformFromRealm(List<RealmCourseEntity> realmCourseEntities) {
@@ -65,9 +69,9 @@ public class CourseEntityDataMapper {
     course.setLocation(realmCourseEntity.getLocation());
     course.setColor(realmCourseEntity.getColor());
     course.setType(realmCourseEntity.getType());
-    course.setTeachers(userEntityDataMapper.transformFromRealm(realmCourseEntity.getTeachers()));
-    course.setTutors(userEntityDataMapper.transformFromRealm(realmCourseEntity.getTutors()));
-    course.setStudents(userEntityDataMapper.transformFromRealm(realmCourseEntity.getStudents()));
+    course.setTeachers(realmMapper.transformFromRealm(realmCourseEntity.getTeachers()));
+    course.setTutors(realmMapper.transformFromRealm(realmCourseEntity.getTutors()));
+    course.setStudents(realmMapper.transformFromRealm(realmCourseEntity.getStudents()));
     course.setCourseAdditionalData(courseAdditionalDataEntityDataMapper.transformFromRealm(
         realmCourseEntity.getCourseAdditionalData()));
     course.setModules(transformFromRealm(realmCourseEntity.getModules()));
@@ -109,9 +113,9 @@ public class CourseEntityDataMapper {
     domainCourse.setModules(transform(course.getModules()));
     domainCourse.setDescription(course.getDescription());
     domainCourse.setLocation(course.getLocation());
-    domainCourse.setTeachers(userEntityDataMapper.transform(course.getTeachers()));
-    domainCourse.setTutors(userEntityDataMapper.transform(course.getTutors()));
-    domainCourse.setStudents(userEntityDataMapper.transform(course.getStudents()));
+    domainCourse.setTeachers(course.getTeachers());
+    domainCourse.setTutors(course.getTutors());
+    domainCourse.setStudents(course.getStudents());
     domainCourse.setColor(course.getColor());
     domainCourse.setType(course.getType());
     domainCourse.setCourseAdditionalData(
@@ -146,25 +150,25 @@ public class CourseEntityDataMapper {
   public RealmCourseEntity transformToRealm(Course course) {
     if (course == null) return null;
 
-    RealmCourseEntity realCourseEntity = new RealmCourseEntity();
-    realCourseEntity.setCourseId(course.getCourseId());
-    realCourseEntity.setDurationTime(course.getDurationTime());
-    realCourseEntity.setStartTime(course.getStartTime());
-    realCourseEntity.setTitle(course.getTitle());
-    realCourseEntity.setSubtitle(course.getSubtitle());
-    realCourseEntity.setDescription(course.getDescription());
-    realCourseEntity.setLocation(course.getLocation());
-    realCourseEntity.setColor(course.getColor());
-    realCourseEntity.setType(course.getType());
-    realCourseEntity.setTeachers(userEntityDataMapper.transformToRealm(course.getTeachers()));
-    realCourseEntity.setTutors(userEntityDataMapper.transformToRealm(course.getTutors()));
-    realCourseEntity.setStudents(userEntityDataMapper.transformToRealm(course.getStudents()));
-    realCourseEntity.setCourseAdditionalData(
+    RealmCourseEntity realmCourseEntity = new RealmCourseEntity();
+    realmCourseEntity.setCourseId(course.getCourseId());
+    realmCourseEntity.setDurationTime(course.getDurationTime());
+    realmCourseEntity.setStartTime(course.getStartTime());
+    realmCourseEntity.setTitle(course.getTitle());
+    realmCourseEntity.setSubtitle(course.getSubtitle());
+    realmCourseEntity.setDescription(course.getDescription());
+    realmCourseEntity.setLocation(course.getLocation());
+    realmCourseEntity.setColor(course.getColor());
+    realmCourseEntity.setType(course.getType());
+    realmCourseEntity.setTeachers(realmMapper.transformToRealm(course.getTeachers()));
+    realmCourseEntity.setTutors(realmMapper.transformToRealm(course.getTutors()));
+    realmCourseEntity.setStudents(realmMapper.transformToRealm(course.getStudents()));
+    realmCourseEntity.setCourseAdditionalData(
         courseAdditionalDataEntityDataMapper.transformToRealm(course.getCourseAdditionalData()));
-    realCourseEntity.setModules(transformToRealm(course.getModules()));
-    realCourseEntity.setSemester(semesterEntityDataMapper.transformToRealm(course.getSemester()));
+    realmCourseEntity.setModules(transformToRealm(course.getModules()));
+    realmCourseEntity.setSemester(semesterEntityDataMapper.transformToRealm(course.getSemester()));
 
-    return realCourseEntity;
+    return realmCourseEntity;
   }
 
   private RealmCourseModulesEntity transformToRealm(CourseModules modules) {

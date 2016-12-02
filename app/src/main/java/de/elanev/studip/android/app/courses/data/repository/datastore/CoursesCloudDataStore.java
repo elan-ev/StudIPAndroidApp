@@ -15,6 +15,7 @@ import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.courses.data.entity.Course;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.planner.data.entity.EventEntity;
 import rx.Observable;
 
 /**
@@ -34,5 +35,9 @@ public class CoursesCloudDataStore implements CoursesDataStore {
 
   @Override public Observable<Course> course(String courseId) {
     return apiService.getCourse(courseId);
+  }
+
+  @Override public Observable<List<EventEntity>> courseEvents(String courseId) {
+    return apiService.getEvents(courseId);
   }
 }

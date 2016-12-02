@@ -52,15 +52,16 @@ public abstract class UseCase<T> {
 
   public void execute(Subscriber<T> subscriber) {
     if (subscriber instanceof DefaultSubscriber) {
-      this.subscription = this.buildUseCaseObservable(
-          ((DefaultSubscriber) subscriber).isPullToRefresh())
-          .compose(applySchedulers())
+      this.subscription = this.get(((DefaultSubscriber) subscriber).isPullToRefresh())
           .subscribe(subscriber);
     } else {
-      this.subscription = this.buildUseCaseObservable(false)
-          .compose(applySchedulers())
+      this.subscription = this.get(false)
           .subscribe(subscriber);
     }
+  }
+
+  final public Observable<T> get(boolean forceUpdate) {
+    return buildUseCaseObservable(forceUpdate).compose(applySchedulers());
   }
 
   /**
@@ -79,7 +80,7 @@ public abstract class UseCase<T> {
     }
   }
 
-  public boolean isUnsubscribed() {
+  boolean isUnsubscribed() {
     return subscription.isUnsubscribed();
   }
 }

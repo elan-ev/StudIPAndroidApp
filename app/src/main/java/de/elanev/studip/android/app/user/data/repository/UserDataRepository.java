@@ -8,6 +8,8 @@
 
 package de.elanev.studip.android.app.user.data.repository;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -36,5 +38,9 @@ public class UserDataRepository implements UserRepository {
     return userDataStoreFactory.create()
         .userEntity(userId)
         .map(userEntityDataMapper::transform);
+  }
+
+  @Override public Observable<List<User>> getUsers(List<String> userIds) {
+    return Observable.from(userIds).flatMap(this::user).toList();
   }
 }

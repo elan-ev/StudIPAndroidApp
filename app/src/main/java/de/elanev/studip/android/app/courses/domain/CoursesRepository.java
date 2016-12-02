@@ -10,6 +10,7 @@ package de.elanev.studip.android.app.courses.domain;
 
 import java.util.List;
 
+import de.elanev.studip.android.app.planner.domain.Event;
 import rx.Observable;
 
 /**
@@ -20,4 +21,6 @@ public interface CoursesRepository {
   Observable<List<DomainCourse>> courses(boolean forceUpdate);
 
   Observable<DomainCourse> course(String courseId, boolean forceUpdate);
+
+  Observable<List<Event>> courseEvents(String id, boolean forceUpdate);
 }
