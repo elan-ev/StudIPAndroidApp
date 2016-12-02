@@ -70,7 +70,7 @@ public class NewsModelDataMapperTest {
   @Test public void transformNewsItem() throws Exception {
     given(mockUserModelDataMapper.transform(mockUser)).willReturn(mockPresentationUser);
     NewsItem newsItem = createFakeNews();
-    NewsModel newsModel = newsModelDataMapper.transformNewsItem(newsItem);
+    NewsModel newsModel = newsModelDataMapper.transform(newsItem);
 
     assertThat(newsModel, is(instanceOf(NewsModel.class)));
     assertThat(newsModel.author, is(mockPresentationUser));

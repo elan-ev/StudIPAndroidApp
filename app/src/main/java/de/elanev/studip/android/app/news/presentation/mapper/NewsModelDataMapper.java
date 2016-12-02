@@ -31,24 +31,8 @@ public class NewsModelDataMapper {
     this.userModelDataMapper = userModelDataMapper;
   }
 
-  public List<NewsModel> transformNewsList(List<NewsItem> news) {
-    if (news == null) {
-      throw new IllegalArgumentException("NewsItem List must not be null");
-    }
-
-    ArrayList<NewsModel> items = new ArrayList<>();
-
-    for (NewsItem item : news) {
-      items.add(transformNewsItem(item));
-    }
-
-    return items;
-  }
-
-  public NewsModel transformNewsItem(NewsItem newsItem) {
-    if (newsItem == null) {
-      throw new IllegalArgumentException("NewsItem must not be null");
-    }
+  public NewsModel transform(NewsItem newsItem) {
+    if (newsItem == null) return null;
 
     NewsModel newsModel = new NewsModel();
     newsModel.author = userModelDataMapper.transform(newsItem.getAuthor());
@@ -62,4 +46,13 @@ public class NewsModelDataMapper {
     return newsModel;
   }
 
+  public List<NewsModel> transform(List<NewsItem> newsItems) {
+    ArrayList<NewsModel> newsModels = new ArrayList<>(newsItems.size());
+
+    for (NewsItem newsItem : newsItems) {
+      newsModels.add(transform(newsItem));
+    }
+
+    return newsModels;
+  }
 }

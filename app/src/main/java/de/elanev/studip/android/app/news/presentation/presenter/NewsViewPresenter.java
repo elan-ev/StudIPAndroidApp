@@ -63,7 +63,7 @@ public class NewsViewPresenter extends BaseRxLcePresenter<NewsView, NewsModel> {
     }
 
     @Override public void onNext(NewsItem newsItem) {
-      NewsViewPresenter.this.onNext(newsModelMapper.transformNewsItem(newsItem));
+      NewsViewPresenter.this.onNext(newsModelMapper.transform(newsItem));
     }
   }
 }
