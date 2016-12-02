@@ -60,7 +60,7 @@ public class NewsModelDataMapperTest {
     list.add(mockNewsItem1);
     list.add(mockNewsItem2);
 
-    List<NewsModel> newsModels = newsModelDataMapper.transformNewsList(list);
+    List<NewsModel> newsModels = newsModelDataMapper.transform(list);
 
     assertThat(newsModels.toArray()[0], is(instanceOf(NewsModel.class)));
     assertThat(newsModels.toArray()[1], is(instanceOf(NewsModel.class)));
