@@ -294,11 +294,7 @@ public class StudIpLegacyApiService {
    */
   public Observable<User> getCurrentUserInfo() {
     return mService.getCurrentUserInfo()
-        .flatMap(new Func1<UserItem, Observable<? extends User>>() {
-          @Override public Observable<? extends User> call(UserItem userItem) {
-            return Observable.just(userItem.user);
-          }
-        });
+        .flatMap(userItem -> Observable.defer(() -> Observable.just(userItem.user)));
   }
 
   /**

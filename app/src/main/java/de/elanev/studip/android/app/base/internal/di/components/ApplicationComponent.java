@@ -18,7 +18,6 @@ import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.StartupActivity;
 import de.elanev.studip.android.app.auth.ServerListFragment;
 import de.elanev.studip.android.app.auth.SignInFragment;
-import de.elanev.studip.android.app.auth.SignInSyncFragment;
 import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -63,8 +62,6 @@ public interface ApplicationComponent {
   void inject(SignInFragment target);
 
   void inject(ServerListFragment target);
-
-  void inject(SignInSyncFragment target);
 
   //FIXME: Just workaround
   void inject(ReactiveListFragment target);

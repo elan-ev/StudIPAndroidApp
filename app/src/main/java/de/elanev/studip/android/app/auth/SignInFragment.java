@@ -39,9 +39,15 @@ import javax.inject.Inject;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Server;
+import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.db.AbstractContract;
 import de.elanev.studip.android.app.data.db.DatabaseHandler;
+import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -51,6 +57,7 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
     StudIPAuthWebViewClient.WebAuthStatusListener {
   public static final String REQUEST_TOKEN_RECEIVED = "onRequestTokenReceived";
   @Inject Prefs mPrefs;
+  @Inject StudIpLegacyApiService apiService;
   private View mProgressInfo;
   private TextView mSyncStatusTextView;
   private boolean mRequestTokenReceived = false;
@@ -298,11 +305,34 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
 
       mPrefs.setServer(mSelectedServer);
 
+      requestUserProfile();
     } else {
       mOnAuthListener.onAuthCanceled();
     }
 
-    mOnAuthListener.onAuthSuccess(mSelectedServer);
+  }
+
+  private void requestUserProfile() {
+    Subscription subscription = apiService.getCurrentUserInfo()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<User>() {
+          @Override public void onCompleted() {
+            mOnAuthListener.onAuthSuccess(mSelectedServer);
+          }
+
+          @Override public void onError(Throwable e) {
+            if (e != null && e.getLocalizedMessage() != null) {
+              Timber.e(e, e.getLocalizedMessage());
+
+              mOnAuthListener.onAuthCanceled();
+            }
+          }
+
+          @Override public void onNext(User user) {
+            mPrefs.setUserInfo(User.toJson(user));
+          }
+        });
   }
 
   @Override public void onRequestTokenRequestError(OAuthConnector.OAuthCallbacks.OAuthError e) {

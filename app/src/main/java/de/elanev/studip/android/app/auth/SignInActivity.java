@@ -18,24 +18,20 @@ import android.support.v4.app.FragmentTransaction;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.news.presentation.NewsActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 import de.elanev.studip.android.app.util.Prefs;
-import timber.log.Timber;
 
 /**
  * Activity for handling the full sign in and authorization process. It triggers
- * the prefetching after authorization.
+ * the prefetch after authorization.
  *
  * @author joern
  */
 public class SignInActivity extends BaseActivity implements
-    ServerListFragment.OnServerSelectListener, OnAuthListener,
-    SignInSyncFragment.SignInSyncListener, SignInListener,
-    SignInSyncFragment.SignInSuccessListener {
+    ServerListFragment.OnServerSelectListener, OnAuthListener {
 
   static final String SELECTED_SERVER = "selected_server";
   static final String AUTH_SUCCESS = "auth_success";
@@ -111,19 +107,18 @@ public class SignInActivity extends BaseActivity implements
   }
 
   @Override public void onAuthSuccess(Server server) {
+    navigateToNews();
+  }
 
-    FragmentManager fm = getSupportFragmentManager();
+  private void navigateToNews() {
+    Intent intent = NewsActivity.getCallingIntent(this);
 
-    SignInSyncFragment fragment = (SignInSyncFragment) fm.findFragmentByTag(
-        SignInSyncFragment.class.getName());
-    if (fragment == null) {
-      fragment = SignInSyncFragment.newInstance();
-    }
+    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-    fm.beginTransaction()
-        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-        .replace(R.id.content_frame, fragment, SignInFragment.class.getName())
-        .commit();
+    startActivity(intent);
   }
 
   private void attachSignInServerListFragment() {
@@ -140,49 +135,4 @@ public class SignInActivity extends BaseActivity implements
         .commit();
   }
 
-  @Override public void onSignInSyncCanceled() {
-    handleSignInCancel();
-
-  }
-
-  private void handleSignInCancel() {
-    // Clear the app preferences
-    Intent intent = LogoutActivity.getCallingIntent(this);
-    startActivity(intent);
-
-    attachSignInServerListFragment();
-  }
-
-  @Override public void onSignInSyncError(Exception e) {
-    if (e != null) {
-      Timber.e(e, e.getMessage());
-      // Resetting the SyncHelper
-      handleSignInCancel();
-    }
-  }
-
-  @Override public void onFeedbackSelected() {
-    this.navigator.navigateToFeedback(this);
-  }
-
-  @Override public void onAboutSelected() {
-    this.navigator.navigateToAbout(this);
-  }
-
-  @Override public void onSignInSuccess() {
-    Intent intent = NewsActivity.getCallingIntent(this);
-
-    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-    startActivity(intent);
-  }
-
-  @Override public void onSignInError(Exception e) {
-    Timber.e(e, e.getMessage());
-    // Resetting the SyncHelper
-    handleSignInCancel();
-  }
 }
