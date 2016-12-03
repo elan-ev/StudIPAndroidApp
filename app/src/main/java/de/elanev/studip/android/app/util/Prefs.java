@@ -280,26 +280,6 @@ public class Prefs {
   }
 
   /**
-   * Saves the whether the forum is activated or not.
-   *
-   * @param value Indicates an activated forum.
-   */
-  public void setForumIsActivated(boolean value) {
-    mPrefs.edit()
-        .putBoolean(FORUM_IS_ACTIVATED, value)
-        .apply();
-  }
-
-  /**
-   * Checks if the forum route is activated on the API.
-   *
-   * @return true if the forum route is active on the API, false otherwise
-   */
-  public boolean isForumActivated() {
-    return mPrefs.getBoolean(FORUM_IS_ACTIVATED, false);
-  }
-
-  /**
    * Returns the stored API settings JSON String representation
    *
    * @return JSON String of the API settings

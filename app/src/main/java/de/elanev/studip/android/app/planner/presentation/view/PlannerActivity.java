@@ -16,6 +16,8 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import javax.inject.Inject;
+
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
@@ -39,6 +41,8 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
   private static final String FRAGMENT_TAG = "planner-fragment";
   private int mOrientation;
   private PlannerComponent plannerComponent;
+
+  @Inject Prefs prefs;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.planner_activity_menu, menu);
@@ -79,8 +83,7 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
     initInjector();
 
     mOrientation = getResources().getConfiguration().orientation;
-    String preferredView = Prefs.getInstance(this)
-        .getPreferredPlannerView(mOrientation);
+    String preferredView = prefs.getPreferredPlannerView(mOrientation);
 
     overridePendingTransition(0, 0);
     if (savedInstanceState == null) {
@@ -126,15 +129,13 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
     Fragment fragment = fm.findFragmentByTag(FRAGMENT_TAG);
     switch (plannerView) {
       case R.id.planner_list:
-        Prefs.getInstance(this)
-            .setPlannerPreferredView(mOrientation, PLANNER_VIEW_LIST);
+        prefs.setPlannerPreferredView(mOrientation, PLANNER_VIEW_LIST);
         if (fragment == null || !(fragment instanceof PlannerListFragment)) {
           fragment = PlannerListFragment.newInstance(new Bundle());
         }
         break;
       case R.id.planner_timetable:
-        Prefs.getInstance(this)
-            .setPlannerPreferredView(mOrientation, PLANNER_VIEW_TIMETABLE);
+        prefs.setPlannerPreferredView(mOrientation, PLANNER_VIEW_TIMETABLE);
         if (fragment == null || !(fragment instanceof PlannerTimetableFragment)) {
           fragment = PlannerTimetableFragment.newInstance();
         }
