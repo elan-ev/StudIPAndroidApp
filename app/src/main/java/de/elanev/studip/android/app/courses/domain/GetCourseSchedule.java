@@ -10,6 +10,8 @@ package de.elanev.studip.android.app.courses.domain;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -23,7 +25,7 @@ public class GetCourseSchedule extends UseCase<List<Event>> {
   private final String id;
   private final CoursesRepository repository;
 
-  public GetCourseSchedule(String id, CoursesRepository coursesRepository,
+  @Inject public GetCourseSchedule(String id, CoursesRepository coursesRepository,
       ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
     super(threadExecutor, postExecutionThread);
 
