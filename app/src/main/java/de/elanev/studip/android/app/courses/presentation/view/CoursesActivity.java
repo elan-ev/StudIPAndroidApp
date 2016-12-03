@@ -20,7 +20,6 @@ import de.elanev.studip.android.app.courses.internal.di.CoursesComponent;
 import de.elanev.studip.android.app.courses.internal.di.CoursesModule;
 import de.elanev.studip.android.app.courses.internal.di.DaggerCoursesComponent;
 import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
-import de.elanev.studip.android.app.courses.presentation.model.CourseModulesModel;
 
 /**
  * @author joern

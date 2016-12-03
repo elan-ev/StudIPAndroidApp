@@ -10,7 +10,6 @@ package de.elanev.studip.android.app.messages.domain;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.base.DefaultSubscriber;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;

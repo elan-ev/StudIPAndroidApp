@@ -16,7 +16,6 @@ import javax.inject.Named;
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
-import de.elanev.studip.android.app.courses.domain.CourseSchedule;
 import de.elanev.studip.android.app.courses.presentation.mapper.CourseModelDataMapper;
 import de.elanev.studip.android.app.courses.presentation.model.CourseScheduleModel;
 import de.elanev.studip.android.app.courses.presentation.view.CourseScheduleView;

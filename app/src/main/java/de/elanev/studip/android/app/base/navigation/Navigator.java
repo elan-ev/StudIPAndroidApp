@@ -14,7 +14,6 @@ import android.content.Intent;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.elanev.studip.android.app.StartupActivity;
 import de.elanev.studip.android.app.about.AboutActivity;
 import de.elanev.studip.android.app.auth.SignInActivity;
 import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;

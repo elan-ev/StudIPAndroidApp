@@ -10,7 +10,6 @@ package de.elanev.studip.android.app.messages.domain;
 
 import java.util.List;
 
-import de.elanev.studip.android.app.messages.data.entity.MessageEntity;
 import rx.Observable;
 
 /**

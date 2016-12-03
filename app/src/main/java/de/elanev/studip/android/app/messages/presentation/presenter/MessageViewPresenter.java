@@ -8,8 +8,6 @@
 
 package de.elanev.studip.android.app.messages.presentation.presenter;
 
-import com.hannesdorfmann.mosby.mvp.MvpPresenter;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -20,7 +18,6 @@ import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.messages.domain.Message;
 import de.elanev.studip.android.app.messages.presentation.mapper.MessagesDataMapper;
 import de.elanev.studip.android.app.messages.presentation.model.MessageModel;
-import de.elanev.studip.android.app.messages.presentation.view.MessageComposeView;
 import de.elanev.studip.android.app.messages.presentation.view.MessageView;
 
 /**

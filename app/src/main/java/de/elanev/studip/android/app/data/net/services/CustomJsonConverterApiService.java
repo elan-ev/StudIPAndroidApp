@@ -8,18 +8,10 @@
 
 package de.elanev.studip.android.app.data.net.services;
 
-import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.data.datamodel.Routes;
-import de.elanev.studip.android.app.data.datamodel.Server;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Converter;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.http.GET;
 import rx.Observable;
-import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer;
-import se.akerfeldt.okhttp.signpost.SigningInterceptor;
 
 /**
  * A Retrofit ApiService which can use custom JSON converters to be able to parse somewhat

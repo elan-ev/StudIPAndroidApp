@@ -27,8 +27,6 @@ import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.courses.data.entity.ForumArea;
 import de.elanev.studip.android.app.courses.data.entity.ForumEntry;
-import de.elanev.studip.android.app.data.datamodel.Server;
-import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.ReactiveFragment;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;

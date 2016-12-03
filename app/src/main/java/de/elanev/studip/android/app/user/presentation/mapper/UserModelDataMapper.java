@@ -13,7 +13,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.user.domain.User;
 import de.elanev.studip.android.app.user.presentation.model.UserModel;
 

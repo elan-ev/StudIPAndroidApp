@@ -8,7 +8,6 @@
 
 package de.elanev.studip.android.app.courses.data.entity;
 
-import de.elanev.studip.android.app.user.data.entity.RealmUserEntity;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 

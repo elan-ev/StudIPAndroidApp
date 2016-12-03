@@ -9,16 +9,13 @@
 package de.elanev.studip.android.app.base.internal.di.modules;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import javax.inject.Singleton;
 
-import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.net.services.CustomJsonConverterApiService;
-import de.elanev.studip.android.app.data.net.services.DiscoveryRouteJsonConverterFactory;
 import de.elanev.studip.android.app.data.net.services.OfflineCacheInterceptor;
 import de.elanev.studip.android.app.data.net.services.RewriteCacheControlInterceptor;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;

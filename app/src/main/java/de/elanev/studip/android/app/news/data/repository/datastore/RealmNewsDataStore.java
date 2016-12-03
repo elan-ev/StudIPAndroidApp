@@ -11,8 +11,6 @@ package de.elanev.studip.android.app.news.data.repository.datastore;
 import android.annotation.SuppressLint;
 import android.support.annotation.WorkerThread;
 
-import com.fernandocejas.frodo.annotation.RxLogObservable;
-
 import java.util.List;
 
 import javax.inject.Inject;

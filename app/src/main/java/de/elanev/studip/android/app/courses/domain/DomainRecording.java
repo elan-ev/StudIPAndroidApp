@@ -8,8 +8,6 @@
 
 package de.elanev.studip.android.app.courses.domain;
 
-import de.elanev.studip.android.app.user.domain.User;
-
 /**
  * @author joern
  */
