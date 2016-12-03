@@ -29,7 +29,7 @@ public class StartupActivity extends BaseActivity {
 
     getApplicationComponent().inject(this);
 
-    if (!mPrefs.isAppAuthorized(this)) {
+    if (!mPrefs.isAppAuthorized()) {
       this.navigator.navigateToSignIn(this);
       finish();
       return;

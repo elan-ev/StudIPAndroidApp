@@ -16,6 +16,8 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.elanev.studip.android.app.authorization.data.repository.AuthorizationDataRepository;
+import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
 import de.elanev.studip.android.app.base.data.executor.ThreadExecutorImpl;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -58,8 +60,8 @@ public class ApplicationModule {
   }
 
   // Prefs
-  @Provides @Singleton public Prefs providePrefs(Context context) {
-    return Prefs.getInstance(context);
+  @Provides @Singleton public Prefs providePrefs(Context context, AuthorizationRepository authorizationRepository) {
+    return new Prefs(context, authorizationRepository);
   }
 
   // Repositories
@@ -93,6 +95,11 @@ public class ApplicationModule {
     return coursesDataRepository;
   }
 
+  @Provides @Singleton public AuthorizationRepository providesAuthorizationRepository(
+      AuthorizationDataRepository authorizationDataRepository) {
+    return authorizationDataRepository;
+  }
+
   // Scheduling
   @Provides @Singleton PostExecutionThread providePostExecutionExecutor(
       PostExecutionThreadImpl postExecutionExecutor) {
@@ -106,9 +113,13 @@ public class ApplicationModule {
   // Database
   @Provides @Singleton RealmConfiguration provideRealmConfiguration(Context context) {
     Realm.init(context);
+
     RealmConfiguration.Builder builder = new RealmConfiguration.Builder();
+    // TODO: Use PBKDF2 to generate secure key from provided password
+    builder.encryptionKey(new byte[64]);
     builder.deleteRealmIfMigrationNeeded();
     builder.name("studip.realm");
+
     return builder.build();
   }
 

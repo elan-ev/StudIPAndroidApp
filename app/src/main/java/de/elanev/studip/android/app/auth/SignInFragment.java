@@ -170,8 +170,7 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
     getActivity().getContentResolver()
         .delete(AbstractContract.BASE_CONTENT_URI, null, null);
     // Clear the app preferences
-    Prefs.getInstance(getActivity())
-        .clearPrefs();
+    mPrefs.clearPrefs();
   }
 
   private void startRequestTokenRequest() {
@@ -217,7 +216,7 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
         return true;
       case R.id.menu_feedback:
         if (signInListener != null) {
-          this.mPrefs.setServer(mSelectedServer, getContext());
+          this.mPrefs.setServer(mSelectedServer);
           this.signInListener.onFeedbackSelected();
         }
 
@@ -297,7 +296,7 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
       mSelectedServer.setAccessToken(token);
       mSelectedServer.setAccessTokenSecret(tokenSecret);
 
-      mPrefs.setServer(mSelectedServer, getContext());
+      mPrefs.setServer(mSelectedServer);
 
     } else {
       mOnAuthListener.onAuthCanceled();

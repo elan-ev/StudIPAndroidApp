@@ -8,16 +8,17 @@
 
 package de.elanev.studip.android.app.util;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.database.Cursor;
-import android.net.Uri;
 
+import java.util.UUID;
+
+import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.authorization.domain.Endpoint;
+import de.elanev.studip.android.app.authorization.domain.OAuthCredentials;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
-import de.elanev.studip.android.app.data.db.AuthenticationContract;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerActivity;
 
 
@@ -41,27 +42,12 @@ public class Prefs {
   private static final String PLANNER_PREFERRED_LANDSCAPE_VIEW = "plannerPreferredLandscapeView";
   private static final String PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT = "plannerPreferredTimetableViewDayCount";
   private static final String MESSAGE_POSTBOX = "messageFolders";
-  private static Prefs sInstance;
+  private final AuthorizationRepository authRepo;
   private SharedPreferences mPrefs;
-  private volatile Server mCachedServer;
 
-  private Prefs() {
-  }
-
-  private Prefs(Context context) {
+  public Prefs(Context context, AuthorizationRepository authorizationRepository) {
     this.mPrefs = context.getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE);
-  }
-
-  /**
-   * Returns an instance of the Prefs for easily accessing several stored preferences
-   *
-   * @param context The context that is used to access the preferences
-   * @return An instance of the Prefs
-   */
-  public static synchronized Prefs getInstance(Context context) {
-    if (sInstance == null) sInstance = new Prefs(context);
-
-    return sInstance;
+    this.authRepo = authorizationRepository;
   }
 
   /*
@@ -71,7 +57,7 @@ public class Prefs {
     mPrefs.edit()
         .clear()
         .apply();
-    this.mCachedServer = null;
+    authRepo.clearCredentials();
   }
 
   /*
@@ -80,8 +66,8 @@ public class Prefs {
    *
    * @return True if the app is authorized, false if the app is not authorized
    */
-  public boolean isAppAuthorized(Context context) {
-    Server server = getServer(context);
+  public boolean isAppAuthorized() {
+    Server server = getServer();
     return server != null && !(server.getAccessToken() == null
         || server.getAccessTokenSecret() == null);
   }
@@ -89,49 +75,30 @@ public class Prefs {
   /*
    * Returns a Server object containing the necessary information to communicate with the api
    */
-  public Server getServer(Context context) {
+  public Server getServer() {
+    OAuthCredentials credentials = authRepo.getCredentials();
 
-    if (mCachedServer == null) {
-      String[] projection = new String[]{
-          AuthenticationContract.Columns.Authentication.SERVER_NAME,
-          AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL,
-          AuthenticationContract.Columns.Authentication.SERVER_KEY,
-          AuthenticationContract.Columns.Authentication.SERVER_SECRET,
-          AuthenticationContract.Columns.Authentication.SERVER_URL,
-          AuthenticationContract.Columns.Authentication.ACCESS_TOKEN,
-          AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET
-      };
+    if (credentials != null && credentials.getEndpoint() != null) {
+      Server server = new Server();
+      server.setName(credentials.getEndpoint()
+          .getName());
+      server.setBaseUrl(credentials.getEndpoint()
+          .getBaseUrl());
+      server.setIconRes(credentials.getEndpoint()
+          .getIconRes());
+      server.setContactEmail(credentials.getEndpoint()
+          .getContactEmail());
+      server.setConsumerKey(credentials.getEndpoint()
+          .getConsumerKey());
+      server.setConsumerSecret(credentials.getEndpoint()
+          .getConsumerSecret());
+      server.setAccessToken(credentials.getAccessToken());
+      server.setAccessTokenSecret(credentials.getAccessTokenSecret());
 
-      Cursor c = context.getContentResolver()
-          .query(AuthenticationContract.CONTENT_URI, projection, null, null, null);
-
-      if (c != null) {
-        c.moveToFirst();
-        if (c.getCount() > 0) {
-          String serverName = c.getString(
-              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_NAME));
-          String serverContact = c.getString(
-              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL));
-          String serverKey = c.getString(
-              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_KEY));
-          String serverSecret = c.getString(
-              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_SECRET));
-          String serverUrl = c.getString(
-              c.getColumnIndex(AuthenticationContract.Columns.Authentication.SERVER_URL));
-          String accessToken = c.getString(
-              c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN));
-          String accessSecret = c.getString(
-              c.getColumnIndex(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET));
-
-
-          this.mCachedServer = new Server(serverName, serverKey, serverSecret, serverUrl,
-              serverContact, accessToken, accessSecret);
-        }
-        c.close();
-      }
+      return server;
     }
 
-    return mCachedServer;
+    return null;
   }
 
   /**
@@ -139,29 +106,25 @@ public class Prefs {
    *
    * @param server The Server object to store permanently
    */
-  public void setServer(Server server, Context context) {
-    ContentValues values = new ContentValues();
-    values.put(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN, server.getAccessToken());
-    values.put(AuthenticationContract.Columns.Authentication.ACCESS_TOKEN_SECRET,
-        server.getAccessTokenSecret());
-    values.put(AuthenticationContract.Columns.Authentication.SERVER_NAME, server.getName());
-    values.put(AuthenticationContract.Columns.Authentication.SERVER_URL, server.getBaseUrl());
-    values.put(AuthenticationContract.Columns.Authentication.SERVER_CONTACT_EMAIL,
-        server.getContactEmail());
-    values.put(AuthenticationContract.Columns.Authentication.SERVER_KEY, server.getConsumerKey());
-    values.put(AuthenticationContract.Columns.Authentication.SERVER_SECRET,
-        server.getConsumerSecret());
+  public void setServer(Server server) {
+    Endpoint endpoint = new Endpoint();
+    endpoint.setId(UUID.randomUUID()
+        .toString());
+    endpoint.setName(server.getName());
+    endpoint.setIconRes(server.getIconRes());
+    endpoint.setConsumerKey(server.getConsumerKey());
+    endpoint.setConsumerSecret(server.getConsumerSecret());
+    endpoint.setContactEmail(server.getContactEmail());
+    endpoint.setBaseUrl(server.getBaseUrl());
 
-    Uri returnUri = context.getContentResolver()
-        .insert(AuthenticationContract.CONTENT_URI, values);
+    OAuthCredentials credentials = new OAuthCredentials();
+    credentials.setId(UUID.randomUUID()
+        .toString());
+    credentials.setEndpoint(endpoint);
+    credentials.setAccessToken(server.getAccessToken());
+    credentials.setAccessTokenSecret(server.getAccessTokenSecret());
 
-    if (returnUri != null) {
-      if (Long.parseLong(returnUri.getLastPathSegment()) != -1) {
-        mCachedServer = server;
-      } else {
-        mCachedServer = null;
-      }
-    }
+    authRepo.saveCredentials(credentials);
   }
 
   /**

@@ -22,7 +22,6 @@ import de.elanev.studip.android.app.data.net.services.DiscoveryRouteJsonConverte
 import de.elanev.studip.android.app.data.net.services.OfflineCacheInterceptor;
 import de.elanev.studip.android.app.data.net.services.RewriteCacheControlInterceptor;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.util.Prefs;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
@@ -40,25 +39,18 @@ import se.akerfeldt.okhttp.signpost.SigningInterceptor;
 public class NetworkModule {
   private static final long CACHE_SIZE = 10 * 1024 * 1024;
 
-  @Provides public Server provideServer(Context context) {
-    return Prefs.getInstance(context)
-        .getServer(context);
+  @Provides public Server provideServer(Prefs prefs) {
+    return prefs.getServer();
   }
 
-  @Provides @Singleton public CustomJsonConverterApiService provideCustomJsonConverterApiService(
-      @Nullable Server server) {
-    return new CustomJsonConverterApiService(server, new DiscoveryRouteJsonConverterFactory());
+  @Provides @Singleton public CustomJsonConverterApiService provideCustomJsonConverterApiService
+      (Retrofit retrofit) {
+    return new CustomJsonConverterApiService(retrofit);
   }
 
   @Provides @Singleton public StudIpLegacyApiService provideApiService(Retrofit retrofit,
       Prefs prefs) {
     return new StudIpLegacyApiService(retrofit, prefs);
-  }
-
-  @Provides @Singleton public SyncHelper provideSyncHelper(Context context,
-      Lazy<StudIpLegacyApiService> apiService,
-      Lazy<CustomJsonConverterApiService> customJsonConverterApiService) {
-    return new SyncHelper(context, apiService, customJsonConverterApiService);
   }
 
   @Provides @Singleton public Cache providesOkHttpCache(Context context) {
