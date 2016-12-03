@@ -39,6 +39,12 @@ public class CourseUnicensusFragment extends
 
   public CourseUnicensusFragment() {setRetainInstance(true);}
 
+  public static CourseUnicensusFragment newInstance(Bundle args) {
+    CourseUnicensusFragment fragment = new CourseUnicensusFragment();
+    fragment.setArguments(args);
+    return fragment;
+  }
+
   @NonNull @Override public CourseUnicensusPresenter createPresenter() {
     return this.presenter;
   }

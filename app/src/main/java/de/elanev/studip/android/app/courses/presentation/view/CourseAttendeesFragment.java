@@ -56,6 +56,12 @@ public class CourseAttendeesFragment extends
 
   public CourseAttendeesFragment() {setRetainInstance(true);}
 
+  public static CourseAttendeesFragment newInstance(Bundle args) {
+     CourseAttendeesFragment fragment = new CourseAttendeesFragment();
+    fragment.setArguments(args);
+    return fragment;
+  }
+
   @NonNull @Override public CourseAttendeesPresenter createPresenter() {
     return this.presenter;
   }

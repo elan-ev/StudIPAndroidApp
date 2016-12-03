@@ -22,6 +22,8 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -44,8 +46,8 @@ import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
  */
 public class CourseViewActivity extends BaseActivity implements HasComponent<CoursesComponent>,
     CourseAttendeesFragment.CourseUsersListListener {
-  public static final String COURSE_ID = "course_id";
-  public static final String COURSE_MODULES = "course_modules";
+  public static final String COURSE_ID = "course-id";
+  public static final String COURSE_MODULES = "course-modules";
   @BindView(R.id.pager) ViewPager mPager;
   @BindView(R.id.sliding_tabs) TabLayout mTabLayout;
   @BindView(R.id.toolbar) Toolbar toolbar;
@@ -53,6 +55,7 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
   private CourseModulesModel modules = new CourseModulesModel();
   private CoursesComponent component;
   private String courseId;
+  private Bundle args;
 
   public static Intent getCallingIntent(Context context) {
     return new Intent(context, CourseViewActivity.class);
@@ -62,7 +65,7 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
     super.onCreate(savedInstanceState);
     setContentView(R.layout.viewpager_with_toolbar);
 
-    Bundle args = getIntent().getExtras();
+    args = getIntent().getExtras();
     modules = (CourseModulesModel) args.getSerializable(COURSE_MODULES);
     courseId = args.getString(COURSE_ID);
 
@@ -100,25 +103,25 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
   private ArrayList<Tab> getTabs() {
     ArrayList<Tab> tabs = new ArrayList<>();
     // Add the tabs to the PagerAdapter, if activated.
-    tabs.add(new Tab(getString(R.string.Overview), CourseOverviewFragment.class));
+    tabs.add(new Tab(getString(R.string.Overview), CourseOverviewFragment.class, args));
 
     if (modules.isSchedule()) {
-      tabs.add(new Tab(getString(R.string.Schedule), CourseScheduleFragment.class));
+      tabs.add(new Tab(getString(R.string.Schedule), CourseScheduleFragment.class, args));
     }
     if (modules.isParticipants()) {
-      tabs.add(new Tab(getString(R.string.attendees), CourseAttendeesFragment.class));
+      tabs.add(new Tab(getString(R.string.attendees), CourseAttendeesFragment.class, args));
     }
     if (modules.isForum()) {
-      tabs.add(new Tab(getString(R.string.forum), ForumCategoriesListFragment.class));
+      tabs.add(new Tab(getString(R.string.forum), ForumCategoriesListFragment.class, args));
     }
     if (modules.isDocuments()) {
-      tabs.add(new Tab(getString(R.string.Documents), CourseDocumentsFragment.class));
+      tabs.add(new Tab(getString(R.string.Documents), CourseDocumentsFragment.class, args));
     }
     if (modules.isRecordings()) {
-      tabs.add(new Tab(getString(R.string.Recordings), CourseRecordingsFragment.class));
+      tabs.add(new Tab(getString(R.string.Recordings), CourseRecordingsFragment.class, args));
     }
     if (modules.isUnizensus()) {
-      tabs.add(new Tab(getString(R.string.unizensus), CourseUnicensusFragment.class));
+      tabs.add(new Tab(getString(R.string.unizensus), CourseUnicensusFragment.class, args));
     }
 
     return tabs;
@@ -182,14 +185,18 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
       Tab tab = mTabs.get(position);
 
       try {
-        return (Fragment) tab.clss.newInstance();
-      } catch (InstantiationException e) {
+        Method m = tab.clss.getMethod("newInstance", Bundle.class);
+
+        return (Fragment) m.invoke(null, tab.args);
+      } catch (NoSuchMethodException e) {
+        e.printStackTrace();
+      } catch (InvocationTargetException e) {
         e.printStackTrace();
       } catch (IllegalAccessException e) {
         e.printStackTrace();
       }
 
-      return null;
+      return CourseOverviewFragment.newInstance(tab.args);
     }
 
     @Override public int getCount() {
@@ -204,10 +211,12 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
   static final class Tab {
     CharSequence title;
     Class<?> clss;
+    Bundle args;
 
-    public Tab(CharSequence title, Class clss) {
+    public Tab(CharSequence title, Class clss, Bundle args) {
       this.title = title;
       this.clss = clss;
+      this.args = args;
     }
   }
 

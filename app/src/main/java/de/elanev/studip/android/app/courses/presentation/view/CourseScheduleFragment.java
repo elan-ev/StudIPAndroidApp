@@ -49,6 +49,12 @@ public class CourseScheduleFragment extends
 
   public CourseScheduleFragment() {setRetainInstance(true);}
 
+  public static CourseScheduleFragment newInstance(Bundle args) {
+    CourseScheduleFragment fragment = new CourseScheduleFragment();
+    fragment.setArguments(args);
+    return fragment;
+  }
+
   @NonNull @Override public CourseSchedulePresenter createPresenter() {
     return this.presenter;
   }

@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.courses.presentation.view;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
@@ -70,6 +71,13 @@ public class CourseOverviewFragment extends
   private CourseOverviewModel courseOverviewModel;
 
   public CourseOverviewFragment() {setRetainInstance(true);}
+
+  public static Fragment newInstance(Bundle args) {
+    Fragment fragment = new CourseOverviewFragment();
+    fragment.setArguments(args);
+
+    return fragment;
+  }
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -181,7 +189,8 @@ public class CourseOverviewFragment extends
     if (course.getTeachers() != null && course.getTeachers()
         .size() > 0) {
       teacherName.setText(course.getTeachers()
-          .get(0).getFullName());
+          .get(0)
+          .getFullName());
 
       if (course.getTeachers()
           .size() > 1) {
