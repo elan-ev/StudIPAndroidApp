@@ -17,6 +17,7 @@ import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.courses.domain.CoursesRepository;
+import de.elanev.studip.android.app.courses.domain.GetCourseCensusUrl;
 import de.elanev.studip.android.app.courses.domain.GetCourseList;
 import de.elanev.studip.android.app.courses.domain.GetCourseOverview;
 import de.elanev.studip.android.app.courses.domain.GetCourseSchedule;
@@ -67,5 +68,12 @@ public class CoursesModule {
 
     return new GetCourseUsers(this.id, userRepository, coursesRepository, threadExecutor,
         postExecutionThread);
+  }
+
+  @Provides @PerActivity @Named("getCourseCensusUrl") UseCase providesCourseCensusUrl(
+      CoursesRepository coursesRepository, ThreadExecutor threadExecutor,
+      PostExecutionThread postExecutionThread) {
+
+    return new GetCourseCensusUrl(this.id, coursesRepository, threadExecutor, postExecutionThread);
   }
 }

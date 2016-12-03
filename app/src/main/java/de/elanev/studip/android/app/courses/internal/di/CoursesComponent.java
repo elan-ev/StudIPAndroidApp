@@ -14,6 +14,7 @@ import de.elanev.studip.android.app.base.internal.di.components.ApplicationCompo
 import de.elanev.studip.android.app.courses.presentation.view.CourseAttendeesFragment;
 import de.elanev.studip.android.app.courses.presentation.view.CourseOverviewFragment;
 import de.elanev.studip.android.app.courses.presentation.view.CourseScheduleFragment;
+import de.elanev.studip.android.app.courses.presentation.view.CourseUnicensusFragment;
 import de.elanev.studip.android.app.courses.presentation.view.CoursesFragment;
 
 /**
@@ -30,4 +31,6 @@ public interface CoursesComponent {
   void inject(CourseScheduleFragment target);
 
   void inject(CourseAttendeesFragment target);
+
+  void inject(CourseUnicensusFragment target);
 }

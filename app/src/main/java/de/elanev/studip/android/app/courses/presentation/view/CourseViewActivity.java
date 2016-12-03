@@ -37,7 +37,6 @@ import de.elanev.studip.android.app.courses.presentation.model.CourseModulesMode
 import de.elanev.studip.android.app.courses.presentation.model.CourseUserModel;
 import de.elanev.studip.android.app.forums.ForumCategoriesListFragment;
 import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
-import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * Activity for displaying a ViewPager with tabs for course overview,
@@ -119,7 +118,7 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
       tabs.add(new Tab(getString(R.string.Recordings), CourseRecordingsFragment.class));
     }
     if (modules.isUnizensus()) {
-      tabs.add(new Tab(getString(R.string.unizensus), CourseUnizensusFragment.class));
+      tabs.add(new Tab(getString(R.string.unizensus), CourseUnicensusFragment.class));
     }
 
     return tabs;
