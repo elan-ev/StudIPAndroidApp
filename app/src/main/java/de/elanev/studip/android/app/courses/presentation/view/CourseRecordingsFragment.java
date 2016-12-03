@@ -44,10 +44,8 @@ import java.util.concurrent.TimeoutException;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.courses.data.entity.Recording;
-import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.util.Connectivity;
 import de.elanev.studip.android.app.util.DateTools;
-import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.Transformations.GradientTransformation;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import retrofit2.adapter.rxjava.HttpException;
@@ -68,6 +66,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
   private static final int RECORDING_PRESENTATION = 0;
   private static final int RECORDING_PRESENTER = 1;
   private static final int RECORDING_AUDIO = 2;
+  private static final String COURSE_ID = "course-id";
   private RecordingsAdapter mAdapter;
   private String mCourseId;
   private RecyclerView.AdapterDataObserver mObserver;
@@ -86,7 +85,11 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     super.onCreate(savedInstanceState);
 
     mAdapter = new RecordingsAdapter(null, this, getActivity());
-    mCourseId = getArguments().getString(CoursesContract.Columns.Courses.COURSE_ID);
+    Bundle args = getArguments();
+    if (args == null) {
+      throw new IllegalStateException("Fragment args must not be null!");
+    }
+    mCourseId = args.getString(COURSE_ID);
 
   }
 
@@ -151,8 +154,8 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     // Check if we are connected to the mobile data network and whether the user previously allowed
     // mobile data downlands
     if (Connectivity.isConnectedMobile(getActivity().getApplicationContext())) {
-      if (!Prefs.getInstance(getActivity())
-          .isAllowMobileData()) {
+//      if (!Prefs.getInstance(getActivity())
+//          .isAllowMobileData()) {
 
         // Inflate dialog checkbox and set onChangeListener to capture changes
         View checkboxView = LayoutInflater.from(getActivity())
@@ -160,8 +163,8 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         final CheckBox checkBox = (CheckBox) checkboxView.findViewById(R.id.checkbox);
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
           @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            Prefs.getInstance(getActivity())
-                .setAllowMobile(isChecked);
+//            Prefs.getInstance(getActivity())
+//                .setAllowMobile(isChecked);
           }
         });
 
@@ -184,7 +187,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
             .create()
             .show();
         return;
-      }
+//      }
     }
 
     // We are connected to wifi or mobile data is allowed

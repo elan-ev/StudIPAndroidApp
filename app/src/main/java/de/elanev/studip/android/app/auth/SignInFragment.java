@@ -40,8 +40,6 @@ import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
-import de.elanev.studip.android.app.data.db.AbstractContract;
-import de.elanev.studip.android.app.data.db.DatabaseHandler;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
 import rx.Subscriber;
@@ -171,11 +169,6 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
 
   private void destroyInsecureCredentials() {
     Timber.i("Insecure credentials found, deleting...");
-    // Encrypt legacy database
-    DatabaseHandler.deleteLegacyDatabase(getActivity());
-    // Delete the app database
-    getActivity().getContentResolver()
-        .delete(AbstractContract.BASE_CONTENT_URI, null, null);
     // Clear the app preferences
     mPrefs.clearPrefs();
   }

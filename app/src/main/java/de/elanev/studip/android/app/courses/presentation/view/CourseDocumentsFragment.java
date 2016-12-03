@@ -46,10 +46,7 @@ import de.elanev.studip.android.app.courses.data.entity.Document;
 import de.elanev.studip.android.app.courses.data.entity.DocumentFolder;
 import de.elanev.studip.android.app.courses.data.entity.DocumentFolders;
 import de.elanev.studip.android.app.data.datamodel.Server;
-import de.elanev.studip.android.app.data.db.CoursesContract;
-import de.elanev.studip.android.app.data.db.DocumentsContract;
 import de.elanev.studip.android.app.util.DateTools;
-import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -69,6 +66,8 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
 
   static final String TAG = CourseDocumentsFragment.class.getSimpleName();
   private static final int REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE = 0;
+  private static final String COURSE_ID = "course-id";
+  private static final String FOLDER_ID = "folder-id";
   private DocumentsAdapter mAdapter;
   private String mCourseId;
   private String mFolderId;
@@ -149,10 +148,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     String fileId = document.document_id;
     String fileName = document.filename;
     String fileDescription = document.description;
-    String apiUrl = Prefs.getInstance(getActivity())
-        .getServer(getContext())
-        .getApiUrl();
-
+    String apiUrl = "";
     boolean externalDownloadsDir = Environment.getExternalStoragePublicDirectory(
         Environment.DIRECTORY_DOWNLOADS)
         .mkdirs();
@@ -183,8 +179,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
             apiUrl, fileId);
 
         // Sign the download URL with the OAuth credentials and parse the URI
-        Server server = Prefs.getInstance(getActivity())
-            .getServer(getContext());
+        Server server=null;
         String signedDownloadUrl = OAuthConnector.with(server)
             .sign(downloadUrl);
         Uri downloadUri = Uri.parse(signedDownloadUrl);
@@ -293,15 +288,12 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-//    Bundle args = getArguments();
-//    if (args == null || args.isEmpty() || !args.containsKey(
-//        CoursesContract.Columns.Courses.COURSE_ID)) {
-//      throw new IllegalStateException("Arguments must not be null and must contain a course_id");
-//    }
-//    mCourseId = args.getString(CoursesContract.Columns.Courses.COURSE_ID);
-
-    // Get folder ID and name if available
-//    mFolderId = getArguments().getString(DocumentsContract.Columns.DocumentFolders.FOLDER_ID);
+    Bundle args = getArguments();
+    if (args == null) {
+      throw new IllegalStateException("Fragement args must not be null!");
+    }
+    mCourseId = args.getString(COURSE_ID);
+    mFolderId = args.getString(FOLDER_ID);
 
     mAdapter = new DocumentsAdapter(new ArrayList<>(), getActivity(), new ListItemClicks() {
       @Override public void onListItemClicked(View caller, int position) {

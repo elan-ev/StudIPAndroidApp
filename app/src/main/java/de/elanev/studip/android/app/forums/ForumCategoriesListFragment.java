@@ -21,7 +21,6 @@ import java.util.concurrent.TimeoutException;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.courses.data.entity.Course;
 import de.elanev.studip.android.app.courses.data.entity.ForumCategory;
-import de.elanev.studip.android.app.data.db.CoursesContract;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
@@ -31,7 +30,7 @@ import timber.log.Timber;
  * @author joern
  */
 public class ForumCategoriesListFragment extends ReactiveListFragment {
-  private static final String TAG = ForumCategoriesListFragment.class.getSimpleName();
+  public final String COURSE_ID = "course-id";
 
   private String mCourseId;
   private ForumCategoriesAdapter mAdapter;
@@ -49,13 +48,14 @@ public class ForumCategoriesListFragment extends ReactiveListFragment {
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     Bundle args = getArguments();
-    mCourseId = args.getString(CoursesContract.Columns.Courses.COURSE_ID);
+    if (args == null) throw new IllegalStateException("Fragment args must not be null");
+    mCourseId = args.getString(COURSE_ID);
 
     mAdapter = new ForumCategoriesAdapter(new ArrayList<ForumCategory>(), new ListItemClicks() {
       @Override public void onListItemClicked(View v, int position) {
         ForumCategory item = mAdapter.getItem(position);
         Bundle args = new Bundle();
-        args.putString(CoursesContract.Columns.Courses.COURSE_ID, mCourseId);
+        args.putString(ForumAreasActivity.COURSE_ID, mCourseId);
         args.putString(ForumCategory.TITLE, item.entryName);
         args.putString(ForumCategory.ID, item.categoryId);
         args.putString(Course.ID, mCourseId);

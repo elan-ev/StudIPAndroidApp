@@ -16,7 +16,6 @@ import android.support.annotation.Nullable;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
-import de.elanev.studip.android.app.data.db.AbstractContract;
 import de.elanev.studip.android.app.util.Prefs;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;

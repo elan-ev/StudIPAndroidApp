@@ -181,49 +181,6 @@ public class StudIpLegacyApiService {
         });
   }
 
-  //  private User getUserFromContentProvider(final String userId) {
-  //
-  //    String[] projection = {
-  //        UsersContract.Columns.USER_TITLE_PRE,
-  //        UsersContract.Columns.USER_FORENAME,
-  //        UsersContract.Columns.USER_LASTNAME,
-  //        UsersContract.Columns.USER_TITLE_POST,
-  //        UsersContract.Columns.USER_AVATAR_NORMAL
-  //    };
-  //    String selection = UsersContract.Columns.USER_ID + " = ?";
-  //
-  //    Cursor cursor = mContext.getContentResolver()
-  //        .query(UsersContract.CONTENT_URI, projection, selection, new String[]{userId},
-  //            UsersContract.DEFAULT_SORT_ORDER);
-  //
-  //    String userTitlePre = "";
-  //    String userTitlePost = "";
-  //    String userForename = "";
-  //    String userLastname = "";
-  //    String userAvatarUrl = "";
-  //
-  //    if (cursor != null) {
-  //
-  //      cursor.moveToFirst();
-  //      if (cursor.isAfterLast()) {
-  //        cursor.close();
-  //        return null;
-  //      }
-  //
-  //      userTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
-  //      userTitlePost = cursor.getString(
-  //          cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
-  //      userForename = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-  //      userLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
-  //      userAvatarUrl = cursor.getString(
-  //          cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-  //
-  //      cursor.close();
-  //    }
-  //    return new User(userId, null, null, userTitlePre, userForename, userLastname, userTitlePost,
-  //        null, null, null, userAvatarUrl, null, null, null, 0);
-  //  }
-
   /**
    * Creates a new forum entry for a specific forum topic and returns the new {@link ForumEntry}
    * wrapped in an {@link Observable}.

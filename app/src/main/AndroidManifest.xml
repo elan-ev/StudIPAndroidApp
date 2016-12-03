@@ -163,17 +163,6 @@
 
         <!-- Feedback -->
         <activity android:name=".feedback.FeedbackActivity"/>
-
-
-        <!-- Providers -->
-
-        <!-- Main RestIpProvider -->
-        <provider
-            android:name=".data.provider.RestIpProvider"
-            android:authorities="de.elanev.studip.android.app"
-            android:exported="false"
-            android:label="@string/app_name"
-            android:syncable="true"/>
     </application>
 
 </manifest>
