@@ -17,7 +17,6 @@ import javax.inject.Inject;
 
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 
 /**
  * @author joern
@@ -25,7 +24,6 @@ import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 public abstract class BaseFragment extends Fragment {
 
   @Inject protected Context mContext;
-  @Inject protected SyncHelper mSyncHelper;
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);

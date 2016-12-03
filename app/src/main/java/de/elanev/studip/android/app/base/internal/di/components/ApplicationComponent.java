@@ -27,7 +27,6 @@ import de.elanev.studip.android.app.base.internal.di.modules.NetworkModule;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.courses.domain.CoursesRepository;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.feedback.FeedbackActivity;
 import de.elanev.studip.android.app.messages.domain.MessagesRepository;
 import de.elanev.studip.android.app.messages.presentation.view.MessageDetailActivity;
@@ -35,7 +34,6 @@ import de.elanev.studip.android.app.news.domain.NewsRepository;
 import de.elanev.studip.android.app.planner.domain.PlannerRepository;
 import de.elanev.studip.android.app.user.domain.UserRepository;
 import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
-import de.elanev.studip.android.app.user.presentation.view.UserListFragment;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.BaseFragment;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
@@ -57,8 +55,6 @@ public interface ApplicationComponent {
 
   void inject(UserDetailsActivity userDetailsActivity);
 
-  void inject(SyncHelper target);
-
   void inject(BaseFragment target);
 
   void inject(FeedbackActivity target);
@@ -69,8 +65,6 @@ public interface ApplicationComponent {
   void inject(ServerListFragment target);
 
   void inject(SignInSyncFragment target);
-
-  void inject(UserListFragment target);
 
   //FIXME: Just workaround
   void inject(ReactiveListFragment target);
@@ -99,8 +93,5 @@ public interface ApplicationComponent {
   ThreadExecutor threadExecutor();
 
   PostExecutionThread postExecutionThread();
-
-  //FIxme
-  SyncHelper syncHelper();
 
 }

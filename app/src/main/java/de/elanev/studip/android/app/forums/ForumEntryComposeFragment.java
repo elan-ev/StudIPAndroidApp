@@ -128,9 +128,6 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
     String subject = mSubjectEditText.getText().toString();
     String content = mContentEditText.getText().toString();
 
-    Server server = Prefs.getInstance(getActivity()).getServer(getContext());
-
-
     mCompositeSubscription.add(bind(mApiService.createForumEntry(sEntryId,
         subject,
         content)).subscribe(new Subscriber<ForumArea>() {
