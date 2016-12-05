@@ -95,12 +95,13 @@ public class CourseAttendeesFragment extends
   }
 
   @Override public void setData(CourseUsersModel data) {
+    this.data = data;
+
     if (this.adapter == null) {
       this.adapter = new SectionedRecyclerViewAdapter();
-      this.emptyRecyclerView.setAdapter(adapter);
     }
+    this.emptyRecyclerView.setAdapter(adapter);
 
-    this.data = data;
 
     this.adapter.removeAllSections();
     if (data.getTeachers() != null && data.getTeachers()

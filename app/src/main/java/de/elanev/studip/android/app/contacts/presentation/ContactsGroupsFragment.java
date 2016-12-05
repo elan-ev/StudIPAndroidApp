@@ -88,8 +88,8 @@ public class ContactsGroupsFragment extends
 
     if (this.contactsAdapter == null) {
       this.contactsAdapter = new SectionedRecyclerViewAdapter();
-      this.mRecyclerView.setAdapter(contactsAdapter);
     }
+    this.mRecyclerView.setAdapter(contactsAdapter);
 
     this.contactsAdapter.removeAllSections();
     for (ContactGroupModel groupModel : this.sectionsData) {

@@ -139,9 +139,9 @@ public class CoursesFragment extends
 
     if (this.adapter == null) {
       this.adapter = new SectionedRecyclerViewAdapter();
-      this.mRecyclerView.setAdapter(adapter);
     }
 
+    this.mRecyclerView.setAdapter(adapter);
     this.adapter.removeAllSections();
 
     CourseSection unlimitedSection = new CourseSection(

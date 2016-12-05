@@ -60,6 +60,7 @@ public class MessagesListFragment extends
   };
   private MessageListListener messageListListener;
   private MessagesComponent messagesComponent;
+  private List<MessageModel> data;
 
 
   public MessagesListFragment() {
@@ -155,15 +156,17 @@ public class MessagesListFragment extends
   }
 
   @Override public List<MessageModel> getData() {
-    return this.messagesAdapter.getData();
+    return this.data;
   }
 
   @Override public void setData(List<MessageModel> data) {
+    this.data = data;
+
     if (this.messagesAdapter == null) {
       this.messagesAdapter = new MessagesAdapter(getContext());
       this.messagesAdapter.setOnItemClickListener(onClickListener);
-      this.recyclerView.setAdapter(messagesAdapter);
     }
+    this.recyclerView.setAdapter(messagesAdapter);
 
     this.messagesAdapter.setData(data);
   }

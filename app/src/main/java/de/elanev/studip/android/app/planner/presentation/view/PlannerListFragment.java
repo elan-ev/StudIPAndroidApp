@@ -129,8 +129,8 @@ public class PlannerListFragment extends
     if (this.mAdapter == null) {
       this.mAdapter = new EventsAdapter(getContext());
       this.mAdapter.setOnItemClickListener(onClickListener);
-      this.mRecyclerView.setAdapter(mAdapter);
     }
+    this.mRecyclerView.setAdapter(mAdapter);
 
     mAdapter.setData(data);
     mAdapter.notifyDataSetChanged();

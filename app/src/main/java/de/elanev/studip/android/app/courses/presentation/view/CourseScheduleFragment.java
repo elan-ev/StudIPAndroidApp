@@ -78,12 +78,13 @@ public class CourseScheduleFragment extends
   }
 
   @Override public void setData(List<CourseScheduleModel> data) {
+    this.courseEvents = data;
+
     if (this.adapter == null) {
       this.adapter = new CourseScheduleListAdapter(getContext());
-      this.mRecyclerView.setAdapter(adapter);
     }
+    this.mRecyclerView.setAdapter(adapter);
 
-    this.courseEvents = data;
     this.adapter.setData(data);
   }
 
