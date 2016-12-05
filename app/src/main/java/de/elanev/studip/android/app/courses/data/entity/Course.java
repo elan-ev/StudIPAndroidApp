@@ -180,4 +180,51 @@ public class Course {
   @JsonIgnore public void setSemester(Semester semester) {
     this.semester = semester;
   }
+
+  @Override public int hashCode() {
+    int result = courseId.hashCode();
+    result = 31 * result + startTime.hashCode();
+    result = 31 * result + durationTime.hashCode();
+    result = 31 * result + title.hashCode();
+    result = 31 * result + subtitle.hashCode();
+    result = 31 * result + modules.hashCode();
+    result = 31 * result + description.hashCode();
+    result = 31 * result + location.hashCode();
+    result = 31 * result + semesterId.hashCode();
+    result = 31 * result + teachers.hashCode();
+    result = 31 * result + tutors.hashCode();
+    result = 31 * result + students.hashCode();
+    result = 31 * result + color.hashCode();
+    result = 31 * result + type;
+    result = 31 * result + (courseAdditionalData != null ? courseAdditionalData.hashCode() : 0);
+    result = 31 * result + (semester != null ? semester.hashCode() : 0);
+    return result;
+  }
+
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Course)) return false;
+
+    Course course = (Course) o;
+
+    if (type != course.type) return false;
+    if (!courseId.equals(course.courseId)) return false;
+    if (!startTime.equals(course.startTime)) return false;
+    if (!durationTime.equals(course.durationTime)) return false;
+    if (!title.equals(course.title)) return false;
+    if (!subtitle.equals(course.subtitle)) return false;
+    if (!modules.equals(course.modules)) return false;
+    if (!description.equals(course.description)) return false;
+    if (!location.equals(course.location)) return false;
+    if (!semesterId.equals(course.semesterId)) return false;
+    if (!teachers.equals(course.teachers)) return false;
+    if (!tutors.equals(course.tutors)) return false;
+    if (!students.equals(course.students)) return false;
+    if (!color.equals(course.color)) return false;
+    if (courseAdditionalData != null
+        ? !courseAdditionalData.equals(course.courseAdditionalData)
+        : course.courseAdditionalData != null) return false;
+    return semester != null ? semester.equals(course.semester) : course.semester == null;
+
+  }
 }

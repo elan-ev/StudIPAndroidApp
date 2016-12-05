@@ -12,6 +12,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -107,10 +108,13 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
     return mData;
   }
 
-  public void setData(List<NewsModel> data) {
+  public void setData(List<NewsModel> newData) {
+    final DiffCallback diffCallback = new DiffCallback(this.mData, newData);
+    final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+
     this.mData.clear();
-    this.mData.addAll(data);
-    notifyDataSetChanged();
+    this.mData.addAll(newData);
+    diffResult.dispatchUpdatesTo(this);
   }
 
   public void setOnItemClickListener(NewsClickListener clickListener) {
@@ -121,6 +125,32 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
     void onNewsItemClicked(NewsModel news);
   }
 
+  public class DiffCallback extends DiffUtil.Callback {
+    private final List<NewsModel> newList;
+    private final List<NewsModel> oldList;
+
+    public DiffCallback(List<NewsModel> newList, List<NewsModel> oldList) {
+      this.newList = newList;
+      this.oldList = oldList;
+    }
+
+    @Override public int getOldListSize() {
+      return oldList == null ? 0 : oldList.size();
+    }
+
+    @Override public int getNewListSize() {
+      return newList == null ? 0 : newList.size();
+    }
+
+    @Override public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+      return oldList.get(oldItemPosition).id.equals(newList.get(newItemPosition).id);
+    }
+
+    @Override public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+      return oldList.get(oldItemPosition)
+          .equals(newList.get(newItemPosition));
+    }
+  }
 
   public class ViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.icon) ImageView icon;
