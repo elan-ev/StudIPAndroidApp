@@ -21,6 +21,7 @@ import de.elanev.studip.android.app.news.data.entity.RealmNewsEntity;
 import de.elanev.studip.android.app.news.data.repository.NewsEntityDataMapper;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 import rx.Observable;
 
@@ -67,7 +68,10 @@ public class RealmNewsDataStore implements NewsDataStore {
   @WorkerThread public void save(List<NewsEntity> newsEntities) {
     List<RealmNewsEntity> realmNewsEntities = newsEntityDataMapper.transformToRealm(newsEntities);
     try (Realm realm = Realm.getInstance(realmConfiguration)) {
-      realm.executeTransaction(tsRealm -> tsRealm.copyToRealmOrUpdate(realmNewsEntities));
+      realm.executeTransaction(tsRealm -> {
+        tsRealm.delete(RealmNewsEntity.class);
+        tsRealm.copyToRealm(realmNewsEntities);
+      });
     }
   }
 

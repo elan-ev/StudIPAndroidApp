@@ -44,10 +44,6 @@ public class NewsDataRepository implements NewsRepository {
 
     return localDataObs.exists(newsEntity -> newsEntity != null)
         .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
-        .flatMap(newsEntity -> {
-          realmNewsDataStore.save(newsEntity);
-          return Observable.just(newsEntity);
-        })
         .map(mEntityDataMapper::transform);
   }
 
@@ -58,10 +54,6 @@ public class NewsDataRepository implements NewsRepository {
 
     return localDataObs.exists(newsEntities -> !newsEntities.isEmpty())
         .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
-        .flatMap(newsEntities -> {
-          realmNewsDataStore.save(newsEntities);
-          return Observable.just(newsEntities);
-        })
         .map(mEntityDataMapper::transform);
   }
 }
