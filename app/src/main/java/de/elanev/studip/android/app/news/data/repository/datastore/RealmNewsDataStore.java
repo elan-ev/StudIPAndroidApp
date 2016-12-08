@@ -70,7 +70,7 @@ public class RealmNewsDataStore implements NewsDataStore {
     try (Realm realm = Realm.getInstance(realmConfiguration)) {
       realm.executeTransaction(tsRealm -> {
         tsRealm.delete(RealmNewsEntity.class);
-        tsRealm.copyToRealm(realmNewsEntities);
+        tsRealm.copyToRealmOrUpdate(realmNewsEntities);
       });
     }
   }
