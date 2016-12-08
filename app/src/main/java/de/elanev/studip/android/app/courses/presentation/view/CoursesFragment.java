@@ -145,7 +145,7 @@ public class CoursesFragment extends
     this.adapter.removeAllSections();
 
     CourseSection unlimitedSection = new CourseSection(
-        getString(R.string.course_without_duration_limit), settings);
+        getString(R.string.course_without_duration_limit), settings, getContext());
     unlimitedSection.setOnItemClickListener(onClickListener);
 
     for (CourseModel courseModel : data) {
@@ -159,7 +159,7 @@ public class CoursesFragment extends
 
       if (section == null) {
         section = new CourseSection(courseModel.getSemester()
-            .getTitle(), settings);
+            .getTitle(), settings, getContext());
         section.setOnItemClickListener(onClickListener);
         section.add(courseModel);
       } else {

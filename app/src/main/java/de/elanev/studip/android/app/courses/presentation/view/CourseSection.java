@@ -8,8 +8,11 @@
 
 package de.elanev.studip.android.app.courses.presentation.view;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,16 +33,18 @@ import timber.log.Timber;
  */
 
 class CourseSection extends StatelessSection {
+  private final Settings settings;
+  private final String title;
+  private final Context context;
   private List<CourseModel> data = new ArrayList<>();
-  private Settings settings;
   private CourseClickListener onItemClickListener;
-  private String title;
 
-  public CourseSection(String title, Settings settings) {
+  public CourseSection(String title, Settings settings, Context context) {
     super(R.layout.list_item_header, R.layout.list_item_two_text_icon);
 
     this.title = title;
     this.settings = settings;
+    this.context = context;
   }
 
   public List<CourseModel> getData() {
@@ -100,17 +105,18 @@ class CourseSection extends StatelessSection {
       viewHolder.icon.setImageResource(R.drawable.ic_menu_courses);
     }
 
-    if (color != null) {
-      try {
-        int tintColor = Color.parseColor(color);
-        if (tintColor == -1) {
-          tintColor = Color.parseColor("#ff000000");
-        }
-        viewHolder.icon.setColorFilter(tintColor);
-      } catch (Exception e) {
-        Timber.e(e, e.getMessage());
+    try {
+      int tintColor = -1;
+      if (!TextUtils.isEmpty(color)) {
+        tintColor = Color.parseColor(color);
+      } else {
+        tintColor = ContextCompat.getColor(context, R.color.studip_mobile_dark);
       }
+      viewHolder.icon.setColorFilter(tintColor);
+    } catch (Exception e) {
+      Timber.e(e, e.getMessage());
     }
+
 
     holder.itemView.setOnClickListener(v -> {
       if (CourseSection.this.onItemClickListener != null) {

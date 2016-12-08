@@ -81,7 +81,7 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
 
 
     int tintColor = -1;
-    if (news.course != null) {
+    if (news.course != null && !TextUtils.isEmpty(news.course.getColor())) {
       tintColor = Color.parseColor(news.course.getColor());
     } else {
       tintColor = ContextCompat.getColor(mContext, R.color.studip_mobile_dark);
