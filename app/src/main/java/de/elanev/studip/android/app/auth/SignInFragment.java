@@ -36,6 +36,7 @@ import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
+import dagger.Lazy;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Server;
@@ -55,7 +56,7 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
     StudIPAuthWebViewClient.WebAuthStatusListener {
   public static final String REQUEST_TOKEN_RECEIVED = "onRequestTokenReceived";
   @Inject Prefs mPrefs;
-  @Inject StudIpLegacyApiService apiService;
+  @Inject Lazy<StudIpLegacyApiService> apiService;
   private View mProgressInfo;
   private TextView mSyncStatusTextView;
   private boolean mRequestTokenReceived = false;
@@ -306,7 +307,7 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
   }
 
   private void requestUserProfile() {
-    Subscription subscription = apiService.getCurrentUserInfo()
+    Subscription subscription = apiService.get().getCurrentUserInfo()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<User>() {
