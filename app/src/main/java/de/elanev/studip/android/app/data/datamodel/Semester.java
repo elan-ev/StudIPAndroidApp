@@ -11,47 +11,75 @@
 package de.elanev.studip.android.app.data.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Semester {
+  private String semesterId;
+  private String title;
+  private String description;
+  private Long begin;
+  private Long end;
+  private Long seminarsBegin;
+  private Long seminarsEnd;
 
-  public String semester_id;
-  public String title;
-  public String description;
-  public long begin;
-  public long end;
-  public long seminars_begin;
-  public long seminars_end;
-
-  public Semester() {
+  @JsonProperty("semester_id") public String getSemesterId() {
+    return semesterId;
   }
 
-  /**
-   * @param semester_id
-   * @param title
-   * @param description
-   * @param begin
-   * @param end
-   * @param seminars_begin
-   * @param seminars_end
-   */
-  public Semester(String semester_id,
-      String title,
-      String description,
-      long begin,
-      long end,
-      long seminars_begin,
-      long seminars_end) {
-    this.semester_id = semester_id;
+  @JsonProperty("semester_id") public void setSemesterId(String semesterId) {
+    this.semesterId = semesterId;
+  }
+
+  @JsonProperty("title") public String getTitle() {
+    return title;
+  }
+
+  @JsonProperty("title") public void setTitle(String title) {
     this.title = title;
-    this.description = description;
-    this.begin = begin;
-    this.end = end;
-    this.seminars_begin = seminars_begin;
-    this.seminars_end = seminars_end;
   }
 
+  @JsonProperty("description") public String getDescription() {
+    return description;
+  }
+
+  @JsonProperty("description") public void setDescription(String description) {
+    this.description = description;
+  }
+
+  @JsonProperty("begin") public Long getBegin() {
+    return begin;
+  }
+
+  @JsonProperty("begin") public void setBegin(Long begin) {
+    this.begin = begin;
+  }
+
+  @JsonProperty("end") public Long getEnd() {
+    return end;
+  }
+
+  @JsonProperty("end") public void setEnd(Long end) {
+    this.end = end;
+  }
+
+
+  @JsonProperty("seminars_begin") public Long getSeminarsBegin() {
+    return seminarsBegin;
+  }
+
+  @JsonProperty("seminars_begin") public void setSeminarsBegin(Long seminarsBegin) {
+    this.seminarsBegin = seminarsBegin;
+  }
+
+  @JsonProperty("seminars_end") public Long getSeminarsEnd() {
+    return seminarsEnd;
+  }
+
+  @JsonProperty("seminars_end") public void setSeminarsEnd(Long seminarsEnd) {
+    this.seminarsEnd = seminarsEnd;
+  }
 }

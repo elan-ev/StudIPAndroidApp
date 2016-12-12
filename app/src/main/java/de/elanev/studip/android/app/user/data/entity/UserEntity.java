@@ -11,8 +11,6 @@
  */
 package de.elanev.studip.android.app.user.data.entity;
 
-import android.text.TextUtils;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,146 +28,19 @@ import de.elanev.studip.android.app.util.TextTools;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName(value = "user")
 public class UserEntity {
-  @JsonProperty("user_id") public String userId;
-  @JsonProperty("username") public String username;
-  @JsonProperty("perms") public String perms;
-  @JsonProperty("title_pre") public String titlePre;
-  @JsonProperty("forename") public String forename;
-  @JsonProperty("lastname") public String lastname;
-  @JsonProperty("title_post") public String titlePost;
-  @JsonProperty("email") public String email;
-  @JsonProperty("avatar_normal") public String avatarNormal;
-  @JsonProperty("phone") public String phone;
-  @JsonProperty("homepage") public String homepage;
-  @JsonProperty("privadr") public String privadr;
-  @JsonProperty("role") public int role;
-  @JsonProperty("skype") public String skype;
-  @JsonProperty("skype_show") public boolean skypeShow;
+  private String userId;
+  private String username;
+  private String titlePre;
+  private String forename;
+  private String lastname;
+  private String titlePost;
+  private String email;
+  private String avatarNormal;
+  private String phone;
+  private String homepage;
+  private String privadr;
+  private String skype;
 
-  public String getUserId() {
-    return userId;
-  }
-
-  public void setUserId(String userId) {
-    this.userId = userId;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getPerms() {
-    return perms;
-  }
-
-  public void setPerms(String perms) {
-    this.perms = perms;
-  }
-
-  public String getTitlePre() {
-    return titlePre;
-  }
-
-  public void setTitlePre(String titlePre) {
-    this.titlePre = titlePre;
-  }
-
-  public String getForename() {
-    return forename;
-  }
-
-  public void setForename(String forename) {
-    this.forename = forename;
-  }
-
-  public String getLastname() {
-    return lastname;
-  }
-
-  public void setLastname(String lastname) {
-    this.lastname = lastname;
-  }
-
-  public String getTitlePost() {
-    return titlePost;
-  }
-
-  public void setTitlePost(String titlePost) {
-    this.titlePost = titlePost;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public String getAvatarNormal() {
-    return avatarNormal;
-  }
-
-  public void setAvatarNormal(String avatarNormal) {
-    this.avatarNormal = avatarNormal;
-  }
-
-  public String getPhone() {
-    return phone;
-  }
-
-  public void setPhone(String phone) {
-    this.phone = phone;
-  }
-
-  public String getHomepage() {
-    return homepage;
-  }
-
-  public void setHomepage(String homepage) {
-    this.homepage = homepage;
-  }
-
-  public String getPrivadr() {
-    return privadr;
-  }
-
-  public void setPrivadr(String privadr) {
-    this.privadr = privadr;
-  }
-
-  public int getRole() {
-    return role;
-  }
-
-  public void setRole(int role) {
-    this.role = role;
-  }
-
-  public String getSkype() {
-    return skype;
-  }
-
-  public void setSkype(String skype) {
-    this.skype = skype;
-  }
-
-  public boolean isSkypeShow() {
-    return skypeShow;
-  }
-
-  public void setSkypeShow(boolean skypeShow) {
-    this.skypeShow = skypeShow;
-  }
-
-  /**
-   * Default constructor
-   */
-  public UserEntity() {}
 
   @JsonIgnore public static UserEntity fromJson(String userJson) {
 
@@ -207,7 +78,103 @@ public class UserEntity {
     return json;
   }
 
-  public String getFullName() {
+  @JsonProperty("user_id") public String getUserId() {
+    return userId;
+  }
+
+  @JsonProperty("user_id") public void setUserId(String userId) {
+    this.userId = userId;
+  }
+
+  @JsonProperty("username") public String getUsername() {
+    return username;
+  }
+
+  @JsonProperty("username") public void setUsername(String username) {
+    this.username = username;
+  }
+
+  @JsonProperty("title_pre") public String getTitlePre() {
+    return titlePre;
+  }
+
+  @JsonProperty("title_pre") public void setTitlePre(String titlePre) {
+    this.titlePre = titlePre;
+  }
+
+  @JsonProperty("forename") public String getForename() {
+    return forename;
+  }
+
+  @JsonProperty("forename") public void setForename(String forename) {
+    this.forename = forename;
+  }
+
+  @JsonProperty("lastname") public String getLastname() {
+    return lastname;
+  }
+
+  @JsonProperty("lastname") public void setLastname(String lastname) {
+    this.lastname = lastname;
+  }
+
+  @JsonProperty("title_post") public String getTitlePost() {
+    return titlePost;
+  }
+
+  @JsonProperty("title_post") public void setTitlePost(String titlePost) {
+    this.titlePost = titlePost;
+  }
+
+  @JsonProperty("email") public String getEmail() {
+    return email;
+  }
+
+  @JsonProperty("email") public void setEmail(String email) {
+    this.email = email;
+  }
+
+  @JsonProperty("avatar_normal") public String getAvatarNormal() {
+    return avatarNormal;
+  }
+
+  @JsonProperty("avatar_normal") public void setAvatarNormal(String avatarNormal) {
+    this.avatarNormal = avatarNormal;
+  }
+
+  @JsonProperty("phone") public String getPhone() {
+    return phone;
+  }
+
+  @JsonProperty("phone") public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
+  @JsonProperty("homepage") public String getHomepage() {
+    return homepage;
+  }
+
+  @JsonProperty("homepage") public void setHomepage(String homepage) {
+    this.homepage = homepage;
+  }
+
+  @JsonProperty("privadr") public String getPrivadr() {
+    return privadr;
+  }
+
+  @JsonProperty("privadr") public void setPrivadr(String privadr) {
+    this.privadr = privadr;
+  }
+
+  @JsonProperty("skype") public String getSkype() {
+    return skype;
+  }
+
+  @JsonProperty("skype") public void setSkype(String skype) {
+    this.skype = skype;
+  }
+
+  @JsonIgnore public String getFullName() {
     StringBuilder builder = new StringBuilder();
     if (!TextTools.isEmpty(this.titlePre)) {
       builder.append(this.titlePre)
@@ -228,7 +195,7 @@ public class UserEntity {
     return builder.toString();
   }
 
-  public String getName() {
+  @JsonIgnore public String getName() {
     return this.forename + " " + this.lastname;
   }
 }

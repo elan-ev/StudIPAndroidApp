@@ -31,13 +31,6 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <TextView
-        android:id="@+id/emptyView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/no_data"
-        android:textColor="@android:color/secondary_text_light"
-        android:textSize="14sp"
-        android:visibility="gone"/>
+    <include
+        layout="@layout/view_empty"/>
 </FrameLayout>

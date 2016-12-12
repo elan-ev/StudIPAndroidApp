@@ -35,16 +35,17 @@ public class GetNewsListTest {
   @Before public void setUp() {
     MockitoAnnotations.initMocks(this);
 
-    getNewsList = new GetNewsList(mockNewsRepository, mockThreadExecutor, mockPostExecutionThread);
+    getNewsList = new GetNewsList(mockNewsRepository, mockThreadExecutor, mockPostExecutionThread,
+        coursesRepository);
   }
 
   @Test public void buildUseCaseObservable() throws Exception {
     given(mockThreadExecutor.getScheduler()).willReturn(Schedulers.immediate());
     given(mockPostExecutionThread.getScheduler()).willReturn(Schedulers.immediate());
 
-    getNewsList.buildUseCaseObservable();
+    getNewsList.buildUseCaseObservable(true);
 
-    verify(mockNewsRepository).newsList();
+    verify(mockNewsRepository).newsList(true);
     verifyNoMoreInteractions(mockNewsRepository);
 
     verifyZeroInteractions(mockThreadExecutor);

@@ -25,11 +25,8 @@ import java.util.concurrent.TimeoutException;
 
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.data.datamodel.ForumArea;
-import de.elanev.studip.android.app.data.datamodel.ForumEntry;
-import de.elanev.studip.android.app.data.datamodel.Server;
-import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.util.Prefs;
+import de.elanev.studip.android.app.courses.data.entity.ForumArea;
+import de.elanev.studip.android.app.courses.data.entity.ForumEntry;
 import de.elanev.studip.android.app.widget.ReactiveFragment;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
@@ -128,9 +125,6 @@ public class ForumEntryComposeFragment extends ReactiveFragment {
     setViewsVisible(false);
     String subject = mSubjectEditText.getText().toString();
     String content = mContentEditText.getText().toString();
-
-    Server server = Prefs.getInstance(getActivity()).getServer(getContext());
-
 
     mCompositeSubscription.add(bind(mApiService.createForumEntry(sEntryId,
         subject,

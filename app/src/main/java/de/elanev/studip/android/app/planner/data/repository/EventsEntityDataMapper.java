@@ -14,16 +14,21 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import de.elanev.studip.android.app.courses.data.repository.CourseEntityDataMapper;
 import de.elanev.studip.android.app.planner.data.entity.EventEntity;
+import de.elanev.studip.android.app.planner.data.entity.RealmEventEntity;
 import de.elanev.studip.android.app.planner.domain.Event;
+import io.realm.RealmList;
 
 /**
  * @author joern
  */
 @Singleton
-class EventsEntityDataMapper {
+public class EventsEntityDataMapper {
+  private final CourseEntityDataMapper courseEntityDataMapper;
 
-  @Inject EventsEntityDataMapper() {}
+  @Inject EventsEntityDataMapper(
+      CourseEntityDataMapper courseEntityDataMapper) {this.courseEntityDataMapper = courseEntityDataMapper;}
 
   public List<Event> transform(List<EventEntity> eventEntities) {
     ArrayList<Event> eventArrayList = new ArrayList<>();
@@ -47,7 +52,33 @@ class EventsEntityDataMapper {
     event.setCourse(eventEntity.getCourse());
     event.setStart(eventEntity.getStart());
     event.setEnd(eventEntity.getEnd());
+    event.setCategory(eventEntity.getCategories());
 
     return event;
+  }
+
+  public RealmList<RealmEventEntity> transformToReal(List<EventEntity> events) {
+    RealmList<RealmEventEntity> realmEventEntities = new RealmList<>();
+
+    for (EventEntity eventEntity : events) {
+      realmEventEntities.add(transformToReal(eventEntity));
+    }
+
+    return realmEventEntities;
+  }
+
+  private RealmEventEntity transformToReal(EventEntity eventEntity) {
+    RealmEventEntity realmEvent = new RealmEventEntity();
+    realmEvent.setEventId(eventEntity.getEventId());
+    realmEvent.setTitle(eventEntity.getTitle());
+    realmEvent.setDescription(eventEntity.getDescription());
+    realmEvent.setColor(eventEntity.getColor());
+    realmEvent.setRoom(eventEntity.getRoom());
+    realmEvent.setCourse(courseEntityDataMapper.transformToRealm(eventEntity.getCourse()));
+    realmEvent.setStart(eventEntity.getStart());
+    realmEvent.setEnd(eventEntity.getEnd());
+    realmEvent.setCategory(eventEntity.getCategories());
+
+    return realmEvent;
   }
 }

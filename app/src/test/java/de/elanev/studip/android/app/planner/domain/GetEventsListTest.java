@@ -44,7 +44,7 @@ public class GetEventsListTest {
     given(mockThreadExecutor.getScheduler()).willReturn(Schedulers.immediate());
     given(mockPostExecutionThread.getScheduler()).willReturn(Schedulers.immediate());
 
-    getEventsList.buildUseCaseObservable();
+    getEventsList.buildUseCaseObservable(true);
 
     verify(mockPlannerRepository).eventsList();
     verifyNoMoreInteractions(mockPlannerRepository);

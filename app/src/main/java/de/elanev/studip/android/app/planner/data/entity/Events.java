@@ -11,13 +11,9 @@ package de.elanev.studip.android.app.planner.data.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Events {
-  @JsonProperty("events") public ArrayList<EventEntity> eventEntities;
-
-  public Events() {
-    eventEntities = new ArrayList<>();
-  }
+  @JsonProperty("events") public List<EventEntity> eventEntities;
 }

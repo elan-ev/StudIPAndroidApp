@@ -113,7 +113,7 @@ public class FeedbackActivity extends BaseActivity implements AdapterView.OnItem
     String emailAddress = getString(R.string.default_support_address);
     String name = getString(android.R.string.unknownName);
 
-    Server server = prefs.getServer(this);
+    Server server = prefs.getServer();
     if (server != null) {
       emailAddress = server.getContactEmail();
       name = server.getName();

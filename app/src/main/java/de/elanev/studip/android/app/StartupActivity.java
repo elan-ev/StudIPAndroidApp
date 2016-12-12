@@ -10,7 +10,6 @@ package de.elanev.studip.android.app;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
@@ -29,7 +28,7 @@ public class StartupActivity extends BaseActivity {
 
     getApplicationComponent().inject(this);
 
-    if (!mPrefs.isAppAuthorized(this)) {
+    if (!mPrefs.isAppAuthorized()) {
       this.navigator.navigateToSignIn(this);
       finish();
       return;

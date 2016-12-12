@@ -19,6 +19,8 @@ import de.elanev.studip.android.app.R;
  */
 public class ForumAreasActivity extends AppCompatActivity {
 
+  public static final String COURSE_ID = "course-id";
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 

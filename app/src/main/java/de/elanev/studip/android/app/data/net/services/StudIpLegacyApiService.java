@@ -8,38 +8,32 @@
 
 package de.elanev.studip.android.app.data.net.services;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
-
-import com.fernandocejas.frodo.annotation.RxLogObservable;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroup;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroupEntity;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroups;
-import de.elanev.studip.android.app.data.datamodel.Course;
-import de.elanev.studip.android.app.data.datamodel.CourseItem;
-import de.elanev.studip.android.app.data.datamodel.Courses;
-import de.elanev.studip.android.app.data.datamodel.DocumentFolders;
-import de.elanev.studip.android.app.data.datamodel.ForumArea;
-import de.elanev.studip.android.app.data.datamodel.ForumAreas;
-import de.elanev.studip.android.app.data.datamodel.ForumCategories;
-import de.elanev.studip.android.app.data.datamodel.ForumCategory;
-import de.elanev.studip.android.app.data.datamodel.ForumEntries;
-import de.elanev.studip.android.app.data.datamodel.ForumEntry;
+import de.elanev.studip.android.app.courses.data.entity.Course;
+import de.elanev.studip.android.app.courses.data.entity.CourseItem;
+import de.elanev.studip.android.app.courses.data.entity.Courses;
+import de.elanev.studip.android.app.courses.data.entity.DocumentFolders;
+import de.elanev.studip.android.app.courses.data.entity.ForumArea;
+import de.elanev.studip.android.app.courses.data.entity.ForumAreas;
+import de.elanev.studip.android.app.courses.data.entity.ForumCategories;
+import de.elanev.studip.android.app.courses.data.entity.ForumCategory;
+import de.elanev.studip.android.app.courses.data.entity.ForumEntries;
+import de.elanev.studip.android.app.courses.data.entity.ForumEntry;
+import de.elanev.studip.android.app.courses.data.entity.Recording;
 import de.elanev.studip.android.app.data.datamodel.Institutes;
 import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
 import de.elanev.studip.android.app.data.datamodel.NewsItemWrapper;
-import de.elanev.studip.android.app.data.datamodel.Recording;
+import de.elanev.studip.android.app.data.datamodel.Semester;
+import de.elanev.studip.android.app.data.datamodel.SemesterWrapper;
 import de.elanev.studip.android.app.data.datamodel.Semesters;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.datamodel.UserItem;
-import de.elanev.studip.android.app.data.db.UsersContract;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntities;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntity;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntityWrapper;
@@ -78,14 +72,12 @@ import timber.log.Timber;
 public class StudIpLegacyApiService {
 
   //region LOCAL CONSTANTS -------------------------------------------------------------------------
-  public static final String TAG = StudIpLegacyApiService.class.getSimpleName();
   private final Prefs prefs;
   //endregion --------------------------------------------------------------------------------------
 
   //region INSTANCE VARIABLES ----------------------------------------------------------------------
   private RestIPLegacyService mService;
   //endregion --------------------------------------------------------------------------------------
-  private Context mContext;
 
   //region CONSTRUCTOR
   // -----------------------------------------------------------------------------------------------
@@ -189,49 +181,6 @@ public class StudIpLegacyApiService {
         });
   }
 
-  private User getUserFromContentProvider(final String userId) {
-
-    String[] projection = {
-        UsersContract.Columns.USER_TITLE_PRE,
-        UsersContract.Columns.USER_FORENAME,
-        UsersContract.Columns.USER_LASTNAME,
-        UsersContract.Columns.USER_TITLE_POST,
-        UsersContract.Columns.USER_AVATAR_NORMAL
-    };
-    String selection = UsersContract.Columns.USER_ID + " = ?";
-
-    Cursor cursor = mContext.getContentResolver()
-        .query(UsersContract.CONTENT_URI, projection, selection, new String[]{userId},
-            UsersContract.DEFAULT_SORT_ORDER);
-
-    String userTitlePre = "";
-    String userTitlePost = "";
-    String userForename = "";
-    String userLastname = "";
-    String userAvatarUrl = "";
-
-    if (cursor != null) {
-
-      cursor.moveToFirst();
-      if (cursor.isAfterLast()) {
-        cursor.close();
-        return null;
-      }
-
-      userTitlePre = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_PRE));
-      userTitlePost = cursor.getString(
-          cursor.getColumnIndex(UsersContract.Columns.USER_TITLE_POST));
-      userForename = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_FORENAME));
-      userLastname = cursor.getString(cursor.getColumnIndex(UsersContract.Columns.USER_LASTNAME));
-      userAvatarUrl = cursor.getString(
-          cursor.getColumnIndex(UsersContract.Columns.USER_AVATAR_NORMAL));
-
-      cursor.close();
-    }
-    return new User(userId, null, null, userTitlePre, userForename, userLastname, userTitlePost,
-        null, null, null, userAvatarUrl, null, null, null, 0);
-  }
-
   /**
    * Creates a new forum entry for a specific forum topic and returns the new {@link ForumEntry}
    * wrapped in an {@link Observable}.
@@ -276,22 +225,22 @@ public class StudIpLegacyApiService {
    * @return An {@link Observable} wrapping an ArrayList containing a list of {@link Recording}
    * objects corresponding to the passed course id.
    */
-  public Observable<ArrayList<Recording>> getRecordings(String courseId) {
+  public Observable<List<Recording>> getRecordings(String courseId) {
     Observable<CourseItem> courseObservable = mService.getCourse(courseId);
-    Observable<ArrayList<Recording>> recordingsObservable = courseObservable.flatMap(
-        new Func1<CourseItem, Observable<ArrayList<Recording>>>() {
-          @Override public Observable<ArrayList<Recording>> call(CourseItem course) {
-            if (course != null && course.course != null
-                && course.course.getAdditionalData() != null) {
-              return Observable.just(course.course.getAdditionalData()
-                  .getRecordings());
-            } else {
-              return Observable.empty();
-            }
-          }
-        });
 
-    return recordingsObservable;
+    return courseObservable.flatMap(new Func1<CourseItem, Observable<List<Recording>>>() {
+      @Override public Observable<List<Recording>> call(CourseItem course) {
+        if ((course != null) && (course.course != null) && (course.course.getCourseAdditionalData()
+            != null)) {
+
+          return Observable.just(course.course.getCourseAdditionalData()
+              .getRecordings());
+
+        } else {
+          return Observable.empty();
+        }
+      }
+    });
   }
 
   /**
@@ -302,11 +251,7 @@ public class StudIpLegacyApiService {
    */
   public Observable<User> getCurrentUserInfo() {
     return mService.getCurrentUserInfo()
-        .flatMap(new Func1<UserItem, Observable<? extends User>>() {
-          @Override public Observable<? extends User> call(UserItem userItem) {
-            return Observable.just(userItem.user);
-          }
-        });
+        .flatMap(userItem -> Observable.defer(() -> Observable.just(userItem.user)));
   }
 
   /**
@@ -342,25 +287,36 @@ public class StudIpLegacyApiService {
    *
    * @return An {@link Observable} containing the user's {@link Events} for the next two weeks.
    */
-  @RxLogObservable public Observable<List<EventEntity>> getEvents() {
+  public Observable<List<EventEntity>> getEvents() {
 
     return mService.getEvents()
         // Then unwrap the events
-        .flatMap(events -> Observable.from(events.eventEntities))
+        .flatMap(events -> Observable.defer(() -> Observable.from(events.eventEntities)))
         .flatMap(eventEntity -> getCourse(eventEntity.getCourseId()).flatMap(course -> {
           eventEntity.setCourse(course);
-          return Observable.just(eventEntity);
+          return Observable.defer(() -> Observable.just(eventEntity));
         }))
         .toList();
   }
 
   public Observable<Course> getCourse(final String courseId) {
     return mService.getCourse(courseId)
-        .flatMap(courseItem -> Observable.defer(() -> Observable.just(courseItem.course)));
+        .flatMap(courseItem -> Observable.defer(() -> Observable.just(courseItem.course)))
+        .flatMap(course -> getSemester(course.getSemesterId()).flatMap(semester -> {
+          course.setSemester(semester);
+          return Observable.defer(() -> Observable.just(course));
+        }));
   }
 
-  public Observable<Events> getEvents(final String courseId) {
-    return mService.getEvents(courseId);
+  public Observable<List<EventEntity>> getEvents(final String courseId) {
+    return mService.getEvents(courseId)
+        .flatMap(events -> Observable.defer(() -> Observable.just(events.eventEntities)));
+  }
+
+  public Observable<List<UserEntity>> getUsersFor(List<String> userIds) {
+    return Observable.from(userIds)
+        .flatMap(this::getUserEntity)
+        .toList();
   }
 
   /**
@@ -405,13 +361,14 @@ public class StudIpLegacyApiService {
     return mService.getUserEntity(userId)
         .flatMap(userEntityWrapper -> Observable.defer(
             () -> Observable.just(userEntityWrapper.getUserEntity())))
-        .onErrorReturn(throwable -> null);
+        .onErrorReturn(throwable -> null)
+        .filter(userEntity -> userEntity != null);
   }
 
   /**
    * Get the users {@link MessageEntities} in the specified Stud.IP messages outbox folder.
    *
-   * @param offset Offset number of the message pagination.
+   * @param offset Offset number of the== message pagination.
    * @param limit  The limit of entries until it paginates.
    * @return An {@link Observable} containing {@link MessageEntities} from the specified outbox folder.
    */
@@ -550,22 +507,37 @@ public class StudIpLegacyApiService {
     return mService.deleteUserFromContacts(userId);
   }
 
+  private Observable<Semester> getSemester(String semesterId) {
+    return mService.getSemester(semesterId)
+        .flatMap(semesterWrapper -> Observable.defer(
+            () -> Observable.just(semesterWrapper.getSemester())));
+  }
+
   /**
    * Gets a list of the users {@link Courses}.
    *
    * @return A list of the users {@link Courses}.
+   *
    */
-  public Observable<Courses> getCourses() {
-    return mService.getCourses();
+  public Observable<List<Course>> getCourses() {
+    return mService.getCourses()
+        .flatMap(courses -> Observable.from(courses.courses))
+        .flatMap(course -> getSemester(course.getSemesterId()).flatMap(
+            semester -> Observable.defer(() -> {
+              course.setSemester(semester);
+              return Observable.just(course);
+            })))
+        .toList();
   }
 
   public Observable<List<NewsEntity>> getNews() {
-    Observable<NewsEntity> globalNews = getNewsGlobal();
-    Observable<NewsEntity> courseNews = getNewsCourses();
-    Observable<NewsEntity> institutesNews = getNewsInstitutes(prefs.getUserId());
 
-    return Observable.merge(globalNews, courseNews, institutesNews)
-        .toSortedList((newsEntity, newsEntity2) -> newsEntity2.date.compareTo(newsEntity.date));
+    final Observable<NewsEntity> globalNews = getNewsGlobal();
+    final Observable<NewsEntity> institutesNews = getNewsInstitutes(prefs.getUserId());
+
+    return Observable.merge(globalNews, institutesNews)
+        .toSortedList((newsEntity, newsEntity2) -> newsEntity2.getDate()
+            .compareTo(newsEntity.getDate()));
   }
 
   public Observable<NewsEntity> getNewsGlobal() {
@@ -573,14 +545,14 @@ public class StudIpLegacyApiService {
   }
 
   public Observable<NewsEntity> getNewsCourses() {
-    return mService.getCourses()
-        .flatMap(courses -> Observable.defer(() -> Observable.from(courses.courses))
-            .flatMap(this::getNewsForCourse));
+    return getCourses().flatMap(courses -> Observable.defer(() -> Observable.from(courses))
+        .flatMap(this::getNewsForCourse));
   }
 
   private Observable<NewsEntity> getNewsForCourse(final Course course) {
-    return getNewsForRange(course.courseId).flatMap(newsEntity -> {
-      newsEntity.course = course;
+    return getNewsForRange(course.getCourseId()).flatMap(newsEntity -> {
+      newsEntity.setCourse(course);
+
       return Observable.defer(() -> Observable.just(newsEntity));
     });
   }
@@ -589,11 +561,11 @@ public class StudIpLegacyApiService {
     // FIXME: Add actual paging mechanism
     return mService.getNewsEntityForRange(range, 0, 100)
         .flatMap(news -> (Observable.from(news.getNewsEntities())
-            .filter(newsEntity -> newsEntity.date + newsEntity.expire
+            .filter(newsEntity -> newsEntity.getDate() + newsEntity.getExpire()
                 >= System.currentTimeMillis() / 1000)
-            .flatMap(newsEntity -> getUserEntity(newsEntity.user_id).flatMap(userEntity -> {
-              newsEntity.author = userEntity;
-              newsEntity.range = range;
+            .flatMap(newsEntity -> getUserEntity(newsEntity.getUserId()).flatMap(userEntity -> {
+              newsEntity.setAuthor(userEntity);
+              newsEntity.setRange(range);
 
               return Observable.defer(() -> Observable.just(newsEntity));
             }))));
@@ -616,8 +588,8 @@ public class StudIpLegacyApiService {
 
   public Observable<NewsEntity> getNewsItem(final String id) {
     return mService.getNewsItem(id)
-        .flatMap(newsItem -> getUserEntity(newsItem.news.user_id).flatMap(user -> {
-          newsItem.news.author = user;
+        .flatMap(newsItem -> getUserEntity(newsItem.news.getNewsId()).flatMap(user -> {
+          newsItem.news.setAuthor(user);
 
           return Observable.defer(() -> Observable.just(newsItem.news));
         }));
@@ -663,7 +635,8 @@ public class StudIpLegacyApiService {
     /* Events */
     @GET("events") Observable<Events> getEvents();
 
-    @GET("events/{course_id}") Observable<Events> getEvents(@Path("course_id") String courseId);
+    @GET("courses/{course_id}/events") Observable<Events> getEvents(
+        @Path("course_id") String courseId);
 
     /* General */
     @GET("studip/settings") Observable<Settings> getSettings();
@@ -734,6 +707,7 @@ public class StudIpLegacyApiService {
 
     /* Semesters */
     @GET("semesters") Observable<Semesters> getSemesters();
+    @GET("semesters/{id}") Observable<SemesterWrapper> getSemester(@Path("id") final String id);
   }
   //endregion --------------------------------------------------------------------------------------
 

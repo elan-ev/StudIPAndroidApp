@@ -62,7 +62,7 @@ public class ContactsPresenter extends BaseRxLcePresenter<ContactsView, List<Con
     }
 
     @Override public void onError(Throwable e) {
-      ContactsPresenter.this.onError(e, ptr);
+      ContactsPresenter.this.onError(e, this.isPullToRefresh());
     }
 
     @Override public void onNext(List<ContactGroup> contactGroups) {

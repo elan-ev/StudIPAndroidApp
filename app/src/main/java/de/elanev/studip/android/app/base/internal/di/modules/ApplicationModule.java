@@ -16,12 +16,16 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.elanev.studip.android.app.authorization.data.repository.AuthorizationDataRepository;
+import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
 import de.elanev.studip.android.app.base.data.executor.ThreadExecutorImpl;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.presentation.executor.PostExecutionThreadImpl;
 import de.elanev.studip.android.app.contacts.data.repository.ContactsDataRepository;
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
+import de.elanev.studip.android.app.courses.data.repository.CoursesDataRepository;
+import de.elanev.studip.android.app.courses.domain.CoursesRepository;
 import de.elanev.studip.android.app.messages.data.repository.MessagesDataRepository;
 import de.elanev.studip.android.app.messages.domain.MessagesRepository;
 import de.elanev.studip.android.app.news.data.repository.NewsDataRepository;
@@ -31,6 +35,8 @@ import de.elanev.studip.android.app.planner.domain.PlannerRepository;
 import de.elanev.studip.android.app.user.data.repository.UserDataRepository;
 import de.elanev.studip.android.app.user.domain.UserRepository;
 import de.elanev.studip.android.app.util.Prefs;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 /**
  * @author joern
@@ -54,8 +60,8 @@ public class ApplicationModule {
   }
 
   // Prefs
-  @Provides @Singleton public Prefs providePrefs(Context context) {
-    return Prefs.getInstance(context);
+  @Provides @Singleton public Prefs providePrefs(Context context, AuthorizationRepository authorizationRepository) {
+    return new Prefs(context, authorizationRepository);
   }
 
   // Repositories
@@ -79,9 +85,19 @@ public class ApplicationModule {
     return plannerDataRepository;
   }
 
-  @Provides @Singleton public MessagesRepository providesMessagesRepository
-      (MessagesDataRepository messagesDataRepository) {
+  @Provides @Singleton public MessagesRepository providesMessagesRepository(
+      MessagesDataRepository messagesDataRepository) {
     return messagesDataRepository;
+  }
+
+  @Provides @Singleton public CoursesRepository providesCoursesRepository(
+      CoursesDataRepository coursesDataRepository) {
+    return coursesDataRepository;
+  }
+
+  @Provides @Singleton public AuthorizationRepository providesAuthorizationRepository(
+      AuthorizationDataRepository authorizationDataRepository) {
+    return authorizationDataRepository;
   }
 
   // Scheduling
@@ -93,4 +109,18 @@ public class ApplicationModule {
   @Provides @Singleton ThreadExecutor provideThreadExecutor(ThreadExecutorImpl threadExecutor) {
     return threadExecutor;
   }
+
+  // Database
+  @Provides @Singleton RealmConfiguration provideRealmConfiguration(Context context) {
+    Realm.init(context);
+
+    RealmConfiguration.Builder builder = new RealmConfiguration.Builder();
+    // TODO: Use PBKDF2 to generate secure key from provided password
+    builder.encryptionKey(new byte[64]);
+    builder.deleteRealmIfMigrationNeeded();
+    builder.name("studip.realm");
+
+    return builder.build();
+  }
+
 }

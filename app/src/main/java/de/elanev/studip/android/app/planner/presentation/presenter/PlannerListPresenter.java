@@ -20,6 +20,7 @@ import de.elanev.studip.android.app.planner.domain.Event;
 import de.elanev.studip.android.app.planner.presentation.mapper.EventsDataMapper;
 import de.elanev.studip.android.app.planner.presentation.model.EventModel;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerListView;
+import timber.log.Timber;
 
 /**
  * @author joern
@@ -58,11 +59,13 @@ public class PlannerListPresenter extends BaseRxLcePresenter<PlannerListView, Li
     }
 
     @Override public void onError(Throwable e) {
-      PlannerListPresenter.this.onError(e, ptr);
+      Timber.e(e, e.getLocalizedMessage());
+      PlannerListPresenter.this.onError(e, this.isPullToRefresh());
     }
 
     @Override public void onNext(List<Event> events) {
-      PlannerListPresenter.this.onNext(PlannerListPresenter.this.eventsDataMapper.transform(events));
+      PlannerListPresenter.this.onNext(
+          PlannerListPresenter.this.eventsDataMapper.transform(events));
     }
   }
 }

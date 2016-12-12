@@ -14,7 +14,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntity;
 import de.elanev.studip.android.app.messages.domain.Message;
 import de.elanev.studip.android.app.user.data.entity.UserEntityDataMapper;

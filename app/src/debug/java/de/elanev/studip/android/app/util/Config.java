@@ -9,8 +9,8 @@
 package de.elanev.studip.android.app.util;
 
 /**
- * Created by joern on 01.11.13.
+ * @author joern
  */
 public class Config {
-  public static final String PRIVATE_KEY = "";
+  public static final String PRIVATE_KEY = "Passwort123";
 }

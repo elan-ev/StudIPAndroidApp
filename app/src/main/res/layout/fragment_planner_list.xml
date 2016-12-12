@@ -6,12 +6,12 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.gnu.org/licenses/gpl.html
   -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:paddingTop="@dimen/keyline_1"
-             android:paddingBottom="@dimen/keyline_1"
-    >
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/keyline_1"
+    android:paddingBottom="@dimen/keyline_1">
 
     <include layout="@layout/view_loading"/>
 
@@ -30,16 +30,9 @@
             android:fadeScrollbars="true"
             />
 
-
-        <TextView
-            android:id="@+id/emptyView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="@string/no_data"
-            android:textColor="@android:color/secondary_text_light"
-            android:textSize="14sp"
-            android:visibility="gone"/>
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <include
+        layout="@layout/view_empty"/>
 
 </FrameLayout>

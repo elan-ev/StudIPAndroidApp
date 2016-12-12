@@ -8,6 +8,8 @@
 
 package de.elanev.studip.android.app.user.domain;
 
+import java.util.List;
+
 import rx.Observable;
 
 /**
@@ -15,4 +17,6 @@ import rx.Observable;
  */
 public interface UserRepository {
   Observable<User> user(String userId);
+
+  Observable<List<User>> getUsers(List<String> userIds);
 }

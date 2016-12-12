@@ -24,10 +24,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
-import de.elanev.studip.android.app.news.internal.di.NewsComponent;
-import de.elanev.studip.android.app.util.Prefs;
 import rx.subscriptions.CompositeSubscription;
 
 /**

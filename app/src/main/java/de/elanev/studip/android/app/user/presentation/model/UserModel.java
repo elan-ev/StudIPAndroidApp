@@ -86,4 +86,33 @@ public class UserModel implements Serializable {
   public void setAvatarUrl(String avatarUrl) {
     this.avatarUrl = avatarUrl;
   }
+
+  @Override public int hashCode() {
+    int result = userId.hashCode();
+    result = 31 * result + fullName.hashCode();
+    result = 31 * result + avatarUrl.hashCode();
+    result = 31 * result + email.hashCode();
+    result = 31 * result + address.hashCode();
+    result = 31 * result + skype.hashCode();
+    result = 31 * result + homepage.hashCode();
+    result = 31 * result + phone.hashCode();
+    return result;
+  }
+
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof UserModel)) return false;
+
+    UserModel userModel = (UserModel) o;
+
+    if (!userId.equals(userModel.userId)) return false;
+    if (!fullName.equals(userModel.fullName)) return false;
+    if (!avatarUrl.equals(userModel.avatarUrl)) return false;
+    if (!email.equals(userModel.email)) return false;
+    if (!address.equals(userModel.address)) return false;
+    if (!skype.equals(userModel.skype)) return false;
+    if (!homepage.equals(userModel.homepage)) return false;
+    return phone.equals(userModel.phone);
+
+  }
 }

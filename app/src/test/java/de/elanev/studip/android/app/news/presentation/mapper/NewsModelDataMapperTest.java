@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.elanev.studip.android.app.data.datamodel.Course;
+import de.elanev.studip.android.app.courses.data.entity.Course;
 import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.user.domain.User;
@@ -60,7 +60,7 @@ public class NewsModelDataMapperTest {
     list.add(mockNewsItem1);
     list.add(mockNewsItem2);
 
-    List<NewsModel> newsModels = newsModelDataMapper.transformNewsList(list);
+    List<NewsModel> newsModels = newsModelDataMapper.transform(list);
 
     assertThat(newsModels.toArray()[0], is(instanceOf(NewsModel.class)));
     assertThat(newsModels.toArray()[1], is(instanceOf(NewsModel.class)));
@@ -70,7 +70,7 @@ public class NewsModelDataMapperTest {
   @Test public void transformNewsItem() throws Exception {
     given(mockUserModelDataMapper.transform(mockUser)).willReturn(mockPresentationUser);
     NewsItem newsItem = createFakeNews();
-    NewsModel newsModel = newsModelDataMapper.transformNewsItem(newsItem);
+    NewsModel newsModel = newsModelDataMapper.transform(newsItem);
 
     assertThat(newsModel, is(instanceOf(NewsModel.class)));
     assertThat(newsModel.author, is(mockPresentationUser));

@@ -50,16 +50,24 @@ public abstract class UseCase<T> {
     this.postExecutionThread = postExecutionThread;
   }
 
-  public void execute(Subscriber subscriber) {
-    this.subscription = this.buildUseCaseObservable()
-        .compose(applySchedulers())
-        .subscribe(subscriber);
+  public void execute(Subscriber<T> subscriber) {
+    if (subscriber instanceof DefaultSubscriber) {
+      this.subscription = this.get(((DefaultSubscriber) subscriber).isPullToRefresh())
+          .subscribe(subscriber);
+    } else {
+      this.subscription = this.get(false)
+          .subscribe(subscriber);
+    }
+  }
+
+  final public Observable<T> get(boolean forceUpdate) {
+    return buildUseCaseObservable(forceUpdate).compose(applySchedulers());
   }
 
   /**
    * Builds an {@link rx.Observable} which will be used when executing the current {@link UseCase}.
    */
-  protected abstract Observable<T> buildUseCaseObservable();
+  protected abstract Observable<T> buildUseCaseObservable(boolean forceUpdate);
 
   private Observable.Transformer<T, T> applySchedulers() {
     return tObservable -> tObservable.subscribeOn(threadExecutor.getScheduler())
@@ -72,7 +80,7 @@ public abstract class UseCase<T> {
     }
   }
 
-  public boolean isUnsubscribed() {
+  boolean isUnsubscribed() {
     return subscription.isUnsubscribed();
   }
 }

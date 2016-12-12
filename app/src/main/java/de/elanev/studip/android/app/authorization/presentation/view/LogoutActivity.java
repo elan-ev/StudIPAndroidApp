@@ -16,9 +16,9 @@ import android.support.annotation.Nullable;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
-import de.elanev.studip.android.app.data.db.AbstractContract;
-import de.elanev.studip.android.app.data.net.sync.SyncHelper;
 import de.elanev.studip.android.app.util.Prefs;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 /**
  * @author joern
@@ -28,8 +28,8 @@ import de.elanev.studip.android.app.util.Prefs;
 // MainActivity.
 public class LogoutActivity extends BaseActivity {
 
-  @Inject SyncHelper syncHelper;
   @Inject Prefs prefs;
+  @Inject RealmConfiguration realmConfiguration;
 
   public static Intent getCallingIntent(Context context) {
     return new Intent(context, LogoutActivity.class);
@@ -44,14 +44,10 @@ public class LogoutActivity extends BaseActivity {
   }
 
   private void logout() {
-
-    // Resetting the SyncHelper
-    syncHelper.resetSyncHelper();
-
     // Clear the app preferences
     prefs.clearPrefs();
 
     // Delete the app database
-    getContentResolver().delete(AbstractContract.BASE_CONTENT_URI, null, null);
+    Realm.deleteRealm(realmConfiguration);
   }
 }

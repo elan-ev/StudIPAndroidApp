@@ -89,7 +89,7 @@ public class MessageComposePresenter extends BaseRxLcePresenter<MessageComposeVi
     }
 
     @Override public void onError(Throwable e) {
-      MessageComposePresenter.this.onError(e, ptr);
+      MessageComposePresenter.this.onError(e, this.isPullToRefresh());
     }
 
     @Override public void onNext(Message message) {
@@ -108,7 +108,7 @@ public class MessageComposePresenter extends BaseRxLcePresenter<MessageComposeVi
     }
 
     @Override public void onError(Throwable e) {
-      MessageComposePresenter.this.onError(e, ptr);
+      MessageComposePresenter.this.onError(e, this.isPullToRefresh());
     }
 
     @Override public void onNext(Message message) {}

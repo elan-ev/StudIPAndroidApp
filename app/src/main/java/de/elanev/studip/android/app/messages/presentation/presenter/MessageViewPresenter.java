@@ -8,8 +8,6 @@
 
 package de.elanev.studip.android.app.messages.presentation.presenter;
 
-import com.hannesdorfmann.mosby.mvp.MvpPresenter;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -20,7 +18,6 @@ import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.messages.domain.Message;
 import de.elanev.studip.android.app.messages.presentation.mapper.MessagesDataMapper;
 import de.elanev.studip.android.app.messages.presentation.model.MessageModel;
-import de.elanev.studip.android.app.messages.presentation.view.MessageComposeView;
 import de.elanev.studip.android.app.messages.presentation.view.MessageView;
 
 /**
@@ -71,7 +68,7 @@ public class MessageViewPresenter extends BaseRxLcePresenter<MessageView, Messag
     }
 
     @Override public void onError(Throwable e) {
-      MessageViewPresenter.this.onError(e, ptr);
+      MessageViewPresenter.this.onError(e, isPullToRefresh());
     }
 
     @Override public void onNext(Void aVoid) {}
@@ -87,7 +84,7 @@ public class MessageViewPresenter extends BaseRxLcePresenter<MessageView, Messag
     }
 
     @Override public void onError(Throwable e) {
-      MessageViewPresenter.this.onError(e, ptr);
+      MessageViewPresenter.this.onError(e, this.isPullToRefresh());
     }
 
     @Override public void onNext(Message message) {

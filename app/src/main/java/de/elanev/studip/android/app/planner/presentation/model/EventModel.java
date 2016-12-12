@@ -8,7 +8,7 @@
 
 package de.elanev.studip.android.app.planner.presentation.model;
 
-import de.elanev.studip.android.app.data.datamodel.Course;
+import de.elanev.studip.android.app.courses.data.entity.Course;
 
 /**
  * @author joern

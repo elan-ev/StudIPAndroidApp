@@ -126,6 +126,12 @@ public class PlannerListFragment extends
   @Override public void setData(List<EventModel> data) {
     this.data = data;
 
+    if (this.mAdapter == null) {
+      this.mAdapter = new EventsAdapter(getContext());
+      this.mAdapter.setOnItemClickListener(onClickListener);
+    }
+    this.mRecyclerView.setAdapter(mAdapter);
+
     mAdapter.setData(data);
     mAdapter.notifyDataSetChanged();
   }
@@ -153,9 +159,6 @@ public class PlannerListFragment extends
   }
 
   private void initRecyclerView() {
-    this.mAdapter = new EventsAdapter(getContext());
-    this.mRecyclerView.setAdapter(mAdapter);
-    this.mAdapter.setOnItemClickListener(onClickListener);
     this.mEmptyView.setText(R.string.no_schedule);
     this.mRecyclerView.setEmptyView(mEmptyView);
     this.mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

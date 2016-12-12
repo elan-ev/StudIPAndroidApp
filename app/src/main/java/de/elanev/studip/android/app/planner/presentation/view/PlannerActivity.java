@@ -16,12 +16,13 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import javax.inject.Inject;
+
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
-import de.elanev.studip.android.app.courses.CourseViewActivity;
-import de.elanev.studip.android.app.data.db.CoursesContract;
+import de.elanev.studip.android.app.courses.presentation.view.CourseViewActivity;
 import de.elanev.studip.android.app.planner.internal.di.DaggerPlannerComponent;
 import de.elanev.studip.android.app.planner.internal.di.PlannerComponent;
 import de.elanev.studip.android.app.planner.internal.di.PlannerModule;
@@ -37,6 +38,7 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
   public static final String PLANNER_VIEW_LIST = "planner-view-list";
   private static final String PLANNER_PREFERRED_VIEW = "planner-preferred-view";
   private static final String FRAGMENT_TAG = "planner-fragment";
+  @Inject Prefs prefs;
   private int mOrientation;
   private PlannerComponent plannerComponent;
 
@@ -79,8 +81,7 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
     initInjector();
 
     mOrientation = getResources().getConfiguration().orientation;
-    String preferredView = Prefs.getInstance(this)
-        .getPreferredPlannerView(mOrientation);
+    String preferredView = prefs.getPreferredPlannerView(mOrientation);
 
     overridePendingTransition(0, 0);
     if (savedInstanceState == null) {
@@ -89,6 +90,7 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
   }
 
   private void initInjector() {
+    getApplicationComponent().inject(this);
     this.plannerComponent = DaggerPlannerComponent.builder()
         .applicationComponent(((AbstractStudIPApplication) getApplication()).getAppComponent())
         .plannerModule(new PlannerModule())
@@ -126,15 +128,13 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
     Fragment fragment = fm.findFragmentByTag(FRAGMENT_TAG);
     switch (plannerView) {
       case R.id.planner_list:
-        Prefs.getInstance(this)
-            .setPlannerPreferredView(mOrientation, PLANNER_VIEW_LIST);
+        prefs.setPlannerPreferredView(mOrientation, PLANNER_VIEW_LIST);
         if (fragment == null || !(fragment instanceof PlannerListFragment)) {
           fragment = PlannerListFragment.newInstance(new Bundle());
         }
         break;
       case R.id.planner_timetable:
-        Prefs.getInstance(this)
-            .setPlannerPreferredView(mOrientation, PLANNER_VIEW_TIMETABLE);
+        prefs.setPlannerPreferredView(mOrientation, PLANNER_VIEW_TIMETABLE);
         if (fragment == null || !(fragment instanceof PlannerTimetableFragment)) {
           fragment = PlannerTimetableFragment.newInstance();
         }
@@ -152,10 +152,11 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
   @Override public void onPlannerEventSelected(EventModel model) {
     //TODO: Create real EventActivity and start this instead
     Intent intent = new Intent(this, CourseViewActivity.class);
-    intent.putExtra(CoursesContract.Columns.Courses.COURSE_ID, model.getCourse().courseId);
-    intent.putExtra(CoursesContract.Columns.Courses.COURSE_TITLE, model.getCourse().title);
-    intent.putExtra(CoursesContract.Columns.Courses.COURSE_MODULES,
-        model.getCourse().modules.getAsJson());
+    intent.putExtra(CourseViewActivity.COURSE_ID, model.getCourse()
+        .getCourseId());
+    intent.putExtra(CourseViewActivity.COURSE_MODULES, model.getCourse()
+        .getModules()
+        .getAsJson());
     startActivity(intent);
   }
 }

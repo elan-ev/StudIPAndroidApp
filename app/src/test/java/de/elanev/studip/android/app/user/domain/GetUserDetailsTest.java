@@ -43,7 +43,7 @@ public class GetUserDetailsTest {
     given(mockPostExecutionThread.getScheduler()).willReturn(Schedulers.immediate());
     given(mockThreadExecutor.getScheduler()).willReturn(Schedulers.immediate());
 
-    getUserDetails.buildUseCaseObservable();
+    getUserDetails.buildUseCaseObservable(true);
 
     verify(mockUserRepository).user(FAKE_USER_ID);
     verifyNoMoreInteractions(mockUserRepository);

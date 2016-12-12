@@ -14,11 +14,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
-import de.elanev.studip.android.app.news.data.repository.datastore.NewsDataStoreFactory;
+import de.elanev.studip.android.app.news.data.repository.datastore.CloudNewsDataStore;
+import de.elanev.studip.android.app.news.data.repository.datastore.RealmNewsDataStore;
 import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
 import rx.Observable;
-import rx.functions.Func1;
 
 /**
  * @author joern
@@ -27,24 +27,43 @@ import rx.functions.Func1;
 public class NewsDataRepository implements NewsRepository {
 
   private final NewsEntityDataMapper mEntityDataMapper;
-  private final NewsDataStoreFactory mNewsDataStoreFactory;
+  private final RealmNewsDataStore realmNewsDataStore;
+  private final CloudNewsDataStore cloudNewsDataStore;
 
   @Inject NewsDataRepository(NewsEntityDataMapper entityDataMapper,
-      NewsDataStoreFactory newsDataStoreFactory) {
+      RealmNewsDataStore realmNewsDataStore, CloudNewsDataStore cloudNewsDataStore) {
     this.mEntityDataMapper = entityDataMapper;
-    this.mNewsDataStoreFactory = newsDataStoreFactory;
+    this.realmNewsDataStore = realmNewsDataStore;
+    this.cloudNewsDataStore = cloudNewsDataStore;
   }
 
+  @Override public Observable<NewsItem> newsItem(String id, boolean forceUpdate) {
+    Observable<NewsEntity> cloudDataObs = cloudNewsDataStore.newsEntity(id)
+        .doOnNext(realmNewsDataStore::save);
+    Observable<NewsEntity> localDataObs = realmNewsDataStore.newsEntity(id);
 
-  @Override public Observable<NewsItem> newsItem(String id) {
-    return mNewsDataStoreFactory.create()
-        .newsEntity(id)
+    return localDataObs.exists(newsEntity -> newsEntity != null)
+        .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
         .map(mEntityDataMapper::transform);
   }
 
-  @Override public Observable<List<NewsItem>> newsList() {
-    return mNewsDataStoreFactory.create()
-        .newsEntityList()
+  @Override public Observable<List<NewsItem>> newsList(boolean forceUpdate) {
+    Observable<List<NewsEntity>> cloudDataObs = cloudNewsDataStore.newsEntityList()
+        .doOnNext(newsEntities -> realmNewsDataStore.save(newsEntities, forceUpdate));
+    Observable<List<NewsEntity>> localDataObs = realmNewsDataStore.newsEntityList();
+
+    return localDataObs.exists(newsEntities -> !newsEntities.isEmpty())
+        .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
+        .map(mEntityDataMapper::transform);
+  }
+
+  @Override public Observable<List<NewsItem>> newsForRange(String id, boolean forceUpdate) {
+    Observable<List<NewsEntity>> cloudDataObs = cloudNewsDataStore.newsEntityListForRange(id)
+        .doOnNext(newsEntities -> realmNewsDataStore.save(newsEntities, false));
+    Observable<List<NewsEntity>> localDataObs = realmNewsDataStore.newsEntityListForRange(id);
+
+    return localDataObs.exists(newsEntities -> !newsEntities.isEmpty())
+        .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
         .map(mEntityDataMapper::transform);
   }
 }

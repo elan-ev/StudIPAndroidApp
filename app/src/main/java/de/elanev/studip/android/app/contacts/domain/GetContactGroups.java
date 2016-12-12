@@ -31,7 +31,7 @@ public class GetContactGroups extends UseCase<List<ContactGroup>> {
     this.contactsRepository = contactsRepository;
   }
 
-  @Override protected Observable<List<ContactGroup>> buildUseCaseObservable() {
+  @Override protected Observable<List<ContactGroup>> buildUseCaseObservable(boolean forceUpdate) {
     return contactsRepository.contactGroups();
   }
 }

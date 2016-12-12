@@ -55,6 +55,7 @@ public class NewsListFragment extends
     }
   };
   private NewsListListener newsListListener;
+  private List<NewsModel> data;
 
 
   public NewsListFragment() {
@@ -101,11 +102,9 @@ public class NewsListFragment extends
   }
 
   private void setupRecyclerView() {
-    this.mNewsAdapter = new NewsListAdapter(getContext());
-    this.mNewsAdapter.setOnItemClickListener(onClickListener);
+    this.mEmptyView.setText(getString(R.string.no_news));
     this.mRecyclerView.setEmptyView(mEmptyView);
     this.mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    this.mRecyclerView.setAdapter(mNewsAdapter);
     this.mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
     this.mRecyclerView.setHasFixedSize(true);
   }
@@ -129,12 +128,18 @@ public class NewsListFragment extends
   }
 
   @Override public List<NewsModel> getData() {
-    return mNewsAdapter.getData();
+    return this.data;
   }
 
   @Override public void setData(List<NewsModel> data) {
-    mNewsAdapter.setData(data);
-    mNewsAdapter.notifyDataSetChanged();
+    this.data = data;
+    if (this.mNewsAdapter == null) {
+      this.mNewsAdapter = new NewsListAdapter(getContext());
+      this.mNewsAdapter.setOnItemClickListener(onClickListener);
+    }
+
+    this.mRecyclerView.setAdapter(mNewsAdapter);
+    this.mNewsAdapter.setData(data);
   }
 
   @Override public void loadData(boolean pullToRefresh) {

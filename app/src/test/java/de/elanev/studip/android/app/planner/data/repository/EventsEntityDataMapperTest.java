@@ -16,7 +16,9 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.elanev.studip.android.app.data.datamodel.Course;
+import dagger.Module;
+import de.elanev.studip.android.app.courses.data.entity.Course;
+import de.elanev.studip.android.app.courses.data.repository.CourseEntityDataMapper;
 import de.elanev.studip.android.app.planner.data.entity.EventEntity;
 import de.elanev.studip.android.app.planner.domain.Event;
 
@@ -32,11 +34,12 @@ public class EventsEntityDataMapperTest {
   private EventsEntityDataMapper eventsEntityDataMapper;
 
   @Mock private Course mockCourse;
+  @Mock private CourseEntityDataMapper courseEntityDataMapper;
 
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
-    eventsEntityDataMapper = new EventsEntityDataMapper();
+    eventsEntityDataMapper = new EventsEntityDataMapper(courseEntityDataMapper);
   }
 
   @Test public void shouldTransformEventEntitiesToEvents() throws Exception {

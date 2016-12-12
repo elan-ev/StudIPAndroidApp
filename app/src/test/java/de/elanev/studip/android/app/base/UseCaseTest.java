@@ -74,17 +74,17 @@ public class UseCaseTest {
     assertThat(userCase.isUnsubscribed(), is(true));
   }
 
-  private static class UseCaseTestClass extends UseCase {
+  private static class UseCaseTestClass extends UseCase<Integer> {
 
     UseCaseTestClass(ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
       super(threadExecutor, postExecutionThread);
     }
 
-    @Override public void execute(Subscriber subscriber) {
+    @Override public void execute(Subscriber<Integer> subscriber) {
       super.execute(subscriber);
     }
 
-    @Override protected Observable buildUseCaseObservable() {
+    @Override protected Observable<Integer> buildUseCaseObservable(boolean forceUpdate) {
       return Observable.just(1, 2, 3)
           .delay(10, TimeUnit.MILLISECONDS);
     }

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.data.datamodel.ForumEntry;
+import de.elanev.studip.android.app.courses.data.entity.ForumEntry;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import retrofit2.adapter.rxjava.HttpException;

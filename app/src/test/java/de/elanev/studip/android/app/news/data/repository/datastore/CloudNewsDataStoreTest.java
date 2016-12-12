@@ -18,11 +18,9 @@ import java.util.List;
 
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
-import de.elanev.studip.android.app.util.Prefs;
 import rx.Observable;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -44,8 +42,8 @@ public class CloudNewsDataStoreTest {
     List<NewsEntity> newsEntities = new ArrayList<>();
     NewsEntity newsEntity1 = new NewsEntity();
     NewsEntity newsEntity2 = new NewsEntity();
-    newsEntity1.date = 1L;
-    newsEntity2.date = 2L;
+    newsEntity1.setDate(1L);
+    newsEntity2.setDate(2L);
 
     newsEntities.add(newsEntity2);
     newsEntities.add(newsEntity1);

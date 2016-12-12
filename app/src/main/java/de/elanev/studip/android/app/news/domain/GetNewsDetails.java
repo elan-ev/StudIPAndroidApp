@@ -31,7 +31,7 @@ public class GetNewsDetails extends UseCase<NewsItem> {
     this.mRepository = repository;
   }
 
-  @Override public Observable<NewsItem> buildUseCaseObservable() {
-    return this.mRepository.newsItem(this.mNewsId);
+  @Override public Observable<NewsItem> buildUseCaseObservable(boolean forceUpdate) {
+    return this.mRepository.newsItem(this.mNewsId, forceUpdate);
   }
 }

@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.messages.domain.Message;

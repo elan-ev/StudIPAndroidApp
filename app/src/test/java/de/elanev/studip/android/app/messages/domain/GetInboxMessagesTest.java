@@ -43,7 +43,7 @@ public class GetInboxMessagesTest {
     given(mockThreadExecutor.getScheduler()).willReturn(Schedulers.immediate());
     given(mockPostExecutionThread.getScheduler()).willReturn(Schedulers.immediate());
 
-    getInboxMessages.buildUseCaseObservable();
+    getInboxMessages.buildUseCaseObservable(true);
 
     verify(mockMessagesRepository).inboxMessages();
     verifyNoMoreInteractions(mockMessagesRepository);

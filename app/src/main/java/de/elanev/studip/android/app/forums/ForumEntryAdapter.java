@@ -25,7 +25,7 @@ import java.util.List;
 
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.data.datamodel.ForumEntry;
+import de.elanev.studip.android.app.courses.data.entity.ForumEntry;
 import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
