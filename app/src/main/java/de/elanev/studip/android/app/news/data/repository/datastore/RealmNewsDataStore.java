@@ -16,7 +16,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.elanev.studip.android.app.courses.data.entity.RealmCourseEntity;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.news.data.entity.RealmNewsEntity;
 import de.elanev.studip.android.app.news.data.repository.NewsEntityDataMapper;
@@ -67,8 +66,9 @@ public class RealmNewsDataStore implements NewsDataStore {
 
   @WorkerThread @Override public Observable<List<NewsEntity>> newsEntityListForRange(String id) {
     try (Realm realm = Realm.getInstance(realmConfiguration)) {
-      RealmResults<RealmNewsEntity> newsEntities = realm.where(RealmNewsEntity.class).equalTo
-          ("course.courseId", id).findAll();
+      RealmResults<RealmNewsEntity> newsEntities = realm.where(RealmNewsEntity.class)
+          .equalTo("course.courseId", id)
+          .findAll();
 
       if (newsEntities.isEmpty()) return Observable.empty();
 
@@ -77,11 +77,12 @@ public class RealmNewsDataStore implements NewsDataStore {
     }
   }
 
-  @WorkerThread public void save(List<NewsEntity> newsEntities) {
+  @WorkerThread public void save(List<NewsEntity> newsEntities, boolean forceUpdate) {
     List<RealmNewsEntity> realmNewsEntities = newsEntityDataMapper.transformToRealm(newsEntities);
     try (Realm realm = Realm.getInstance(realmConfiguration)) {
       realm.executeTransaction(tsRealm -> {
-        tsRealm.delete(RealmNewsEntity.class);
+        if (forceUpdate) tsRealm.delete(RealmNewsEntity.class);
+
         tsRealm.copyToRealmOrUpdate(realmNewsEntities);
       });
     }

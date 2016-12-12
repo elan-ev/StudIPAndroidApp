@@ -49,7 +49,7 @@ public class NewsDataRepository implements NewsRepository {
 
   @Override public Observable<List<NewsItem>> newsList(boolean forceUpdate) {
     Observable<List<NewsEntity>> cloudDataObs = cloudNewsDataStore.newsEntityList()
-        .doOnNext(realmNewsDataStore::save);
+        .doOnNext(newsEntities -> realmNewsDataStore.save(newsEntities, forceUpdate));
     Observable<List<NewsEntity>> localDataObs = realmNewsDataStore.newsEntityList();
 
     return localDataObs.exists(newsEntities -> !newsEntities.isEmpty())
@@ -59,7 +59,7 @@ public class NewsDataRepository implements NewsRepository {
 
   @Override public Observable<List<NewsItem>> newsForRange(String id, boolean forceUpdate) {
     Observable<List<NewsEntity>> cloudDataObs = cloudNewsDataStore.newsEntityListForRange(id)
-        .doOnNext(realmNewsDataStore::save);
+        .doOnNext(newsEntities -> realmNewsDataStore.save(newsEntities, false));
     Observable<List<NewsEntity>> localDataObs = realmNewsDataStore.newsEntityListForRange(id);
 
     return localDataObs.exists(newsEntities -> !newsEntities.isEmpty())
