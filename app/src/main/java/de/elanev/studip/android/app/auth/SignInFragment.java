@@ -40,6 +40,7 @@ import dagger.Lazy;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.data.datamodel.Server;
+import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
@@ -312,7 +313,7 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Subscriber<User>() {
           @Override public void onCompleted() {
-            mOnAuthListener.onAuthSuccess(mSelectedServer);
+            requestSettings();
           }
 
           @Override public void onError(Throwable e) {
@@ -325,6 +326,29 @@ public class SignInFragment extends Fragment implements OAuthConnector.OAuthCall
 
           @Override public void onNext(User user) {
             mPrefs.setUserInfo(User.toJson(user));
+          }
+        });
+  }
+
+  private void requestSettings() {
+    Subscription subscription = apiService.get().getSettings()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<Settings>() {
+          @Override public void onCompleted() {
+            mOnAuthListener.onAuthSuccess(mSelectedServer);
+          }
+
+          @Override public void onError(Throwable e) {
+            if (e != null && e.getLocalizedMessage() != null) {
+              Timber.e(e, e.getLocalizedMessage());
+
+              mOnAuthListener.onAuthCanceled();
+            }
+          }
+
+          @Override public void onNext(Settings settings) {
+            mPrefs.setApiSettings(settings.toJson());
           }
         });
   }
