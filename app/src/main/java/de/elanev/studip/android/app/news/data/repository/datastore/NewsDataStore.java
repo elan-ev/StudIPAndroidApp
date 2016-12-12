@@ -20,4 +20,6 @@ public interface NewsDataStore {
   Observable<List<NewsEntity>> newsEntityList();
 
   Observable<NewsEntity> newsEntity(final String newsId);
+
+  Observable<List<NewsEntity>> newsEntityListForRange(final String id);
 }

@@ -35,7 +35,8 @@ public class GetNewsListTest {
   @Before public void setUp() {
     MockitoAnnotations.initMocks(this);
 
-    getNewsList = new GetNewsList(mockNewsRepository, mockThreadExecutor, mockPostExecutionThread);
+    getNewsList = new GetNewsList(mockNewsRepository, mockThreadExecutor, mockPostExecutionThread,
+        coursesRepository);
   }
 
   @Test public void buildUseCaseObservable() throws Exception {

@@ -533,10 +533,9 @@ public class StudIpLegacyApiService {
   public Observable<List<NewsEntity>> getNews() {
 
     final Observable<NewsEntity> globalNews = getNewsGlobal();
-    final Observable<NewsEntity> courseNews = getNewsCourses();
     final Observable<NewsEntity> institutesNews = getNewsInstitutes(prefs.getUserId());
 
-    return Observable.merge(globalNews, courseNews, institutesNews)
+    return Observable.merge(globalNews, institutesNews)
         .toSortedList((newsEntity, newsEntity2) -> newsEntity2.getDate()
             .compareTo(newsEntity.getDate()));
   }

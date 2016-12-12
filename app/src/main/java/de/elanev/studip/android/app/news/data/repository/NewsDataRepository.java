@@ -56,4 +56,14 @@ public class NewsDataRepository implements NewsRepository {
         .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
         .map(mEntityDataMapper::transform);
   }
+
+  @Override public Observable<List<NewsItem>> newsForRange(String id, boolean forceUpdate) {
+    Observable<List<NewsEntity>> cloudDataObs = cloudNewsDataStore.newsEntityListForRange(id)
+        .doOnNext(realmNewsDataStore::save);
+    Observable<List<NewsEntity>> localDataObs = realmNewsDataStore.newsEntityListForRange(id);
+
+    return localDataObs.exists(newsEntities -> !newsEntities.isEmpty())
+        .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
+        .map(mEntityDataMapper::transform);
+  }
 }

@@ -16,12 +16,12 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import de.elanev.studip.android.app.courses.data.entity.RealmCourseEntity;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.news.data.entity.RealmNewsEntity;
 import de.elanev.studip.android.app.news.data.repository.NewsEntityDataMapper;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 import rx.Observable;
 
@@ -63,6 +63,18 @@ public class RealmNewsDataStore implements NewsDataStore {
           .map(newsEntityDataMapper::transform);
     }
 
+  }
+
+  @WorkerThread @Override public Observable<List<NewsEntity>> newsEntityListForRange(String id) {
+    try (Realm realm = Realm.getInstance(realmConfiguration)) {
+      RealmResults<RealmNewsEntity> newsEntities = realm.where(RealmNewsEntity.class).equalTo
+          ("course.courseId", id).findAll();
+
+      if (newsEntities.isEmpty()) return Observable.empty();
+
+      return Observable.just(realm.copyFromRealm(newsEntities))
+          .map(newsEntityDataMapper::transformFromRealm);
+    }
   }
 
   @WorkerThread public void save(List<NewsEntity> newsEntities) {

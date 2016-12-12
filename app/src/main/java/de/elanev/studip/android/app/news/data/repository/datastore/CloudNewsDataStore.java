@@ -35,4 +35,9 @@ public class CloudNewsDataStore implements NewsDataStore {
   @Override public Observable<NewsEntity> newsEntity(String newsId) {
     return mApiService.getNewsItem(newsId);
   }
+
+  @Override public Observable<List<NewsEntity>> newsEntityListForRange(String id) {
+    return mApiService.getNewsForRange(id)
+        .toList();
+  }
 }
