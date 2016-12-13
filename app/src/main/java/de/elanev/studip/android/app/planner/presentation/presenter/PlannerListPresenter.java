@@ -49,6 +49,12 @@ public class PlannerListPresenter extends BaseRxLcePresenter<PlannerListView, Li
     }
   }
 
+  public void onEventLongClicked(EventModel eventModel) {
+    if (isViewAttached()) {
+      getView().addEventToCalendar(eventModel);
+    }
+  }
+
   private final class PlannerListSubscriber extends DefaultSubscriber<List<Event>> {
     PlannerListSubscriber(boolean ptr) {
       super(ptr);

@@ -16,4 +16,5 @@ import de.elanev.studip.android.app.planner.presentation.model.EventModel;
 
 interface PlannerEventListener {
   void onPlannerEventSelected(EventModel model);
+  void onPlannerEventAddToCalendarSelected(EventModel model);
 }

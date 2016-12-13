@@ -229,6 +229,7 @@ Weitere Informationen sind unter https://goo.gl/AKQXve verfügbar.</string>
     <string name="day_view">Tag Ansicht</string>
     <string name="list_view">Listenansicht</string>
     <string name="timetable">Stundenplan</string>
+    <string name="add_to_calendar">Zum Kalender hinzufügen</string>
 
     <!-- Profile -->
     <string name="Profile">Profil</string>

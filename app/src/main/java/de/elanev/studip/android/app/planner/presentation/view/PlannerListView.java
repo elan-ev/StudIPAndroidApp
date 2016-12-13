@@ -19,4 +19,6 @@ import de.elanev.studip.android.app.planner.presentation.model.EventModel;
  */
 public interface PlannerListView extends MvpLceView<List<EventModel>> {
   void viewEvent(EventModel eventModel);
+
+  void addEventToCalendar(EventModel eventModel);
 }

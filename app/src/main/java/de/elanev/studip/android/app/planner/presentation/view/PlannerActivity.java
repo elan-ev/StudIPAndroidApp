@@ -10,6 +10,7 @@ package de.elanev.studip.android.app.planner.presentation.view;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
@@ -157,6 +158,17 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
     intent.putExtra(CourseViewActivity.COURSE_MODULES, model.getCourse()
         .getModules()
         .getAsJson());
+    startActivity(intent);
+  }
+
+  @Override public void onPlannerEventAddToCalendarSelected(EventModel model) {
+    Intent intent = new Intent(Intent.ACTION_INSERT).setData(CalendarContract.Events.CONTENT_URI)
+        .putExtra(CalendarContract.Events.TITLE, model.getTitle())
+        .putExtra(CalendarContract.Events.DESCRIPTION, model.getDescription())
+        .putExtra(CalendarContract.Events.EVENT_LOCATION, model.getRoom())
+        .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, model.getStart() * 1000L)
+        .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, model.getEnd() * 1000L);
+
     startActivity(intent);
   }
 }

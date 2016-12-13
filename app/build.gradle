@@ -184,7 +184,7 @@ android {
 
   defaultConfig {
     minSdkVersion 15
-    targetSdkVersion 24
+    targetSdkVersion 25
 
     buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
 
@@ -203,6 +203,7 @@ android {
 //      enabled true
 //    }
 
+    vectorDrawables.useSupportLibrary = true
   }
 
   compileOptions {

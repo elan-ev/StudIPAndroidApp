@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.DateFormat;
@@ -34,6 +35,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
   private final DateFormat timeFormat;
   private final DateFormat dateFormat;
   private EventClickListener onItemClickListener;
+  private EventAddClickListener onAddIconClickedListener;
 
   public EventsAdapter(Context context) {
     inflater = LayoutInflater.from(context);
@@ -65,6 +67,13 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
           EventsAdapter.this.onItemClickListener.onEventClicked(eventModel);
         }
       });
+
+      holder.addIcon.setOnClickListener(view -> {
+        if (EventsAdapter.this.onAddIconClickedListener != null) {
+          EventsAdapter.this.onAddIconClickedListener.onAddEventClicked(eventModel);
+        }
+      });
+
     }
   }
 
@@ -81,14 +90,23 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
     this.onItemClickListener = eventClickListener;
   }
 
+  public void setOnAddIconClickedListener(EventAddClickListener onAddIconClickedListener) {
+    this.onAddIconClickedListener = onAddIconClickedListener;
+  }
+
   public interface EventClickListener {
     void onEventClicked(EventModel eventModel);
+  }
+
+  public interface EventAddClickListener {
+    void onAddEventClicked(EventModel eventModel);
   }
 
   class ViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.text1) TextView title;
     @BindView(R.id.text3) TextView dateTime;
     @BindView(R.id.text2) TextView room;
+    @BindView(R.id.add_to_calendar) ImageView addIcon;
 
     public ViewHolder(View itemView) {
       super(itemView);

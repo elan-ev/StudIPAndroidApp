@@ -54,7 +54,7 @@ import de.elanev.studip.android.app.util.Prefs;
 public class PlannerTimetableFragment extends
     BaseLceFragment<WeekView, List<EventModel>, PlannerTimetableView, PlannerTimetablePresenter> implements
     PlannerTimetableView, MonthLoader.MonthChangeListener, WeekView.EventClickListener,
-    PlannerScrollToCurrentListener {
+    PlannerScrollToCurrentListener, WeekView.EventLongPressListener {
   private static final String CURRENT_DATE = "currently-visible-day";
   @Inject Prefs mPrefs;
   @Inject PlannerTimetablePresenter presenter;
@@ -102,6 +102,7 @@ public class PlannerTimetableFragment extends
     super.onViewCreated(view, savedInstanceState);
     weekView.setMonthChangeListener(this);
     weekView.setOnEventClickListener(this);
+    weekView.setEventLongPressListener(this);
     weekView.setDateTimeInterpreter(new DateTimeInterpreter() {
       @Override public String interpretDate(Calendar date) {
         return localizeDate(date);
@@ -241,17 +242,19 @@ public class PlannerTimetableFragment extends
           if (eventStartCal.get(Calendar.YEAR) == newYear
               && eventStartCal.get(Calendar.MONTH) == newMonth) {
             String eventTitle = eventModel.getTitle();
-            if (eventModel.getCourse() != null && !TextUtils.isEmpty(
-                eventModel.getCourse().getLocation())) {
-              eventTitle += " (" + eventModel.getCourse().getLocation() + ")";
+            if (eventModel.getCourse() != null && !TextUtils.isEmpty(eventModel.getCourse()
+                .getLocation())) {
+              eventTitle += " (" + eventModel.getCourse()
+                  .getLocation() + ")";
             }
 
             String eventLocation = eventModel.getRoom();
             WeekViewEvent weekViewEvent = new WeekViewEvent(i, eventTitle, eventLocation,
                 eventStartCal, eventEndCal);
-            if (eventModel.getCourse() != null && !TextUtils.isEmpty(
-                eventModel.getCourse().getColor())) {
-              int color = Color.parseColor(eventModel.getCourse().getColor());
+            if (eventModel.getCourse() != null && !TextUtils.isEmpty(eventModel.getCourse()
+                .getColor())) {
+              int color = Color.parseColor(eventModel.getCourse()
+                  .getColor());
               weekViewEvent.setColor(color);
             }
             events.add(weekViewEvent);
@@ -285,6 +288,13 @@ public class PlannerTimetableFragment extends
 
   @Override public void loadData(boolean pullToRefresh) {
     this.presenter.loadData(pullToRefresh);
+  }
+
+  @Override public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
+    EventModel eventModel = data.get((int) event.getId());
+    if (eventModel != null) {
+      this.plannerEventListener.onPlannerEventAddToCalendarSelected(eventModel);
+    }
   }
 }
 

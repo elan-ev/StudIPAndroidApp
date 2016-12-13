@@ -51,15 +51,20 @@ public class PlannerListFragment extends
     PlannerListView, SwipeRefreshLayout.OnRefreshListener, PlannerScrollToCurrentListener {
 
   @Inject PlannerListPresenter presenter;
-  @BindView(R.id.emptyView) TextView mEmptyView;
-  @BindView(R.id.list) EmptyRecyclerView mRecyclerView;
-  private EventsAdapter mAdapter;
-  private List<EventModel> data;
   private final EventsAdapter.EventClickListener onClickListener = eventModel -> {
     if (PlannerListFragment.this.presenter != null && eventModel != null) {
       PlannerListFragment.this.presenter.onEventClicked(eventModel);
     }
   };
+  private final EventsAdapter.EventAddClickListener onLongClickListener = eventModel -> {
+    if (PlannerListFragment.this.presenter != null && eventModel != null) {
+      PlannerListFragment.this.presenter.onEventLongClicked(eventModel);
+    }
+  };
+  @BindView(R.id.emptyView) TextView mEmptyView;
+  @BindView(R.id.list) EmptyRecyclerView mRecyclerView;
+  private EventsAdapter mAdapter;
+  private List<EventModel> data;
   private PlannerEventListener plannerEventListener;
 
   public PlannerListFragment() {
@@ -129,6 +134,7 @@ public class PlannerListFragment extends
     if (this.mAdapter == null) {
       this.mAdapter = new EventsAdapter(getContext());
       this.mAdapter.setOnItemClickListener(onClickListener);
+      this.mAdapter.setOnAddIconClickedListener(onLongClickListener);
     }
     this.mRecyclerView.setAdapter(mAdapter);
 
@@ -173,6 +179,12 @@ public class PlannerListFragment extends
   @Override public void viewEvent(EventModel eventModel) {
     if (this.plannerEventListener != null) {
       this.plannerEventListener.onPlannerEventSelected(eventModel);
+    }
+  }
+
+  @Override public void addEventToCalendar(EventModel eventModel) {
+    if (this.plannerEventListener != null) {
+      this.plannerEventListener.onPlannerEventAddToCalendarSelected(eventModel);
     }
   }
 
