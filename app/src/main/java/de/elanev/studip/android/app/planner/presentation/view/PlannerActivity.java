@@ -152,12 +152,15 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
 
   @Override public void onPlannerEventSelected(EventModel model) {
     //TODO: Create real EventActivity and start this instead
-    Intent intent = new Intent(this, CourseViewActivity.class);
-    intent.putExtra(CourseViewActivity.COURSE_ID, model.getCourse()
+    Bundle args = new Bundle();
+    args.putString(CourseViewActivity.COURSE_ID, model.getCourse()
         .getCourseId());
-    intent.putExtra(CourseViewActivity.COURSE_MODULES, model.getCourse()
-        .getModules()
-        .getAsJson());
+    args.putSerializable(CourseViewActivity.COURSE_MODULES, model.getCourse()
+        .getModules());
+
+    Intent intent = CourseViewActivity.getCallingIntent(this)
+        .putExtras(args);
+    
     startActivity(intent);
   }
 
