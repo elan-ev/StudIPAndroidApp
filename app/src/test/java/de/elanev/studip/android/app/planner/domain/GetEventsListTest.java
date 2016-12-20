@@ -36,7 +36,7 @@ public class GetEventsListTest {
     MockitoAnnotations.initMocks(this);
 
     getEventsList = new GetEventsList(mockPlannerRepository, mockThreadExecutor,
-        mockPostExecutionThread);
+        mockPostExecutionThread, coursesRepository);
 
   }
 

@@ -27,7 +27,7 @@ import de.elanev.studip.android.app.courses.presentation.view.CourseViewActivity
 import de.elanev.studip.android.app.planner.internal.di.DaggerPlannerComponent;
 import de.elanev.studip.android.app.planner.internal.di.PlannerComponent;
 import de.elanev.studip.android.app.planner.internal.di.PlannerModule;
-import de.elanev.studip.android.app.planner.presentation.model.EventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
 import de.elanev.studip.android.app.util.Prefs;
 
 /**
@@ -150,21 +150,20 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
     return plannerComponent;
   }
 
-  @Override public void onPlannerEventSelected(EventModel model) {
-    //TODO: Create real EventActivity and start this instead
-    Bundle args = new Bundle();
-    args.putString(CourseViewActivity.COURSE_ID, model.getCourse()
+  @Override public void onPlannerEventSelected(PlanerEventModel model) {
+    Bundle extras = new Bundle();
+    extras.putString(CourseViewActivity.COURSE_ID, model.getCourse()
         .getCourseId());
-    args.putSerializable(CourseViewActivity.COURSE_MODULES, model.getCourse()
+    extras.putSerializable(CourseViewActivity.COURSE_MODULES, model.getCourse()
         .getModules());
 
     Intent intent = CourseViewActivity.getCallingIntent(this)
-        .putExtras(args);
-    
+        .putExtras(extras);
+
     startActivity(intent);
   }
 
-  @Override public void onPlannerEventAddToCalendarSelected(EventModel model) {
+  @Override public void onPlannerEventAddToCalendarSelected(PlanerEventModel model) {
     Intent intent = new Intent(Intent.ACTION_INSERT).setData(CalendarContract.Events.CONTENT_URI)
         .putExtra(CalendarContract.Events.TITLE, model.getTitle())
         .putExtra(CalendarContract.Events.DESCRIPTION, model.getDescription())

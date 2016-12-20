@@ -8,7 +8,7 @@
 
 package de.elanev.studip.android.app.planner.domain;
 
-import de.elanev.studip.android.app.courses.data.entity.Course;
+import de.elanev.studip.android.app.courses.domain.DomainCourse;
 
 /**
  * @author joern
@@ -16,7 +16,7 @@ import de.elanev.studip.android.app.courses.data.entity.Course;
 
 public class Event {
   private String eventId;
-  private Course course;
+  private DomainCourse course;
   private Long start;
   private Long end;
   private String title;
@@ -24,6 +24,7 @@ public class Event {
   private String room;
   private String color;
   private String category;
+  private String courseId;
 
   public String getCategory() {
     return category;
@@ -49,11 +50,11 @@ public class Event {
     this.eventId = eventId;
   }
 
-  public Course getCourse() {
+  public DomainCourse getCourse() {
     return course;
   }
 
-  public void setCourse(Course course) {
+  public void setCourse(DomainCourse course) {
     this.course = course;
   }
 
@@ -95,5 +96,13 @@ public class Event {
 
   public void setRoom(String room) {
     this.room = room;
+  }
+
+  public void setCourseId(String courseId) {
+    this.courseId = courseId;
+  }
+
+  public String getCourseId() {
+    return courseId;
   }
 }

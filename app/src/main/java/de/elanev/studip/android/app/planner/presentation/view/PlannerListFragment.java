@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.data.RetainingLceViewState;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -33,10 +34,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
+import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
+import de.elanev.studip.android.app.courses.presentation.model.CourseModulesModel;
 import de.elanev.studip.android.app.planner.internal.di.PlannerComponent;
-import de.elanev.studip.android.app.planner.presentation.model.EventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
 import de.elanev.studip.android.app.planner.presentation.presenter.PlannerListPresenter;
-import de.elanev.studip.android.app.planner.presentation.view.adapter.EventsAdapter;
+import de.elanev.studip.android.app.planner.presentation.view.adapter.PlanerEventsAdapter;
 import de.elanev.studip.android.app.widget.EmptyRecyclerView;
 import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
 
@@ -47,24 +50,24 @@ import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
  *         In Stud.IP known as Planner.
  */
 public class PlannerListFragment extends
-    BaseLceFragment<SwipeRefreshLayout, List<EventModel>, PlannerListView, PlannerListPresenter> implements
+    BaseLceFragment<SwipeRefreshLayout, List<PlanerEventModel>, PlannerListView, PlannerListPresenter> implements
     PlannerListView, SwipeRefreshLayout.OnRefreshListener, PlannerScrollToCurrentListener {
 
   @Inject PlannerListPresenter presenter;
-  private final EventsAdapter.EventClickListener onClickListener = eventModel -> {
+  private final PlanerEventsAdapter.EventClickListener onClickListener = eventModel -> {
     if (PlannerListFragment.this.presenter != null && eventModel != null) {
       PlannerListFragment.this.presenter.onEventClicked(eventModel);
     }
   };
-  private final EventsAdapter.EventAddClickListener onLongClickListener = eventModel -> {
+  private final PlanerEventsAdapter.EventAddClickListener onLongClickListener = eventModel -> {
     if (PlannerListFragment.this.presenter != null && eventModel != null) {
       PlannerListFragment.this.presenter.onEventLongClicked(eventModel);
     }
   };
   @BindView(R.id.emptyView) TextView mEmptyView;
   @BindView(R.id.list) EmptyRecyclerView mRecyclerView;
-  private EventsAdapter mAdapter;
-  private List<EventModel> data;
+  private PlanerEventsAdapter mAdapter;
+  private List<PlanerEventModel> data;
   private PlannerEventListener plannerEventListener;
 
   public PlannerListFragment() {
@@ -110,7 +113,7 @@ public class PlannerListFragment extends
     super.onCreateOptionsMenu(menu, inflater);
   }
 
-  @NonNull @Override public LceViewState<List<EventModel>, PlannerListView> createViewState() {
+  @NonNull @Override public LceViewState<List<PlanerEventModel>, PlannerListView> createViewState() {
     return new RetainingLceViewState<>();
   }
 
@@ -124,21 +127,21 @@ public class PlannerListFragment extends
     contentView.setRefreshing(false);
   }
 
-  @Override public List<EventModel> getData() {
+  @Override public List<PlanerEventModel> getData() {
     return data;
   }
 
-  @Override public void setData(List<EventModel> data) {
-    this.data = data;
+  @Override public void setData(List<PlanerEventModel> eventModels) {
+    this.data = eventModels;
 
     if (this.mAdapter == null) {
-      this.mAdapter = new EventsAdapter(getContext());
+      this.mAdapter = new PlanerEventsAdapter(getContext());
       this.mAdapter.setOnItemClickListener(onClickListener);
       this.mAdapter.setOnAddIconClickedListener(onLongClickListener);
     }
     this.mRecyclerView.setAdapter(mAdapter);
 
-    mAdapter.setData(data);
+    mAdapter.setData(this.data);
     mAdapter.notifyDataSetChanged();
   }
 
@@ -176,15 +179,15 @@ public class PlannerListFragment extends
     this.presenter.loadEvents(true);
   }
 
-  @Override public void viewEvent(EventModel eventModel) {
+  @Override public void viewEvent(PlanerEventModel planerEventModel) {
     if (this.plannerEventListener != null) {
-      this.plannerEventListener.onPlannerEventSelected(eventModel);
+      this.plannerEventListener.onPlannerEventSelected(planerEventModel);
     }
   }
 
-  @Override public void addEventToCalendar(EventModel eventModel) {
+  @Override public void addEventToCalendar(PlanerEventModel planerEventModel) {
     if (this.plannerEventListener != null) {
-      this.plannerEventListener.onPlannerEventAddToCalendarSelected(eventModel);
+      this.plannerEventListener.onPlannerEventAddToCalendarSelected(planerEventModel);
     }
   }
 

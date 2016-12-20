@@ -47,11 +47,11 @@ public class CoursesModule {
   }
 
   @Provides @PerActivity @Named("courseOverview") UseCase providesGetCourseOverviewUseCase(
-      GetNewsList getNewsList, GetEventsList getEventsList, CoursesRepository coursesRepository,
+      GetNewsList getNewsList, CoursesRepository coursesRepository,
       UserRepository userRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 
-    return new GetCourseOverview(this.id, getNewsList, getEventsList, coursesRepository,
+    return new GetCourseOverview(this.id, getNewsList, coursesRepository,
         threadExecutor, postExecutionThread, userRepository);
   }
 

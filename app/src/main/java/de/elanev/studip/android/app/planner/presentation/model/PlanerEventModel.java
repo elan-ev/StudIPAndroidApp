@@ -6,34 +6,22 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.courses.domain;
+package de.elanev.studip.android.app.planner.presentation.model;
+
+import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
 
 /**
  * @author joern
  */
-public class CourseSchedule {
-  private String title;
-  private String category;
+public class PlanerEventModel {
   private Long start;
   private Long end;
+  private String title;
   private String description;
   private String room;
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public String getCategory() {
-    return category;
-  }
-
-  public void setCategory(String category) {
-    this.category = category;
-  }
+  private String color;
+  private String eventId;
+  private CourseModel course;
 
   public Long getStart() {
     return start;
@@ -51,6 +39,14 @@ public class CourseSchedule {
     this.end = end;
   }
 
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
   public String getDescription() {
     return description;
   }
@@ -65,5 +61,29 @@ public class CourseSchedule {
 
   public void setRoom(String room) {
     this.room = room;
+  }
+
+  public String getColor() {
+    return color;
+  }
+
+  public void setColor(String color) {
+    this.color = color;
+  }
+
+  public String getEventId() {
+    return eventId;
+  }
+
+  public void setEventId(String eventId) {
+    this.eventId = eventId;
+  }
+
+  public CourseModel getCourse() {
+    return course;
+  }
+
+  public void setCourse(CourseModel course) {
+    this.course = course;
   }
 }

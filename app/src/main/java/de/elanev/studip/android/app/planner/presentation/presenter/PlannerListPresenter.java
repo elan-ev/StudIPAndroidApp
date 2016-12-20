@@ -13,65 +13,65 @@ import java.util.List;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
-import de.elanev.studip.android.app.base.DefaultSubscriber;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.planner.domain.Event;
-import de.elanev.studip.android.app.planner.presentation.mapper.EventsDataMapper;
-import de.elanev.studip.android.app.planner.presentation.model.EventModel;
+import de.elanev.studip.android.app.planner.presentation.mapper.PlanerModelDataMapper;
+import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerListView;
+import rx.Subscriber;
 import timber.log.Timber;
 
 /**
  * @author joern
  */
 @PerActivity
-public class PlannerListPresenter extends BaseRxLcePresenter<PlannerListView, List<EventModel>> {
-  private final UseCase getEventsList;
-  private final EventsDataMapper eventsDataMapper;
+public class PlannerListPresenter extends
+    BaseRxLcePresenter<PlannerListView, List<PlanerEventModel>> {
+  private final UseCase<List<Event>> getEventsList;
+  private final PlanerModelDataMapper planerModelDataMapper;
 
-  @Inject PlannerListPresenter(UseCase getEventsListUseCase, EventsDataMapper eventsDataMapper) {
+  @Inject PlannerListPresenter(UseCase getEventsListUseCase,
+      PlanerModelDataMapper planerModelDataMapper) {
     this.getEventsList = getEventsListUseCase;
-    this.eventsDataMapper = eventsDataMapper;
+    this.planerModelDataMapper = planerModelDataMapper;
   }
 
-  public void loadEvents(boolean ptr) {
-    getEventsList.execute(new PlannerListSubscriber(ptr));
+  public void loadEvents(final boolean ptr) {
+
+    getEventsList.get(ptr)
+        .map(planerModelDataMapper::transform)
+        .subscribe(new Subscriber<List<PlanerEventModel>>() {
+          @Override public void onCompleted() {
+            PlannerListPresenter.this.onCompleted();
+          }
+
+          @Override public void onError(Throwable e) {
+            Timber.e(e, e.getLocalizedMessage());
+            PlannerListPresenter.this.onError(e, ptr);
+          }
+
+          @Override public void onNext(List<PlanerEventModel> planerEventModel) {
+            PlannerListPresenter.this.onNext(planerEventModel);
+          }
+        });
   }
 
   @Override protected void unsubscribe() {
     getEventsList.unsubscribe();
   }
 
-  @SuppressWarnings("ConstantConditions") public void onEventClicked(EventModel eventModel) {
+  @SuppressWarnings("ConstantConditions") public void onEventClicked(
+      PlanerEventModel planerEventModel) {
     if (isViewAttached()) {
-      getView().viewEvent(eventModel);
+      getView().viewEvent(planerEventModel);
     }
   }
 
-  public void onEventLongClicked(EventModel eventModel) {
+  @SuppressWarnings("ConstantConditions") public void onEventLongClicked(
+      PlanerEventModel planerEventModel) {
     if (isViewAttached()) {
-      getView().addEventToCalendar(eventModel);
-    }
-  }
-
-  private final class PlannerListSubscriber extends DefaultSubscriber<List<Event>> {
-    PlannerListSubscriber(boolean ptr) {
-      super(ptr);
-    }
-
-    @Override public void onCompleted() {
-      PlannerListPresenter.this.onCompleted();
-    }
-
-    @Override public void onError(Throwable e) {
-      Timber.e(e, e.getLocalizedMessage());
-      PlannerListPresenter.this.onError(e, this.isPullToRefresh());
-    }
-
-    @Override public void onNext(List<Event> events) {
-      PlannerListPresenter.this.onNext(
-          PlannerListPresenter.this.eventsDataMapper.transform(events));
+      getView().addEventToCalendar(planerEventModel);
     }
   }
 }

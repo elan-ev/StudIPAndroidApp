@@ -68,7 +68,7 @@ public class CoursesDataRepository implements CoursesRepository {
         .doOnNext(coursesRealmDataStore::save);
     Observable<Course> localDataObs = coursesRealmDataStore.course(id);
 
-    return localDataObs.exists(newsEntity -> newsEntity != null)
+    return localDataObs.exists(courseEntity -> courseEntity != null)
         .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
         .map(courseEntityDataMapper::transform);
   }

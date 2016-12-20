@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
+import de.elanev.studip.android.app.courses.domain.CoursesRepository;
 import rx.Observable;
 
 /**
@@ -22,15 +23,28 @@ import rx.Observable;
  */
 public class GetEventsList extends UseCase<List<Event>> {
   private final PlannerRepository repository;
+  private final CoursesRepository coursesRepository;
 
   @Inject GetEventsList(PlannerRepository plannerRepository, ThreadExecutor threadExecutor,
-      PostExecutionThread postExecutionThread) {
+      PostExecutionThread postExecutionThread, CoursesRepository coursesRepository) {
     super(threadExecutor, postExecutionThread);
 
     this.repository = plannerRepository;
+    this.coursesRepository = coursesRepository;
   }
 
   @Override protected Observable<List<Event>> buildUseCaseObservable(boolean forceUpdate) {
-    return repository.eventsList();
+    return repository.eventsList(forceUpdate)
+        .flatMap(events -> Observable.defer(() -> Observable.from(events)
+            //FIXME: Find better way to filter the events for the next two weeks
+            .filter(event -> event.getStart() * 1000L >= System.currentTimeMillis()
+                && event.getStart() * 1000L <= System.currentTimeMillis() + 1209600000)
+            .flatMap(event -> coursesRepository.course(event.getCourseId(), forceUpdate)
+                .flatMap(course -> {
+                  event.setCourse(course);
+
+                  return Observable.just(event);
+                }))))
+        .toList();
   }
 }

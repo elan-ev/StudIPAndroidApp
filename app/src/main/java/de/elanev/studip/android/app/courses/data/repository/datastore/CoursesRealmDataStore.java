@@ -66,6 +66,8 @@ public class CoursesRealmDataStore implements CoursesDataStore {
           .equalTo("courseId", courseId)
           .findFirst();
 
+      if (realmCourseEntity == null) return Observable.empty();
+
       return Observable.just(realm.copyFromRealm(realmCourseEntity))
           .map(coursesEntityDataMapper::transformFromRealm);
     }
@@ -91,7 +93,7 @@ public class CoursesRealmDataStore implements CoursesDataStore {
   }
 
   @WorkerThread public void saveEvents(List<EventEntity> events) {
-    RealmList<RealmEventEntity> realmEventEntity = eventsEntityDataMapper.transformToReal(events);
+    RealmList<RealmEventEntity> realmEventEntity = eventsEntityDataMapper.transformToRealm(events);
     try (Realm realm = Realm.getInstance(realConfig)) {
       realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(realmEventEntity));
     }

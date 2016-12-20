@@ -6,15 +6,9 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.planner.domain;
-
-import java.util.List;
-
-import rx.Observable;
+package de.elanev.studip.android.app.courses.presentation.model;
 
 /**
  * @author joern
  */
-public interface PlannerRepository {
-  Observable<List<Event>> eventsList(boolean forceUpdate);
-}
+public class CourseEventModel {}

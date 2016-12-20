@@ -44,7 +44,7 @@ import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.planner.internal.di.PlannerComponent;
-import de.elanev.studip.android.app.planner.presentation.model.EventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
 import de.elanev.studip.android.app.planner.presentation.presenter.PlannerTimetablePresenter;
 import de.elanev.studip.android.app.util.Prefs;
 
@@ -52,7 +52,7 @@ import de.elanev.studip.android.app.util.Prefs;
  * @author joern
  */
 public class PlannerTimetableFragment extends
-    BaseLceFragment<WeekView, List<EventModel>, PlannerTimetableView, PlannerTimetablePresenter> implements
+    BaseLceFragment<WeekView, List<PlanerEventModel>, PlannerTimetableView, PlannerTimetablePresenter> implements
     PlannerTimetableView, MonthLoader.MonthChangeListener, WeekView.EventClickListener,
     PlannerScrollToCurrentListener, WeekView.EventLongPressListener {
   private static final String CURRENT_DATE = "currently-visible-day";
@@ -61,7 +61,7 @@ public class PlannerTimetableFragment extends
   @BindView(R.id.contentView) WeekView weekView;
   private int currentOrientation;
   private int preferredDayCount = 1;
-  private List<EventModel> data;
+  private List<PlanerEventModel> data;
   private PlannerEventListener plannerEventListener;
 
   public PlannerTimetableFragment() {
@@ -231,29 +231,32 @@ public class PlannerTimetableFragment extends
     List<WeekViewEvent> events = new ArrayList<>();
     if (data != null) {
       for (int i = 0, size = data.size(); i < size; i++) {
-        EventModel eventModel = data.get(i);
+        PlanerEventModel planerEventModel = data.get(i);
 
-        if (eventModel != null) {
+        if (planerEventModel != null) {
           Calendar eventStartCal = Calendar.getInstance(Locale.getDefault());
           Calendar eventEndCal = Calendar.getInstance(Locale.getDefault());
-          eventStartCal.setTimeInMillis(eventModel.getStart() * 1000L);
-          eventEndCal.setTimeInMillis(eventModel.getEnd() * 1000L);
+          eventStartCal.setTimeInMillis(planerEventModel.getStart() * 1000L);
+          eventEndCal.setTimeInMillis(planerEventModel.getEnd() * 1000L);
 
           if (eventStartCal.get(Calendar.YEAR) == newYear
               && eventStartCal.get(Calendar.MONTH) == newMonth) {
-            String eventTitle = eventModel.getTitle();
-            if (eventModel.getCourse() != null && !TextUtils.isEmpty(eventModel.getCourse()
-                .getLocation())) {
-              eventTitle += " (" + eventModel.getCourse()
-                  .getLocation() + ")";
+            String eventTitle = planerEventModel.getTitle();
+            if (planerEventModel.getCourse() != null && !TextUtils.isEmpty(
+                planerEventModel.getRoom())) {
+              eventTitle += " (" + planerEventModel.getRoom() + ")";
             }
 
-            String eventLocation = eventModel.getRoom();
+            String eventLocation = planerEventModel.getRoom();
             WeekViewEvent weekViewEvent = new WeekViewEvent(i, eventTitle, eventLocation,
                 eventStartCal, eventEndCal);
-            if (eventModel.getCourse() != null && !TextUtils.isEmpty(eventModel.getCourse()
-                .getColor())) {
-              int color = Color.parseColor(eventModel.getCourse()
+            if (!TextUtils.isEmpty(planerEventModel.getColor())) {
+              int color = Color.parseColor(planerEventModel.getColor());
+              weekViewEvent.setColor(color);
+            } else if (planerEventModel.getCourse() != null && !TextUtils.isEmpty(
+                planerEventModel.getCourse()
+                    .getColor())) {
+              int color = Color.parseColor(planerEventModel.getCourse()
                   .getColor());
               weekViewEvent.setColor(color);
             }
@@ -267,21 +270,21 @@ public class PlannerTimetableFragment extends
   }
 
   @Override public void onEventClick(WeekViewEvent weekViewEvent, RectF eventRect) {
-    EventModel eventModel = data.get((int) weekViewEvent.getId());
-    if (eventModel != null) {
-      this.plannerEventListener.onPlannerEventSelected(eventModel);
+    PlanerEventModel planerEventModel = data.get((int) weekViewEvent.getId());
+    if (planerEventModel != null) {
+      this.plannerEventListener.onPlannerEventSelected(planerEventModel);
     }
   }
 
-  @NonNull @Override public LceViewState<List<EventModel>, PlannerTimetableView> createViewState() {
+  @NonNull @Override public LceViewState<List<PlanerEventModel>, PlannerTimetableView> createViewState() {
     return new RetainingLceViewState<>();
   }
 
-  @Override public List<EventModel> getData() {
+  @Override public List<PlanerEventModel> getData() {
     return this.data;
   }
 
-  @Override public void setData(List<EventModel> data) {
+  @Override public void setData(List<PlanerEventModel> data) {
     this.data = data;
     weekView.notifyDatasetChanged();
   }
@@ -291,9 +294,9 @@ public class PlannerTimetableFragment extends
   }
 
   @Override public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
-    EventModel eventModel = data.get((int) event.getId());
-    if (eventModel != null) {
-      this.plannerEventListener.onPlannerEventAddToCalendarSelected(eventModel);
+    PlanerEventModel planerEventModel = data.get((int) event.getId());
+    if (planerEventModel != null) {
+      this.plannerEventListener.onPlannerEventAddToCalendarSelected(planerEventModel);
     }
   }
 }
