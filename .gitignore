@@ -114,7 +114,8 @@ dictionaries
 *.trace
 
 # Project
-app/src/release/
+app/src/release/AndroidManifest.xml
+app/src/release/java/de/elanev/studip/android/app/util/Config.java
 app/src/productionRelease/
 app/src/productionDebug/
 app/src/betaRelease/
