@@ -8,13 +8,13 @@
 
 package de.elanev.studip.android.app.planner.presentation.view;
 
-import de.elanev.studip.android.app.planner.presentation.model.EventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
 
 /**
  * @author joern
  */
 
 interface PlannerEventListener {
-  void onPlannerEventSelected(EventModel model);
-  void onPlannerEventAddToCalendarSelected(EventModel model);
+  void onPlannerEventSelected(PlanerEventModel model);
+  void onPlannerEventAddToCalendarSelected(PlanerEventModel model);
 }

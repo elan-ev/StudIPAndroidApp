@@ -9,7 +9,6 @@
 package de.elanev.studip.android.app.courses.presentation.model;
 
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
-import de.elanev.studip.android.app.planner.presentation.model.EventModel;
 
 /**
  * @author joern
@@ -18,7 +17,7 @@ import de.elanev.studip.android.app.planner.presentation.model.EventModel;
 public class CourseOverviewModel {
   private CourseModel course;
   private NewsModel courseNews;
-  private EventModel courseEvents;
+  private CourseScheduleModel courseEvents;
 
   public NewsModel getCourseNews() {
     return courseNews;
@@ -28,11 +27,11 @@ public class CourseOverviewModel {
     this.courseNews = courseNews;
   }
 
-  public EventModel getCourseEvents() {
+  public CourseScheduleModel getCourseEvent() {
     return courseEvents;
   }
 
-  public void setCourseEvents(EventModel courseEvents) {
+  public void setCourseEvent(CourseScheduleModel courseEvents) {
     this.courseEvents = courseEvents;
   }
 

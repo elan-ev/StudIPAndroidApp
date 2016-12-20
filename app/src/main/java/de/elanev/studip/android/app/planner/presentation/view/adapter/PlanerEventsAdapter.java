@@ -23,21 +23,21 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.planner.presentation.model.EventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
 
 /**
  * @author joern
  */
-public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder> {
+public class PlanerEventsAdapter extends RecyclerView.Adapter<PlanerEventsAdapter.ViewHolder> {
 
   private final LayoutInflater inflater;
-  private final List<EventModel> data = new ArrayList<>();
+  private final List<PlanerEventModel> data = new ArrayList<>();
   private final DateFormat timeFormat;
   private final DateFormat dateFormat;
   private EventClickListener onItemClickListener;
   private EventAddClickListener onAddIconClickedListener;
 
-  public EventsAdapter(Context context) {
+  public PlanerEventsAdapter(Context context) {
     inflater = LayoutInflater.from(context);
     timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     dateFormat = android.text.format.DateFormat.getDateFormat(context);
@@ -50,27 +50,27 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
   }
 
   @Override public void onBindViewHolder(ViewHolder holder, int position) {
-    EventModel eventModel = data.get(position);
+    PlanerEventModel planerEventModel = data.get(position);
 
-    if (eventModel != null) {
-      holder.title.setText(eventModel.getTitle());
+    if (planerEventModel != null) {
+      holder.title.setText(planerEventModel.getTitle());
 
-      String timeString = "(" + timeFormat.format(eventModel.getStart() * 1000L) + " - " +
-          timeFormat.format(eventModel.getEnd() * 1000L) + ")";
-      String dateString = dateFormat.format(eventModel.getStart() * 1000L);
+      String timeString = "(" + timeFormat.format(planerEventModel.getStart() * 1000L) + " - " +
+          timeFormat.format(planerEventModel.getEnd() * 1000L) + ")";
+      String dateString = dateFormat.format(planerEventModel.getStart() * 1000L);
       holder.dateTime.setText(dateString + " " + timeString);
 
-      holder.room.setText(eventModel.getRoom());
+      holder.room.setText(planerEventModel.getRoom());
 
       holder.itemView.setOnClickListener(view -> {
-        if (EventsAdapter.this.onItemClickListener != null) {
-          EventsAdapter.this.onItemClickListener.onEventClicked(eventModel);
+        if (PlanerEventsAdapter.this.onItemClickListener != null) {
+          PlanerEventsAdapter.this.onItemClickListener.onEventClicked(planerEventModel);
         }
       });
 
       holder.addIcon.setOnClickListener(view -> {
-        if (EventsAdapter.this.onAddIconClickedListener != null) {
-          EventsAdapter.this.onAddIconClickedListener.onAddEventClicked(eventModel);
+        if (PlanerEventsAdapter.this.onAddIconClickedListener != null) {
+          PlanerEventsAdapter.this.onAddIconClickedListener.onAddEventClicked(planerEventModel);
         }
       });
 
@@ -81,7 +81,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
     return data != null ? data.size() : 0;
   }
 
-  public void setData(List<EventModel> data) {
+  public void setData(List<PlanerEventModel> data) {
     this.data.clear();
     this.data.addAll(data);
   }
@@ -95,11 +95,11 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
   }
 
   public interface EventClickListener {
-    void onEventClicked(EventModel eventModel);
+    void onEventClicked(PlanerEventModel planerEventModel);
   }
 
   public interface EventAddClickListener {
-    void onAddEventClicked(EventModel eventModel);
+    void onAddEventClicked(PlanerEventModel planerEventModel);
   }
 
   class ViewHolder extends RecyclerView.ViewHolder {

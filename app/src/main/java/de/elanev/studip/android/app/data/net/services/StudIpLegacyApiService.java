@@ -288,15 +288,8 @@ public class StudIpLegacyApiService {
    * @return An {@link Observable} containing the user's {@link Events} for the next two weeks.
    */
   public Observable<List<EventEntity>> getEvents() {
-
     return mService.getEvents()
-        // Then unwrap the events
-        .flatMap(events -> Observable.defer(() -> Observable.from(events.eventEntities)))
-        .flatMap(eventEntity -> getCourse(eventEntity.getCourseId()).flatMap(course -> {
-          eventEntity.setCourse(course);
-          return Observable.defer(() -> Observable.just(eventEntity));
-        }))
-        .toList();
+        .map(events -> events.eventEntities);
   }
 
   public Observable<Course> getCourse(final String courseId) {

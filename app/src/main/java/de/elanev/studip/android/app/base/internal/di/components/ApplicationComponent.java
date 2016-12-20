@@ -26,6 +26,7 @@ import de.elanev.studip.android.app.base.internal.di.modules.NetworkModule;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.courses.domain.CoursesRepository;
+import de.elanev.studip.android.app.courses.presentation.view.CourseViewActivity;
 import de.elanev.studip.android.app.feedback.FeedbackActivity;
 import de.elanev.studip.android.app.messages.domain.MessagesRepository;
 import de.elanev.studip.android.app.messages.presentation.view.MessageDetailActivity;
@@ -60,6 +61,8 @@ public interface ApplicationComponent {
   void inject(FeedbackActivity target);
 
   void inject(PlannerActivity target);
+
+  void inject(CourseViewActivity target);
 
   //TODO: Make it extend BaseFragment
   void inject(SignInFragment target);

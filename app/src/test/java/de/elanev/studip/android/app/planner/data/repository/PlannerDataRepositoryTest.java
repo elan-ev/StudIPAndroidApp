@@ -18,7 +18,6 @@ import java.util.List;
 
 import de.elanev.studip.android.app.planner.data.entity.EventEntity;
 import de.elanev.studip.android.app.planner.data.repository.datastore.PlannerDataStore;
-import de.elanev.studip.android.app.planner.data.repository.datastore.PlannerDataStoreFactory;
 import rx.Observable;
 
 import static org.mockito.BDDMockito.given;
@@ -37,7 +36,8 @@ public class PlannerDataRepositoryTest {
     MockitoAnnotations.initMocks(this);
     given(mockPlannerDataFactory.create()).willReturn(mockPlannerDataStore);
 
-    plannerDataRepository = new PlannerDataRepository(mockEntityDataMapper, mockPlannerDataFactory);
+    plannerDataRepository = new PlannerDataRepository(mockEntityDataMapper, mockPlannerDataFactory,
+        cloudDataStore, localDataStore);
   }
 
   @Test public void eventsList() throws Exception {

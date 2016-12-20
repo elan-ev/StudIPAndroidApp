@@ -12,13 +12,13 @@ import com.hannesdorfmann.mosby.mvp.lce.MvpLceView;
 
 import java.util.List;
 
-import de.elanev.studip.android.app.planner.presentation.model.EventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
 
 /**
  * @author joern
  */
-public interface PlannerListView extends MvpLceView<List<EventModel>> {
-  void viewEvent(EventModel eventModel);
+public interface PlannerListView extends MvpLceView<List<PlanerEventModel>> {
+  void viewEvent(PlanerEventModel planerEventModel);
 
-  void addEventToCalendar(EventModel eventModel);
+  void addEventToCalendar(PlanerEventModel planerEventModel);
 }

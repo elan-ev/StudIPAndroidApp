@@ -26,6 +26,8 @@ import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.data.RetainingLceViewState;
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -36,10 +38,10 @@ import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.courses.internal.di.CoursesComponent;
 import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
 import de.elanev.studip.android.app.courses.presentation.model.CourseOverviewModel;
+import de.elanev.studip.android.app.courses.presentation.model.CourseScheduleModel;
 import de.elanev.studip.android.app.courses.presentation.presenter.CourseOverviewPresenter;
 import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
-import de.elanev.studip.android.app.planner.presentation.model.EventModel;
 import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.Prefs;
 
@@ -163,8 +165,8 @@ public class CourseOverviewFragment extends
     if (courseOverviewModel.getCourse() != null) {
       fillCourseFields(courseOverviewModel.getCourse());
     }
-    if (courseOverviewModel.getCourseEvents() != null) {
-      fillEventsList(courseOverviewModel.getCourseEvents());
+    if (courseOverviewModel.getCourseEvent() != null) {
+      fillEventsList(courseOverviewModel.getCourseEvent());
     }
     if (courseOverviewModel.getCourseNews() != null) {
       fillNewsList(courseOverviewModel.getCourseNews());
@@ -212,8 +214,15 @@ public class CourseOverviewFragment extends
     }
   }
 
-  private void fillEventsList(EventModel courseEvent) {
-    nextEvent.setText(String.format("%s\n%s", courseEvent.getTitle(), courseEvent.getRoom()));
+  private void fillEventsList(CourseScheduleModel courseEvent) {
+    DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(getContext());
+    DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(getContext());
+    String timeString = "(" + timeFormat.format(courseEvent.getStart() * 1000L) + " - "
+        + timeFormat.format(courseEvent.getEnd() * 1000L) + ")";
+    String dateString = dateFormat.format(courseEvent.getStart() * 1000L);
+
+    nextEvent.setText(String.format("%s %s\n%s\n%s", dateString, timeString, courseEvent.getTitle(),
+        courseEvent.getRoom()));
   }
 
   private void fillNewsList(NewsModel courseNews) {

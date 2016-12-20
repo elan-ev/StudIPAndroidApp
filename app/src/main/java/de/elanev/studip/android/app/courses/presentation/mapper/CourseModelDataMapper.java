@@ -26,7 +26,6 @@ import de.elanev.studip.android.app.courses.presentation.model.CourseUserModel;
 import de.elanev.studip.android.app.courses.presentation.model.CourseUsersModel;
 import de.elanev.studip.android.app.news.presentation.mapper.NewsModelDataMapper;
 import de.elanev.studip.android.app.planner.domain.Event;
-import de.elanev.studip.android.app.planner.presentation.mapper.EventsDataMapper;
 import de.elanev.studip.android.app.user.domain.User;
 import de.elanev.studip.android.app.user.presentation.mapper.UserModelDataMapper;
 
@@ -39,17 +38,14 @@ public class CourseModelDataMapper {
   private final UserModelDataMapper userModelDataMapper;
   private final CourseAdditionalDataModelDataMapper courseAdditionalDataModelDataMappeer;
   private final SemesterModelDataMapper semesterModelDataMapper;
-  private final EventsDataMapper eventsMapper;
   private final NewsModelDataMapper newsMapper;
 
   @Inject public CourseModelDataMapper(UserModelDataMapper userModelDataMapper,
       CourseAdditionalDataModelDataMapper courseAdditionalDataModelDataMappeer,
-      SemesterModelDataMapper semesterModelDataMapper, EventsDataMapper eventsMapper,
-      NewsModelDataMapper newsMapper) {
+      SemesterModelDataMapper semesterModelDataMapper, NewsModelDataMapper newsMapper) {
     this.userModelDataMapper = userModelDataMapper;
     this.courseAdditionalDataModelDataMappeer = courseAdditionalDataModelDataMappeer;
     this.semesterModelDataMapper = semesterModelDataMapper;
-    this.eventsMapper = eventsMapper;
     this.newsMapper = newsMapper;
   }
 
@@ -100,7 +96,7 @@ public class CourseModelDataMapper {
   public CourseOverviewModel transform(CourseOverview courseOverview) {
     CourseOverviewModel courseOverviewModel = new CourseOverviewModel();
     courseOverviewModel.setCourse(transform(courseOverview.getCourse()));
-    courseOverviewModel.setCourseEvents(eventsMapper.transform(courseOverview.getEvent()));
+    courseOverviewModel.setCourseEvent(transform(courseOverview.getEvent()));
     courseOverviewModel.setCourseNews(newsMapper.transform(courseOverview.getNewsItem()));
 
     return courseOverviewModel;
@@ -117,6 +113,8 @@ public class CourseModelDataMapper {
   }
 
   private CourseScheduleModel transform(Event event) {
+    if (event == null) return null;
+
     CourseScheduleModel courseScheduleModel = new CourseScheduleModel();
     courseScheduleModel.setTitle(event.getTitle());
     courseScheduleModel.setDescription(event.getDescription());

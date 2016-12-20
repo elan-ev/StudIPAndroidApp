@@ -10,6 +10,9 @@ package de.elanev.studip.android.app.planner.data.repository.datastore;
 
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.planner.data.entity.EventEntity;
 import rx.Observable;
@@ -17,10 +20,11 @@ import rx.Observable;
 /**
  * @author joern
  */
-class PlannerCloudDataStore implements PlannerDataStore {
+@Singleton
+public class PlannerCloudDataStore implements PlannerDataStore {
   private final StudIpLegacyApiService apiService;
 
-  PlannerCloudDataStore(StudIpLegacyApiService apiService) {
+  @Inject PlannerCloudDataStore(StudIpLegacyApiService apiService) {
     this.apiService = apiService;
   }
 

@@ -11,11 +11,8 @@
  */
 package de.elanev.studip.android.app.planner.data.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import de.elanev.studip.android.app.courses.data.entity.Course;
 
 /**
  * @author joern
@@ -31,7 +28,6 @@ public class EventEntity {
   private String categories;
   private String room;
   private String color;
-  private Course course;
 
   @JsonProperty("event_id") public String getEventId() {
     return eventId;
@@ -103,13 +99,5 @@ public class EventEntity {
 
   @JsonProperty("color") public void setColor(String color) {
     this.color = color;
-  }
-
-  @JsonIgnore public Course getCourse() {
-    return course;
-  }
-
-  @JsonIgnore public void setCourse(Course course) {
-    this.course = course;
   }
 }

@@ -13,7 +13,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.elanev.studip.android.app.planner.data.repository.datastore.PlannerDataStoreFactory;
+import de.elanev.studip.android.app.planner.data.entity.EventEntity;
+import de.elanev.studip.android.app.planner.data.repository.datastore.PlanerRealmDataStore;
+import de.elanev.studip.android.app.planner.data.repository.datastore.PlannerCloudDataStore;
 import de.elanev.studip.android.app.planner.domain.Event;
 import de.elanev.studip.android.app.planner.domain.PlannerRepository;
 import rx.Observable;
@@ -24,17 +26,23 @@ import rx.Observable;
 @Singleton
 public class PlannerDataRepository implements PlannerRepository {
   private final EventsEntityDataMapper entityDataMapper;
-  private final PlannerDataStoreFactory dataStoreFactory;
+  private final PlannerCloudDataStore cloudDataStore;
+  private final PlanerRealmDataStore localDataStore;
 
   @Inject PlannerDataRepository(EventsEntityDataMapper eventsEntityDataMapper,
-      PlannerDataStoreFactory dataStoreFactory) {
+      PlannerCloudDataStore cloudDataStore, PlanerRealmDataStore localDataStore) {
     this.entityDataMapper = eventsEntityDataMapper;
-    this.dataStoreFactory = dataStoreFactory;
+    this.cloudDataStore = cloudDataStore;
+    this.localDataStore = localDataStore;
   }
 
-  @Override public Observable<List<Event>> eventsList() {
-    return dataStoreFactory.create()
-        .eventEntityList()
+  @Override public Observable<List<Event>> eventsList(boolean forceUpdate) {
+    Observable<List<EventEntity>> cloudDataObs = cloudDataStore.eventEntityList()
+        .doOnNext(entities -> localDataStore.save(entities, forceUpdate));
+    Observable<List<EventEntity>> localDataObs = localDataStore.eventEntityList();
+
+    return localDataObs.exists(newsEntities -> !newsEntities.isEmpty())
+        .flatMap(isInDb -> (isInDb && !forceUpdate) ? localDataObs : cloudDataObs)
         .map(entityDataMapper::transform);
   }
 }
