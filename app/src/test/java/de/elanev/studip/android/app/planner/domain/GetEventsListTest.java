@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
+import de.elanev.studip.android.app.courses.domain.CoursesRepository;
 import rx.schedulers.Schedulers;
 
 import static org.mockito.BDDMockito.given;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class GetEventsListTest {
   private GetEventsList getEventsList;
   @Mock private PlannerRepository mockPlannerRepository;
+  @Mock private CoursesRepository mockCoursesRepository;
   @Mock private ThreadExecutor mockThreadExecutor;
   @Mock private PostExecutionThread mockPostExecutionThread;
 
@@ -36,7 +38,7 @@ public class GetEventsListTest {
     MockitoAnnotations.initMocks(this);
 
     getEventsList = new GetEventsList(mockPlannerRepository, mockThreadExecutor,
-        mockPostExecutionThread, coursesRepository);
+        mockPostExecutionThread, mockCoursesRepository);
 
   }
 
@@ -46,7 +48,7 @@ public class GetEventsListTest {
 
     getEventsList.buildUseCaseObservable(true);
 
-    verify(mockPlannerRepository).eventsList();
+    verify(mockPlannerRepository).eventsList(true);
     verifyNoMoreInteractions(mockPlannerRepository);
 
     verifyZeroInteractions(mockThreadExecutor);

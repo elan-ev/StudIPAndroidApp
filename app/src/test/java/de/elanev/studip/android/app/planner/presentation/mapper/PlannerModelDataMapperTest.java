@@ -35,7 +35,6 @@ public class PlannerModelDataMapperTest {
 
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    
     plannerModelDataMapper = new PlannerModelDataMapper(mockCourseModelDataMapper);
   }
 

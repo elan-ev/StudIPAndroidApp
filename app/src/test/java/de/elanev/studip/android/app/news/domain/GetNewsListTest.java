@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
+import de.elanev.studip.android.app.courses.domain.CoursesRepository;
 import rx.schedulers.Schedulers;
 
 import static org.mockito.BDDMockito.given;
@@ -29,6 +30,7 @@ public class GetNewsListTest {
   private GetNewsList getNewsList;
 
   @Mock private NewsRepository mockNewsRepository;
+  @Mock private CoursesRepository mockCoursesRepository;
   @Mock private ThreadExecutor mockThreadExecutor;
   @Mock private PostExecutionThread mockPostExecutionThread;
 
@@ -36,7 +38,7 @@ public class GetNewsListTest {
     MockitoAnnotations.initMocks(this);
 
     getNewsList = new GetNewsList(mockNewsRepository, mockThreadExecutor, mockPostExecutionThread,
-        coursesRepository);
+        mockCoursesRepository);
   }
 
   @Test public void buildUseCaseObservable() throws Exception {
