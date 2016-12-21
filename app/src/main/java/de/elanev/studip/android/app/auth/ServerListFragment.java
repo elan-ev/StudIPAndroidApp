@@ -11,7 +11,6 @@ package de.elanev.studip.android.app.auth;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -187,41 +186,39 @@ public class ServerListFragment extends Fragment {
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.menu_sign_in, menu);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-      MenuItem searchItem = menu.findItem(R.id.search_studip);
-      SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-      SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
-        @Override public boolean onQueryTextSubmit(String s) {
-          return false;
-        }
+    MenuItem searchItem = menu.findItem(R.id.search_studip);
+    SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+    SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+      @Override public boolean onQueryTextSubmit(String s) {
+        return false;
+      }
 
-        @Override public boolean onQueryTextChange(String s) {
-          mAdapter.getFilter()
-              .filter(s);
+      @Override public boolean onQueryTextChange(String s) {
+        mAdapter.getFilter()
+            .filter(s);
 
-          return true;
-        }
-      };
-      searchView.setOnQueryTextListener(queryTextListener);
-      MenuItemCompat.setOnActionExpandListener(searchItem,
-          new MenuItemCompat.OnActionExpandListener() {
-            @Override public boolean onMenuItemActionExpand(MenuItem item) {
-              if (mCollapsingToolbarLayout != null) {
-                mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.TRANSPARENT);
-              }
-
-              return true;
+        return true;
+      }
+    };
+    searchView.setOnQueryTextListener(queryTextListener);
+    MenuItemCompat.setOnActionExpandListener(searchItem,
+        new MenuItemCompat.OnActionExpandListener() {
+          @Override public boolean onMenuItemActionExpand(MenuItem item) {
+            if (mCollapsingToolbarLayout != null) {
+              mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.TRANSPARENT);
             }
 
-            @Override public boolean onMenuItemActionCollapse(MenuItem item) {
-              if (mCollapsingToolbarLayout != null) {
-                mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
-              }
+            return true;
+          }
 
-              return true;
+          @Override public boolean onMenuItemActionCollapse(MenuItem item) {
+            if (mCollapsingToolbarLayout != null) {
+              mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
             }
-          });
-    }
+
+            return true;
+          }
+        });
 
     super.onCreateOptionsMenu(menu, inflater);
   }

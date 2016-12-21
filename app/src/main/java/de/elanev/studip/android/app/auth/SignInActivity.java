@@ -31,7 +31,7 @@ import de.elanev.studip.android.app.util.Prefs;
  * @author joern
  */
 public class SignInActivity extends BaseActivity implements
-    ServerListFragment.OnServerSelectListener, OnAuthListener {
+    ServerListFragment.OnServerSelectListener, OnAuthListener, SignInListener {
 
   static final String SELECTED_SERVER = "selected_server";
   static final String AUTH_SUCCESS = "auth_success";
@@ -135,4 +135,11 @@ public class SignInActivity extends BaseActivity implements
         .commit();
   }
 
+  @Override public void onFeedbackSelected() {
+    navigator.navigateToFeedback(this);
+  }
+
+  @Override public void onAboutSelected() {
+    navigator.navigateToAbout(this);
+  }
 }
