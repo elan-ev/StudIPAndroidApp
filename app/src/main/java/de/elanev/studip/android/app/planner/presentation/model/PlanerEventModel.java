@@ -22,6 +22,7 @@ public class PlanerEventModel {
   private String color;
   private String eventId;
   private CourseModel course;
+  private boolean canceled;
 
   public Long getStart() {
     return start;
@@ -85,5 +86,13 @@ public class PlanerEventModel {
 
   public void setCourse(CourseModel course) {
     this.course = course;
+  }
+
+  public boolean isCanceled() {
+    return canceled;
+  }
+
+  public void setCanceled(boolean canceled) {
+    this.canceled = canceled;
   }
 }

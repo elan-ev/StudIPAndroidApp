@@ -28,6 +28,7 @@ public class EventEntity {
   private String categories;
   private String room;
   private String color;
+  private boolean canceled;
 
   @JsonProperty("event_id") public String getEventId() {
     return eventId;
@@ -99,5 +100,13 @@ public class EventEntity {
 
   @JsonProperty("color") public void setColor(String color) {
     this.color = color;
+  }
+
+  @JsonProperty("canceled") public boolean isCanceled() {
+    return canceled;
+  }
+
+  @JsonProperty("canceled") public void setCanceled(boolean canceled) {
+    this.canceled = canceled;
   }
 }

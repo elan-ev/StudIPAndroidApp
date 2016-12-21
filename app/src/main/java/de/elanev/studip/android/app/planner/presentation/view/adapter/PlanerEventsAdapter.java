@@ -9,6 +9,7 @@
 package de.elanev.studip.android.app.planner.presentation.view.adapter;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,6 +75,18 @@ public class PlanerEventsAdapter extends RecyclerView.Adapter<PlanerEventsAdapte
         }
       });
 
+      if (planerEventModel.isCanceled()) {
+        holder.title.setPaintFlags(holder.title.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        holder.dateTime.setPaintFlags(holder.dateTime.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        holder.room.setPaintFlags(holder.room.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        holder.canceled.setVisibility(View.VISIBLE);
+      } else {
+        holder.title.setPaintFlags(0);
+        holder.dateTime.setPaintFlags(0);
+        holder.room.setPaintFlags(0);
+        holder.canceled.setVisibility(View.GONE);
+      }
+
     }
   }
 
@@ -107,6 +120,7 @@ public class PlanerEventsAdapter extends RecyclerView.Adapter<PlanerEventsAdapte
     @BindView(R.id.text3) TextView dateTime;
     @BindView(R.id.text2) TextView room;
     @BindView(R.id.add_to_calendar) ImageView addIcon;
+    @BindView(R.id.canceled_icon) ImageView canceled;
 
     public ViewHolder(View itemView) {
       super(itemView);

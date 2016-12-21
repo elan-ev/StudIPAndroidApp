@@ -54,6 +54,7 @@ public class PlanerModelDataMapper {
 
     planerEventModel.setStart(event.getStart());
     planerEventModel.setEnd(event.getEnd());
+    planerEventModel.setCanceled(event.isCanceled());
 
     return planerEventModel;
   }
