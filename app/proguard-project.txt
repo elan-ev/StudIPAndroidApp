@@ -69,6 +69,8 @@
     @butterknife.* <methods>;
 }
 
+-keep class io.realm.** { *; }
+
 -dontwarn android.support.**
 -dontwarn org.apache.http.**
 -dontwarn com.google.**
@@ -80,8 +82,3 @@
 -dontwarn rx.**
 -dontwarn butterknife.internal.**
 -dontwarn java.lang.invoke.*
-
--dontnote com.google.vending.licensing.ILicensingService
--dontnote com.android.vending.licensing.ILicensingService
--dontnote com.google.android.gms.**
--dontnote com.google.android.gms.**
