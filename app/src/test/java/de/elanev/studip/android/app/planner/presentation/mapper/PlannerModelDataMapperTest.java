@@ -10,12 +10,15 @@ package de.elanev.studip.android.app.planner.presentation.mapper;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.elanev.studip.android.app.courses.presentation.mapper.CourseModelDataMapper;
 import de.elanev.studip.android.app.planner.domain.Event;
-import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -25,11 +28,15 @@ import static org.mockito.Mockito.mock;
 /**
  * @author joern
  */
-public class PlanerModelDataMapperTest {
-  private PlanerModelDataMapper planerModelDataMapper;
+public class PlannerModelDataMapperTest {
+  @Mock CourseModelDataMapper mockCourseModelDataMapper;
+
+  private PlannerModelDataMapper plannerModelDataMapper;
 
   @Before public void setUp() throws Exception {
-    planerModelDataMapper = new PlanerModelDataMapper(dataMapper);
+    MockitoAnnotations.initMocks(this);
+    
+    plannerModelDataMapper = new PlannerModelDataMapper(mockCourseModelDataMapper);
   }
 
   @Test public void transform() throws Exception {
@@ -40,11 +47,11 @@ public class PlanerModelDataMapperTest {
     list.add(mockEvent1);
     list.add(mockEvent2);
 
-    List<PlanerEventModel> planerEventModels = planerModelDataMapper.transform(list);
+    List<PlannerEventModel> plannerEventModels = plannerModelDataMapper.transform(list);
 
-    assertThat(planerEventModels.toArray()[0], is(instanceOf(PlanerEventModel.class)));
-    assertThat(planerEventModels.toArray()[1], is(instanceOf(PlanerEventModel.class)));
-    assertThat(planerEventModels.size(), is(2));
+    assertThat(plannerEventModels.toArray()[0], is(instanceOf(PlannerEventModel.class)));
+    assertThat(plannerEventModels.toArray()[1], is(instanceOf(PlannerEventModel.class)));
+    assertThat(plannerEventModels.size(), is(2));
   }
 
 }

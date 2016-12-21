@@ -13,7 +13,7 @@ import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
 /**
  * @author joern
  */
-public class PlanerEventModel {
+public class PlannerEventModel {
   private Long start;
   private Long end;
   private String title;

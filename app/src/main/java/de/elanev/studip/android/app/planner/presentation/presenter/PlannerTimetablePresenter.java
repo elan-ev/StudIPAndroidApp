@@ -17,8 +17,8 @@ import de.elanev.studip.android.app.base.DefaultSubscriber;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.planner.domain.Event;
-import de.elanev.studip.android.app.planner.presentation.mapper.PlanerModelDataMapper;
-import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
+import de.elanev.studip.android.app.planner.presentation.mapper.PlannerModelDataMapper;
+import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerTimetableView;
 import timber.log.Timber;
 
@@ -27,15 +27,15 @@ import timber.log.Timber;
  */
 @PerActivity
 public class PlannerTimetablePresenter extends
-    BaseRxLcePresenter<PlannerTimetableView, List<PlanerEventModel>> {
+    BaseRxLcePresenter<PlannerTimetableView, List<PlannerEventModel>> {
 
-  private final PlanerModelDataMapper planerModelDataMapper;
+  private final PlannerModelDataMapper plannerModelDataMapper;
   private final UseCase getEventsList;
 
   @Inject public PlannerTimetablePresenter(UseCase getEventsList,
-      PlanerModelDataMapper planerModelDataMapper) {
+      PlannerModelDataMapper plannerModelDataMapper) {
     this.getEventsList = getEventsList;
-    this.planerModelDataMapper = planerModelDataMapper;
+    this.plannerModelDataMapper = plannerModelDataMapper;
   }
 
   public void loadData(boolean ptr) {
@@ -63,7 +63,7 @@ public class PlannerTimetablePresenter extends
 
     @Override public void onNext(List<Event> events) {
       PlannerTimetablePresenter.this.onNext(
-          PlannerTimetablePresenter.this.planerModelDataMapper.transform(events));
+          PlannerTimetablePresenter.this.plannerModelDataMapper.transform(events));
     }
   }
 }
