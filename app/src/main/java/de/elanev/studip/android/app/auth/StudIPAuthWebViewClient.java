@@ -31,8 +31,7 @@ class StudIPAuthWebViewClient extends WebViewClient {
       if (mWebAuthCallbacks != null) {
         mWebAuthCallbacks.onWebAuthSuccess();
       }
-    } else if (url.contains("restipplugin/oauth/oob") || url.contains("logout=true")
-        || url.contains("cancel_login=1")) {
+    } else if (url.contains("restipplugin/oauth/oob")) {
       if (mWebAuthCallbacks != null) {
         mWebAuthCallbacks.onWebAuthCanceled();
       }
