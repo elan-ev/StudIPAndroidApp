@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import de.elanev.studip.android.app.base.internal.di.modules.NetworkModule;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.courses.domain.CoursesRepository;
+import de.elanev.studip.android.app.courses.presentation.view.CourseDocumentsFragment;
 import de.elanev.studip.android.app.courses.presentation.view.CourseViewActivity;
 import de.elanev.studip.android.app.feedback.FeedbackActivity;
 import de.elanev.studip.android.app.messages.domain.MessagesRepository;
@@ -75,6 +76,8 @@ public interface ApplicationComponent {
   void inject(MessageDetailActivity target);
 
   void inject(LogoutActivity target);
+
+  void inject(CourseDocumentsFragment target);
 
   // Expose to subcomponents
   Context context();
