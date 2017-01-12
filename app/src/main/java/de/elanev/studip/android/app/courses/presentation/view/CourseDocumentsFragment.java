@@ -27,6 +27,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -36,6 +37,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -43,6 +45,7 @@ import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.AbstractStudIPApplication;
+import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.auth.OAuthConnector;
 import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
@@ -377,7 +380,8 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         break;
 
       case DownloadManager.STATUS_SUCCESSFUL:
-        showSnackbar(fileName, mime);
+        showSnackbar(Uri.parse(fileName)
+            .getLastPathSegment(), mime);
         break;
 
       default:
@@ -429,7 +433,14 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         Snackbar.LENGTH_SHORT)
         .setAction(R.string.Open, v -> {
           Intent viewIntent = new Intent(Intent.ACTION_VIEW);
-          viewIntent.setDataAndType(Uri.parse(fileName), mime);
+          File path = Environment.getExternalStoragePublicDirectory(
+              Environment.DIRECTORY_DOWNLOADS);
+          File file = new File(path, fileName);
+          Uri fileUri = FileProvider.getUriForFile(getContext(),
+              BuildConfig.APPLICATION_ID + ".provider", file);
+
+          viewIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+          viewIntent.setDataAndType(fileUri, mime);
 
           try {
             // Show the download activity
@@ -449,6 +460,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     // Show the Snack
     snackbar.show();
   }
+
 
   /**
    * Returns the previous navigation page when the back button is pressed.
