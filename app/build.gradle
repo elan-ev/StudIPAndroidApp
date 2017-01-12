@@ -97,7 +97,6 @@ dependencies {
 
   // Other
   compile 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.0.4'
-  compile 'com.google.guava:guava:20.0'
   compile 'de.hdodenhof:circleimageview:2.1.0'
   compile 'com.github.quivr:android-week-view:2.0.2'
   compile 'io.github.yavski:fab-speed-dial:1.0.6'
@@ -183,6 +182,7 @@ android {
   }
 
   defaultConfig {
+    applicationId "de.elanev.studip.android.app.StudIPApplication"
     minSdkVersion 15
     targetSdkVersion 25
 
@@ -193,7 +193,7 @@ android {
     testInstrumentationRunnerArguments disableAnalytics: 'true'
 
     // Enabling multidex support.
-    multiDexEnabled true
+    // multiDexEnabled true
 
     // Set output file name based on versionName
     setProperty("archivesBaseName", "studip_mobil")
