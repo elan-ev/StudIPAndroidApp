@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -13,12 +13,18 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.courses.domain.CoursesRepository;
+import de.elanev.studip.android.app.courses.domain.DomainCourse;
+import rx.Observable;
 import rx.schedulers.Schedulers;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -45,6 +51,14 @@ public class GetEventsListTest {
   @Test public void buildUseCaseObservable() throws Exception {
     given(mockThreadExecutor.getScheduler()).willReturn(Schedulers.immediate());
     given(mockPostExecutionThread.getScheduler()).willReturn(Schedulers.immediate());
+
+    List<Event> mockEventList = new ArrayList<>(1);
+    mockEventList.add(mock(Event.class));
+    given(mockPlannerRepository.eventsList(true)).willReturn(Observable.just(mockEventList));
+
+    List<DomainCourse> mockCoursesList = new ArrayList<>(1);
+    mockCoursesList.add(mock(DomainCourse.class));
+    given(mockCoursesRepository.courses(true)).willReturn(Observable.just(mockCoursesList));
 
     getEventsList.buildUseCaseObservable(true);
 
