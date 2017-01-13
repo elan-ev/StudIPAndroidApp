@@ -182,7 +182,7 @@ android {
   }
 
   defaultConfig {
-    applicationId "de.elanev.studip.android.app.StudIPApplication"
+    applicationId "de.elanev.studip.android.app"
     minSdkVersion 15
     targetSdkVersion 25
 
