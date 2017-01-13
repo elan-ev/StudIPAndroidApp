@@ -31,11 +31,11 @@ import rx.Observable;
 
 @Singleton
 @SuppressLint("NewApi")
-public class PlanerRealmDataStore implements PlannerDataStore {
+public class PlannerRealmDataStore implements PlannerDataStore {
   private final RealmConfiguration realmConfig;
   private final EventsEntityDataMapper mapper;
 
-  @Inject public PlanerRealmDataStore(RealmConfiguration realmConfig,
+  @Inject public PlannerRealmDataStore(RealmConfiguration realmConfig,
       EventsEntityDataMapper mapper) {
     this.realmConfig = realmConfig;
     this.mapper = mapper;

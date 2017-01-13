@@ -12,9 +12,9 @@ import com.hannesdorfmann.mosby.mvp.lce.MvpLceView;
 
 import java.util.List;
 
-import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel;
 
 /**
  * @author joern
  */
-public interface PlannerTimetableView extends MvpLceView<List<PlanerEventModel>> {}
+public interface PlannerTimetableView extends MvpLceView<List<PlannerEventModel>> {}

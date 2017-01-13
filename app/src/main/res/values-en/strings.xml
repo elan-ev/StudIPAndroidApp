@@ -219,6 +219,7 @@ information visit https://goo.gl/AKQXve.</string>
     <string name="list_view">List view</string>
     <string name="timetable">Timetable</string>
     <string name="add_to_calendar">Add to calendar</string>
+    <string name="event_canceled">Event canceled</string>
 
     <!-- Profile -->
     <string name="Profile">Profile</string>

@@ -25,6 +25,7 @@ public class Event {
   private String color;
   private String category;
   private String courseId;
+  private boolean canceled;
 
   public String getCategory() {
     return category;
@@ -104,5 +105,13 @@ public class Event {
 
   public String getCourseId() {
     return courseId;
+  }
+
+  public boolean isCanceled() {
+    return canceled;
+  }
+
+  public void setCanceled(boolean canceled) {
+    this.canceled = canceled;
   }
 }

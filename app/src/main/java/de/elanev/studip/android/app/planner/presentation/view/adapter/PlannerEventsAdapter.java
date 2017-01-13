@@ -9,6 +9,7 @@
 package de.elanev.studip.android.app.planner.presentation.view.adapter;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,21 +24,21 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel;
 
 /**
  * @author joern
  */
-public class PlanerEventsAdapter extends RecyclerView.Adapter<PlanerEventsAdapter.ViewHolder> {
+public class PlannerEventsAdapter extends RecyclerView.Adapter<PlannerEventsAdapter.ViewHolder> {
 
   private final LayoutInflater inflater;
-  private final List<PlanerEventModel> data = new ArrayList<>();
+  private final List<PlannerEventModel> data = new ArrayList<>();
   private final DateFormat timeFormat;
   private final DateFormat dateFormat;
   private EventClickListener onItemClickListener;
   private EventAddClickListener onAddIconClickedListener;
 
-  public PlanerEventsAdapter(Context context) {
+  public PlannerEventsAdapter(Context context) {
     inflater = LayoutInflater.from(context);
     timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     dateFormat = android.text.format.DateFormat.getDateFormat(context);
@@ -50,29 +51,41 @@ public class PlanerEventsAdapter extends RecyclerView.Adapter<PlanerEventsAdapte
   }
 
   @Override public void onBindViewHolder(ViewHolder holder, int position) {
-    PlanerEventModel planerEventModel = data.get(position);
+    PlannerEventModel plannerEventModel = data.get(position);
 
-    if (planerEventModel != null) {
-      holder.title.setText(planerEventModel.getTitle());
+    if (plannerEventModel != null) {
+      holder.title.setText(plannerEventModel.getTitle());
 
-      String timeString = "(" + timeFormat.format(planerEventModel.getStart() * 1000L) + " - " +
-          timeFormat.format(planerEventModel.getEnd() * 1000L) + ")";
-      String dateString = dateFormat.format(planerEventModel.getStart() * 1000L);
+      String timeString = "(" + timeFormat.format(plannerEventModel.getStart() * 1000L) + " - " +
+          timeFormat.format(plannerEventModel.getEnd() * 1000L) + ")";
+      String dateString = dateFormat.format(plannerEventModel.getStart() * 1000L);
       holder.dateTime.setText(dateString + " " + timeString);
 
-      holder.room.setText(planerEventModel.getRoom());
+      holder.room.setText(plannerEventModel.getRoom());
 
       holder.itemView.setOnClickListener(view -> {
-        if (PlanerEventsAdapter.this.onItemClickListener != null) {
-          PlanerEventsAdapter.this.onItemClickListener.onEventClicked(planerEventModel);
+        if (PlannerEventsAdapter.this.onItemClickListener != null) {
+          PlannerEventsAdapter.this.onItemClickListener.onEventClicked(plannerEventModel);
         }
       });
 
       holder.addIcon.setOnClickListener(view -> {
-        if (PlanerEventsAdapter.this.onAddIconClickedListener != null) {
-          PlanerEventsAdapter.this.onAddIconClickedListener.onAddEventClicked(planerEventModel);
+        if (PlannerEventsAdapter.this.onAddIconClickedListener != null) {
+          PlannerEventsAdapter.this.onAddIconClickedListener.onAddEventClicked(plannerEventModel);
         }
       });
+
+      if (plannerEventModel.isCanceled()) {
+        holder.title.setPaintFlags(holder.title.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        holder.dateTime.setPaintFlags(holder.dateTime.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        holder.room.setPaintFlags(holder.room.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        holder.canceled.setVisibility(View.VISIBLE);
+      } else {
+        holder.title.setPaintFlags(0);
+        holder.dateTime.setPaintFlags(0);
+        holder.room.setPaintFlags(0);
+        holder.canceled.setVisibility(View.GONE);
+      }
 
     }
   }
@@ -81,7 +94,7 @@ public class PlanerEventsAdapter extends RecyclerView.Adapter<PlanerEventsAdapte
     return data != null ? data.size() : 0;
   }
 
-  public void setData(List<PlanerEventModel> data) {
+  public void setData(List<PlannerEventModel> data) {
     this.data.clear();
     this.data.addAll(data);
   }
@@ -95,11 +108,11 @@ public class PlanerEventsAdapter extends RecyclerView.Adapter<PlanerEventsAdapte
   }
 
   public interface EventClickListener {
-    void onEventClicked(PlanerEventModel planerEventModel);
+    void onEventClicked(PlannerEventModel plannerEventModel);
   }
 
   public interface EventAddClickListener {
-    void onAddEventClicked(PlanerEventModel planerEventModel);
+    void onAddEventClicked(PlannerEventModel plannerEventModel);
   }
 
   class ViewHolder extends RecyclerView.ViewHolder {
@@ -107,6 +120,7 @@ public class PlanerEventsAdapter extends RecyclerView.Adapter<PlanerEventsAdapte
     @BindView(R.id.text3) TextView dateTime;
     @BindView(R.id.text2) TextView room;
     @BindView(R.id.add_to_calendar) ImageView addIcon;
+    @BindView(R.id.canceled_icon) ImageView canceled;
 
     public ViewHolder(View itemView) {
       super(itemView);

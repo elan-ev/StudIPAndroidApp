@@ -17,7 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.elanev.studip.android.app.planner.data.entity.EventEntity;
+import de.elanev.studip.android.app.planner.data.repository.datastore.PlannerCloudDataStore;
 import de.elanev.studip.android.app.planner.data.repository.datastore.PlannerDataStore;
+import de.elanev.studip.android.app.planner.data.repository.datastore.PlannerRealmDataStore;
 import rx.Observable;
 
 import static org.mockito.BDDMockito.given;
@@ -29,15 +31,15 @@ import static org.mockito.Mockito.verify;
 public class PlannerDataRepositoryTest {
   private PlannerDataRepository plannerDataRepository;
   @Mock private EventsEntityDataMapper mockEntityDataMapper;
-  @Mock private PlannerDataStoreFactory mockPlannerDataFactory;
+  @Mock private PlannerCloudDataStore mockCloudDataStore;
+  @Mock private PlannerRealmDataStore mockRealmDataStore;
   @Mock private PlannerDataStore mockPlannerDataStore;
 
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    given(mockPlannerDataFactory.create()).willReturn(mockPlannerDataStore);
 
-    plannerDataRepository = new PlannerDataRepository(mockEntityDataMapper, mockPlannerDataFactory,
-        cloudDataStore, localDataStore);
+    plannerDataRepository = new PlannerDataRepository(mockEntityDataMapper, mockCloudDataStore,
+        mockRealmDataStore);
   }
 
   @Test public void eventsList() throws Exception {
@@ -45,12 +47,13 @@ public class PlannerDataRepositoryTest {
     eventEntities.add(new EventEntity());
     eventEntities.add(new EventEntity());
 
-    given(mockPlannerDataStore.eventEntityList()).willReturn(Observable.just(eventEntities));
+    given(mockCloudDataStore.eventEntityList()).willReturn(Observable.just(eventEntities));
+    given(mockRealmDataStore.eventEntityList()).willReturn(Observable.just(eventEntities));
 
-    plannerDataRepository.eventsList();
+    plannerDataRepository.eventsList(true);
 
-    verify(mockPlannerDataFactory).create();
-    verify(mockPlannerDataStore).eventEntityList();
+    verify(mockCloudDataStore).eventEntityList();
+    verify(mockRealmDataStore).eventEntityList();
   }
 
 }
