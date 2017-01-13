@@ -182,11 +182,15 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         String downloadUrl = String.format(getString(R.string.restip_documents_documentid_download),
             server.getApiUrl(), fileId);
 
+        // Workaround for older Android versions which have problems with the server certificates
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+          downloadUrl = downloadUrl.replace("https", "http");
+        }
+
         // Sign the download URL with the OAuth credentials and parse the URI
         String signedDownloadUrl = OAuthConnector.with(server)
             .sign(downloadUrl);
         Uri downloadUri = Uri.parse(signedDownloadUrl);
-
 
         // Create the download request
         DownloadManager.Request request = new DownloadManager.Request(
