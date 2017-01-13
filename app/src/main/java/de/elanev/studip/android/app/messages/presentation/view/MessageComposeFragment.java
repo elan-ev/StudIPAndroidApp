@@ -276,7 +276,9 @@ public class MessageComposeFragment extends
         .toString();
   }
 
-  @Override public void messageSend() {
+  @Override public void messageSent() {
+    showToast(getString(R.string.message_sent));
+
     if (this.messageComposeListener != null) {
       this.messageComposeListener.onMessageComposeFinished();
     }

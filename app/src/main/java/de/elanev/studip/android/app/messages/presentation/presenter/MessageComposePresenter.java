@@ -79,7 +79,7 @@ public class MessageComposePresenter extends BaseRxLcePresenter<MessageComposeVi
 
   @SuppressWarnings("ConstantConditions") private void sendOnComplete() {
     if (isViewAttached()) {
-      getView().messageSend();
+      getView().messageSent();
     }
   }
 
