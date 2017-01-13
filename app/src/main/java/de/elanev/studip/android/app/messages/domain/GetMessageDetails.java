@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.util.TextTools;
 import rx.Observable;
 
 /**
@@ -35,5 +36,9 @@ public class GetMessageDetails extends UseCase {
 
   @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
     return messageRepository.message(messageId);
+  }
+
+  public boolean hasId() {
+    return !TextTools.isEmpty(messageId);
   }
 }

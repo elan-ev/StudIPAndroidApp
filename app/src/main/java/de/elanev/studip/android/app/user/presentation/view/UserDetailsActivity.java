@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -8,18 +8,20 @@
 
 package de.elanev.studip.android.app.user.presentation.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
+import de.elanev.studip.android.app.messages.presentation.model.MessageModel;
+import de.elanev.studip.android.app.messages.presentation.view.MessageComposeActivity;
 import de.elanev.studip.android.app.user.interal.di.DaggerUserComponent;
 import de.elanev.studip.android.app.user.interal.di.UserComponent;
 import de.elanev.studip.android.app.user.interal.di.UserModule;
@@ -97,23 +99,14 @@ public class UserDetailsActivity extends AppCompatActivity implements HasCompone
   }
 
   @Override public void onFabClicked(UserModel userModel) {
-    Toast.makeText(this, "FabClicked", Toast.LENGTH_LONG)
-        .show();
-    //    User user = new User();
-    //    user.userId = mUserId;
-    //    user.forename = mFirstname;
-    //    user.lastname = mLastname;
-    //    user.titlePost = mTitlePost;
-    //    user.titlePre = mTitlePre;
-    //
-    //    Bundle extras = new Bundle();
-    //    extras.putInt(MessageComposeActivity.MESSAGE_ACTION_FLAG,
-    //        MessageComposeActivity.MESSAGE_ACTION_REPLY);
-    //    extras.putSerializable(MessageComposeActivity.MESSAGE_RECEIVER, user);
-    //
-    //
-    //    Intent intent = new Intent(this, MessageComposeActivity.class);
-    //    intent.putExtras(extras);
-    //    startActivity(intent);
+    MessageModel messageModel = new MessageModel();
+    messageModel.setReceiver(userModel);
+
+    Bundle extras = new Bundle();
+    extras.putSerializable(MessageComposeActivity.MESSAGE, messageModel);
+
+    Intent intent = new Intent(this, MessageComposeActivity.class);
+    intent.putExtras(extras);
+    startActivity(intent);
   }
 }

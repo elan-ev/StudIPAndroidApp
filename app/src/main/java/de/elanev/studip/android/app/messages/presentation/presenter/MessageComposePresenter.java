@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import de.elanev.studip.android.app.base.BaseRxLcePresenter;
 import de.elanev.studip.android.app.base.DefaultSubscriber;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.internal.di.PerFragment;
+import de.elanev.studip.android.app.messages.domain.GetMessageDetails;
 import de.elanev.studip.android.app.messages.domain.Message;
 import de.elanev.studip.android.app.messages.domain.SendMessage;
 import de.elanev.studip.android.app.messages.presentation.mapper.MessagesDataMapper;
@@ -28,13 +29,13 @@ import de.elanev.studip.android.app.user.presentation.model.UserModel;
 @PerFragment
 public class MessageComposePresenter extends BaseRxLcePresenter<MessageComposeView, MessageModel> {
   private final SendMessage sendMessagesUseCase;
-  private final UseCase getMessageUseCase;
+  private final GetMessageDetails getMessageUseCase;
   private final MessagesDataMapper dataMapper;
 
   @Inject MessageComposePresenter(@Named("sendMessage") UseCase sendMessage,
       @Named("messageDetails") UseCase getMessageUseCase, MessagesDataMapper messagesDataMapper) {
     this.sendMessagesUseCase = (SendMessage) sendMessage;
-    this.getMessageUseCase = getMessageUseCase;
+    this.getMessageUseCase = (GetMessageDetails) getMessageUseCase;
     this.dataMapper = messagesDataMapper;
   }
 
@@ -69,7 +70,11 @@ public class MessageComposePresenter extends BaseRxLcePresenter<MessageComposeVi
   }
 
   public void load() {
-    this.getMessageUseCase.execute(new MessageGetSubscriber(false));
+    if (this.getMessageUseCase.hasId()) {
+      this.getMessageUseCase.execute(new MessageGetSubscriber(false));
+    } else {
+      this.onCompleted();
+    }
   }
 
   @SuppressWarnings("ConstantConditions") private void sendOnComplete() {

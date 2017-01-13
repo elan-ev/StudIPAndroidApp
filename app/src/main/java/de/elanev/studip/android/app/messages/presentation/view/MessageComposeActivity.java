@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -43,15 +43,6 @@ public class MessageComposeActivity extends AppCompatActivity implements
     if (savedInstanceState == null) {
       Intent intent = getIntent();
       handleInternalIntent(intent);
-
-      // FIXME: Add this when the API user search feature is fixed
-      //      String action = intent.getAction();
-      //      String type = intent.getType();
-      //
-      //      if (Intent.ACTION_SEND.equals(action) && TextUtils.equals("text/plain", type)) {
-      //        handleExternalIntent(intent);
-      //      } else {
-      //      }
     }
   }
 
@@ -63,15 +54,6 @@ public class MessageComposeActivity extends AppCompatActivity implements
       actionBar.setDisplayHomeAsUpEnabled(true);
     }
   }
-
-  // FIXME: Add this when the API user search feature is fixed
-  //  private void handleExternalIntent(Intent intent) {
-  //    String intentSubject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
-  //    String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
-  //
-  //
-  //  }
-  //
 
   private void handleInternalIntent(Intent intent) {
     Bundle extras = intent.getExtras();
@@ -94,7 +76,6 @@ public class MessageComposeActivity extends AppCompatActivity implements
       // Respond to the action bar's Up/Home button
       case android.R.id.home:
         finish();
-        //        NavUtils.navigateUpFromSameTask(this);
         return true;
     }
 
