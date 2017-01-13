@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -27,13 +27,12 @@ public class Document {
   public int downloads;
   @JsonProperty("protected") public boolean file_protected;
   public String mime_type;
-  public String icon;
 
   public Document() {}
 
   public Document(String document_id, String user_id, String name, String description, long mkdate,
       long chdate, String filename, long filesize, int downloads, boolean file_protected,
-      String mime_type, String icon) {
+      String mime_type) {
     this.document_id = document_id;
     this.user_id = user_id;
     this.name = name;
@@ -45,6 +44,5 @@ public class Document {
     this.downloads = downloads;
     this.file_protected = file_protected;
     this.mime_type = mime_type;
-    this.icon = icon;
   }
 }

@@ -37,6 +37,18 @@
 -keepclassmembers class de.elanev.studip.android.app.data.datamodel.** {
    public *;
 }
+-keepclassmembers class de.elanev.studip.android.app.news.data.entity.** {
+   public *;
+}
+-keepclassmembers class de.elanev.studip.android.app.courses.data.entity.** {
+   public *;
+}
+-keepclassmembers class de.elanev.studip.android.app.messages.data.entity.** {
+   public *;
+}
+-keepclassmembers class de.elanev.studip.android.app.planner.data.entity.** {
+   public *;
+}
 -keepclassmembers class **.R$* {public static <fields>;}
 -keep class **.R$*
 -keep,includedescriptorclasses class retrofit2.** { *; }

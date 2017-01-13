@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2016 ELAN e.V.
+  ~ Copyright (c) 2017 ELAN e.V.
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the GNU Public License v3.0
   ~ which accompanies this distribution, and is available at
@@ -39,18 +39,20 @@
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
-    <style name="FabStyle">
+    <style name="FabSpeedDialStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_margin">@dimen/layout_margin_large</item>
         <item name="android:layout_gravity">end|bottom</item>
         <item name="borderWidth">0dp</item>
         <item name="elevation">4dp</item>
         <item name="rippleColor">@android:color/white</item>
+        <item name="miniFabBackgroundTint">@color/studip_primary</item>
+        <item name="fabGravity">bottom_end</item>
+        <item name="miniFabDrawableTint">@android:color/white</item>
     </style>
 
     <style name="CircularThemeProgressBar" parent="Base.Widget.AppCompat.ProgressBar">
-        <item name="cpb_colors">@color/studip_primary</item>
+        <item name="cpb_color">@color/studip_primary</item>
         <item name="cpb_stroke_width">@dimen/cpb_default_stroke_width</item>
         <item name="cpb_min_sweep_angle">@integer/cpb_default_min_sweep_angle</item>
         <item name="cpb_max_sweep_angle">@integer/cpb_default_max_sweep_angle</item>

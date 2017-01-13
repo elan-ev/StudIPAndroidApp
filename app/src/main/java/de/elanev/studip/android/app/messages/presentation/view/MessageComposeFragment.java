@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -96,11 +96,19 @@ public class MessageComposeFragment extends
   }
 
   private void initInjector(String messageId) {
-    this.messagesComponent = DaggerMessagesComponent.builder()
-        .applicationComponent(
-            ((AbstractStudIPApplication) getActivity().getApplication()).getAppComponent())
-        .messagesModule(new MessagesModule(messageId))
-        .build();
+    if (!TextUtils.isEmpty(messageId)) {
+      this.messagesComponent = DaggerMessagesComponent.builder()
+          .applicationComponent(
+              ((AbstractStudIPApplication) getActivity().getApplication()).getAppComponent())
+          .messagesModule(new MessagesModule(messageId))
+          .build();
+    } else {
+      this.messagesComponent = DaggerMessagesComponent.builder()
+          .applicationComponent(
+              ((AbstractStudIPApplication) getActivity().getApplication()).getAppComponent())
+          .messagesModule(new MessagesModule())
+          .build();
+    }
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater,
@@ -159,12 +167,8 @@ public class MessageComposeFragment extends
     return new RetainingLceViewState<>();
   }
 
-  @Override public MessageModel getData() {
-    return this.message;
-  }
-
-  @Override public void setData(MessageModel data) {
-    this.message = data;
+  @Override public void showContent() {
+    super.showContent();
 
     fillFields();
   }
@@ -174,8 +178,10 @@ public class MessageComposeFragment extends
       UserModel receiver = this.message.getReceiver();
       UserModel originalSender = this.message.getSender();
 
-      mSubjectEditText.setText(formatSubject(message));
-      mBodyEditText.setText(formatMessage(message, originalSender));
+      if (!TextUtils.isEmpty(message.getSubject()))
+        mSubjectEditText.setText(formatSubject(message));
+      if (!TextUtils.isEmpty(message.getMessage()))
+        mBodyEditText.setText(formatMessage(message, originalSender));
 
       if (receiver != null) {
         mReceiverTextInputLayout.setEnabled(false);
@@ -189,11 +195,6 @@ public class MessageComposeFragment extends
   private String formatSubject(MessageModel message) {
     String subject;
 
-    //    if (mAction == MESSAGE_ACTION_FORWARD) {
-    //      subject = String.format("%s: %s", getString(R.string.message_forward_string),
-    //          message.getSubject());
-    //    } else
-    //
     if (!TextUtils.isEmpty(message.getSubject())) {
       subject = String.format("%s: %s", getString(R.string.message_reply_string),
           message.getSubject());
@@ -223,6 +224,14 @@ public class MessageComposeFragment extends
         .append(message.getMessage());
 
     return messageBodyBuilder.toString();
+  }
+
+  @Override public MessageModel getData() {
+    return this.message;
+  }
+
+  @Override public void setData(MessageModel data) {
+    this.message = data;
   }
 
   @Override public void loadData(boolean pullToRefresh) {
@@ -267,7 +276,9 @@ public class MessageComposeFragment extends
         .toString();
   }
 
-  @Override public void messageSend() {
+  @Override public void messageSent() {
+    showToast(getString(R.string.message_sent));
+
     if (this.messageComposeListener != null) {
       this.messageComposeListener.onMessageComposeFinished();
     }
@@ -276,142 +287,4 @@ public class MessageComposeFragment extends
   interface MessageComposeListener {
     void onMessageComposeFinished();
   }
-
-  // FIXME New impl when the API user search interface is fixed
-  //  private void initSearchView() {
-  //    mAutoCompleteTextView.setOnItemClickListener((parent, view, position, id) -> {
-  //      UserModel item = (UserModel) parent.getItemAtPosition(position);
-  //
-  //      mAutoCompleteTextView.setTag(item);
-  //      mAutoCompleteTextView.setEnabled(false);
-  //    });
-  //    mAutoCompleteTextView.setOnKeyListener((v, keyCode, event) -> {
-  //      if (keyCode == KeyEvent.KEYCODE_DEL) {
-  //        if (mAutoCompleteTextView.getTag() != null) {
-  //          mAutoCompleteTextView.setTag(null);
-  //          mAutoCompleteTextView.setText("");
-  //        }
-  //      }
-  //      return false;
-  //    });
-  //
-  //    if (TextUtils.isEmpty(mAutoCompleteTextView.getText())) {
-  //      mAutoCompleteTextView.requestFocus();
-  //    } else if (TextUtils.isEmpty(mSubjectEditText.getText())) {
-  //      mSubjectEditText.requestFocus();
-  //    } else {
-  //      mBodyEditText.requestFocus();
-  //      mBodyEditText.setSelection(0);
-  //    }
-  //
-  //  }
-  //  public class UserAdapter extends ArrayAdapter<UserModel> {
-  //
-  //    Context context;
-  //    int layoutResourceId;
-  //    ArrayList<UserModel> data = null;
-  //    ArrayList<UserModel> originalItems = new ArrayList<>();
-  //
-  //    public UserAdapter(Context context, int layoutResourceId, ArrayList<UserModel> data) {
-  //      super(context, layoutResourceId, data);
-  //      this.layoutResourceId = layoutResourceId;
-  //      this.context = context;
-  //      this.data = data;
-  //      originalItems.addAll(data);
-  //    }
-  //
-  //    @Override public View getView(int position, View convertView, ViewGroup parent) {
-  //      View row = convertView;
-  //
-  //      if (row == null) {
-  //        LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-  //        row = inflater.inflate(layoutResourceId, parent, false);
-  //      }
-  //      TextView userNameTextView = (TextView) row.findViewById(android.R.id.text1);
-  //      UserModel item = data.get(position);
-  //
-  //      if (userNameTextView != null && item != null) userNameTextView.setText(item.getFullName());
-  //
-  //      return row;
-  //    }
-  //
-  //    @Override public Filter getFilter() {
-  //
-  //      return new Filter() {
-  //
-  //        @Override protected FilterResults performFiltering(CharSequence constraint) {
-  //          FilterResults filterResults = new FilterResults();
-  //          ArrayList<UserModel> localItems = new ArrayList<>();
-  //          ArrayList<UserModel> result = new ArrayList<>();
-  //
-  //          // If the constraint is empty, we can return all items
-  //          if (constraint == null || constraint.length() == 0) {
-  //            filterResults.values = originalItems;
-  //            filterResults.count = originalItems.size();
-  //
-  //          } else {
-  //            String loweredConstraint = constraint.toString()
-  //                .toLowerCase(Locale.getDefault());
-  //            localItems.addAll(originalItems);
-  //
-  //            for (UserModel userItem : localItems) {
-  //              String loweredFullName = userItem.getFullName()
-  //                  .toLowerCase(Locale.getDefault());
-  //
-  //              if (loweredFullName.startsWith(constraint.toString()
-  //                  .toLowerCase(Locale.getDefault()))) {
-  //
-  //                // Found matching element
-  //                Timber.d("Found %s, searched %s", loweredFullName, loweredConstraint);
-  //                result.add(userItem);
-  //
-  //              } else {
-  //                // If there is no match in the first word, test
-  //                // the rest individually
-  //                final String[] words = userItem.getFullName()
-  //                    .toLowerCase(Locale.getDefault())
-  //                    .split(" ");
-  //                final int wordCount = words.length;
-  //
-  //                for (int k = 0; k < wordCount; k++) {
-  //                  if (words[k].startsWith(loweredConstraint)) {
-  //
-  //                    // Found a matching element
-  //                    Timber.d("Found %s, searched %s", words[k], loweredConstraint);
-  //                    result.add(userItem);
-  //                    break;
-  //                  }
-  //                }
-  //
-  //              }
-  //
-  //            }
-  //          }
-  //
-  //          filterResults.values = result;
-  //          filterResults.count = result.size();
-  //
-  //          return filterResults;
-  //        }
-  //
-  //        @Override protected void publishResults(CharSequence contraint, FilterResults results) {
-  //          // if there are any results, add them back
-  //          if (results != null && results.count > 0) {
-  //            @SuppressWarnings("unchecked") final ArrayList<UserModel> localItems = (ArrayList<UserModel>) results.values;
-  //            notifyDataSetChanged();
-  //            clear();
-  //            for (UserModel item : localItems) {
-  //              add(item);
-  //            }
-  //          } else {
-  //            notifyDataSetInvalidated();
-  //          }
-  //        }
-  //
-  //        @Override public CharSequence convertResultToString(Object resultValue) {
-  //          return ((UserModel) resultValue).getFullName();
-  //        }
-  //      };
-  //    }
-  //  }
 }

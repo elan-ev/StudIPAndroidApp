@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -13,13 +13,13 @@ import android.text.TextUtils;
 
 import de.elanev.studip.android.app.data.datamodel.Server;
 import oauth.signpost.OAuth;
-import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 import oauth.signpost.http.HttpRequest;
 import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer;
+import se.akerfeldt.okhttp.signpost.OkHttpOAuthProvider;
 
 /**
  * OAuth connector frame class to bundle all of the OAuth logic for easier access
@@ -29,7 +29,7 @@ public class OAuthConnector {
   public static final String TAG = OAuthConnector.class.getSimpleName();
 
   private static OAuthConnector sInstance;
-  private CommonsHttpOAuthProvider mProvider = null;
+  private OkHttpOAuthProvider mProvider = null;
   private Server mServer = null;
   private OkHttpOAuthConsumer mConsumer = null;
 
@@ -214,7 +214,7 @@ public class OAuthConnector {
     }
 
     @Override protected RequestResult doInBackground(String... params) {
-      mProvider = new CommonsHttpOAuthProvider(mServer.getRequestUrl(),
+      mProvider = new OkHttpOAuthProvider(mServer.getRequestUrl(),
           mServer.getAccessUrl(),
           mServer.getAuthorizationUrl());
 
