@@ -5,6 +5,7 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.gnu.org/licenses/gpl.html
   -->
+
 <manifest
     package="de.elanev.studip.android.app"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -106,11 +107,6 @@
         <activity
             android:name=".messages.presentation.view.MessageComposeActivity"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/plain"/>
-            </intent-filter>
         </activity>
 
         <!-- Contacts -->
