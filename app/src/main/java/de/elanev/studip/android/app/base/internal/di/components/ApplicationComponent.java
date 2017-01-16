@@ -18,11 +18,12 @@ import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.StartupActivity;
 import de.elanev.studip.android.app.auth.ServerListFragment;
 import de.elanev.studip.android.app.auth.SignInFragment;
-import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;
+import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.modules.ApplicationModule;
 import de.elanev.studip.android.app.base.internal.di.modules.NetworkModule;
+import de.elanev.studip.android.app.base.navigation.Navigator;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.courses.domain.CoursesRepository;
@@ -39,6 +40,7 @@ import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
 import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.BaseFragment;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
+import io.realm.RealmConfiguration;
 
 /**
  * @author joern
@@ -75,14 +77,16 @@ public interface ApplicationComponent {
 
   void inject(MessageDetailActivity target);
 
-  void inject(LogoutActivity target);
-
   void inject(CourseDocumentsFragment target);
 
   // Expose to subcomponents
   Context context();
 
   Prefs prefs();
+
+  Navigator navigator();
+
+  RealmConfiguration realConfiguration();
 
   NewsRepository newsRepository();
 
@@ -96,8 +100,9 @@ public interface ApplicationComponent {
 
   CoursesRepository coursesRepository();
 
+  AuthorizationRepository authorizationRepository();
+
   ThreadExecutor threadExecutor();
 
   PostExecutionThread postExecutionThread();
-
 }

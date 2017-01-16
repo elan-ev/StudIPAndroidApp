@@ -88,7 +88,7 @@
         </activity>
 
         <!-- Messages list, details view and compose activities -->
-         <activity
+        <activity
             android:name=".messages.presentation.view.MessagesActivity"
             android:label="@string/Messages"
             android:launchMode="singleTop"
@@ -110,7 +110,7 @@
         </activity>
 
         <!-- Contacts -->
-         <activity
+        <activity
             android:name=".contacts.presentation.ContactsActivity"
             android:label="@string/Contacts"
             android:theme="@style/noAnimTheme">
@@ -143,7 +143,8 @@
                 android:value=".auth.SignInActivity"/>
         </activity>
 
-        <activity android:name=".authorization.presentation.view.LogoutActivity" />
+        <activity
+            android:name=".authorization.presentation.view.LogoutActivity"/>
 
         <!-- Users -->
         <activity

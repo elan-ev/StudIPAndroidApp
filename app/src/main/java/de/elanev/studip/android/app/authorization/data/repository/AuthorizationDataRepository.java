@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -8,12 +8,14 @@
 
 package de.elanev.studip.android.app.authorization.data.repository;
 
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.authorization.data.repository.datastore.RealmAuthorizationDataStore;
 import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
 import de.elanev.studip.android.app.authorization.domain.OAuthCredentials;
+import rx.Observable;
 
 /**
  * @author joern
@@ -37,7 +39,8 @@ public class AuthorizationDataRepository implements AuthorizationRepository {
     return authDataMapper.transform(this.realDataStore.getCredentials());
   }
 
-  @Override public void clearCredentials() {
+  @Override public Observable<Void> clearCredentials() {
     this.realDataStore.clearCredentials();
+    return Observable.just(null);
   }
 }

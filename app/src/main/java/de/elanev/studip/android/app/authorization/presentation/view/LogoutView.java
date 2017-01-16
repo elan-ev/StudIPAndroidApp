@@ -6,19 +6,16 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.authorization.domain;
+package de.elanev.studip.android.app.authorization.presentation.view;
 
-
-import rx.Observable;
+import com.hannesdorfmann.mosby.mvp.MvpView;
 
 /**
  * @author joern
  */
 
-public interface AuthorizationRepository {
-  public void saveCredentials(OAuthCredentials credentials);
+public interface LogoutView extends MvpView {
+  void showError(Throwable error);
 
-  public OAuthCredentials getCredentials();
-
-  Observable<Void> clearCredentials();
+  void logoutSuccess();
 }

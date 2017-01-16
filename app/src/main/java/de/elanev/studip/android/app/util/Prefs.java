@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import de.elanev.studip.android.app.authorization.domain.OAuthCredentials;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerActivity;
+import timber.log.Timber;
 
 
 /**
@@ -54,6 +55,7 @@ public class Prefs {
    * Clears the SharedPreferences
    */
   public void clearPrefs() {
+    Timber.i("Clearing prefs!");
     mPrefs.edit()
         .clear()
         .apply();
