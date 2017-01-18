@@ -15,12 +15,8 @@ import rx.Observable;
  * @author joern
  */
 
-public interface AuthorizationRepository {
-  void saveCredentials(OAuthCredentials credentials);
+public interface AuthService {
+  Observable<String> auth(Endpoint endpoint);
 
-  OAuthCredentials getCredentials();
-
-  Observable<Void> clearCredentials();
-
-  Observable<Endpoint> endpoint(String endpointId);
+  Observable<OAuthCredentials> accessToken();
 }

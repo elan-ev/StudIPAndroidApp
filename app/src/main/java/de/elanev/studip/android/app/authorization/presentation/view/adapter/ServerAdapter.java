@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.auth;
+package de.elanev.studip.android.app.authorization.presentation.view.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.authorization.presentation.view.ServerListFragment;
 import de.elanev.studip.android.app.data.datamodel.Server;
 
 /**

@@ -16,7 +16,9 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.elanev.studip.android.app.authorization.data.AuthServiceImpl;
 import de.elanev.studip.android.app.authorization.data.repository.AuthorizationDataRepository;
+import de.elanev.studip.android.app.authorization.domain.AuthService;
 import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
 import de.elanev.studip.android.app.base.data.executor.ThreadExecutorImpl;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
@@ -60,7 +62,8 @@ public class ApplicationModule {
   }
 
   // Prefs
-  @Provides @Singleton public Prefs providePrefs(Context context, AuthorizationRepository authorizationRepository) {
+  @Provides @Singleton public Prefs providePrefs(Context context,
+      AuthorizationRepository authorizationRepository) {
     return new Prefs(context, authorizationRepository);
   }
 
@@ -98,6 +101,10 @@ public class ApplicationModule {
   @Provides @Singleton public AuthorizationRepository providesAuthorizationRepository(
       AuthorizationDataRepository authorizationDataRepository) {
     return authorizationDataRepository;
+  }
+
+  @Provides @Singleton public AuthService providesAuthService(AuthServiceImpl authService) {
+    return authService;
   }
 
   // Scheduling

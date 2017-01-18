@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.authorization.internal.di.component;
 import dagger.Component;
 import de.elanev.studip.android.app.authorization.internal.di.modules.AuthModule;
 import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;
+import de.elanev.studip.android.app.authorization.presentation.view.SignInFragment;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
 
@@ -22,4 +23,6 @@ import de.elanev.studip.android.app.base.internal.di.components.ApplicationCompo
 public interface AuthComponent {
 
   void inject(LogoutActivity target);
+
+  void inject(SignInFragment target);
 }

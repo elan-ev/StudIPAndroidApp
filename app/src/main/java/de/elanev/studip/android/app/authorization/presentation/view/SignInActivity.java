@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.auth;
+package de.elanev.studip.android.app.authorization.presentation.view;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,14 +15,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
-import javax.inject.Inject;
-
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.authorization.internal.di.component.AuthComponent;
+import de.elanev.studip.android.app.authorization.internal.di.component.DaggerAuthComponent;
+import de.elanev.studip.android.app.authorization.internal.di.modules.AuthModule;
+import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
+import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.news.presentation.NewsActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
-import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * Activity for handling the full sign in and authorization process. It triggers
@@ -31,12 +34,12 @@ import de.elanev.studip.android.app.util.Prefs;
  * @author joern
  */
 public class SignInActivity extends BaseActivity implements
-    ServerListFragment.OnServerSelectListener, OnAuthListener, SignInListener {
+    ServerListFragment.OnServerSelectListener, OnAuthListener, SignInListener,
+    HasComponent<AuthComponent> {
 
   static final String SELECTED_SERVER = "selected_server";
   static final String AUTH_SUCCESS = "auth_success";
-
-  @Inject Prefs prefs;
+  private AuthComponent component;
 
   public static Intent getCallingIntent(Context context) {
     return new Intent(context, SignInActivity.class);
@@ -59,6 +62,7 @@ public class SignInActivity extends BaseActivity implements
   //  }
 
   @Override public void onCreate(Bundle savedInstanceState) {
+    initInjector();
     super.onCreate(savedInstanceState);
     this.setContentView(R.layout.activity_signin);
     setTitle(R.string.app_name);
@@ -84,6 +88,14 @@ public class SignInActivity extends BaseActivity implements
     //        .setAppStarted();
   }
 
+  private void initInjector() {
+    ApplicationComponent applicationComponent = ((AbstractStudIPApplication) getApplication()).getAppComponent();
+    this.component = DaggerAuthComponent.builder()
+        .applicationComponent(applicationComponent)
+        .authModule(new AuthModule())
+        .build();
+  }
+
   @Override public void onServerSelected(Server server) {
     FragmentManager fm = getSupportFragmentManager();
     Bundle args = extractServerInfo(server);
@@ -106,7 +118,7 @@ public class SignInActivity extends BaseActivity implements
     attachSignInServerListFragment();
   }
 
-  @Override public void onAuthSuccess(Server server) {
+  @Override public void onAuthSuccess() {
     navigateToNews();
   }
 
@@ -141,5 +153,9 @@ public class SignInActivity extends BaseActivity implements
 
   @Override public void onAboutSelected() {
     navigator.navigateToAbout(this);
+  }
+
+  @Override public AuthComponent getComponent() {
+    return this.component;
   }
 }

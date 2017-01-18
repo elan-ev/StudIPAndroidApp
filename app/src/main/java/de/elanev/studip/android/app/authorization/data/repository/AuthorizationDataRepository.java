@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.authorization.data.repository.datastore.RealmAuthorizationDataStore;
 import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.authorization.domain.Endpoint;
 import de.elanev.studip.android.app.authorization.domain.OAuthCredentials;
 import rx.Observable;
 
@@ -42,5 +43,9 @@ public class AuthorizationDataRepository implements AuthorizationRepository {
   @Override public Observable<Void> clearCredentials() {
     this.realDataStore.clearCredentials();
     return Observable.just(null);
+  }
+
+  @Override public Observable<Endpoint> endpoint(String endpointId) {
+    return this.realDataStore.getEndpoint(endpointId).map(authDataMapper::transform);
   }
 }

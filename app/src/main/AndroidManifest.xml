@@ -124,7 +124,7 @@
 
         <!-- Authorization -->
         <activity
-            android:name=".auth.SignInActivity"
+            android:name=".authorization.presentation.view.SignInActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:excludeFromRecents="true"
@@ -134,13 +134,13 @@
             android:name=".auth.WebViewActivity"
             android:excludeFromRecents="true"
             android:noHistory="true"
-            android:parentActivityName=".auth.SignInActivity"
+            android:parentActivityName=".authorization.presentation.view.SignInActivity"
             android:screenOrientation="portrait">
 
             <!-- Support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".auth.SignInActivity"/>
+                android:value=".authorization.presentation.view.SignInActivity"/>
         </activity>
 
         <activity

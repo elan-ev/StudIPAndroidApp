@@ -16,10 +16,12 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import de.elanev.studip.android.app.authorization.data.entity.EndpointEntity;
 import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
 import de.elanev.studip.android.app.util.TextTools;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import rx.Observable;
 
 /**
  * @author joern
@@ -61,6 +63,16 @@ public class RealmAuthorizationDataStore implements AuthorizationDataStore {
   @WorkerThread @Override public void clearCredentials() {
     try (Realm realm = Realm.getInstance(realmConf)) {
       realm.executeTransaction(tsReam -> tsReam.delete(OAuthCredentialsEntity.class));
+    }
+  }
+
+  @Override public Observable<EndpointEntity> getEndpoint(String endpointId) {
+    try (Realm realm = Realm.getInstance(realmConf)) {
+      EndpointEntity endpointEntity = realm.where(EndpointEntity.class)
+          .equalTo("id", endpointId)
+          .findFirst();
+
+      return Observable.just(realm.copyFromRealm(endpointEntity));
     }
   }
 }

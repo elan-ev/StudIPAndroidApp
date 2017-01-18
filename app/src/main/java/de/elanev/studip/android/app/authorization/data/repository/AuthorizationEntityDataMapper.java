@@ -61,7 +61,7 @@ public class AuthorizationEntityDataMapper {
     return credentials;
   }
 
-  private Endpoint transform(EndpointEntity endpointEntity) {
+  public Endpoint transform(EndpointEntity endpointEntity) {
     Endpoint endpoint = new Endpoint();
     endpoint.setId(endpointEntity.getId());
     endpoint.setName(endpointEntity.getName());

@@ -80,7 +80,7 @@ public abstract class UseCase<T> {
     }
   }
 
-  boolean isUnsubscribed() {
+  public boolean isUnsubscribed() {
     return subscription.isUnsubscribed();
   }
 }

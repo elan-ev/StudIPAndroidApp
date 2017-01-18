@@ -14,7 +14,7 @@ import com.hannesdorfmann.mosby.mvp.MvpPresenter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import de.elanev.studip.android.app.authorization.domain.LogoutUser;
+import de.elanev.studip.android.app.authorization.domain.usecase.LogoutUser;
 import de.elanev.studip.android.app.authorization.presentation.view.LogoutView;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;

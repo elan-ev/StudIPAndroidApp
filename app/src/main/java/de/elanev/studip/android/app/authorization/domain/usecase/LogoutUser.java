@@ -6,12 +6,13 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.authorization.domain;
+package de.elanev.studip.android.app.authorization.domain.usecase;
 
 import com.fernandocejas.frodo.annotation.RxLogObservable;
 
 import javax.inject.Inject;
 
+import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;

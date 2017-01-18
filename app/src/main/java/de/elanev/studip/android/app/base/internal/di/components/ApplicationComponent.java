@@ -16,8 +16,9 @@ import dagger.Component;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.StartupActivity;
-import de.elanev.studip.android.app.auth.ServerListFragment;
-import de.elanev.studip.android.app.auth.SignInFragment;
+import de.elanev.studip.android.app.authorization.domain.AuthService;
+import de.elanev.studip.android.app.authorization.presentation.view.ServerListFragment;
+import de.elanev.studip.android.app.authorization.presentation.view.SignInFragment;
 import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -68,8 +69,6 @@ public interface ApplicationComponent {
   void inject(CourseViewActivity target);
 
   //TODO: Make it extend BaseFragment
-  void inject(SignInFragment target);
-
   void inject(ServerListFragment target);
 
   //FIXME: Just workaround
@@ -101,6 +100,8 @@ public interface ApplicationComponent {
   CoursesRepository coursesRepository();
 
   AuthorizationRepository authorizationRepository();
+
+  AuthService authService();
 
   ThreadExecutor threadExecutor();
 
