@@ -9,6 +9,7 @@
 package de.elanev.studip.android.app.courses.presentation.view;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
@@ -42,24 +43,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import javax.inject.Inject;
-
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.auth.OAuthConnector;
+import de.elanev.studip.android.app.authorization.data.OAuthConnector;
+import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
 import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
 import de.elanev.studip.android.app.courses.data.entity.Document;
 import de.elanev.studip.android.app.courses.data.entity.DocumentFolder;
 import de.elanev.studip.android.app.courses.data.entity.DocumentFolders;
-import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.util.DateTools;
 import de.elanev.studip.android.app.util.TextTools;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
+import io.realm.Realm;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.exception.OAuthNotAuthorizedException;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Subscriber;
@@ -106,7 +105,6 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     }
 
   };
-  @Inject Server server;
   private DocumentsAdapter mAdapter;
   private String mCourseId;
   private String mFolderId;
@@ -151,7 +149,8 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
     super.onSaveInstanceState(outState);
   }
 
-  @TargetApi(Build.VERSION_CODES.HONEYCOMB) private void downloadDocument(Document document) {
+  @SuppressLint("NewApi") @TargetApi(Build.VERSION_CODES.HONEYCOMB) private void downloadDocument(
+      Document document) {
     String fileId = document.document_id;
     String fileName = document.filename;
     String fileDescription = document.description;
@@ -177,10 +176,15 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
 
 
     if (!isDownloading) {
-      try {
+      try (Realm realm = Realm.getDefaultInstance()) {
+
+        OAuthCredentialsEntity credentialsEntity = realm.where(OAuthCredentialsEntity.class)
+            .findFirst();
+
         // Create the download URI
         String downloadUrl = String.format(getString(R.string.restip_documents_documentid_download),
-            server.getApiUrl(), fileId);
+            credentialsEntity.getEndpoint()
+                .getApiUrl(), fileId);
 
         // Workaround for older Android versions which have problems with the server certificates
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -188,8 +192,7 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
         }
 
         // Sign the download URL with the OAuth credentials and parse the URI
-        String signedDownloadUrl = OAuthConnector.with(server)
-            .sign(downloadUrl);
+        String signedDownloadUrl = OAuthConnector.sign(downloadUrl, credentialsEntity);
         Uri downloadUri = Uri.parse(signedDownloadUrl);
 
         // Create the download request
@@ -217,8 +220,8 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
           }
         }
 
-      } catch (OAuthMessageSignerException | OAuthExpectationFailedException | OAuthCommunicationException | OAuthNotAuthorizedException e) {
-        e.printStackTrace();
+      } catch (OAuthMessageSignerException | OAuthExpectationFailedException | OAuthCommunicationException e) {
+        Timber.e(e.getLocalizedMessage(), e);
       }
     }
   }
