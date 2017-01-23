@@ -15,8 +15,8 @@ import de.elanev.studip.android.app.authorization.data.entity.AuthEntitiesDataMa
 import de.elanev.studip.android.app.authorization.data.entity.EndpointEntity;
 import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
 import de.elanev.studip.android.app.authorization.domain.AuthService;
-import de.elanev.studip.android.app.authorization.domain.Endpoint;
-import de.elanev.studip.android.app.authorization.domain.OAuthCredentials;
+import de.elanev.studip.android.app.authorization.domain.model.Endpoint;
+import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
 import rx.Emitter;
 import rx.Observable;
 

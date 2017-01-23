@@ -15,8 +15,8 @@ import android.content.res.Configuration;
 import java.util.UUID;
 
 import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
-import de.elanev.studip.android.app.authorization.domain.Endpoint;
-import de.elanev.studip.android.app.authorization.domain.OAuthCredentials;
+import de.elanev.studip.android.app.authorization.domain.model.Endpoint;
+import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
 import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerActivity;

@@ -11,8 +11,8 @@ package de.elanev.studip.android.app.authorization.data.entity;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.elanev.studip.android.app.authorization.domain.Endpoint;
-import de.elanev.studip.android.app.authorization.domain.OAuthCredentials;
+import de.elanev.studip.android.app.authorization.domain.model.Endpoint;
+import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
 
 /**
  * @author joern

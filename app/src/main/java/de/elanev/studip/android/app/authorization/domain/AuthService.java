@@ -9,6 +9,8 @@
 package de.elanev.studip.android.app.authorization.domain;
 
 
+import de.elanev.studip.android.app.authorization.domain.model.Endpoint;
+import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
 import rx.Observable;
 
 /**

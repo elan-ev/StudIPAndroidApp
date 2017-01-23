@@ -10,7 +10,6 @@ package de.elanev.studip.android.app.authorization.data.repository.datastore;
 
 import de.elanev.studip.android.app.authorization.data.entity.EndpointEntity;
 import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
-import de.elanev.studip.android.app.authorization.domain.Endpoint;
 import rx.Observable;
 
 /**

@@ -14,8 +14,8 @@ import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.authorization.data.repository.datastore.RealmAuthorizationDataStore;
 import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
-import de.elanev.studip.android.app.authorization.domain.Endpoint;
-import de.elanev.studip.android.app.authorization.domain.OAuthCredentials;
+import de.elanev.studip.android.app.authorization.domain.model.Endpoint;
+import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
 import rx.Observable;
 
 /**
