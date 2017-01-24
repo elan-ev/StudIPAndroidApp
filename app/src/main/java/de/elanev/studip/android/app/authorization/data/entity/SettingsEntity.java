@@ -1,46 +1,45 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.data.datamodel;
+package de.elanev.studip.android.app.authorization.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
  * @author joern
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Settings {
+public class SettingsEntity {
+  private HashMap<Integer, SeminarTypeData> semTypes;
 
-  @JsonProperty("SEM_TYPE") public HashMap<Integer, SeminarTypeData> semTypes;
+  @JsonProperty("SEM_TYPE") public HashMap<Integer, SeminarTypeData> getSemTypes() {
+    return semTypes;
+  }
 
-  public Settings(HashMap<Integer, SeminarTypeData> semTypes) {
+  @JsonProperty("SEM_TYPE") public void setSemTypes(HashMap<Integer, SeminarTypeData> semTypes) {
     this.semTypes = semTypes;
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class SeminarTypeData {
+    private String name;
 
-    @JsonProperty("name") public String name;
-    //    @JsonProperty("class") public int class;
-
-    // Default constructor
-    public SeminarTypeData() {
+    @JsonProperty("name") public String getName() {
+      return name;
     }
 
-    public SeminarTypeData(String name) {
+    @JsonProperty("name") public void setName(String name) {
       this.name = name;
     }
+    //    @JsonProperty("class") public int class;
   }
 
   /*

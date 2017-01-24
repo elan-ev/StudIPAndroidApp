@@ -8,13 +8,18 @@
 
 package de.elanev.studip.android.app.authorization.data.repository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.authorization.data.entity.EndpointEntity;
 import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
+import de.elanev.studip.android.app.authorization.data.entity.SettingsEntity;
 import de.elanev.studip.android.app.authorization.domain.model.Endpoint;
 import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
+import de.elanev.studip.android.app.authorization.domain.model.Settings;
 
 /**
  * @author joern
@@ -72,5 +77,23 @@ public class AuthorizationEntityDataMapper {
     endpoint.setIconRes(endpointEntity.getIconRes());
 
     return endpoint;
+  }
+
+  public List<Endpoint> transform(List<EndpointEntity> endpointEntities) {
+    List<Endpoint> endpoints = new ArrayList<>(endpointEntities.size());
+    for (EndpointEntity endpointEntity : endpointEntities) {
+      endpoints.add(transform(endpointEntity));
+    }
+
+    return endpoints;
+  }
+
+  public Settings transform(SettingsEntity settingsEntity) {
+    try {
+      throw new Exception("TODO");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 }

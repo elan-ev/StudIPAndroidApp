@@ -41,7 +41,7 @@ public class GetCourseOverview extends UseCase {
 
   @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
     Observable<DomainCourse> courseObs = repository.course(id, forceUpdate)
-        .flatMap(course -> userRepository.getUsers(course.getTeachers())
+        .flatMap(course -> userRepository.getUsers(course.getTeachers(), forceUpdate)
             .flatMap(users -> {
               course.setTeacherEntities(users);
               return Observable.defer(() -> Observable.just(course));

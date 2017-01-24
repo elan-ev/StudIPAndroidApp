@@ -14,8 +14,9 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import de.elanev.studip.android.app.data.datamodel.Server;
-import de.elanev.studip.android.app.data.net.services.CustomJsonConverterApiService;
+import de.elanev.studip.android.app.authorization.data.repository.CustomJsonConverterApiService;
+import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
 import de.elanev.studip.android.app.data.net.services.OfflineCacheInterceptor;
 import de.elanev.studip.android.app.data.net.services.RewriteCacheControlInterceptor;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
@@ -36,12 +37,12 @@ import se.akerfeldt.okhttp.signpost.SigningInterceptor;
 public class NetworkModule {
   private static final long CACHE_SIZE = 10 * 1024 * 1024;
 
-  @Provides public Server provideServer(Prefs prefs) {
-    return prefs.getServer();
+  @Provides public OAuthCredentials providesOAuthCredentials(AuthorizationRepository repository) {
+    return repository.getCredentials();
   }
 
-  @Provides @Singleton public CustomJsonConverterApiService provideCustomJsonConverterApiService
-      (Retrofit retrofit) {
+  @Provides @Singleton public CustomJsonConverterApiService provideCustomJsonConverterApiService(
+      Retrofit retrofit) {
     return new CustomJsonConverterApiService(retrofit);
   }
 
@@ -69,10 +70,13 @@ public class NetworkModule {
     return new OfflineCacheInterceptor();
   }
 
-  @Provides @Singleton public SigningInterceptor providesSignInterceptor(Server server) {
-    OkHttpOAuthConsumer oAuthConsumer = new OkHttpOAuthConsumer(server.getConsumerKey(),
-        server.getConsumerSecret());
-    oAuthConsumer.setTokenWithSecret(server.getAccessToken(), server.getAccessTokenSecret());
+  @Provides @Singleton public SigningInterceptor providesSignInterceptor(
+      OAuthCredentials credentials) {
+    OkHttpOAuthConsumer oAuthConsumer = new OkHttpOAuthConsumer(credentials.getEndpoint()
+        .getConsumerKey(), credentials.getEndpoint()
+        .getConsumerSecret());
+    oAuthConsumer.setTokenWithSecret(credentials.getAccessToken(),
+        credentials.getAccessTokenSecret());
 
     return new SigningInterceptor(oAuthConsumer);
   }
@@ -94,11 +98,11 @@ public class NetworkModule {
     return RxJavaCallAdapterFactory.create();
   }
 
-  @Provides @Singleton public Retrofit providesRetrofit(Server server, OkHttpClient client,
+  @Provides @Singleton public Retrofit providesRetrofit(Prefs prefs, OkHttpClient client,
       JacksonConverterFactory jacksonConverterFactory,
       RxJavaCallAdapterFactory rxJavaCallAdapterFactory) {
 
-    return new Retrofit.Builder().baseUrl(server.getApiUrl())
+    return new Retrofit.Builder().baseUrl(prefs.getBaseUrl())
         .addConverterFactory(jacksonConverterFactory)
         .addCallAdapterFactory(rxJavaCallAdapterFactory)
         .client(client)

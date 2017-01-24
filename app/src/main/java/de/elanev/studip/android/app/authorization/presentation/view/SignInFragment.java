@@ -33,8 +33,11 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.authorization.internal.di.component.AuthComponent;
+import de.elanev.studip.android.app.authorization.internal.di.component.DaggerAuthComponent;
+import de.elanev.studip.android.app.authorization.internal.di.modules.AuthModule;
 import de.elanev.studip.android.app.authorization.presentation.presenter.SignInPresenter;
 import de.elanev.studip.android.app.base.presentation.view.BaseMvpFragment;
 import timber.log.Timber;
@@ -44,6 +47,7 @@ import timber.log.Timber;
  */
 public class SignInFragment extends BaseMvpFragment<SignInView, SignInPresenter> implements
     SignInView, StudIPAuthWebViewClient.WebAuthStatusListener {
+  public static final String ENDPOINT_ID = "endpoint-id";
   @Inject SignInPresenter presenter;
   @BindView(R.id.progress_info) View mProgressInfo;
   @BindView(R.id.toolbar) Toolbar mToolbar;
@@ -52,6 +56,8 @@ public class SignInFragment extends BaseMvpFragment<SignInView, SignInPresenter>
   private OnAuthListener mOnAuthListener;
   private SignInListener signInListener;
   private AlertDialog mWebAuthDialog;
+  private AuthComponent authComponent;
+  private String endpointId;
 
   public SignInFragment() {
     setRetainInstance(true);
@@ -84,18 +90,23 @@ public class SignInFragment extends BaseMvpFragment<SignInView, SignInPresenter>
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    initInjector();
 
     Bundle args = getArguments();
-
     if (args == null || args.isEmpty()) {
       throw new IllegalStateException("Fragment arg must not be null");
     }
+    this.endpointId = args.getString(ENDPOINT_ID);
+
+    initInjector();
   }
 
   private void initInjector() {
-    this.getComponent(AuthComponent.class)
-        .inject(this);
+    this.authComponent = DaggerAuthComponent.builder()
+        .applicationComponent(
+            ((AbstractStudIPApplication) getActivity().getApplication()).getAppComponent())
+        .authModule(new AuthModule(endpointId))
+        .build();
+    this.authComponent.inject(this);
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {

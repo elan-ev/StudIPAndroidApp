@@ -41,6 +41,7 @@ public class AuthServiceImpl implements AuthService {
       final OAuthConnector.OAuthRequestTokenCallbacks requestTokenCallbacks = new OAuthConnector.OAuthRequestTokenCallbacks() {
         @Override public void onRequestTokenReceived(String authUrl) {
           emitter.onNext(authUrl);
+          emitter.onCompleted();
         }
 
         @Override public void onRequestTokenRequestError(OAuthConnector.OAuthError e) {

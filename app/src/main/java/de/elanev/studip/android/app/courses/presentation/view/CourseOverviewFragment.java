@@ -69,7 +69,6 @@ public class CourseOverviewFragment extends
   @BindView(R.id.description_view) View descriptionView;
 
   @Inject CourseOverviewPresenter presenter;
-  @Inject Prefs prefs;
   private CourseOverviewModel courseOverviewModel;
 
   public CourseOverviewFragment() {setRetainInstance(true);}
@@ -177,12 +176,7 @@ public class CourseOverviewFragment extends
     courseTitle.setText(course.getTitle());
     getActivity().setTitle(course.getTitle());
 
-    String courseTypeString = "";
-    Settings settings = Settings.fromJson(prefs.getApiSettings());
-    if (settings != null && settings.semTypes != null) {
-      courseTypeString = settings.semTypes.get(course.getType()).name;
-    }
-    courseType.setText(courseTypeString);
+    courseType.setText(course.getType());
     if (!TextUtils.isEmpty(course.getDescription())) {
       courseDescription.setText(course.getDescription());
       courseDescription.setMovementMethod(new ScrollingMovementMethod());

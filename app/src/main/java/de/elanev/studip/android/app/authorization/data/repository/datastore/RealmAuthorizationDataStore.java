@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.authorization.data.repository.datastore;
 import android.annotation.SuppressLint;
 import android.support.annotation.WorkerThread;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -18,9 +19,11 @@ import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.authorization.data.entity.EndpointEntity;
 import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
+import de.elanev.studip.android.app.authorization.data.entity.SettingsEntity;
 import de.elanev.studip.android.app.util.TextTools;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import rx.Observable;
 
 /**
@@ -66,13 +69,32 @@ public class RealmAuthorizationDataStore implements AuthorizationDataStore {
     }
   }
 
-  @Override public Observable<EndpointEntity> getEndpoint(String endpointId) {
+  @WorkerThread @Override public Observable<EndpointEntity> getEndpoint(String endpointId) {
     try (Realm realm = Realm.getInstance(realmConf)) {
       EndpointEntity endpointEntity = realm.where(EndpointEntity.class)
           .equalTo("id", endpointId)
           .findFirst();
 
       return Observable.just(realm.copyFromRealm(endpointEntity));
+    }
+  }
+
+  @WorkerThread @Override public Observable<List<EndpointEntity>> getEndpoints() {
+    try (Realm realm = Realm.getInstance(realmConf)) {
+      RealmResults<EndpointEntity> realmResults = realm.where(EndpointEntity.class)
+          .findAll();
+      if (realmResults.isEmpty()) return Observable.empty();
+
+      return Observable.just(realm.copyFromRealm(realmResults));
+    }
+  }
+
+  @WorkerThread public void save(List<EndpointEntity> endpointEntities) {
+    try (Realm realm = Realm.getInstance(realmConf)) {
+      realm.executeTransaction(realm1 -> {
+        realm1.delete(EndpointEntity.class);
+        realm1.insertOrUpdate(endpointEntities);
+      });
     }
   }
 }

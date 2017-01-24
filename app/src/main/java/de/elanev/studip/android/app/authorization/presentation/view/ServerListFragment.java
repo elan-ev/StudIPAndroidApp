@@ -12,13 +12,13 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -28,28 +28,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState;
+import com.hannesdorfmann.mosby.mvp.viewstate.lce.data.RetainingLceViewState;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.List;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.AbstractStudIPApplication;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.authorization.internal.di.component.AuthComponent;
+import de.elanev.studip.android.app.authorization.presentation.model.EndpointModel;
+import de.elanev.studip.android.app.authorization.presentation.presenter.ServerListPresenter;
 import de.elanev.studip.android.app.authorization.presentation.view.adapter.ServerAdapter;
-import de.elanev.studip.android.app.data.datamodel.Server;
-import de.elanev.studip.android.app.data.datamodel.Servers;
-import de.elanev.studip.android.app.data.net.util.NetworkUtils;
-import de.elanev.studip.android.app.util.Prefs;
-import de.elanev.studip.android.app.util.ServerData;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
+import de.elanev.studip.android.app.widget.EmptyRecyclerView;
 import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
 
 /**
@@ -57,22 +54,28 @@ import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
  *
  * @author joern
  */
-public class ServerListFragment extends Fragment {
+public class ServerListFragment extends
+    BaseLceFragment<SwipeRefreshLayout, List<EndpointModel>, ServerListView, ServerListPresenter> implements
+    ServerListView {
 
-  @Inject Prefs mPrefs;
-  private Server mSelectedServer;
+  @Inject ServerListPresenter presenter;
+  @BindView(R.id.sign_in_imageview) ImageView mLogoImageView;
+  @BindView(R.id.toolbar) Toolbar mToolbar;
+  @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbarLayout;
+  @BindView(R.id.list) EmptyRecyclerView mRecyclerView;
+  @BindView(R.id.emptyView) TextView emptyView;
+  @BindView(R.id.contentView) SwipeRefreshLayout contentView;
   private ServerAdapter mAdapter;
-  private ImageView mLogoImageView;
-  private RecyclerView mRecyclerView;
-  private TextView mEmptyView;
-  private LinearLayoutManager mLinearLayoutManager;
-  private CollapsingToolbarLayout mCollapsingToolbarLayout;
-  private Toolbar mToolbar;
-
-  private OnServerSelectListener mCallback;
+  private ServerAdapter.EndpointClickListener onServerSelectListener = endpointModel -> {
+    if (ServerListFragment.this.presenter != null) {
+      ServerListFragment.this.presenter.onEndpointClicked(endpointModel);
+    }
+  };
+  private EndpointListListener onEndpointSelectedListener;
   private SignInListener signInListener;
+  private List<EndpointModel> data;
 
-  public ServerListFragment() {}
+  public ServerListFragment() {setRetainInstance(true);}
 
   /**
    * Instantiates a new ServerListFragment.
@@ -95,51 +98,32 @@ public class ServerListFragment extends Fragment {
     return fragment;
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-
-    try {
-      mCallback = (OnServerSelectListener) activity;
-    } catch (ClassCastException e) {
-      throw new ClassCastException(activity.toString() + " must implement OnServerSelectListener");
-    }
-
-    if (activity instanceof SignInListener) {
-      this.signInListener = (SignInListener) activity;
-    }
+  @Override public LceViewState<List<EndpointModel>, ServerListView> createViewState() {
+    return new RetainingLceViewState<>();
   }
 
-  @Override public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
-    ((AbstractStudIPApplication) getActivity().getApplication()).getAppComponent()
-        .inject(this);
-
-    mAdapter = new ServerAdapter(getItems().getServers(), new ListItemClicks() {
-      @Override public void onListItemClicked(View v, int position) {
-        if (position != ListView.INVALID_POSITION) {
-          mSelectedServer = mAdapter.getItem(position);
-          if (mSelectedServer != null) {
-            //                        Prefs.getInstance(getActivity())
-            //                            .setServer(mSelectedServer);
-            authorize(mSelectedServer);
-          }
-        }
-      }
-    });
+  @Override public List<EndpointModel> getData() {
+    return this.data;
   }
 
-  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
-    View v = inflater.inflate(R.layout.fragment_server_list, container, false);
+  @Override public void setData(List<EndpointModel> data) {
+    this.data = data;
 
-    mRecyclerView = (RecyclerView) v.findViewById(R.id.list);
-    mEmptyView = (TextView) v.findViewById(R.id.empty);
-    mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
-    mCollapsingToolbarLayout = (CollapsingToolbarLayout) v.findViewById(R.id.collapsing_toolbar);
-    mLogoImageView = (ImageView) v.findViewById(R.id.sign_in_imageview);
+    if (this.mAdapter == null) {
+      this.mAdapter = new ServerAdapter(getContext());
+      this.mAdapter.setOnItemClickListener(onServerSelectListener);
+    }
+    this.mRecyclerView.setAdapter(mAdapter);
 
-    return v;
+    this.mAdapter.setData(data);
+  }
+
+  @Override public void loadData(boolean pullToRefresh) {
+    this.presenter.loadEndpoints(pullToRefresh);
+  }
+
+  @Override public ServerListPresenter createPresenter() {
+    return this.presenter;
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
@@ -159,6 +143,20 @@ public class ServerListFragment extends Fragment {
     }
   }
 
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    try {
+      onEndpointSelectedListener = (EndpointListListener) activity;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(activity.toString() + " must implement MessageListListener");
+    }
+
+    if (activity instanceof SignInListener) {
+      this.signInListener = (SignInListener) activity;
+    }
+  }
+
   public void initToolbar() {
     ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
     ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -173,16 +171,42 @@ public class ServerListFragment extends Fragment {
   }
 
   public void initRecyclerView() {
-    mLinearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL,
-        false);
-    mRecyclerView.setAdapter(mAdapter);
-    mRecyclerView.setLayoutManager(mLinearLayoutManager);
-    mRecyclerView.setHasFixedSize(true);
-    SimpleDividerItemDecoration mDividerItemDecoration = new SimpleDividerItemDecoration(
-        getActivity().getApplicationContext());
-    mRecyclerView.addItemDecoration(mDividerItemDecoration);
+    this.emptyView.setText(R.string.no_servers);
+    this.mRecyclerView.setEmptyView(emptyView);
+    this.mRecyclerView.setAdapter(mAdapter);
+    this.mRecyclerView.setHasFixedSize(true);
+    this.mRecyclerView.setLayoutManager(
+        new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+    this.mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
   }
 
+  @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+
+    contentView.setEnabled(false);
+  }
+
+  @Override protected String getErrorMessage(Throwable e, boolean pullToRefresh) {
+    return e.getLocalizedMessage();
+  }
+
+  @Override public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    initInjector();
+  }
+
+  private void initInjector() {
+    getComponent(AuthComponent.class).inject(this);
+  }
+
+  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
+      Bundle savedInstanceState) {
+    View v = inflater.inflate(R.layout.fragment_server_list, container, false);
+    ButterKnife.bind(this, v);
+
+
+    return v;
+  }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.menu_sign_in, menu);
@@ -242,51 +266,13 @@ public class ServerListFragment extends Fragment {
     return super.onOptionsItemSelected(item);
   }
 
-  /*
-   * Returns the list auf saved servers. This method expects to find a correct formatted
-   * servers.json file in the Android assets folder
-   */
-  private Servers getItems() {
-    ObjectMapper mapper = new ObjectMapper();
-    Servers servers = null;
-    try {
-      servers = mapper.readValue(ServerData.serverJson, Servers.class);
-    } catch (IOException e) {
-      e.printStackTrace();
+  @Override public void signInTo(EndpointModel endpointModel) {
+    if (this.onEndpointSelectedListener != null) {
+      this.onEndpointSelectedListener.onEndpointSelected(endpointModel);
     }
-
-    // If something went wrong, return an empty array
-    if (servers == null) {
-      servers = new Servers(new ArrayList<Server>());
-    }
-
-    // Sort entries in alphabetic order
-    Collections.sort(servers.getServers(), new Comparator<Server>() {
-      @Override public int compare(Server lhs, Server rhs) {
-        return lhs.getName()
-            .compareToIgnoreCase(rhs.getName());
-      }
-    });
-
-    return servers;
   }
 
-  private void authorize(Server selectedServer) {
-    if (NetworkUtils.getConnectivityStatus(getContext()) == NetworkUtils.NOT_CONNECTED) {
-      Toast.makeText(getContext(), R.string.internet_connection_required, Toast.LENGTH_LONG)
-          .show();
-
-      return;
-    }
-    mCallback.onServerSelected(selectedServer);
-  }
-
-
-  public interface ListItemClicks {
-    void onListItemClicked(View v, int position);
-  }
-
-  public interface OnServerSelectListener {
-    void onServerSelected(Server server);
+  public interface EndpointListListener {
+    void onEndpointSelected(EndpointModel endpointModel);
   }
 }

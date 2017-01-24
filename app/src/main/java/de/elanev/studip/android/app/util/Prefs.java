@@ -12,12 +12,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 
-import java.util.UUID;
-
-import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
-import de.elanev.studip.android.app.authorization.domain.model.Endpoint;
-import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
-import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerActivity;
 import timber.log.Timber;
@@ -43,12 +37,15 @@ public class Prefs {
   private static final String PLANNER_PREFERRED_LANDSCAPE_VIEW = "plannerPreferredLandscapeView";
   private static final String PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT = "plannerPreferredTimetableViewDayCount";
   private static final String MESSAGE_POSTBOX = "messageFolders";
-  private final AuthorizationRepository authRepo;
+  private static final String CURRENT_USER_ID = "current-user-id";
+  private static final String APP_SIGNED_IN = "app-signed-in";
+  private static final String ENDPOINT_EMAIL = "app-endpoint-email";
+  private static final String ENDPOINT_NAME = "app-endpoint-name";
+  private static final String ENDPOINT_BASE_URL = "app-endpoint-base-url";
   private SharedPreferences mPrefs;
 
-  public Prefs(Context context, AuthorizationRepository authorizationRepository) {
+  public Prefs(Context context) {
     this.mPrefs = context.getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE);
-    this.authRepo = authorizationRepository;
   }
 
   /*
@@ -59,74 +56,6 @@ public class Prefs {
     mPrefs.edit()
         .clear()
         .apply();
-    authRepo.clearCredentials();
-  }
-
-  /*
-   * Returns true if the app was previously authorized with an API and the
-   * credentials are correctly set in the secured database.
-   *
-   * @return True if the app is authorized, false if the app is not authorized
-   */
-  public boolean isAppAuthorized() {
-    Server server = getServer();
-    return server != null && !(server.getAccessToken() == null
-        || server.getAccessTokenSecret() == null);
-  }
-
-  /*
-   * Returns a Server object containing the necessary information to communicate with the api
-   */
-  public Server getServer() {
-    OAuthCredentials credentials = authRepo.getCredentials();
-
-    if (credentials != null && credentials.getEndpoint() != null) {
-      Server server = new Server();
-      server.setName(credentials.getEndpoint()
-          .getName());
-      server.setBaseUrl(credentials.getEndpoint()
-          .getBaseUrl());
-      server.setIconRes(credentials.getEndpoint()
-          .getIconRes());
-      server.setContactEmail(credentials.getEndpoint()
-          .getContactEmail());
-      server.setConsumerKey(credentials.getEndpoint()
-          .getConsumerKey());
-      server.setConsumerSecret(credentials.getEndpoint()
-          .getConsumerSecret());
-      server.setAccessToken(credentials.getAccessToken());
-      server.setAccessTokenSecret(credentials.getAccessTokenSecret());
-
-      return server;
-    }
-
-    return null;
-  }
-
-  /**
-   * Stores the Server object permanently for later usage
-   *
-   * @param server The Server object to store permanently
-   */
-  public void setServer(Server server) {
-    Endpoint endpoint = new Endpoint();
-    endpoint.setId(UUID.randomUUID()
-        .toString());
-    endpoint.setName(server.getName());
-    endpoint.setIconRes(server.getIconRes());
-    endpoint.setConsumerKey(server.getConsumerKey());
-    endpoint.setConsumerSecret(server.getConsumerSecret());
-    endpoint.setContactEmail(server.getContactEmail());
-    endpoint.setBaseUrl(server.getBaseUrl());
-
-    OAuthCredentials credentials = new OAuthCredentials();
-    credentials.setId(UUID.randomUUID()
-        .toString());
-    credentials.setEndpoint(endpoint);
-    credentials.setAccessToken(server.getAccessToken());
-    credentials.setAccessTokenSecret(server.getAccessTokenSecret());
-
-    authRepo.saveCredentials(credentials);
   }
 
   /**
@@ -163,54 +92,8 @@ public class Prefs {
     String serverKey = mPrefs.getString("serverKey", null);
     String serverSecret = mPrefs.getString("serverSecret", null);
 
-    return accessToken != null || accessTokenSecret != null || serverName != null ||
-        serverUrl != null || serverKey != null || serverSecret != null;
-  }
-
-  /**
-   * Takes a Server object and creates the shared preferences of the old and insecure way for
-   * saving the authorized sever credentials.
-   *
-   * @param server Server object to create the old credentials for.
-   * @deprecated debug only, for credential migration testing.
-   */
-  public void simulateOldPrefs(Server server) {
-    mPrefs.edit()
-        .putString("accessToken", server.getAccessToken())
-        .apply();
-    mPrefs.edit()
-        .putString("accessTokenSecret", server.getAccessTokenSecret())
-        .apply();
-    mPrefs.edit()
-        .putString("serverName", server.getName())
-        .apply();
-    mPrefs.edit()
-        .putString("serverUrl", server.getBaseUrl())
-        .apply();
-    mPrefs.edit()
-        .putString("serverKey", server.getConsumerKey())
-        .apply();
-    mPrefs.edit()
-        .putString("serverSecret", server.getConsumerSecret())
-        .apply();
-  }
-
-  /**
-   * Sets the preference that indicates that the initial sync operation was successful.
-   */
-  public void setAppSynced() {
-    mPrefs.edit()
-        .putBoolean(APP_SYNC_COMPLETE, true)
-        .apply();
-  }
-
-  /**
-   * Returns true if the initial sync operation was successful. Otherwise it will return false.
-   *
-   * @return true if the initial sync operation was successful. Otherwise false.
-   */
-  public boolean isAppSynced() {
-    return mPrefs.getBoolean(APP_SYNC_COMPLETE, false);
+    return accessToken != null || accessTokenSecret != null || serverName != null
+        || serverUrl != null || serverKey != null || serverSecret != null;
   }
 
   /**
@@ -258,26 +141,6 @@ public class Prefs {
   public void setUserInfo(String userInfoJson) {
     mPrefs.edit()
         .putString(USER_INFO, userInfoJson)
-        .apply();
-  }
-
-  /**
-   * Returns the Stud.IP id String of the current semester
-   *
-   * @return Stud.IP id String of the current semester.
-   */
-  public String getCurrentSemesterId() {
-    return mPrefs.getString(CURRENT_SEMESTER_ID, null);
-  }
-
-  /**
-   * Saves the Stud.IP id String of the current semester in the shared preferences.
-   *
-   * @param semesterId Stud.IP id String of the current semester.
-   */
-  public void setCurrentSemesterId(String semesterId) {
-    mPrefs.edit()
-        .putString(CURRENT_SEMESTER_ID, semesterId)
         .apply();
   }
 
@@ -380,6 +243,56 @@ public class Prefs {
   public void setPrefPlannerTimetableViewDayCount(int count) {
     mPrefs.edit()
         .putInt(PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT, count)
+        .apply();
+  }
+
+  public String getCurrentUserId() {
+    return mPrefs.getString(CURRENT_SEMESTER_ID, "");
+  }
+
+  public void setCurrentUserId(String userId) {
+    mPrefs.edit()
+        .putString(CURRENT_USER_ID, userId)
+        .apply();
+  }
+
+  public boolean isAppAuthorized() {
+    return mPrefs.getBoolean(APP_SIGNED_IN, false);
+  }
+
+  public void setAppAuthorized(boolean auth) {
+    mPrefs.edit()
+        .putBoolean(APP_SIGNED_IN, auth)
+        .apply();
+  }
+
+  public String getEndpointEmail() {
+    return mPrefs.getString(ENDPOINT_EMAIL, "");
+  }
+
+  public void setEndpointEmail(String email) {
+    mPrefs.edit()
+        .putString(ENDPOINT_EMAIL, email)
+        .apply();
+  }
+
+  public String getEndpointName() {
+    return mPrefs.getString(ENDPOINT_NAME, "");
+  }
+
+  public void setEndpointName(String endpointName) {
+    mPrefs.edit()
+        .putString(ENDPOINT_NAME, endpointName)
+        .apply();
+  }
+
+  public String getBaseUrl() {
+    return mPrefs.getString(ENDPOINT_BASE_URL, "");
+  }
+
+  public void setBaseUrl(String baseUrl) {
+    mPrefs.edit()
+        .putString(ENDPOINT_BASE_URL, baseUrl)
         .apply();
   }
 }

@@ -8,6 +8,7 @@
 
 package de.elanev.studip.android.app.authorization.presentation.view.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,39 +17,31 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.authorization.presentation.view.ServerListFragment;
-import de.elanev.studip.android.app.data.datamodel.Server;
+import de.elanev.studip.android.app.authorization.presentation.model.EndpointModel;
+import de.elanev.studip.android.app.data.net.util.NetworkUtils;
 
 /**
  * @author joern
  */ /* Array adapter class which holds and displays the saved servers */
 public class ServerAdapter extends RecyclerView.Adapter<ServerAdapter.ViewHolder> implements
     Filterable {
-  final private List<Server> mData = new ArrayList<>();
-  final private List<Server> mOriginalData = new ArrayList<>();
+  final private List<EndpointModel> mData = new ArrayList<>();
+  final private List<EndpointModel> mOriginalData = new ArrayList<>();
+  private final Context context;
   private ServerFilter mFilter = null;
-  private ServerListFragment.ListItemClicks mFragmentClickListener;
+  private EndpointClickListener mFragmentClickListener;
 
-  /**
-   * Public constructor which takes the context, viewResource and
-   * server data and initializes it.
-   *
-   * @param data an array with servers
-   */
-  public ServerAdapter(ArrayList<Server> data, ServerListFragment.ListItemClicks listItemClicks) {
-    if (data == null) {
-      throw new IllegalStateException("Server data must not be null");
-    }
-
+  public ServerAdapter(Context context) {
     this.mFilter = new ServerFilter();
-    this.mFragmentClickListener = listItemClicks;
-    this.mData.addAll(data);
-    this.mOriginalData.addAll(data);
+    this.context = context;
   }
 
   @Override public Filter getFilter() {
@@ -59,7 +52,7 @@ public class ServerAdapter extends RecyclerView.Adapter<ServerAdapter.ViewHolder
     }
   }
 
-  public Server getItem(int position) {
+  public EndpointModel getItem(int position) {
     return mData.get(position);
   }
 
@@ -67,107 +60,58 @@ public class ServerAdapter extends RecyclerView.Adapter<ServerAdapter.ViewHolder
     View v = LayoutInflater.from(parent.getContext())
         .inflate(R.layout.list_item_single_text_icon, parent, false);
 
+    return new ViewHolder(v);
+  }
 
-    return new ViewHolder(v, new ViewHolder.ViewHolderClicks() {
-      @Override public void onListItemClicked(View caller, int position) {
-        mFragmentClickListener.onListItemClicked(caller, position);
+  @Override public void onBindViewHolder(ViewHolder holder, int position) {
+    EndpointModel endpoint = mData.get(position);
+    if (endpoint == null) {
+      return;
+    }
+
+    holder.mTextView.setText(endpoint.getName());
+    holder.mIconView.setImageResource(endpoint.getIconRes());
+    holder.itemView.setOnClickListener(v -> {
+      if (NetworkUtils.getConnectivityStatus(context) == NetworkUtils.NOT_CONNECTED) {
+        Toast.makeText(context, R.string.internet_connection_required, Toast.LENGTH_LONG)
+            .show();
+
+        return;
+      }
+      if (ServerAdapter.this.mFragmentClickListener != null) {
+        ServerAdapter.this.mFragmentClickListener.onEndpointClicked(endpoint);
       }
     });
   }
 
-  @Override public void onBindViewHolder(ViewHolder holder, int position) {
-    Server server = mData.get(position);
-    if (server == null) {
-      return;
-    }
-
-    holder.mTextView.setText(server.getName());
-    holder.mIconView.setImageResource(server.getIconRes());
-  }
-
   @Override public int getItemCount() {
-    return mData.size();
+    return mData == null ? 0 : mData.size();
   }
 
-  public void animateTo(List<Server> data) {
-    applyAndAnimateRemovals(data);
-    applyAndAnimateAdditions(data);
-    applyAndAnimateMovedItems(data);
+  public void setOnItemClickListener(EndpointClickListener onEndpointClickListener) {
+    this.mFragmentClickListener = onEndpointClickListener;
   }
 
-  private void applyAndAnimateRemovals(List<Server> newData) {
-    for (int i = mData.size() - 1; i >= 0; i--) {
-      final Server server = mData.get(i);
-
-      if (!newData.contains(server)) {
-        removeItem(i);
-      }
-    }
+  public void setData(List<EndpointModel> data) {
+    this.mOriginalData.clear();
+    this.mOriginalData.addAll(data);
+    this.mData.clear();
+    this.mData.addAll(data);
+    notifyDataSetChanged();
   }
 
-  private void applyAndAnimateAdditions(List<Server> newData) {
-    for (int i = 0, count = newData.size(); i < count; i++) {
-      final Server server = newData.get(i);
-
-      if (!mData.contains(server)) {
-        addItem(i, server);
-      }
-    }
+  public interface EndpointClickListener {
+    void onEndpointClicked(EndpointModel endpointModel);
   }
 
-  private void applyAndAnimateMovedItems(List<Server> newData) {
-    for (int to = newData.size() - 1; to >= 0; to--) {
-      final Server server = newData.get(to);
-      final int from = mData.indexOf(server);
+  public static final class ViewHolder extends RecyclerView.ViewHolder {
+    @BindView(R.id.text1) TextView mTextView;
+    @BindView(R.id.icon1) ImageView mIconView;
 
-      if (from >= 0 && from != to) {
-        moveItem(from, to);
-      }
-    }
-  }
-
-  public Server removeItem(int position) {
-    final Server server = mData.remove(position);
-
-    notifyItemRemoved(position);
-
-    return server;
-  }
-
-  public void addItem(int position, Server server) {
-    mData.add(position, server);
-    notifyItemInserted(position);
-  }
-
-  public void moveItem(int from, int to) {
-    final Server server = mData.remove(from);
-
-    mData.add(to, server);
-    notifyItemMoved(from, to);
-  }
-
-  public static final class ViewHolder extends RecyclerView.ViewHolder implements
-      View.OnClickListener {
-    public final ViewHolder.ViewHolderClicks mListener;
-    public final View mContainerView;
-    public final TextView mTextView;
-    public final ImageView mIconView;
-
-    public ViewHolder(View itemView, ViewHolder.ViewHolderClicks clickListener) {
+    public ViewHolder(View itemView) {
       super(itemView);
-      mListener = clickListener;
-      mTextView = (TextView) itemView.findViewById(R.id.text1);
-      mIconView = (ImageView) itemView.findViewById(R.id.icon1);
-      mContainerView = itemView.findViewById(R.id.list_item);
-      mContainerView.setOnClickListener(this);
-    }
 
-    @Override public void onClick(View v) {
-      mListener.onListItemClicked(v, getPosition());
-    }
-
-    public interface ViewHolderClicks {
-      public void onListItemClicked(View caller, int position);
+      ButterKnife.bind(this, itemView);
     }
   }
 
@@ -175,18 +119,18 @@ public class ServerAdapter extends RecyclerView.Adapter<ServerAdapter.ViewHolder
 
     @Override protected FilterResults performFiltering(CharSequence constraint) {
       final FilterResults result = new FilterResults();
-      final ArrayList<Server> filtered = new ArrayList<>();
+      final ArrayList<EndpointModel> filtered = new ArrayList<>();
 
       if (constraint.length() > 0) {
         String filterConstraint = constraint.toString()
             .toLowerCase();
 
         for (int i = 0, count = mOriginalData.size(); i < count; i++) {
-          Server server = mOriginalData.get(i);
-          String filterName = server.getName()
+          EndpointModel endpoint = mOriginalData.get(i);
+          String filterName = endpoint.getName()
               .toLowerCase();
           if (filterName.contains(filterConstraint)) {
-            filtered.add(server);
+            filtered.add(endpoint);
           }
         }
       } else {
@@ -200,8 +144,8 @@ public class ServerAdapter extends RecyclerView.Adapter<ServerAdapter.ViewHolder
     }
 
     @Override protected void publishResults(CharSequence constraint, FilterResults results) {
-      ArrayList<Server> filteredServerList = (ArrayList<Server>) results.values;
-      animateTo(filteredServerList);
+      ArrayList<EndpointModel> filteredServerList = (ArrayList<EndpointModel>) results.values;
+      //      animateTo(filteredServerList);
     }
 
   }

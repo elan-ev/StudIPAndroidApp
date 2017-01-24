@@ -8,8 +8,12 @@
 
 package de.elanev.studip.android.app.authorization.data.repository.datastore;
 
+import java.util.List;
+
 import de.elanev.studip.android.app.authorization.data.entity.EndpointEntity;
 import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
+import de.elanev.studip.android.app.authorization.data.entity.SettingsEntity;
+import de.elanev.studip.android.app.user.data.entity.UserEntity;
 import rx.Observable;
 
 /**
@@ -23,4 +27,6 @@ public interface AuthorizationDataStore {
   void clearCredentials();
 
   Observable<EndpointEntity> getEndpoint(String endpointId);
+
+  Observable<List<EndpointEntity>> getEndpoints();
 }

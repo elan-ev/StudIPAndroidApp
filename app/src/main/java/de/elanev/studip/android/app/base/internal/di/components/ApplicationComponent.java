@@ -68,9 +68,6 @@ public interface ApplicationComponent {
 
   void inject(CourseViewActivity target);
 
-  //TODO: Make it extend BaseFragment
-  void inject(ServerListFragment target);
-
   //FIXME: Just workaround
   void inject(ReactiveListFragment target);
 

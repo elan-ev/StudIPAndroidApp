@@ -20,6 +20,7 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.authorization.internal.di.component.AuthComponent;
 import de.elanev.studip.android.app.authorization.internal.di.component.DaggerAuthComponent;
 import de.elanev.studip.android.app.authorization.internal.di.modules.AuthModule;
+import de.elanev.studip.android.app.authorization.presentation.model.EndpointModel;
 import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
@@ -33,9 +34,8 @@ import de.elanev.studip.android.app.util.ApiUtils;
  *
  * @author joern
  */
-public class SignInActivity extends BaseActivity implements
-    ServerListFragment.OnServerSelectListener, OnAuthListener, SignInListener,
-    HasComponent<AuthComponent> {
+public class SignInActivity extends BaseActivity implements ServerListFragment.EndpointListListener,
+    OnAuthListener, SignInListener, HasComponent<AuthComponent> {
 
   static final String SELECTED_SERVER = "selected_server";
   static final String AUTH_SUCCESS = "auth_success";
@@ -96,17 +96,6 @@ public class SignInActivity extends BaseActivity implements
         .build();
   }
 
-  @Override public void onServerSelected(Server server) {
-    FragmentManager fm = getSupportFragmentManager();
-    Bundle args = extractServerInfo(server);
-    SignInFragment frag = SignInFragment.newInstance(args);
-
-    FragmentTransaction ft = fm.beginTransaction()
-        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-    ft.replace(R.id.content_frame, frag, SignInFragment.class.getName())
-        .commit();
-  }
-
   private Bundle extractServerInfo(Server server) {
     Bundle args = new Bundle();
     args.putSerializable(SELECTED_SERVER, server);
@@ -157,5 +146,17 @@ public class SignInActivity extends BaseActivity implements
 
   @Override public AuthComponent getComponent() {
     return this.component;
+  }
+
+  @Override public void onEndpointSelected(EndpointModel endpointModel) {
+    FragmentManager fm = getSupportFragmentManager();
+    Bundle args = new Bundle();
+    args.putString(SignInFragment.ENDPOINT_ID, endpointModel.getId());
+    SignInFragment frag = SignInFragment.newInstance(args);
+
+    FragmentTransaction ft = fm.beginTransaction()
+        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+    ft.replace(R.id.content_frame, frag, SignInFragment.class.getName())
+        .commit();
   }
 }

@@ -34,8 +34,6 @@ import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.courses.internal.di.CoursesComponent;
 import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
 import de.elanev.studip.android.app.courses.presentation.presenter.CourseListPresenter;
-import de.elanev.studip.android.app.data.datamodel.Settings;
-import de.elanev.studip.android.app.util.Prefs;
 import de.elanev.studip.android.app.widget.EmptyRecyclerView;
 import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
@@ -50,7 +48,6 @@ public class CoursesFragment extends
   @BindView(R.id.list) EmptyRecyclerView mRecyclerView;
   @BindView(R.id.emptyView) TextView mEmptyView;
   @Inject CourseListPresenter presenter;
-  @Inject Prefs prefs;
   private SectionedRecyclerViewAdapter adapter;
   private CourseSection.CourseClickListener onClickListener = course -> {
     if (CoursesFragment.this.presenter != null && course != null) {
@@ -58,7 +55,6 @@ public class CoursesFragment extends
     }
   };
   private CourseListListener courseListListener;
-  private Settings settings;
   private List<CourseModel> data;
 
   public CoursesFragment() {setRetainInstance(true);}
@@ -100,7 +96,6 @@ public class CoursesFragment extends
 
     this.contentView.setOnRefreshListener(this);
     setupRecyclerView();
-    settings = Settings.fromJson(prefs.getApiSettings());
   }
 
   private void setupRecyclerView() {
@@ -145,7 +140,7 @@ public class CoursesFragment extends
     this.adapter.removeAllSections();
 
     CourseSection unlimitedSection = new CourseSection(
-        getString(R.string.course_without_duration_limit), settings, getContext());
+        getString(R.string.course_without_duration_limit), getContext());
     unlimitedSection.setOnItemClickListener(onClickListener);
 
     for (CourseModel courseModel : data) {
@@ -159,7 +154,7 @@ public class CoursesFragment extends
 
       if (section == null) {
         section = new CourseSection(courseModel.getSemester()
-            .getTitle(), settings, getContext());
+            .getTitle(), getContext());
         section.setOnItemClickListener(onClickListener);
         section.add(courseModel);
       } else {

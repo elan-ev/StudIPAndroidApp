@@ -34,7 +34,6 @@ import butterknife.ButterKnife;
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
-import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.util.Prefs;
 
 /**
@@ -113,10 +112,11 @@ public class FeedbackActivity extends BaseActivity implements AdapterView.OnItem
     String emailAddress = getString(R.string.default_support_address);
     String name = getString(android.R.string.unknownName);
 
-    Server server = prefs.getServer();
-    if (server != null) {
-      emailAddress = server.getContactEmail();
-      name = server.getName();
+    if (!TextUtils.isEmpty(prefs.getEndpointEmail())) {
+      emailAddress = prefs.getEndpointEmail();
+    }
+    if (!TextUtils.isEmpty(prefs.getEndpointName())) {
+      name = prefs.getEndpointName();
     }
 
     if (validateFormFields()) {

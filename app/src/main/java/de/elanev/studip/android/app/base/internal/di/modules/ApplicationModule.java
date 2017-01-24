@@ -12,6 +12,8 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -52,6 +54,11 @@ public class ApplicationModule {
     this.mApplication = application;
   }
 
+  //Serialization
+  @Provides @Singleton public ObjectMapper providesObjectMapper() {
+    return new ObjectMapper();
+  }
+
   // Android
   @Provides @Singleton public Context provideContext() {
     return mApplication;
@@ -62,9 +69,8 @@ public class ApplicationModule {
   }
 
   // Prefs
-  @Provides @Singleton public Prefs providePrefs(Context context,
-      AuthorizationRepository authorizationRepository) {
-    return new Prefs(context, authorizationRepository);
+  @Provides @Singleton public Prefs providePrefs(Context context) {
+    return new Prefs(context);
   }
 
   // Repositories

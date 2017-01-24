@@ -13,7 +13,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="de.elanev.studip.android.app.widget.SignInActivity">
+    tools:context="de.elanev.studip.android.app.authorization.presentation.view.SignInActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -59,25 +59,28 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/content_area_space"
-        android:layout_marginBottom="@dimen/content_area_space"
-        android:scrollbars="vertical"
-        android:fadeScrollbars="false"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+    <include layout="@layout/view_loading"/>
 
-    <TextView
-        android:id="@+id/empty"
+    <include layout="@layout/view_error"/>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/contentView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/no_data"
-        android:textColor="@android:color/secondary_text_light"
-        android:textSize="14sp"
-        android:visibility="gone"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <de.elanev.studip.android.app.widget.EmptyRecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/content_area_space"
+            android:layout_marginBottom="@dimen/content_area_space"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="false"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <include
+        layout="@layout/view_empty"/>
 
 </android.support.design.widget.CoordinatorLayout>
 

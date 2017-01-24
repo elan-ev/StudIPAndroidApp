@@ -74,6 +74,7 @@ public class CourseModelDataMapper {
     courseModel.setStudents(userModelDataMapper.transform(domainCourse.getStudentEntities()));
     courseModel.setColor(domainCourse.getColor());
     courseModel.setType(domainCourse.getType());
+    courseModel.setTypeString(domainCourse.getTypeString());
     courseModel.setCourseAdditionalData(
         courseAdditionalDataModelDataMappeer.transform(domainCourse.getCourseAdditionalData()));
     courseModel.setSemester(semesterModelDataMapper.transform(domainCourse.getSemester()));
@@ -102,16 +103,6 @@ public class CourseModelDataMapper {
     return courseOverviewModel;
   }
 
-  public List<CourseScheduleModel> transformCourseEvents(List<Event> events) {
-    ArrayList<CourseScheduleModel> courseScheduleModels = new ArrayList<>(events.size());
-
-    for (Event event : events) {
-      courseScheduleModels.add(transform(event));
-    }
-
-    return courseScheduleModels;
-  }
-
   private CourseScheduleModel transform(Event event) {
     if (event == null) return null;
 
@@ -124,6 +115,16 @@ public class CourseModelDataMapper {
     courseScheduleModel.setEnd(event.getEnd());
 
     return courseScheduleModel;
+  }
+
+  public List<CourseScheduleModel> transformCourseEvents(List<Event> events) {
+    ArrayList<CourseScheduleModel> courseScheduleModels = new ArrayList<>(events.size());
+
+    for (Event event : events) {
+      courseScheduleModels.add(transform(event));
+    }
+
+    return courseScheduleModels;
   }
 
   public CourseUsersModel transform(CourseUsers courseUsers) {

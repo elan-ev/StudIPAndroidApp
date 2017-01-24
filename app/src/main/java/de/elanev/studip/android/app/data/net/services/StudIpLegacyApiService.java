@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.data.net.services;
 import java.util.List;
 
 import de.elanev.studip.android.app.StudIPConstants;
+import de.elanev.studip.android.app.authorization.data.entity.SettingsEntity;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroup;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroupEntity;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroups;
@@ -213,7 +214,7 @@ public class StudIpLegacyApiService {
    * @return An {@link Observable} wrapping a {@link Settings} object containing various setting
    * information.
    */
-  public Observable<Settings> getSettings() {
+  public Observable<SettingsEntity> getSettings() {
     return mService.getSettings();
   }
 
@@ -249,9 +250,9 @@ public class StudIpLegacyApiService {
    * @return An {@link User} wrapped in qn {@link Observable} containing information about the
    * currently signed in user.
    */
-  public Observable<User> getCurrentUserInfo() {
+  public Observable<UserEntity> getCurrentUser() {
     return mService.getCurrentUserInfo()
-        .flatMap(userItem -> Observable.defer(() -> Observable.just(userItem.user)));
+        .map(userEntityWrapper -> userEntityWrapper.getUserEntity());
   }
 
   /**
@@ -623,7 +624,7 @@ public class StudIpLegacyApiService {
     @GET("user/{user_id}") Observable<UserEntityWrapper> getUserEntity(
         @Path("user_id") String userId);
 
-    @GET("user") Observable<UserItem> getCurrentUserInfo();
+    @GET("user") Observable<UserEntityWrapper> getCurrentUserInfo();
 
     /* Events */
     @GET("events") Observable<Events> getEvents();
@@ -632,7 +633,7 @@ public class StudIpLegacyApiService {
         @Path("course_id") String courseId);
 
     /* General */
-    @GET("studip/settings") Observable<Settings> getSettings();
+    @GET("studip/settings") Observable<SettingsEntity> getSettings();
 
     /* Courses */
     @GET("courses/{course_id}") Observable<CourseItem> getCourse(

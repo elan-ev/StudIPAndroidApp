@@ -25,6 +25,8 @@ package de.elanev.studip.android.app.base;
  */
 
 
+import com.fernandocejas.frodo.annotation.RxLogObservable;
+
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import rx.Observable;

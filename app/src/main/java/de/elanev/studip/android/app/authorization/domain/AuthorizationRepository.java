@@ -9,8 +9,11 @@
 package de.elanev.studip.android.app.authorization.domain;
 
 
+import java.util.List;
+
 import de.elanev.studip.android.app.authorization.domain.model.Endpoint;
 import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
+import de.elanev.studip.android.app.authorization.domain.model.Settings;
 import rx.Observable;
 
 /**
@@ -25,4 +28,8 @@ public interface AuthorizationRepository {
   Observable<Void> clearCredentials();
 
   Observable<Endpoint> endpoint(String endpointId);
+
+  Observable<List<Endpoint>> endpoints();
+
+  Observable<Settings> studipSettings(boolean forceUpdate);
 }
