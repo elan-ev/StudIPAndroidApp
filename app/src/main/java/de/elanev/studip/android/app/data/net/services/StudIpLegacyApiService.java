@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -302,6 +302,12 @@ public class StudIpLegacyApiService {
         }));
   }
 
+  private Observable<Semester> getSemester(String semesterId) {
+    return mService.getSemester(semesterId)
+        .flatMap(semesterWrapper -> Observable.defer(
+            () -> Observable.just(semesterWrapper.getSemester())));
+  }
+
   public Observable<List<EventEntity>> getEvents(final String courseId) {
     return mService.getEvents(courseId)
         .flatMap(events -> Observable.defer(() -> Observable.just(events.eventEntities)));
@@ -501,10 +507,24 @@ public class StudIpLegacyApiService {
     return mService.deleteUserFromContacts(userId);
   }
 
-  private Observable<Semester> getSemester(String semesterId) {
-    return mService.getSemester(semesterId)
-        .flatMap(semesterWrapper -> Observable.defer(
-            () -> Observable.just(semesterWrapper.getSemester())));
+  public Observable<List<NewsEntity>> getNews() {
+
+    final Observable<NewsEntity> globalNews = getNewsGlobal();
+    final Observable<NewsEntity> institutesNews = getCurrentUser().flatMap(
+        userEntity -> getNewsInstitutes(userEntity.getUserId()));
+
+    return Observable.merge(globalNews, institutesNews)
+        .toSortedList((newsEntity, newsEntity2) -> newsEntity2.getDate()
+            .compareTo(newsEntity.getDate()));
+  }
+
+  public Observable<NewsEntity> getNewsGlobal() {
+    return getNewsForRange(StudIPConstants.STUDIP_NEWS_GLOBAL_RANGE);
+  }
+
+  public Observable<NewsEntity> getNewsCourses() {
+    return getCourses().flatMap(courses -> Observable.defer(() -> Observable.from(courses))
+        .flatMap(this::getNewsForCourse));
   }
 
   /**
@@ -522,25 +542,6 @@ public class StudIpLegacyApiService {
               return Observable.just(course);
             })))
         .toList();
-  }
-
-  public Observable<List<NewsEntity>> getNews() {
-
-    final Observable<NewsEntity> globalNews = getNewsGlobal();
-    final Observable<NewsEntity> institutesNews = getNewsInstitutes(prefs.getUserId());
-
-    return Observable.merge(globalNews, institutesNews)
-        .toSortedList((newsEntity, newsEntity2) -> newsEntity2.getDate()
-            .compareTo(newsEntity.getDate()));
-  }
-
-  public Observable<NewsEntity> getNewsGlobal() {
-    return getNewsForRange(StudIPConstants.STUDIP_NEWS_GLOBAL_RANGE);
-  }
-
-  public Observable<NewsEntity> getNewsCourses() {
-    return getCourses().flatMap(courses -> Observable.defer(() -> Observable.from(courses))
-        .flatMap(this::getNewsForCourse));
   }
 
   private Observable<NewsEntity> getNewsForCourse(final Course course) {
