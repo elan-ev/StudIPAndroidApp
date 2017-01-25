@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.authorization.data.entity.EndpointEntity;
-import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
 import de.elanev.studip.android.app.util.ServerData;
 import rx.Observable;
 import timber.log.Timber;
@@ -30,28 +29,10 @@ import timber.log.Timber;
  * @author joern
  */
 @Singleton
-public class FileAuthorizationDataStore implements AuthorizationDataStore {
+public class EndpointsFileDataStore implements EndpointsDataStore {
   private final ObjectMapper mapper;
 
-  @Inject public FileAuthorizationDataStore(ObjectMapper mapper) {this.mapper = mapper;}
-
-  @Override public void saveCredentials(OAuthCredentialsEntity credentialsEntity) {
-    //NoOp
-  }
-
-  @Override public OAuthCredentialsEntity getCredentials() {
-    //NoOp
-    return null;
-  }
-
-  @Override public void clearCredentials() {
-    //NoOp
-  }
-
-  @Override public Observable<EndpointEntity> getEndpoint(String endpointId) {
-    //NoOp
-    return null;
-  }
+  @Inject public EndpointsFileDataStore(ObjectMapper mapper) {this.mapper = mapper;}
 
   @Override public Observable<List<EndpointEntity>> getEndpoints() {
     List<EndpointEntity> endpoints = new ArrayList<>();
@@ -69,5 +50,13 @@ public class FileAuthorizationDataStore implements AuthorizationDataStore {
           return endpointEntity;
         })
         .toList();
+  }
+
+  @Override public Observable<EndpointEntity> getEndpoint(String endpointId) {
+
+    return this.getEndpoints()
+        .flatMap(endpointEntities -> Observable.from(endpointEntities)
+            .filter(endpointEntity -> endpointEntity.getId()
+                .equals(endpointId)));
   }
 }

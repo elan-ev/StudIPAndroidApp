@@ -12,7 +12,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.authorization.domain.EndpointsRepository;
 import de.elanev.studip.android.app.authorization.domain.model.Endpoint;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
@@ -24,16 +24,16 @@ import rx.Observable;
  */
 
 public class GetEndpointsList extends UseCase<List<Endpoint>> {
-  private final AuthorizationRepository authorizationRepository;
+  private final EndpointsRepository endpointsRepository;
 
   @Inject GetEndpointsList(ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread,
-      AuthorizationRepository authorizationRepository) {
+      EndpointsRepository endpointsRepository) {
     super(threadExecutor, postExecutionThread);
 
-    this.authorizationRepository = authorizationRepository;
+    this.endpointsRepository = endpointsRepository;
   }
 
   @Override protected Observable<List<Endpoint>> buildUseCaseObservable(boolean forceUpdate) {
-    return this.authorizationRepository.endpoints();
+    return this.endpointsRepository.endpoints();
   }
 }

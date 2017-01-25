@@ -17,9 +17,9 @@ import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.StartupActivity;
 import de.elanev.studip.android.app.authorization.domain.AuthService;
-import de.elanev.studip.android.app.authorization.presentation.view.ServerListFragment;
-import de.elanev.studip.android.app.authorization.presentation.view.SignInFragment;
-import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.authorization.domain.CredentialsRepository;
+import de.elanev.studip.android.app.authorization.domain.EndpointsRepository;
+import de.elanev.studip.android.app.authorization.domain.SettingsRepository;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
 import de.elanev.studip.android.app.base.internal.di.modules.ApplicationModule;
@@ -96,7 +96,11 @@ public interface ApplicationComponent {
 
   CoursesRepository coursesRepository();
 
-  AuthorizationRepository authorizationRepository();
+  CredentialsRepository authorizationRepository();
+
+  SettingsRepository settingsRepository();
+
+  EndpointsRepository endpointsRepository();
 
   AuthService authService();
 

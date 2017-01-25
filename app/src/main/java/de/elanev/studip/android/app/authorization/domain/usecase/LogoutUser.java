@@ -12,7 +12,7 @@ import com.fernandocejas.frodo.annotation.RxLogObservable;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.authorization.domain.CredentialsRepository;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -27,22 +27,22 @@ import rx.Observable;
  */
 @PerActivity
 public class LogoutUser extends UseCase {
-  private final AuthorizationRepository authRepo;
+  private final CredentialsRepository credentialsRepository;
   private final Prefs prefs;
   private final RealmConfiguration realmConfig;
 
   @Inject protected LogoutUser(ThreadExecutor threadExecutor,
-      PostExecutionThread postExecutionThread, AuthorizationRepository repository, Prefs prefs,
-      RealmConfiguration realmConfig) {
+      PostExecutionThread postExecutionThread, CredentialsRepository credentialsRepository,
+      Prefs prefs, RealmConfiguration realmConfig) {
     super(threadExecutor, postExecutionThread);
 
-    this.authRepo = repository;
+    this.credentialsRepository = credentialsRepository;
     this.prefs = prefs;
     this.realmConfig = realmConfig;
   }
 
   @RxLogObservable @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
-    return authRepo.clearCredentials()
+    return credentialsRepository.clear()
         .doOnNext(aVoid -> prefs.clearPrefs())
         .doOnNext(aVoid -> Realm.deleteRealm(realmConfig));
   }

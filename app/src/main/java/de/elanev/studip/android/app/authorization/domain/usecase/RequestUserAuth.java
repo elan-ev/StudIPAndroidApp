@@ -11,7 +11,7 @@ package de.elanev.studip.android.app.authorization.domain.usecase;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.authorization.domain.AuthService;
-import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.authorization.domain.EndpointsRepository;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -25,20 +25,20 @@ import rx.Observable;
 public class RequestUserAuth extends UseCase<String> {
   private final String endpointId;
   private final AuthService authService;
-  private final AuthorizationRepository authRepo;
+  private final EndpointsRepository endpointsRepository;
 
   @Inject public RequestUserAuth(String endpointId, AuthService authService,
-      AuthorizationRepository authRepo, ThreadExecutor threadExecutor,
+      EndpointsRepository endpointsRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
     super(threadExecutor, postExecutionThread);
 
     this.endpointId = endpointId;
     this.authService = authService;
-    this.authRepo = authRepo;
+    this.endpointsRepository = endpointsRepository;
   }
 
   @Override protected Observable<String> buildUseCaseObservable(boolean forceUpdate) {
-    return this.authRepo.endpoint(endpointId)
+    return this.endpointsRepository.endpoint(endpointId)
         .flatMap(authService::auth);
   }
 }

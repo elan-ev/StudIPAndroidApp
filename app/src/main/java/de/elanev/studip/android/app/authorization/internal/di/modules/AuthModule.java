@@ -13,7 +13,7 @@ import javax.inject.Named;
 import dagger.Module;
 import dagger.Provides;
 import de.elanev.studip.android.app.authorization.domain.AuthService;
-import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.authorization.domain.EndpointsRepository;
 import de.elanev.studip.android.app.authorization.domain.usecase.LogoutUser;
 import de.elanev.studip.android.app.authorization.domain.usecase.RequestUserAuth;
 import de.elanev.studip.android.app.authorization.domain.usecase.SignInUser;
@@ -40,7 +40,7 @@ public class AuthModule {
   }
 
   @Provides @PerActivity @Named("requestUserAuth") UseCase<String> providesRequestUserAuthUseCase(
-      AuthService authService, AuthorizationRepository repository, ThreadExecutor threadExecutor,
+      AuthService authService, EndpointsRepository repository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
     return new RequestUserAuth(endpointId, authService, repository, threadExecutor,
         postExecutionThread);

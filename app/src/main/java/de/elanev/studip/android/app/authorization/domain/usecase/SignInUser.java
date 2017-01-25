@@ -11,7 +11,8 @@ package de.elanev.studip.android.app.authorization.domain.usecase;
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.authorization.domain.AuthService;
-import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.authorization.domain.CredentialsRepository;
+import de.elanev.studip.android.app.authorization.domain.SettingsRepository;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -26,17 +27,19 @@ import rx.Observable;
 @PerActivity
 public class SignInUser extends UseCase {
   private final AuthService authService;
-  private final AuthorizationRepository authorizationRepository;
+  private final CredentialsRepository credentialsRepository;
+  private final SettingsRepository settingsRepository;
   private final UserRepository userRepository;
   private final Prefs prefs;
 
   @Inject public SignInUser(ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread,
-      AuthService authService, AuthorizationRepository repository, UserRepository userRepository,
-      Prefs prefs) {
+      AuthService authService, CredentialsRepository credentialsRepository,
+      SettingsRepository settingsRepository, UserRepository userRepository, Prefs prefs) {
     super(threadExecutor, postExecutionThread);
 
     this.authService = authService;
-    this.authorizationRepository = repository;
+    this.credentialsRepository = credentialsRepository;
+    this.settingsRepository = settingsRepository;
     this.userRepository = userRepository;
     this.prefs = prefs;
   }
@@ -44,15 +47,16 @@ public class SignInUser extends UseCase {
   @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
     return this.authService.accessToken()
         .doOnNext(credentials -> {
-          this.authorizationRepository.saveCredentials(credentials);
+          this.credentialsRepository.save(credentials);
           this.prefs.setAppAuthorized(true);
           this.prefs.setEndpointName(credentials.getEndpoint()
               .getName());
           this.prefs.setEndpointEmail(credentials.getEndpoint()
               .getContactEmail());
-          this.prefs.setBaseUrl(credentials.getEndpoint().getBaseUrl());
+          this.prefs.setBaseUrl(credentials.getEndpoint()
+              .getBaseUrl());
         })
-        .doOnCompleted(() -> this.authorizationRepository.studipSettings(true))
+        .doOnCompleted(() -> this.settingsRepository.studipSettings(true))
         .doOnCompleted(() -> userRepository.currentUser(forceUpdate)
             .doOnNext(user -> prefs.setCurrentUserId(user.getUserId())));
   }

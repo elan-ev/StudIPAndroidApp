@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.authorization.domain.SettingsRepository;
 import de.elanev.studip.android.app.authorization.domain.model.Settings;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
@@ -25,30 +25,32 @@ import rx.Observable;
  */
 public class GetCourseList extends UseCase<List<DomainCourse>> {
   private final CoursesRepository coursesRepository;
-  private final AuthorizationRepository authRepository;
+  private final SettingsRepository settingsRepository;
 
   @Inject public GetCourseList(CoursesRepository coursesRepository, ThreadExecutor threadExecutor,
-      PostExecutionThread postExecutionThread, AuthorizationRepository authRepository) {
+      PostExecutionThread postExecutionThread, SettingsRepository settingsRepository) {
     super(threadExecutor, postExecutionThread);
 
     this.coursesRepository = coursesRepository;
-    this.authRepository = authRepository;
+    this.settingsRepository = settingsRepository;
   }
 
   @Override protected Observable<List<DomainCourse>> buildUseCaseObservable(boolean forceUpdate) {
-    return Observable.zip(authRepository.studipSettings(forceUpdate),
-        coursesRepository.courses(forceUpdate), (settings, domainCourses) -> {
-          HashMap<Integer, Settings.SeminarTypeData> semTypes = settings.getSemTypes();
+    Observable<Settings> settingsObs = settingsRepository.studipSettings(forceUpdate);
+    Observable<List<DomainCourse>> coursesObs = coursesRepository.courses(forceUpdate);
 
-          return Observable.just(Observable.from(domainCourses)
-              .map(domainCourse -> {
-                domainCourse.setTypeString(semTypes.get(domainCourse.getType())
-                    .getName());
-                return domainCourse;
-              })
-              .toList());
+    return settingsObs.flatMap(settings -> coursesObs.flatMap(
+        domainCourses -> Observable.from(domainCourses)
+            .map(domainCourse -> {
+              HashMap<Integer, Settings.SeminarTypeData> semTypes = settings.getSemTypes();
+              Settings.SeminarTypeData typeData = semTypes.get(domainCourse.getType());
 
-        });
+              if (typeData != null) {
+                domainCourse.setTypeString(typeData.getName());
+              }
 
+              return domainCourse;
+            })))
+        .toList();
   }
 }

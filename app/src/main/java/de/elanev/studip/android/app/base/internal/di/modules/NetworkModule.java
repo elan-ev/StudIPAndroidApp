@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -8,19 +8,23 @@
 
 package de.elanev.studip.android.app.base.internal.di.modules;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.elanev.studip.android.app.authorization.data.entity.CredentialsEntityDataMapper;
+import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
 import de.elanev.studip.android.app.authorization.data.repository.CustomJsonConverterApiService;
-import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
 import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
 import de.elanev.studip.android.app.data.net.services.OfflineCacheInterceptor;
 import de.elanev.studip.android.app.data.net.services.RewriteCacheControlInterceptor;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -37,8 +41,18 @@ import se.akerfeldt.okhttp.signpost.SigningInterceptor;
 public class NetworkModule {
   private static final long CACHE_SIZE = 10 * 1024 * 1024;
 
-  @Provides public OAuthCredentials providesOAuthCredentials(AuthorizationRepository repository) {
-    return repository.getCredentials();
+  @SuppressLint("NewApi") @Provides public OAuthCredentials providesOAuthCredentials(
+      RealmConfiguration realmConfiguration, CredentialsEntityDataMapper mapper) {
+    try (Realm realm = Realm.getInstance(realmConfiguration)) {
+      OAuthCredentialsEntity entity = realm.where(OAuthCredentialsEntity.class)
+          .findFirst();
+
+      if (entity != null) {
+        return mapper.transform(realm.copyFromRealm(entity));
+      } else {
+        return null;
+      }
+    }
   }
 
   @Provides @Singleton public CustomJsonConverterApiService provideCustomJsonConverterApiService(

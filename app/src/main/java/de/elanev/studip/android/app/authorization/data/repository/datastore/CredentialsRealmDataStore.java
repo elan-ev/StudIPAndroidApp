@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -11,34 +11,29 @@ package de.elanev.studip.android.app.authorization.data.repository.datastore;
 import android.annotation.SuppressLint;
 import android.support.annotation.WorkerThread;
 
-import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.elanev.studip.android.app.authorization.data.entity.EndpointEntity;
 import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
-import de.elanev.studip.android.app.authorization.data.entity.SettingsEntity;
 import de.elanev.studip.android.app.util.TextTools;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import io.realm.RealmResults;
-import rx.Observable;
 
 /**
  * @author joern
  */
 @SuppressLint("NewApi")
 @Singleton
-public class RealmAuthorizationDataStore implements AuthorizationDataStore {
+public class CredentialsRealmDataStore implements CredentialsDataStore {
   private final RealmConfiguration realmConf;
 
-  @Inject public RealmAuthorizationDataStore(RealmConfiguration realmConf) {
+  @Inject public CredentialsRealmDataStore(RealmConfiguration realmConf) {
     this.realmConf = realmConf;
   }
 
-  @WorkerThread @Override public void saveCredentials(OAuthCredentialsEntity credentialsEntity) {
+  @WorkerThread @Override public void save(OAuthCredentialsEntity credentialsEntity) {
     try (Realm realm = Realm.getInstance(realmConf)) {
       // Make sure every stored credential has a unique id
       if (TextTools.isEmpty(credentialsEntity.getId())) {
@@ -66,35 +61,6 @@ public class RealmAuthorizationDataStore implements AuthorizationDataStore {
   @WorkerThread @Override public void clearCredentials() {
     try (Realm realm = Realm.getInstance(realmConf)) {
       realm.executeTransaction(tsReam -> tsReam.delete(OAuthCredentialsEntity.class));
-    }
-  }
-
-  @WorkerThread @Override public Observable<EndpointEntity> getEndpoint(String endpointId) {
-    try (Realm realm = Realm.getInstance(realmConf)) {
-      EndpointEntity endpointEntity = realm.where(EndpointEntity.class)
-          .equalTo("id", endpointId)
-          .findFirst();
-
-      return Observable.just(realm.copyFromRealm(endpointEntity));
-    }
-  }
-
-  @WorkerThread @Override public Observable<List<EndpointEntity>> getEndpoints() {
-    try (Realm realm = Realm.getInstance(realmConf)) {
-      RealmResults<EndpointEntity> realmResults = realm.where(EndpointEntity.class)
-          .findAll();
-      if (realmResults.isEmpty()) return Observable.empty();
-
-      return Observable.just(realm.copyFromRealm(realmResults));
-    }
-  }
-
-  @WorkerThread public void save(List<EndpointEntity> endpointEntities) {
-    try (Realm realm = Realm.getInstance(realmConf)) {
-      realm.executeTransaction(realm1 -> {
-        realm1.delete(EndpointEntity.class);
-        realm1.insertOrUpdate(endpointEntities);
-      });
     }
   }
 }
