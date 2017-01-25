@@ -66,6 +66,7 @@ public class AuthServiceImpl implements AuthService {
 
         @Override public void onAccessTokenReceived(OAuthCredentialsEntity credentialsEntity) {
           emitter.onNext(credentialsMapper.transform(credentialsEntity));
+          emitter.onCompleted();
         }
       };
 
