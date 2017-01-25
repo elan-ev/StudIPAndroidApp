@@ -51,7 +51,7 @@ public class Endpoint {
   }
 
   public String getApiUrl() {
-    return baseUrl + "/api";
+    return baseUrl + "/api/";
   }
 
   public String getName() {
