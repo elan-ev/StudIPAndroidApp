@@ -48,4 +48,9 @@ public class OAuthCredentials {
   public void setAccessTokenSecret(String accessTokenSecret) {
     this.accessTokenSecret = accessTokenSecret;
   }
+
+  @Override public String toString() {
+    return "OAuthCredentials{" + "id='" + id + '\'' + ", accessToken='" + accessToken + '\''
+        + ", accessTokenSecret='" + accessTokenSecret + '\'' + ", endpoint=" + endpoint + '}';
+  }
 }
