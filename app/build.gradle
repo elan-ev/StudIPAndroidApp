@@ -21,20 +21,18 @@ def versionPatchBeta = 5 // max. 99
 
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
-apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.fernandocejas.frodo'
-apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'realm-android'
 
 repositories {
-  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
   maven { url 'https://maven.fabric.io/public' }
   jcenter()
 }
 
 dependencies {
   // Crashlytics Kit
-  compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
+  compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
     transitive = true;
   }
   // Android Support Libs
@@ -73,21 +71,17 @@ dependencies {
   compile 'se.akerfeldt:okhttp-signpost:1.1.0'
 
   // RxJava
+  //TODO: Update rxjava and rxandroid to 2.x
   compile 'io.reactivex:rxjava:1.2.5'
   compile 'io.reactivex:rxandroid:0.25.0'
-  //TODO: Update to rxandroid version 1.1
-  // * Need to use new rxlifecyle in ReactiveFragment class
-//  compile 'io.reactivex:rxandroid:1.1.0'
-//  compile 'io.reactivex:rxjava:1.1.3'
-//  compile 'com.trello:rxlifecycle:0.5.0'
 
   // Dependency injection
   compile 'com.jakewharton:butterknife:8.4.0'
-  apt 'com.jakewharton:butterknife-compiler:8.4.0'
+  annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
   compile 'com.google.dagger:dagger:2.8'
   compile 'com.google.dagger:dagger-android:2.8'
-  apt 'com.google.dagger:dagger-compiler:2.8'
-  provided 'javax.annotation:jsr250-api:1.0'
+  annotationProcessor 'com.google.dagger:dagger-compiler:2.8'
+//  provided 'javax.annotation:jsr250-api:1.0'
 
   // MVP
   compile 'com.hannesdorfmann.mosby:mvp:2.0.1'
@@ -199,10 +193,10 @@ android {
     // Set output file name based on versionName
     setProperty("archivesBaseName", "studip_mobil")
 
-    // Enable Jack Compiler -> currently not working with apt
-//    jackOptions {
-//      enabled true
-//    }
+    // Enable new jack compilter toolchain
+    jackOptions {
+      enabled true
+    }
 
     vectorDrawables.useSupportLibrary = true
   }
