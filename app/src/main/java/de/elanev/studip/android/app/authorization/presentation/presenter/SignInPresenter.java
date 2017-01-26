@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import de.elanev.studip.android.app.authorization.domain.usecase.RequestUserAuth;
+import de.elanev.studip.android.app.authorization.domain.usecase.SignInSync;
 import de.elanev.studip.android.app.authorization.domain.usecase.SignInUser;
 import de.elanev.studip.android.app.authorization.presentation.view.SignInView;
 import de.elanev.studip.android.app.base.UseCase;
@@ -27,12 +28,15 @@ import rx.Subscriber;
 public class SignInPresenter extends MvpBasePresenter<SignInView> {
   private final SignInUser signInUser;
   private final RequestUserAuth requestUserAuth;
+  private final SignInSync signInSync;
   private String authUrl;
 
   @Inject public SignInPresenter(@Named("signInUser") UseCase signInUser,
-      @Named("requestUserAuth") UseCase<String> requestUserAuth) {
+      @Named("requestUserAuth") UseCase<String> requestUserAuth,
+      @Named("signInSync") UseCase signInSync) {
     this.signInUser = (SignInUser) signInUser;
     this.requestUserAuth = (RequestUserAuth) requestUserAuth;
+    this.signInSync = (SignInSync) signInSync;
   }
 
   public void startAuthProcess() {
@@ -83,6 +87,22 @@ public class SignInPresenter extends MvpBasePresenter<SignInView> {
 
   public void signInUser() {
     this.signInUser.execute(new Subscriber() {
+      @Override public void onCompleted() {
+        SignInPresenter.this.signInSync();
+      }
+
+      @Override public void onError(Throwable e) {
+        SignInPresenter.this.onError(e);
+      }
+
+      @Override public void onNext(Object o) {
+        //NoOp
+      }
+    });
+  }
+
+  private void signInSync() {
+    this.signInSync.execute(new Subscriber() {
       @Override public void onCompleted() {
         SignInPresenter.this.signInUserSuccess();
       }

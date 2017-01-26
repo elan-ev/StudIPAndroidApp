@@ -16,6 +16,7 @@ import de.elanev.studip.android.app.authorization.domain.AuthService;
 import de.elanev.studip.android.app.authorization.domain.EndpointsRepository;
 import de.elanev.studip.android.app.authorization.domain.usecase.LogoutUser;
 import de.elanev.studip.android.app.authorization.domain.usecase.RequestUserAuth;
+import de.elanev.studip.android.app.authorization.domain.usecase.SignInSync;
 import de.elanev.studip.android.app.authorization.domain.usecase.SignInUser;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
@@ -49,5 +50,10 @@ public class AuthModule {
   @Provides @PerActivity @Named("signInUser") UseCase providesSignInUserUseCase(
       SignInUser signInUser) {
     return signInUser;
+  }
+
+  @Provides @PerActivity @Named("signInSync") UseCase providesSignInSyncUseCase(
+      SignInSync signInSync) {
+    return signInSync;
   }
 }
