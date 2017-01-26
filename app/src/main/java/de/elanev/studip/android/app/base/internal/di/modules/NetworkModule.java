@@ -19,8 +19,6 @@ import de.elanev.studip.android.app.authorization.data.entity.CredentialsEntityD
 import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
 import de.elanev.studip.android.app.authorization.data.repository.CustomJsonConverterApiService;
 import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
-import de.elanev.studip.android.app.data.net.services.OfflineCacheInterceptor;
-import de.elanev.studip.android.app.data.net.services.RewriteCacheControlInterceptor;
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
 import io.realm.Realm;
@@ -60,9 +58,8 @@ public class NetworkModule {
     return new CustomJsonConverterApiService(retrofit);
   }
 
-  @Provides @Singleton public StudIpLegacyApiService provideApiService(Retrofit retrofit,
-      Prefs prefs) {
-    return new StudIpLegacyApiService(retrofit, prefs);
+  @Provides @Singleton public StudIpLegacyApiService provideApiService(Retrofit retrofit) {
+    return new StudIpLegacyApiService(retrofit);
   }
 
   @Provides @Singleton public Cache providesOkHttpCache(Context context) {
@@ -74,14 +71,6 @@ public class NetworkModule {
     loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
     return loggingInterceptor;
-  }
-
-  @Provides @Singleton public RewriteCacheControlInterceptor providesRewriteCacheControlInterceptor() {
-    return new RewriteCacheControlInterceptor();
-  }
-
-  @Provides @Singleton public OfflineCacheInterceptor providesOfflineCacheInterceptor() {
-    return new OfflineCacheInterceptor();
   }
 
   @Provides @Singleton public SigningInterceptor providesSignInterceptor(

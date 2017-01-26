@@ -26,7 +26,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.authorization.presentation.model.EndpointModel;
-import de.elanev.studip.android.app.data.net.util.NetworkUtils;
+import de.elanev.studip.android.app.base.NetworkUtils;
 
 /**
  * @author joern

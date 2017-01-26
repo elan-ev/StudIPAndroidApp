@@ -24,7 +24,6 @@ import de.elanev.studip.android.app.authorization.presentation.model.EndpointMod
 import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
-import de.elanev.studip.android.app.data.datamodel.Server;
 import de.elanev.studip.android.app.news.presentation.NewsActivity;
 import de.elanev.studip.android.app.util.ApiUtils;
 
@@ -94,13 +93,6 @@ public class SignInActivity extends BaseActivity implements ServerListFragment.E
         .applicationComponent(applicationComponent)
         .authModule(new AuthModule())
         .build();
-  }
-
-  private Bundle extractServerInfo(Server server) {
-    Bundle args = new Bundle();
-    args.putSerializable(SELECTED_SERVER, server);
-
-    return args;
   }
 
   @Override public void onAuthCanceled() {

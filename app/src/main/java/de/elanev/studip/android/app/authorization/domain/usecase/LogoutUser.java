@@ -8,8 +8,6 @@
 
 package de.elanev.studip.android.app.authorization.domain.usecase;
 
-import com.fernandocejas.frodo.annotation.RxLogObservable;
-
 import javax.inject.Inject;
 
 import de.elanev.studip.android.app.authorization.domain.CredentialsRepository;
@@ -41,7 +39,7 @@ public class LogoutUser extends UseCase {
     this.realmConfig = realmConfig;
   }
 
-  @RxLogObservable @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
+  @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
     return credentialsRepository.clear()
         .doOnNext(aVoid -> prefs.clearPrefs())
         .doOnNext(aVoid -> Realm.deleteRealm(realmConfig));

@@ -12,31 +12,22 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 
-import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerActivity;
 import timber.log.Timber;
 
 
 /**
- * Helper singleton class for accessing the shared preferences of the app easier. It offers an
+ * Helper class for accessing the shared preferences of the app easier. It offers an
  * interface for all shared preference options needed in this app.
  *
  * @author joern
  */
 public class Prefs {
   private static final String APP_PREFS_NAME = "prefs";
-  private static final String APP_FIRST_START = "appFirstStart";
-  private static final String APP_SYNC_COMPLETE = "appSyncComplete";
-  private static final String USER_ID = "userId";
-  private static final String CURRENT_SEMESTER_ID = "currentSemesterId";
-  private static final String FORUM_IS_ACTIVATED = "activeRoutes";
   private static final String API_SETTINGS_STRING = "apiSettingsString";
-  private static final String ALLOW_MOBILE_DATA = "allowMobileData";
-  private static final String USER_INFO = "currentUserInfo";
   private static final String PLANNER_PREFERRED_PORTRAIT_VIEW = "plannerPreferredPortraitView";
   private static final String PLANNER_PREFERRED_LANDSCAPE_VIEW = "plannerPreferredLandscapeView";
   private static final String PLANNER_PREFERRED_TIMETABLE_DAYS_COUNT = "plannerPreferredTimetableViewDayCount";
-  private static final String MESSAGE_POSTBOX = "messageFolders";
   private static final String CURRENT_USER_ID = "current-user-id";
   private static final String APP_SIGNED_IN = "app-signed-in";
   private static final String ENDPOINT_EMAIL = "app-endpoint-email";
@@ -58,91 +49,44 @@ public class Prefs {
         .apply();
   }
 
-  /**
-   * Checks if the app was started before. If it was not started before it will return true
-   *
-   * @return true if the current start is the first start of the app on the current device, else
-   * false
-   */
-  public boolean isFirstStart() {
-    return mPrefs.getBoolean(APP_FIRST_START, true);
-  }
+  //TODO: Use for sign in tutorial
+  //  /**
+  //   * Checks if the app was started before. If it was not started before it will return true
+  //   *
+  //   * @return true if the current start is the first start of the app on the current device, else
+  //   * false
+  //   */
+  //  public boolean isFirstStart() {
+  //    return mPrefs.getBoolean(APP_FIRST_START, true);
+  //  }
+  //
+  //  /**
+  //   * Set the app as started. This will cause the isFirstStart() method to return false.
+  //   */
+  //  public void setAppStarted() {
+  //    mPrefs.edit()
+  //        .putBoolean(APP_FIRST_START, false)
+  //        .apply();
+  //  }
 
-  /**
-   * Set the app as started. This will cause the isFirstStart() method to return false.
-   */
-  public void setAppStarted() {
-    mPrefs.edit()
-        .putBoolean(APP_FIRST_START, false)
-        .apply();
-  }
-
-
-  /**
-   * Checks if insecure credentials from earlier versions of the app exist.
-   *
-   * @return true if there are insecure credentials form earlier versions,
-   * otherwise false
-   */
-  public boolean legacyDataExists() {
-    String accessToken = mPrefs.getString("accessToken", null);
-    String accessTokenSecret = mPrefs.getString("accessTokenSecret", null);
-    String serverName = mPrefs.getString("serverName", null);
-    String serverUrl = mPrefs.getString("serverUrl", null);
-    String serverKey = mPrefs.getString("serverKey", null);
-    String serverSecret = mPrefs.getString("serverSecret", null);
-
-    return accessToken != null || accessTokenSecret != null || serverName != null
-        || serverUrl != null || serverKey != null || serverSecret != null;
-  }
-
-  /**
-   * Returns the Stud.IP internal user id String.
-   *
-   * @return Stud.IP user id String.
-   */
-  public String getUserId() {
-    User user = User.fromJson(mPrefs.getString(USER_INFO, null));
-    if (user != null) {
-
-      return user.userId.replaceFirst("\\s+$", "");
-    }
-
-    return null;
-  }
-
-  /**
-   * Saves the users Stud.IP id String in the preferences.
-   *
-   * @param userId the current users Stud.IP user id String.
-   */
-  public void setUserId(String userId) {
-    mPrefs.edit()
-        .putString(USER_ID, userId)
-        .apply();
-  }
-
-  /**
-   * Returns the user profile information which is currently signed in. The return value is a JSON
-   * formatted String which has be parsed with {@link User}
-   *
-   * @return User info JSON String
-   */
-  public String getUserInfo() {
-    return mPrefs.getString(USER_INFO, null);
-  }
-
-  /**
-   * Takes a JSON formatted String containing the profile information of the currently signed in
-   * user. The string needs the be parsable by {@link User}
-   *
-   * @param userInfoJson JSON formatted User info string
-   */
-  public void setUserInfo(String userInfoJson) {
-    mPrefs.edit()
-        .putString(USER_INFO, userInfoJson)
-        .apply();
-  }
+  // TODO: Do we really need this anymore?
+  //  /**
+  //   * Checks if insecure credentials from earlier versions of the app exist.
+  //   *
+  //   * @return true if there are insecure credentials form earlier versions,
+  //   * otherwise false
+  //   */
+  //  public boolean legacyDataExists() {
+  //    String accessToken = mPrefs.getString("accessToken", null);
+  //    String accessTokenSecret = mPrefs.getString("accessTokenSecret", null);
+  //    String serverName = mPrefs.getString("serverName", null);
+  //    String serverUrl = mPrefs.getString("serverUrl", null);
+  //    String serverKey = mPrefs.getString("serverKey", null);
+  //    String serverSecret = mPrefs.getString("serverSecret", null);
+  //
+  //    return accessToken != null || accessTokenSecret != null || serverName != null
+  //        || serverUrl != null || serverKey != null || serverSecret != null;
+  //  }
 
   /**
    * Returns the stored API settings JSON String representation
@@ -164,25 +108,26 @@ public class Prefs {
         .apply();
   }
 
-  /**
-   * Returns whether the user allowed downloading via mobile data connection previously
-   *
-   * @return true if the user allowed downloading via mobile data, false otherwise
-   */
-  public boolean isAllowMobileData() {
-    return mPrefs.getBoolean(ALLOW_MOBILE_DATA, false);
-  }
-
-  /**
-   * Store the users decision to allow downloading via mobile data connection
-   *
-   * @param isAllowed the value to store
-   */
-  public void setAllowMobile(boolean isAllowed) {
-    mPrefs.edit()
-        .putBoolean(ALLOW_MOBILE_DATA, isAllowed)
-        .apply();
-  }
+  //TODO: Use this in for checking if user allow mobile usage for heavy downloads
+  //  /**
+  //   * Returns whether the user allowed downloading via mobile data connection previously
+  //   *
+  //   * @return true if the user allowed downloading via mobile data, false otherwise
+  //   */
+  //  public boolean isAllowMobileData() {
+  //    return mPrefs.getBoolean(ALLOW_MOBILE_DATA, false);
+  //  }
+  //
+  //  /**
+  //   * Store the users decision to allow downloading via mobile data connection
+  //   *
+  //   * @param isAllowed the value to store
+  //   */
+  //  public void setAllowMobile(boolean isAllowed) {
+  //    mPrefs.edit()
+  //        .putBoolean(ALLOW_MOBILE_DATA, isAllowed)
+  //        .apply();
+  //  }
 
   /**
    * Returns the users preferred planner view based on the passed orientation of the devices. We
@@ -247,12 +192,12 @@ public class Prefs {
   }
 
   public String getCurrentUserId() {
-    return mPrefs.getString(CURRENT_SEMESTER_ID, "");
+    return mPrefs.getString(CURRENT_USER_ID, "");
   }
 
   public void setCurrentUserId(String userId) {
     mPrefs.edit()
-        .putString(CURRENT_USER_ID, userId)
+        .putString(CURRENT_USER_ID, userId.trim())
         .apply();
   }
 
