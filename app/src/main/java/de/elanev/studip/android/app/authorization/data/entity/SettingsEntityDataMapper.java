@@ -8,6 +8,9 @@
 
 package de.elanev.studip.android.app.authorization.data.entity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -21,11 +24,27 @@ public class SettingsEntityDataMapper {
   @Inject public SettingsEntityDataMapper() {}
 
   public Settings transform(SettingsEntity settingsEntity) {
-    try {
-      throw new Exception("TODO");
-    } catch (Exception e) {
-      e.printStackTrace();
+    Settings settings = new Settings();
+    settings.setSemTypes(transform(settingsEntity.getSemTypes()));
+
+    return settings;
+  }
+
+  private HashMap<Integer, Settings.SeminarTypeData> transform(
+      HashMap<Integer, SettingsEntity.SeminarTypeData> semTypes) {
+    HashMap<Integer, Settings.SeminarTypeData> domainSemTypes = new HashMap<>(semTypes.size());
+
+    for (Map.Entry<Integer, SettingsEntity.SeminarTypeData> seminarTypeDataEntry : semTypes.entrySet()) {
+      domainSemTypes.put(seminarTypeDataEntry.getKey(), transform(seminarTypeDataEntry.getValue()));
     }
-    return null;
+
+    return domainSemTypes;
+  }
+
+  private Settings.SeminarTypeData transform(SettingsEntity.SeminarTypeData value) {
+    Settings.SeminarTypeData seminarTypeData = new Settings.SeminarTypeData();
+    seminarTypeData.setName(value.getName());
+
+    return seminarTypeData;
   }
 }

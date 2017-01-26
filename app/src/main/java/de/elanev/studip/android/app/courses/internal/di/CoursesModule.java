@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
+import de.elanev.studip.android.app.authorization.domain.SettingsRepository;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -23,7 +24,6 @@ import de.elanev.studip.android.app.courses.domain.GetCourseOverview;
 import de.elanev.studip.android.app.courses.domain.GetCourseSchedule;
 import de.elanev.studip.android.app.courses.domain.GetCourseUsers;
 import de.elanev.studip.android.app.news.domain.GetNewsList;
-import de.elanev.studip.android.app.planner.domain.GetEventsList;
 import de.elanev.studip.android.app.user.domain.UserRepository;
 
 /**
@@ -47,12 +47,12 @@ public class CoursesModule {
   }
 
   @Provides @PerActivity @Named("courseOverview") UseCase providesGetCourseOverviewUseCase(
-      GetNewsList getNewsList, CoursesRepository coursesRepository,
-      UserRepository userRepository, ThreadExecutor threadExecutor,
+      GetNewsList getNewsList, CoursesRepository coursesRepository, UserRepository userRepository,
+      SettingsRepository settingsRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 
-    return new GetCourseOverview(this.id, getNewsList, coursesRepository,
-        threadExecutor, postExecutionThread, userRepository);
+    return new GetCourseOverview(this.id, getNewsList, coursesRepository, threadExecutor,
+        postExecutionThread, userRepository, settingsRepository);
   }
 
   @Provides @PerActivity @Named("getCourseSchedule") UseCase providesGetCourseScheduleUseCase(

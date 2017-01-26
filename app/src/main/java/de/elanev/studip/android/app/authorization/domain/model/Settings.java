@@ -16,7 +16,6 @@ import java.util.HashMap;
 
 public class Settings {
   private HashMap<Integer, SeminarTypeData> semTypes;
-  private String id = "settings";
 
   public HashMap<Integer, SeminarTypeData> getSemTypes() {
     return semTypes;
@@ -24,14 +23,6 @@ public class Settings {
 
   public void setSemTypes(HashMap<Integer, SeminarTypeData> semTypes) {
     this.semTypes = semTypes;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
   }
 
   public static class SeminarTypeData {
