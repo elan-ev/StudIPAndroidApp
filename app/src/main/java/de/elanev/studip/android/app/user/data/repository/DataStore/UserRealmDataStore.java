@@ -42,6 +42,8 @@ public class UserRealmDataStore implements UserDataStore {
           .equalTo("userId", id)
           .findFirst();
 
+      if (realmUserEntity == null) return Observable.empty();
+
       return Observable.just(realm.copyFromRealm(realmUserEntity))
           .map(mapper::transformFromRealm);
     }
