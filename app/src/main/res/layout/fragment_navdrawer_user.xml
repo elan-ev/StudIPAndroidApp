@@ -9,17 +9,19 @@
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/navigation_header"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/studip_mobile_dark"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:layout_height="match_parent"
+    >
 
-    <fragment
-        android:id="@+id/navigation_header_fragment"
-        android:name="de.elanev.studip.android.app.NavHeaderFragment"
+    <include layout="@layout/view_navdrawer_user"/>
+
+    <include layout="@layout/view_loading"/>
+
+    <include layout="@layout/view_error"/>
+
+    <View
+        android:layout_height="1dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
-
+        android:background="@color/studip_mobile_light"
+        android:layout_gravity="bottom"/>
 </FrameLayout>
