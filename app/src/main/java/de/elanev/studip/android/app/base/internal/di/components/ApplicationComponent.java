@@ -107,4 +107,6 @@ public interface ApplicationComponent {
   ThreadExecutor threadExecutor();
 
   PostExecutionThread postExecutionThread();
+
+  AbstractStudIPApplication abstractStudIPApplication();
 }

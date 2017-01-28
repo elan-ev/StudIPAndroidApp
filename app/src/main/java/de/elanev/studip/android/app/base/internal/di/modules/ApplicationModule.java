@@ -18,6 +18,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.authorization.data.AuthServiceImpl;
 import de.elanev.studip.android.app.authorization.data.repository.CredentialsDataRepository;
 import de.elanev.studip.android.app.authorization.data.repository.EndpointsDataRepository;
@@ -56,6 +57,10 @@ public class ApplicationModule {
 
   public ApplicationModule(Application application) {
     this.mApplication = application;
+  }
+
+  @Provides AbstractStudIPApplication abstractStudIPApplication() {
+    return (AbstractStudIPApplication) this.mApplication;
   }
 
   //Serialization

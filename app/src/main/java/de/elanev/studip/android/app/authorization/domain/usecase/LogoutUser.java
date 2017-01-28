@@ -10,6 +10,7 @@ package de.elanev.studip.android.app.authorization.domain.usecase;
 
 import javax.inject.Inject;
 
+import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.authorization.domain.CredentialsRepository;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
@@ -28,20 +29,23 @@ public class LogoutUser extends UseCase {
   private final CredentialsRepository credentialsRepository;
   private final Prefs prefs;
   private final RealmConfiguration realmConfig;
+  private final AbstractStudIPApplication app;
 
   @Inject protected LogoutUser(ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread, CredentialsRepository credentialsRepository,
-      Prefs prefs, RealmConfiguration realmConfig) {
+      Prefs prefs, RealmConfiguration realmConfig, AbstractStudIPApplication app) {
     super(threadExecutor, postExecutionThread);
 
     this.credentialsRepository = credentialsRepository;
     this.prefs = prefs;
     this.realmConfig = realmConfig;
+    this.app = app;
   }
 
   @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
     return credentialsRepository.clear()
         .doOnNext(aVoid -> prefs.clearPrefs())
-        .doOnNext(aVoid -> Realm.deleteRealm(realmConfig));
+        .doOnNext(aVoid -> Realm.deleteRealm(realmConfig))
+        .doOnNext(aVoid -> app.buildAppComponent());
   }
 }
