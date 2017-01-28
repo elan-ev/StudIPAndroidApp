@@ -15,5 +15,5 @@ import rx.Observable;
  * @author joern
  */
 public interface UserDataStore {
-  public Observable<UserEntity> userEntity(String id);
+  Observable<UserEntity> userEntity(String id);
 }

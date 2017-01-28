@@ -8,6 +8,9 @@
 
 package de.elanev.studip.android.app.user.data.repository.DataStore;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
 import de.elanev.studip.android.app.user.data.entity.UserEntity;
 import rx.Observable;
@@ -15,14 +18,19 @@ import rx.Observable;
 /**
  * @author joern
  */
+@Singleton
 public class UserCloudDataStore implements UserDataStore {
   private final StudIpLegacyApiService apiService;
 
-  public UserCloudDataStore(StudIpLegacyApiService apiService) {
+  @Inject public UserCloudDataStore(StudIpLegacyApiService apiService) {
     this.apiService = apiService;
   }
 
   @Override public Observable<UserEntity> userEntity(String id) {
     return apiService.getUserEntity(id);
+  }
+
+  public Observable<UserEntity> currentUserEntity() {
+    return apiService.getCurrentUser();
   }
 }

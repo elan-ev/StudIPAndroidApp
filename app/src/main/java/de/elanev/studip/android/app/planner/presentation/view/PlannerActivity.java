@@ -27,7 +27,7 @@ import de.elanev.studip.android.app.courses.presentation.view.CourseViewActivity
 import de.elanev.studip.android.app.planner.internal.di.DaggerPlannerComponent;
 import de.elanev.studip.android.app.planner.internal.di.PlannerComponent;
 import de.elanev.studip.android.app.planner.internal.di.PlannerModule;
-import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel;
 import de.elanev.studip.android.app.util.Prefs;
 
 /**
@@ -150,7 +150,7 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
     return plannerComponent;
   }
 
-  @Override public void onPlannerEventSelected(PlanerEventModel model) {
+  @Override public void onPlannerEventSelected(PlannerEventModel model) {
     Bundle extras = new Bundle();
     extras.putString(CourseViewActivity.COURSE_ID, model.getCourse()
         .getCourseId());
@@ -163,7 +163,7 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
     startActivity(intent);
   }
 
-  @Override public void onPlannerEventAddToCalendarSelected(PlanerEventModel model) {
+  @Override public void onPlannerEventAddToCalendarSelected(PlannerEventModel model) {
     Intent intent = new Intent(Intent.ACTION_INSERT).setData(CalendarContract.Events.CONTENT_URI)
         .putExtra(CalendarContract.Events.TITLE, model.getTitle())
         .putExtra(CalendarContract.Events.DESCRIPTION, model.getDescription())

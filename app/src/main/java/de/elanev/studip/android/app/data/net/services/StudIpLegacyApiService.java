@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.data.net.services;
 import java.util.List;
 
 import de.elanev.studip.android.app.StudIPConstants;
+import de.elanev.studip.android.app.authorization.data.entity.SettingsEntity;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroup;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroupEntity;
 import de.elanev.studip.android.app.contacts.data.entity.ContactGroups;
@@ -30,8 +31,6 @@ import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
 import de.elanev.studip.android.app.data.datamodel.NewsItemWrapper;
 import de.elanev.studip.android.app.data.datamodel.Semester;
 import de.elanev.studip.android.app.data.datamodel.SemesterWrapper;
-import de.elanev.studip.android.app.data.datamodel.Semesters;
-import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.data.datamodel.UserItem;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntities;
@@ -44,8 +43,6 @@ import de.elanev.studip.android.app.planner.data.entity.EventEntity;
 import de.elanev.studip.android.app.planner.data.entity.Events;
 import de.elanev.studip.android.app.user.data.entity.UserEntity;
 import de.elanev.studip.android.app.user.data.entity.UserEntityWrapper;
-import de.elanev.studip.android.app.util.Prefs;
-import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.http.DELETE;
 import retrofit2.http.Field;
@@ -55,11 +52,9 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-import rx.Completable;
 import rx.Observable;
 import rx.functions.Func0;
 import rx.functions.Func1;
-import rx.functions.Func2;
 import timber.log.Timber;
 
 
@@ -72,7 +67,6 @@ import timber.log.Timber;
 public class StudIpLegacyApiService {
 
   //region LOCAL CONSTANTS -------------------------------------------------------------------------
-  private final Prefs prefs;
   //endregion --------------------------------------------------------------------------------------
 
   //region INSTANCE VARIABLES ----------------------------------------------------------------------
@@ -81,11 +75,10 @@ public class StudIpLegacyApiService {
 
   //region CONSTRUCTOR
   // -----------------------------------------------------------------------------------------------
-  public StudIpLegacyApiService(Retrofit retrofit, Prefs prefs) {
+  public StudIpLegacyApiService(Retrofit retrofit) {
 
     // Create an instance of our RestIPLegacyService API interface.
     this.mService = retrofit.create(RestIPLegacyService.class);
-    this.prefs = prefs;
   }
 
   //endregion --------------------------------------------------------------------------------------
@@ -101,12 +94,7 @@ public class StudIpLegacyApiService {
    */
   public Observable<ForumCategory> getForumCategories(final String courseId) {
     return mService.getForumCategories(courseId)
-        .flatMap(new Func1<ForumCategories, Observable<? extends ForumCategory>>() {
-          @Override public Observable<? extends ForumCategory> call(
-              ForumCategories forumCategories) {
-            return Observable.from(forumCategories.forumCategories);
-          }
-        });
+        .flatMap(forumCategories -> Observable.from(forumCategories.forumCategories));
   }
 
   /**
@@ -134,21 +122,13 @@ public class StudIpLegacyApiService {
    */
   public Observable<ForumEntry> getForumTopicEntries(final String topicId, final int offset) {
     return mService.getForumTopicEntries(topicId, offset, 10)
-        .flatMap(new Func1<ForumEntries, Observable<? extends ForumEntry>>() {
-          @Override public Observable<? extends ForumEntry> call(ForumEntries forumEntries) {
-
-            return Observable.from(forumEntries.entries);
-          }
-        })
+        .flatMap(forumEntries -> Observable.from(forumEntries.entries))
         .flatMap(new Func1<ForumEntry, Observable<ForumEntry>>() {
           @Override public Observable<ForumEntry> call(ForumEntry entry) {
-            return Observable.zip(Observable.just(entry), getUser(entry.userId),
-                new Func2<ForumEntry, User, ForumEntry>() {
-                  @Override public ForumEntry call(ForumEntry entry, User user) {
-                    entry.user = user;
-                    return entry;
-                  }
-                });
+            return Observable.zip(Observable.just(entry), getUser(entry.userId), (entry1, user) -> {
+              entry1.user = user;
+              return entry1;
+            });
           }
         });
   }
@@ -168,17 +148,10 @@ public class StudIpLegacyApiService {
     //    }
 
     return mService.getUser(userId)
-        .flatMap(new Func1<UserItem, Observable<? extends User>>() {
-          @Override public Observable<? extends User> call(UserItem userItem) {
-            return Observable.just(userItem.user);
-          }
-        })
-        .onErrorReturn(new Func1<Throwable, User>() {
-          @Override public User call(Throwable throwable) {
-            return new User(null, null, null, null, "Deleted", "User", null, null, null, null, null,
-                null, null, null, 0);
-          }
-        });
+        .flatMap(userItem -> Observable.just(userItem.user))
+        .onErrorReturn(
+            throwable -> new User(null, null, null, null, "Deleted", "User", null, null, null, null,
+                null, null, null, null, 0));
   }
 
   /**
@@ -196,24 +169,12 @@ public class StudIpLegacyApiService {
   }
 
   /**
-   * Marks the whole forum of a course as read. With the legacy API, this is currently the only way
-   * to mark anything in the forum as read. It takes a String containing the course id and a
-   * callback, which is called when the action was completed.
-   *
-   * @param courseId String containing the course id to mark the forum for as read.
-   * @param callback A {@link Callback} which is executed upon completion of the action.
-   */
-  public void setForumRead(final String courseId, final Callback<ForumCategory> callback) {
-    mService.setForumRead(courseId, callback);
-  }
-
-  /**
    * Gets various settings of the API and the underlying Stud.IP installation.
    *
-   * @return An {@link Observable} wrapping a {@link Settings} object containing various setting
+   * @return An {@link Observable} wrapping a {@link SettingsEntity} object containing various setting
    * information.
    */
-  public Observable<Settings> getSettings() {
+  public Observable<SettingsEntity> getSettings() {
     return mService.getSettings();
   }
 
@@ -249,9 +210,9 @@ public class StudIpLegacyApiService {
    * @return An {@link User} wrapped in qn {@link Observable} containing information about the
    * currently signed in user.
    */
-  public Observable<User> getCurrentUserInfo() {
+  public Observable<UserEntity> getCurrentUser() {
     return mService.getCurrentUserInfo()
-        .flatMap(userItem -> Observable.defer(() -> Observable.just(userItem.user)));
+        .map(userEntityWrapper -> userEntityWrapper.getUserEntity());
   }
 
   /**
@@ -301,15 +262,15 @@ public class StudIpLegacyApiService {
         }));
   }
 
+  private Observable<Semester> getSemester(String semesterId) {
+    return mService.getSemester(semesterId)
+        .flatMap(semesterWrapper -> Observable.defer(
+            () -> Observable.just(semesterWrapper.getSemester())));
+  }
+
   public Observable<List<EventEntity>> getEvents(final String courseId) {
     return mService.getEvents(courseId)
         .flatMap(events -> Observable.defer(() -> Observable.just(events.eventEntities)));
-  }
-
-  public Observable<List<UserEntity>> getUsersFor(List<String> userIds) {
-    return Observable.from(userIds)
-        .flatMap(this::getUserEntity)
-        .toList();
   }
 
   /**
@@ -429,16 +390,6 @@ public class StudIpLegacyApiService {
   }
 
   /**
-   * Gets the {@link Institutes} the user specified by the users ID is registered in.
-   *
-   * @param userId The users ID for whom to load the {@link Institutes} for.
-   * @return A List {@link Institutes}
-   */
-  public Observable<InstitutesContainer> getInstitutes(final String userId) {
-    return mService.getInstitutes(userId);
-  }
-
-  /**
    * Gets the {@link ContactGroups} of the user.
    *
    * @return A list of {@link ContactGroups}
@@ -464,69 +415,11 @@ public class StudIpLegacyApiService {
     return contEntityObs.toList();
   }
 
-  /**
-   * Adds a specified user to the group specified by the group id.
-   *
-   * @param groupId The id of the group the user shall be added to.
-   * @param userId  The id of the user to add to the group.
-   * @return The refreshed list of contacts groups.
-   */
-  public Observable<ContactGroups> addUserToContactsGroup(final String groupId,
-      final String userId) {
-    return mService.addUserToContactsGroup(groupId, userId);
-  }
-
-  /**
-   * Deletes a specified user from the group specified by the passed group id.
-   *
-   * @param groupId The id of the group the user shall be deleted from.
-   * @param userId  The id of the user which shall be deleted from the group.
-   * @return Nothing
-   */
-  public Observable<Void> deleteUserFromContactsGroup(final String groupId, final String userId) {
-    return mService.deleteUserFormContactsGroup(groupId, userId);
-  }
-
-  /**
-   * Adds a specified user to the contacts.
-   *
-   * @param userId The id of the user which shall be added to the contacts.
-   * @return The new contacts list.
-   */
-  //  public Observable<Contacts> addUserToContacts(final String userId) {
-  //    return mService.addUserToContatcs(userId);
-  //  }
-  public Observable<Void> deleteUserFromContacts(final String userId) {
-    return mService.deleteUserFromContacts(userId);
-  }
-
-  private Observable<Semester> getSemester(String semesterId) {
-    return mService.getSemester(semesterId)
-        .flatMap(semesterWrapper -> Observable.defer(
-            () -> Observable.just(semesterWrapper.getSemester())));
-  }
-
-  /**
-   * Gets a list of the users {@link Courses}.
-   *
-   * @return A list of the users {@link Courses}.
-   *
-   */
-  public Observable<List<Course>> getCourses() {
-    return mService.getCourses()
-        .flatMap(courses -> Observable.from(courses.courses))
-        .flatMap(course -> getSemester(course.getSemesterId()).flatMap(
-            semester -> Observable.defer(() -> {
-              course.setSemester(semester);
-              return Observable.just(course);
-            })))
-        .toList();
-  }
-
   public Observable<List<NewsEntity>> getNews() {
 
     final Observable<NewsEntity> globalNews = getNewsGlobal();
-    final Observable<NewsEntity> institutesNews = getNewsInstitutes(prefs.getUserId());
+    final Observable<NewsEntity> institutesNews = getCurrentUser().flatMap(
+        userEntity -> getNewsInstitutes(userEntity.getUserId()));
 
     return Observable.merge(globalNews, institutesNews)
         .toSortedList((newsEntity, newsEntity2) -> newsEntity2.getDate()
@@ -537,17 +430,20 @@ public class StudIpLegacyApiService {
     return getNewsForRange(StudIPConstants.STUDIP_NEWS_GLOBAL_RANGE);
   }
 
-  public Observable<NewsEntity> getNewsCourses() {
-    return getCourses().flatMap(courses -> Observable.defer(() -> Observable.from(courses))
-        .flatMap(this::getNewsForCourse));
-  }
-
-  private Observable<NewsEntity> getNewsForCourse(final Course course) {
-    return getNewsForRange(course.getCourseId()).flatMap(newsEntity -> {
-      newsEntity.setCourse(course);
-
-      return Observable.defer(() -> Observable.just(newsEntity));
-    });
+  /**
+   * Gets a list of the users {@link Courses}.
+   *
+   * @return A list of the users {@link Courses}.
+   */
+  public Observable<List<Course>> getCourses() {
+    return mService.getCourses()
+        .flatMap(courses -> Observable.from(courses.courses))
+        .flatMap(course -> getSemester(course.getSemesterId()).flatMap(
+            semester -> Observable.defer(() -> {
+              course.setSemester(semester);
+              return Observable.just(course);
+            })))
+        .toList();
   }
 
   public Observable<NewsEntity> getNewsForRange(final String range) {
@@ -587,33 +483,23 @@ public class StudIpLegacyApiService {
           return Observable.defer(() -> Observable.just(newsItem.news));
         }));
   }
-
-  public Observable<Semesters> getSemesters() {
-    return mService.getSemesters();
-  }
-
-  public Completable addUserToContacts(String userId) {
-    return null;
-  }
   //endregion --------------------------------------------------------------------------------------
 
   //region INTERFACES ------------------------------------------------------------------------------
   public interface RestIPLegacyService {
     /* Forums */
-    @PUT("courses/{course_id}/set_forum_read") void setForumRead(@Path("course_id") String courseId,
-        Callback<ForumCategory> cb);
-
     @GET("courses/{course_id}/forum_categories") Observable<ForumCategories> getForumCategories(
         @Path("course_id") String courseId);
 
-    @GET("forum_category/{category_id}/areas") Observable<ForumAreas> getForumAreas(@Path(
-        "category_id") String categoryId, @Query("offset") int offset, @Query("limit") int limit);
+    @GET("forum_category/{category_id}/areas") Observable<ForumAreas> getForumAreas(
+        @Path("category_id") String categoryId, @Query("offset") int offset,
+        @Query("limit") int limit);
 
-    @GET("forum_entry/{topic_id}/children") Observable<ForumEntries> getForumTopicEntries(@Path(
-        "topic_id") String topicId, @Query("offset") int offset, @Query("limit") int limit);
+    @GET("forum_entry/{topic_id}/children") Observable<ForumEntries> getForumTopicEntries(
+        @Path("topic_id") String topicId, @Query("offset") int offset, @Query("limit") int limit);
 
-    @FormUrlEncoded @POST("forum_entry/{topic_id}") Observable<ForumArea> createForumEntry(@Path(
-        "topic_id") String topicId, @Field("subject") String entrySubject,
+    @FormUrlEncoded @POST("forum_entry/{topic_id}") Observable<ForumArea> createForumEntry(
+        @Path("topic_id") String topicId, @Field("subject") String entrySubject,
         @Field("content") String entryContent);
 
     /* User */
@@ -623,7 +509,7 @@ public class StudIpLegacyApiService {
     @GET("user/{user_id}") Observable<UserEntityWrapper> getUserEntity(
         @Path("user_id") String userId);
 
-    @GET("user") Observable<UserItem> getCurrentUserInfo();
+    @GET("user") Observable<UserEntityWrapper> getCurrentUserInfo();
 
     /* Events */
     @GET("events") Observable<Events> getEvents();
@@ -632,7 +518,7 @@ public class StudIpLegacyApiService {
         @Path("course_id") String courseId);
 
     /* General */
-    @GET("studip/settings") Observable<Settings> getSettings();
+    @GET("studip/settings") Observable<SettingsEntity> getSettings();
 
     /* Courses */
     @GET("courses/{course_id}") Observable<CourseItem> getCourse(
@@ -677,18 +563,6 @@ public class StudIpLegacyApiService {
     /* Contacts */
     @GET("contacts/groups") Observable<ContactGroups> getContactGroups();
 
-    @PUT("contacts/groups/{group_id}/{user_id}") Observable<ContactGroups> addUserToContactsGroup(
-        @Path("group_id") String groupId, @Path("user_id") String userId);
-
-    @DELETE("contacts/groups/{group_id}/{user_id}") Observable<Void> deleteUserFormContactsGroup(
-        @Path("group_id") String groupId, @Path("user_id") String userId);
-
-    @DELETE("contacts/{user_id}") Observable<Void> deleteUserFromContacts(
-        @Path("user_id") String userId);
-
-    //    @PUT("contacts/{user_id}") Observable<Contacts> addUserToContatcs(
-    //        @Path("user_id") String userId);
-
     /* Courses */
     @GET("courses") Observable<Courses> getCourses();
 
@@ -699,7 +573,6 @@ public class StudIpLegacyApiService {
     @GET("news/{id}") Observable<NewsItemWrapper> getNewsItem(@Path("id") String id);
 
     /* Semesters */
-    @GET("semesters") Observable<Semesters> getSemesters();
     @GET("semesters/{id}") Observable<SemesterWrapper> getSemester(@Path("id") final String id);
   }
   //endregion --------------------------------------------------------------------------------------

@@ -25,7 +25,6 @@ import android.widget.TextView;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.data.RetainingLceViewState;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -34,12 +33,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
-import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
-import de.elanev.studip.android.app.courses.presentation.model.CourseModulesModel;
 import de.elanev.studip.android.app.planner.internal.di.PlannerComponent;
-import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
+import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel;
 import de.elanev.studip.android.app.planner.presentation.presenter.PlannerListPresenter;
-import de.elanev.studip.android.app.planner.presentation.view.adapter.PlanerEventsAdapter;
+import de.elanev.studip.android.app.planner.presentation.view.adapter.PlannerEventsAdapter;
 import de.elanev.studip.android.app.widget.EmptyRecyclerView;
 import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
 
@@ -50,24 +47,24 @@ import de.elanev.studip.android.app.widget.SimpleDividerItemDecoration;
  *         In Stud.IP known as Planner.
  */
 public class PlannerListFragment extends
-    BaseLceFragment<SwipeRefreshLayout, List<PlanerEventModel>, PlannerListView, PlannerListPresenter> implements
+    BaseLceFragment<SwipeRefreshLayout, List<PlannerEventModel>, PlannerListView, PlannerListPresenter> implements
     PlannerListView, SwipeRefreshLayout.OnRefreshListener, PlannerScrollToCurrentListener {
 
   @Inject PlannerListPresenter presenter;
-  private final PlanerEventsAdapter.EventClickListener onClickListener = eventModel -> {
+  private final PlannerEventsAdapter.EventClickListener onClickListener = eventModel -> {
     if (PlannerListFragment.this.presenter != null && eventModel != null) {
       PlannerListFragment.this.presenter.onEventClicked(eventModel);
     }
   };
-  private final PlanerEventsAdapter.EventAddClickListener onLongClickListener = eventModel -> {
+  private final PlannerEventsAdapter.EventAddClickListener onLongClickListener = eventModel -> {
     if (PlannerListFragment.this.presenter != null && eventModel != null) {
       PlannerListFragment.this.presenter.onEventLongClicked(eventModel);
     }
   };
   @BindView(R.id.emptyView) TextView mEmptyView;
   @BindView(R.id.list) EmptyRecyclerView mRecyclerView;
-  private PlanerEventsAdapter mAdapter;
-  private List<PlanerEventModel> data;
+  private PlannerEventsAdapter mAdapter;
+  private List<PlannerEventModel> data;
   private PlannerEventListener plannerEventListener;
 
   public PlannerListFragment() {
@@ -113,7 +110,7 @@ public class PlannerListFragment extends
     super.onCreateOptionsMenu(menu, inflater);
   }
 
-  @NonNull @Override public LceViewState<List<PlanerEventModel>, PlannerListView> createViewState() {
+  @NonNull @Override public LceViewState<List<PlannerEventModel>, PlannerListView> createViewState() {
     return new RetainingLceViewState<>();
   }
 
@@ -127,15 +124,15 @@ public class PlannerListFragment extends
     contentView.setRefreshing(false);
   }
 
-  @Override public List<PlanerEventModel> getData() {
+  @Override public List<PlannerEventModel> getData() {
     return data;
   }
 
-  @Override public void setData(List<PlanerEventModel> eventModels) {
+  @Override public void setData(List<PlannerEventModel> eventModels) {
     this.data = eventModels;
 
     if (this.mAdapter == null) {
-      this.mAdapter = new PlanerEventsAdapter(getContext());
+      this.mAdapter = new PlannerEventsAdapter(getContext());
       this.mAdapter.setOnItemClickListener(onClickListener);
       this.mAdapter.setOnAddIconClickedListener(onLongClickListener);
     }
@@ -179,15 +176,15 @@ public class PlannerListFragment extends
     this.presenter.loadEvents(true);
   }
 
-  @Override public void viewEvent(PlanerEventModel planerEventModel) {
+  @Override public void viewEvent(PlannerEventModel plannerEventModel) {
     if (this.plannerEventListener != null) {
-      this.plannerEventListener.onPlannerEventSelected(planerEventModel);
+      this.plannerEventListener.onPlannerEventSelected(plannerEventModel);
     }
   }
 
-  @Override public void addEventToCalendar(PlanerEventModel planerEventModel) {
+  @Override public void addEventToCalendar(PlannerEventModel plannerEventModel) {
     if (this.plannerEventListener != null) {
-      this.plannerEventListener.onPlannerEventAddToCalendarSelected(planerEventModel);
+      this.plannerEventListener.onPlannerEventAddToCalendarSelected(plannerEventModel);
     }
   }
 

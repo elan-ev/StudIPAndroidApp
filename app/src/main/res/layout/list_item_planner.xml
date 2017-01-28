@@ -21,9 +21,9 @@
     <TextView
         android:id="@+id/text1"
 
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/keyline_1"
+        android:paddingLeft="16dp"
         android:paddingStart="@dimen/keyline_1"
         android:paddingRight="0dp"
         android:paddingEnd="0dp"
@@ -35,19 +35,18 @@
 
         tools:text="Sample Event Title"
         android:layout_toLeftOf="@+id/add_to_calendar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_toRightOf="@+id/canceled_icon"
+        android:layout_toEndOf="@+id/canceled_icon"/>
 
     <TextView
         android:id="@+id/text2"
 
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/keyline_1"
+        android:paddingLeft="16dp"
         android:paddingStart="@dimen/keyline_1"
         android:paddingRight="0dp"
         android:paddingEnd="0dp"
-        android:ellipsize="end"
         android:maxLines="1"
         android:singleLine="true"
         android:textColor="@color/primary_text_light"
@@ -56,18 +55,17 @@
 
         tools:text="Sample Event Room Info 1234"
         android:layout_toLeftOf="@+id/add_to_calendar"
-        android:layout_toStartOf="@id/add_to_calendar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_toRightOf="@+id/canceled_icon"
+        android:layout_toEndOf="@+id/canceled_icon"/>
 
 
     <TextView
         android:id="@+id/text3"
 
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/text2"
-        android:paddingLeft="@dimen/keyline_1"
+        android:paddingLeft="16dp"
         android:paddingStart="@dimen/keyline_1"
         android:paddingRight="0dp"
         android:paddingEnd="0dp"
@@ -79,9 +77,8 @@
 
         tools:text="@string/lipsum_short"
         android:layout_toLeftOf="@+id/add_to_calendar"
-        android:layout_toStartOf="@+id/add_to_calendar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_toRightOf="@+id/canceled_icon"
+        android:layout_toEndOf="@+id/canceled_icon"/>
 
     <ImageView
         android:id="@+id/add_to_calendar"
@@ -94,5 +91,20 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:contentDescription="@string/add_to_calendar"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/keyline_1"
+        android:paddingStart="@dimen/keyline_1"
+        android:paddingRight="0dp"
+        android:paddingEnd="0dp"
+        app:srcCompat="@drawable/ic_cancel_red_24dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/canceled_icon"
+        android:contentDescription="@string/event_canceled"
+        android:visibility="gone"/>
 
 </RelativeLayout>

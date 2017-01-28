@@ -16,7 +16,9 @@ import rx.Observable;
  * @author joern
  */
 public interface UserRepository {
-  Observable<User> user(String userId);
+  Observable<User> user(String userId, boolean forceUpdate);
 
-  Observable<List<User>> getUsers(List<String> userIds);
+  Observable<List<User>> getUsers(List<String> userIds, boolean forceUpdate);
+
+  Observable<User> currentUser(boolean forceUpdate);
 }
