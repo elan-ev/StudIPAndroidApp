@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.base.data.net.StudIpLegacyApiService;
 import de.elanev.studip.android.app.user.data.entity.UserEntity;
 import de.elanev.studip.android.app.user.data.entity.UserEntityUtil;
 import rx.Observable;

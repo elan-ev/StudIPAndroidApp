@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@ import android.os.StrictMode;
 
 import com.squareup.picasso.Picasso;
 
-import de.elanev.studip.android.app.util.ApiUtils;
 import timber.log.Timber;
 
 /**
@@ -36,11 +35,8 @@ public class StudIPApplication extends AbstractStudIPApplication {
         .build());
     StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
     builder.detectLeakedSqlLiteObjects()
-        .penaltyLog();
-
-    if (ApiUtils.isOverApi11()) {
-      builder.detectLeakedClosableObjects();
-    }
+        .penaltyLog()
+        .detectLeakedClosableObjects();
     StrictMode.setVmPolicy(builder.build());
 
     Picasso.with(this)

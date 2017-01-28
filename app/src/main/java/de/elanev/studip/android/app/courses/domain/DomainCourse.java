@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -34,7 +34,7 @@ public class DomainCourse {
   private int type;
   private String typeString;
   private DomainCourseAdditionalData courseAdditionalData;
-  private DomainSemester semester;
+  private Semester semester;
 
   public String getTypeString() {
     return typeString;
@@ -180,11 +180,11 @@ public class DomainCourse {
     this.courseAdditionalData = courseAdditionalData;
   }
 
-  public DomainSemester getSemester() {
+  public Semester getSemester() {
     return semester;
   }
 
-  public void setSemester(DomainSemester semester) {
+  public void setSemester(Semester semester) {
     this.semester = semester;
   }
 

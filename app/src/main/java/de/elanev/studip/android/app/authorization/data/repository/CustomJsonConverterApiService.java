@@ -8,7 +8,7 @@
 
 package de.elanev.studip.android.app.authorization.data.repository;
 
-import de.elanev.studip.android.app.data.datamodel.Routes;
+import de.elanev.studip.android.app.base.data.entity.Routes;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
 import rx.Observable;

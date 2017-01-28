@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
-import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.base.data.net.StudIpLegacyApiService;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -33,12 +33,12 @@ import rx.subscriptions.CompositeSubscription;
 public abstract class ReactiveListFragment extends ReactiveFragment {
   private static final String TAG = ReactiveListFragment.class.getSimpleName();
   protected final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+  @Inject public StudIpLegacyApiService mApiService;
   @BindView(R.id.swipe_layout) protected SwipeRefreshLayout mSwipeRefreshLayout;
   @BindView(R.id.list) protected EmptyRecyclerView mRecyclerView;
   @BindView(R.id.emptyView) protected TextView mEmptyView;
   @BindView(R.id.layout_container) protected View mContainerLayout;
   protected RecyclerView.ItemDecoration mDividerItemDecoration;
-  @Inject public StudIpLegacyApiService mApiService;
   protected boolean mRecreated = false;
   private boolean mIsRefreshing;
 

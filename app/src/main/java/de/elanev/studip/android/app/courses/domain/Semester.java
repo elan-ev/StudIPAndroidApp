@@ -1,21 +1,18 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.data.datamodel;
-
-import io.realm.RealmObject;
-import io.realm.annotations.PrimaryKey;
+package de.elanev.studip.android.app.courses.domain;
 
 /**
  * @author joern
  */
-public class RealmSemesterEntity extends RealmObject {
-  @PrimaryKey private String semesterId;
+public class Semester {
+  private String semesterId;
   private String title;
   private String description;
   private long begin;

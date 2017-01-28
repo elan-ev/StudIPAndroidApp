@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.authorization.data.entity.SettingsEntity;
-import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.base.data.net.StudIpLegacyApiService;
 import rx.Observable;
 
 /**

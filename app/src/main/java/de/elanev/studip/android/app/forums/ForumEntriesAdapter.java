@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ class ForumEntriesAdapter extends RecyclerView.Adapter<ForumEntriesAdapter.ViewH
         viewHolder.mAuthorTextView.setText(item.user.getFullName());
         Picasso.with(mContext).cancelRequest(viewHolder.mUserImageView);
         Picasso.with(mContext)
-            .load(item.user.avatarNormal)
+            .load(item.user.getAvatarUrl())
             .resizeDimen(R.dimen.user_image_crop_size, R.dimen.user_image_crop_size)
             .centerCrop()
             .placeholder(R.drawable.nobody_normal)

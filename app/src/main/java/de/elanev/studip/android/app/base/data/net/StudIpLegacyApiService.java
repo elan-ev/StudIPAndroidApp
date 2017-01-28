@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-package de.elanev.studip.android.app.data.net.services;
+package de.elanev.studip.android.app.base.data.net;
 
 import java.util.List;
 
@@ -26,23 +26,22 @@ import de.elanev.studip.android.app.courses.data.entity.ForumCategory;
 import de.elanev.studip.android.app.courses.data.entity.ForumEntries;
 import de.elanev.studip.android.app.courses.data.entity.ForumEntry;
 import de.elanev.studip.android.app.courses.data.entity.Recording;
-import de.elanev.studip.android.app.data.datamodel.Institutes;
-import de.elanev.studip.android.app.data.datamodel.InstitutesContainer;
-import de.elanev.studip.android.app.data.datamodel.NewsItemWrapper;
-import de.elanev.studip.android.app.data.datamodel.Semester;
-import de.elanev.studip.android.app.data.datamodel.SemesterWrapper;
-import de.elanev.studip.android.app.data.datamodel.User;
-import de.elanev.studip.android.app.data.datamodel.UserItem;
+import de.elanev.studip.android.app.courses.data.entity.SemesterEntity;
+import de.elanev.studip.android.app.courses.data.entity.SemesterWrapper;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntities;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntity;
 import de.elanev.studip.android.app.messages.data.entity.MessageEntityWrapper;
 import de.elanev.studip.android.app.messages.data.entity.MessageFolders;
+import de.elanev.studip.android.app.news.data.entity.InstitutesEntity;
+import de.elanev.studip.android.app.news.data.entity.InstitutesEntityWrapper;
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.news.data.entity.NewsEntityList;
+import de.elanev.studip.android.app.news.data.entity.NewsEntityWrapper;
 import de.elanev.studip.android.app.planner.data.entity.EventEntity;
 import de.elanev.studip.android.app.planner.data.entity.Events;
 import de.elanev.studip.android.app.user.data.entity.UserEntity;
 import de.elanev.studip.android.app.user.data.entity.UserEntityWrapper;
+import de.elanev.studip.android.app.user.presentation.model.UserModel;
 import retrofit2.Retrofit;
 import retrofit2.http.DELETE;
 import retrofit2.http.Field;
@@ -123,35 +122,35 @@ public class StudIpLegacyApiService {
   public Observable<ForumEntry> getForumTopicEntries(final String topicId, final int offset) {
     return mService.getForumTopicEntries(topicId, offset, 10)
         .flatMap(forumEntries -> Observable.from(forumEntries.entries))
-        .flatMap(new Func1<ForumEntry, Observable<ForumEntry>>() {
-          @Override public Observable<ForumEntry> call(ForumEntry entry) {
-            return Observable.zip(Observable.just(entry), getUser(entry.userId), (entry1, user) -> {
-              entry1.user = user;
-              return entry1;
-            });
-          }
+        .flatMap(forumEntry -> {
+          Observable<UserEntity> userObs = getUserEntity(forumEntry.userId);
+          return userObs.flatMap(userEntity -> {
+            UserModel user = new UserModel();
+            user.setAvatarUrl(userEntity.getAvatarNormal());
+            user.setFullName(userEntity.getFullName());
+            user.setUserId(userEntity.getUserId());
+            forumEntry.user = user;
+
+            return Observable.just(forumEntry);
+          });
         });
   }
 
   /**
    * Takes a user id as argument and returns an {@link Observable} wrapping the user correspondig
-   * to the {@link User}.
+   * to the {@link UserEntity}.
    *
    * @param userId String id identifying the user to load the info for.
-   * @return An {@link Observable} wrapping an {@link User} object corresponding to the passed
+   * @return An {@link Observable} wrapping an {@link UserEntity} object corresponding to the passed
    * user id.
    */
-  public Observable<User> getUser(final String userId) {
-    //    User u = getUserFromContentProvider(userId);
-    //    if (u != null) {
-    //      return Observable.just(u);
-    //    }
+  public Observable<UserEntity> getUserEntity(final String userId) {
 
-    return mService.getUser(userId)
-        .flatMap(userItem -> Observable.just(userItem.user))
-        .onErrorReturn(
-            throwable -> new User(null, null, null, null, "Deleted", "User", null, null, null, null,
-                null, null, null, null, 0));
+    return mService.getUserEntity(userId)
+        .flatMap(userEntityWrapper -> Observable.defer(
+            () -> Observable.just(userEntityWrapper.getUserEntity())))
+        .onErrorReturn(throwable -> null)
+        .filter(userEntity -> userEntity != null);
   }
 
   /**
@@ -207,7 +206,7 @@ public class StudIpLegacyApiService {
   /**
    * Gets information of the currently signed in user.
    *
-   * @return An {@link User} wrapped in qn {@link Observable} containing information about the
+   * @return An {@link UserEntity} wrapped in qn {@link Observable} containing information about the
    * currently signed in user.
    */
   public Observable<UserEntity> getCurrentUser() {
@@ -257,15 +256,15 @@ public class StudIpLegacyApiService {
     return mService.getCourse(courseId)
         .flatMap(courseItem -> Observable.defer(() -> Observable.just(courseItem.course)))
         .flatMap(course -> getSemester(course.getSemesterId()).flatMap(semester -> {
-          course.setSemester(semester);
+          course.setSemesterEntity(semester);
           return Observable.defer(() -> Observable.just(course));
         }));
   }
 
-  private Observable<Semester> getSemester(String semesterId) {
+  private Observable<SemesterEntity> getSemester(String semesterId) {
     return mService.getSemester(semesterId)
         .flatMap(semesterWrapper -> Observable.defer(
-            () -> Observable.just(semesterWrapper.getSemester())));
+            () -> Observable.just(semesterWrapper.getSemesterEntity())));
   }
 
   public Observable<List<EventEntity>> getEvents(final String courseId) {
@@ -300,23 +299,6 @@ public class StudIpLegacyApiService {
               return message;
             })))
         .toList();
-  }
-
-  /**
-   * Takes a user id as argument and returns an {@link Observable} wrapping the user correspondig
-   * to the {@link User}.
-   *
-   * @param userId String id identifying the user to load the info for.
-   * @return An {@link Observable} wrapping an {@link User} object corresponding to the passed
-   * user id.
-   */
-  public Observable<UserEntity> getUserEntity(final String userId) {
-
-    return mService.getUserEntity(userId)
-        .flatMap(userEntityWrapper -> Observable.defer(
-            () -> Observable.just(userEntityWrapper.getUserEntity())))
-        .onErrorReturn(throwable -> null)
-        .filter(userEntity -> userEntity != null);
   }
 
   /**
@@ -440,7 +422,7 @@ public class StudIpLegacyApiService {
         .flatMap(courses -> Observable.from(courses.courses))
         .flatMap(course -> getSemester(course.getSemesterId()).flatMap(
             semester -> Observable.defer(() -> {
-              course.setSemester(semester);
+              course.setSemesterEntity(semester);
               return Observable.just(course);
             })))
         .toList();
@@ -462,15 +444,18 @@ public class StudIpLegacyApiService {
 
   public Observable<NewsEntity> getNewsInstitutes(final String userId) {
     return mService.getInstitutes(userId)
-        .flatMap(institutesContainer -> {
-          final Observable studyInstitutes = Observable.from(institutesContainer.getInstitutes()
+        .flatMap(institutesEntityWrapper -> {
+          final Observable studyInstitutes = Observable.from(
+              institutesEntityWrapper.getInstitutesEntity()
               .getStudy());
-          final Observable workInstitutes = Observable.from(institutesContainer.getInstitutes()
+          final Observable workInstitutes = Observable.from(
+              institutesEntityWrapper.getInstitutesEntity()
               .getWork());
 
-          return Observable.mergeDelayError(
-              Observable.defer((Func0<Observable<Institutes.Institute>>) () -> studyInstitutes),
-              Observable.defer((Func0<Observable<Institutes.Institute>>) () -> workInstitutes))
+          return Observable.mergeDelayError(Observable.defer(
+              (Func0<Observable<InstitutesEntity.Institute>>) () -> studyInstitutes),
+              Observable.defer(
+                  (Func0<Observable<InstitutesEntity.Institute>>) () -> workInstitutes))
               .flatMap(institute -> getNewsForRange(institute.getInstituteId()));
         });
   }
@@ -501,9 +486,6 @@ public class StudIpLegacyApiService {
     @FormUrlEncoded @POST("forum_entry/{topic_id}") Observable<ForumArea> createForumEntry(
         @Path("topic_id") String topicId, @Field("subject") String entrySubject,
         @Field("content") String entryContent);
-
-    /* User */
-    @GET("user/{user_id}") Observable<UserItem> getUser(@Path("user_id") String userId);
 
     /* User */
     @GET("user/{user_id}") Observable<UserEntityWrapper> getUserEntity(
@@ -557,7 +539,7 @@ public class StudIpLegacyApiService {
         @Path("message_id") String messageId);
 
     /* Institutes */
-    @GET("user/{user_id}/institutes") Observable<InstitutesContainer> getInstitutes(
+    @GET("user/{user_id}/institutes") Observable<InstitutesEntityWrapper> getInstitutes(
         @Path("user_id") String userId);
 
     /* Contacts */
@@ -570,7 +552,7 @@ public class StudIpLegacyApiService {
     @GET("news/range/{range}") Observable<NewsEntityList> getNewsEntityForRange(
         @Path("range") String range, @Query("offset") int offset, @Query("limit") int limit);
 
-    @GET("news/{id}") Observable<NewsItemWrapper> getNewsItem(@Path("id") String id);
+    @GET("news/{id}") Observable<NewsEntityWrapper> getNewsItem(@Path("id") String id);
 
     /* Semesters */
     @GET("semesters/{id}") Observable<SemesterWrapper> getSemester(@Path("id") final String id);

@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.elanev.studip.android.app.data.datamodel.Routes;
+import de.elanev.studip.android.app.base.data.entity.Routes;
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
 

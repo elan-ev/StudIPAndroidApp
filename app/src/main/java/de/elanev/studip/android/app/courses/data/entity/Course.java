@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -18,8 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.util.List;
-
-import de.elanev.studip.android.app.data.datamodel.Semester;
 
 
 /**
@@ -46,7 +44,7 @@ public class Course {
   private String color;
   private int type;
   private CourseAdditionalData courseAdditionalData;
-  private Semester semester;
+  private SemesterEntity semesterEntity;
 
   @JsonIgnore public static String getID() {
     return ID;
@@ -173,12 +171,12 @@ public class Course {
     this.courseAdditionalData = courseAdditionalData;
   }
 
-  @JsonIgnore public Semester getSemester() {
-    return this.semester;
+  @JsonIgnore public SemesterEntity getSemesterEntity() {
+    return this.semesterEntity;
   }
 
-  @JsonIgnore public void setSemester(Semester semester) {
-    this.semester = semester;
+  @JsonIgnore public void setSemesterEntity(SemesterEntity semesterEntity) {
+    this.semesterEntity = semesterEntity;
   }
 
   @Override public int hashCode() {
@@ -197,7 +195,7 @@ public class Course {
     result = 31 * result + color.hashCode();
     result = 31 * result + type;
     result = 31 * result + (courseAdditionalData != null ? courseAdditionalData.hashCode() : 0);
-    result = 31 * result + (semester != null ? semester.hashCode() : 0);
+    result = 31 * result + (semesterEntity != null ? semesterEntity.hashCode() : 0);
     return result;
   }
 
@@ -224,7 +222,9 @@ public class Course {
     if (courseAdditionalData != null
         ? !courseAdditionalData.equals(course.courseAdditionalData)
         : course.courseAdditionalData != null) return false;
-    return semester != null ? semester.equals(course.semester) : course.semester == null;
+    return semesterEntity != null
+        ? semesterEntity.equals(course.semesterEntity)
+        : course.semesterEntity == null;
 
   }
 }

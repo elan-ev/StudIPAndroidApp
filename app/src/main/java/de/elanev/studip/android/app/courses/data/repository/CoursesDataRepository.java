@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -55,9 +55,9 @@ public class CoursesDataRepository implements CoursesRepository {
           return Observable.just(courseEntities);
         })
         .flatMap(courses -> Observable.from(courses)
-            .toSortedList((course, course2) -> course2.getSemester()
+            .toSortedList((course, course2) -> course2.getSemesterEntity()
                 .getBegin()
-                .compareTo(course.getSemester()
+                .compareTo(course.getSemesterEntity()
                     .getBegin())))
         .map(courseEntityDataMapper::transform);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeoutException;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.courses.data.entity.ForumEntry;
-import de.elanev.studip.android.app.data.datamodel.User;
+import de.elanev.studip.android.app.user.presentation.model.UserModel;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
@@ -37,7 +37,6 @@ import timber.log.Timber;
  * @author joern
  */
 public class ForumEntryFragment extends ReactiveListFragment {
-  private static final String TAG = ForumEntryFragment.class.getSimpleName();
   private static final int CREATE_ENTRY = 3001;
   private static ForumEntry rootEntry;
   private final int visibleThreshold = 5;
@@ -116,8 +115,8 @@ public class ForumEntryFragment extends ReactiveListFragment {
     mContent = args.getString(ForumEntry.CONTENT);
     mSubject = args.getString(ForumEntry.SUBJECT);
     mDate = args.getLong(ForumEntry.DATE);
-    mFullName = args.getString(User.NAME);
-    mAvatar = args.getString(User.AVATAR);
+    mFullName = args.getString(ForumEntryActivity.USER_NAME);
+    mAvatar = args.getString(ForumEntryActivity.USER_AVATAR);
 
 
     mAdapter = new ForumEntryAdapter(new ArrayList<ForumEntry>(), new ListItemClicks() {
@@ -179,9 +178,9 @@ public class ForumEntryFragment extends ReactiveListFragment {
       rootEntry.subject = mSubject;
       rootEntry.content = mContent;
       rootEntry.mkdate = mDate;
-      rootEntry.user = new User();
-      rootEntry.user.lastname = mFullName;
-      rootEntry.user.avatarNormal = mAvatar;
+      rootEntry.user = new UserModel();
+      rootEntry.user.setFullName(mFullName);
+      rootEntry.user.setAvatarUrl(mAvatar);
       mAdapter.clear();
       mAdapter.add(rootEntry);
     }

@@ -25,7 +25,6 @@ import de.elanev.studip.android.app.base.internal.di.components.ApplicationCompo
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.news.presentation.NewsActivity;
-import de.elanev.studip.android.app.util.ApiUtils;
 
 /**
  * Activity for handling the full sign in and authorization process. It triggers
@@ -42,15 +41,6 @@ public class SignInActivity extends BaseActivity implements ServerListFragment.E
 
   public static Intent getCallingIntent(Context context) {
     return new Intent(context, SignInActivity.class);
-  }
-
-  /* Disable back button on older devices */
-  @Override public void onBackPressed() {
-    if (!ApiUtils.isOverApi11()) {
-      return;
-    }
-
-    super.onBackPressed();
   }
 
   //  void showTutorial() {

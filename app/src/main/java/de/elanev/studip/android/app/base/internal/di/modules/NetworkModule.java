@@ -19,7 +19,7 @@ import de.elanev.studip.android.app.authorization.data.entity.CredentialsEntityD
 import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
 import de.elanev.studip.android.app.authorization.data.repository.CustomJsonConverterApiService;
 import de.elanev.studip.android.app.authorization.domain.model.OAuthCredentials;
-import de.elanev.studip.android.app.data.net.services.StudIpLegacyApiService;
+import de.elanev.studip.android.app.base.data.net.StudIpLegacyApiService;
 import de.elanev.studip.android.app.util.Prefs;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
