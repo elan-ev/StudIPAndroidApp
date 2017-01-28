@@ -40,9 +40,9 @@ public class GetCourseUsers extends UseCase<CourseUsers> {
   @Override protected Observable<CourseUsers> buildUseCaseObservable(boolean forceUpdate) {
     return this.coursesRepository.course(id, forceUpdate)
         .flatMap(course -> {
-          Observable<List<User>> teachersObs = userRepository.getUsers(course.getTeachers());
-          Observable<List<User>> tutorsObs = userRepository.getUsers(course.getTutors());
-          Observable<List<User>> studentsObs = userRepository.getUsers(course.getStudents());
+          Observable<List<User>> teachersObs = userRepository.getUsers(course.getTeachers(), forceUpdate);
+          Observable<List<User>> tutorsObs = userRepository.getUsers(course.getTutors(), forceUpdate);
+          Observable<List<User>> studentsObs = userRepository.getUsers(course.getStudents(), forceUpdate);
 
           return Observable.zip(teachersObs, tutorsObs, studentsObs,
               (teachers, tutors, students) -> {

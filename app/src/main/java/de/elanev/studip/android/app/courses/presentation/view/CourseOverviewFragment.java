@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -40,10 +40,8 @@ import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
 import de.elanev.studip.android.app.courses.presentation.model.CourseOverviewModel;
 import de.elanev.studip.android.app.courses.presentation.model.CourseScheduleModel;
 import de.elanev.studip.android.app.courses.presentation.presenter.CourseOverviewPresenter;
-import de.elanev.studip.android.app.data.datamodel.Settings;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.util.DateTools;
-import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * @author joern
@@ -69,7 +67,6 @@ public class CourseOverviewFragment extends
   @BindView(R.id.description_view) View descriptionView;
 
   @Inject CourseOverviewPresenter presenter;
-  @Inject Prefs prefs;
   private CourseOverviewModel courseOverviewModel;
 
   public CourseOverviewFragment() {setRetainInstance(true);}
@@ -177,12 +174,7 @@ public class CourseOverviewFragment extends
     courseTitle.setText(course.getTitle());
     getActivity().setTitle(course.getTitle());
 
-    String courseTypeString = "";
-    Settings settings = Settings.fromJson(prefs.getApiSettings());
-    if (settings != null && settings.semTypes != null) {
-      courseTypeString = settings.semTypes.get(course.getType()).name;
-    }
-    courseType.setText(courseTypeString);
+    courseType.setText(course.getTypeString());
     if (!TextUtils.isEmpty(course.getDescription())) {
       courseDescription.setText(course.getDescription());
       courseDescription.setMovementMethod(new ScrollingMovementMethod());

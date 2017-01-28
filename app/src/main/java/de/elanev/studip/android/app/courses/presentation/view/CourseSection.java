@@ -24,7 +24,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
-import de.elanev.studip.android.app.data.datamodel.Settings;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 import timber.log.Timber;
 
@@ -33,17 +32,15 @@ import timber.log.Timber;
  */
 
 class CourseSection extends StatelessSection {
-  private final Settings settings;
   private final String title;
   private final Context context;
   private List<CourseModel> data = new ArrayList<>();
   private CourseClickListener onItemClickListener;
 
-  public CourseSection(String title, Settings settings, Context context) {
+  public CourseSection(String title, Context context) {
     super(R.layout.list_item_header, R.layout.list_item_two_text_icon);
 
     this.title = title;
-    this.settings = settings;
     this.context = context;
   }
 
@@ -89,11 +86,7 @@ class CourseSection extends StatelessSection {
     String title = course.getTitle();
     int type = course.getType();
     String color = course.getColor();
-
-    String typeTitle = "";
-    if (settings != null && settings.semTypes != null) {
-      typeTitle = settings.semTypes.get(type).name;
-    }
+    String typeTitle = course.getTypeString();
 
     viewHolder.title.setText(title);
     viewHolder.courseTyp.setText(typeTitle);

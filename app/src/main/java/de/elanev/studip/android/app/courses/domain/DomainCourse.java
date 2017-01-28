@@ -32,8 +32,17 @@ public class DomainCourse {
   private List<User> studentEntities;
   private String color;
   private int type;
+  private String typeString;
   private DomainCourseAdditionalData courseAdditionalData;
   private DomainSemester semester;
+
+  public String getTypeString() {
+    return typeString;
+  }
+
+  public void setTypeString(String typeString) {
+    this.typeString = typeString;
+  }
 
   public List<User> getStudentEntities() {
     return studentEntities;

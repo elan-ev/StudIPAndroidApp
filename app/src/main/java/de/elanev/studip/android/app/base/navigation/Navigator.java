@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.about.AboutActivity;
-import de.elanev.studip.android.app.auth.SignInActivity;
+import de.elanev.studip.android.app.authorization.presentation.view.SignInActivity;
 import de.elanev.studip.android.app.authorization.presentation.view.LogoutActivity;
 import de.elanev.studip.android.app.courses.presentation.view.CoursesActivity;
 import de.elanev.studip.android.app.feedback.FeedbackActivity;

@@ -8,6 +8,10 @@
 
 package de.elanev.studip.android.app.authorization.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import de.elanev.studip.android.app.R;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -15,7 +19,7 @@ import io.realm.annotations.PrimaryKey;
 /**
  * @author joern
  */
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EndpointEntity extends RealmObject {
   @PrimaryKey private String id;
   private String name;
@@ -25,75 +29,75 @@ public class EndpointEntity extends RealmObject {
   private String contactEmail;
   private int iconRes = R.drawable.ic_institute_blue;
 
-  public String getId() {
+  @JsonIgnore public String getId() {
     return id;
   }
 
-  public void setId(String id) {
+  @JsonIgnore public void setId(String id) {
     this.id = id;
   }
 
-  public String getBaseUrl() {
+  @JsonProperty("base_url") public String getBaseUrl() {
     return baseUrl;
   }
 
-  public void setBaseUrl(String baseUrl) {
+  @JsonProperty("base_url") public void setBaseUrl(String baseUrl) {
     this.baseUrl = baseUrl;
   }
 
-  public String getRequestUrl() {
+  @JsonIgnore public String getRequestUrl() {
     return baseUrl + "/oauth/request_token";
   }
 
-  public String getAuthorizationUrl() {
+  @JsonIgnore public String getAuthorizationUrl() {
     return baseUrl + "/oauth/authorize";
   }
 
-  public String getAccessUrl() {
+  @JsonIgnore public String getAccessUrl() {
     return baseUrl + "/oauth/access_token";
   }
 
-  public String getApiUrl() {
+  @JsonIgnore public String getApiUrl() {
     return baseUrl + "/api";
   }
 
-  public String getName() {
+  @JsonProperty("name") public String getName() {
     return name;
   }
 
-  public void setName(String name) {
+  @JsonProperty("name") public void setName(String name) {
     this.name = name;
   }
 
-  public String getConsumerKey() {
+  @JsonProperty("consumer_key") public String getConsumerKey() {
     return consumerKey;
   }
 
-  public void setConsumerKey(String consumerKey) {
+  @JsonProperty("consumer_key") public void setConsumerKey(String consumerKey) {
     this.consumerKey = consumerKey;
   }
 
-  public String getConsumerSecret() {
+  @JsonProperty("consumer_secret") public String getConsumerSecret() {
     return consumerSecret;
   }
 
-  public void setConsumerSecret(String consumerSecret) {
+  @JsonProperty("consumer_secret") public void setConsumerSecret(String consumerSecret) {
     this.consumerSecret = consumerSecret;
   }
 
-  public String getContactEmail() {
+  @JsonProperty("contact_email") public String getContactEmail() {
     return contactEmail;
   }
 
-  public void setContactEmail(String contactEmail) {
+  @JsonProperty("contact_email") public void setContactEmail(String contactEmail) {
     this.contactEmail = contactEmail;
   }
 
-  public int getIconRes() {
+  @JsonIgnore public int getIconRes() {
     return iconRes;
   }
 
-  public void setIconRes(int iconRes) {
+  @JsonIgnore public void setIconRes(int iconRes) {
     this.iconRes = iconRes;
   }
 }

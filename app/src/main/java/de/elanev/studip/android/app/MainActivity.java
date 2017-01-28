@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -25,23 +25,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
-import javax.inject.Inject;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.contacts.presentation.ContactsActivity;
 import de.elanev.studip.android.app.courses.presentation.view.CoursesActivity;
-import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.messages.presentation.view.MessagesActivity;
 import de.elanev.studip.android.app.news.presentation.NewsActivity;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerActivity;
-import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
-import de.elanev.studip.android.app.util.ApiUtils;
-import de.elanev.studip.android.app.util.Prefs;
 import timber.log.Timber;
 
 /**
@@ -50,16 +42,12 @@ import timber.log.Timber;
  *         Activity holding the navigation drawer and content frame.
  *         It manages the navigation and content fragments.
  */
-public class MainActivity extends BaseActivity implements
-    NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
-  private static int mSelectedNavItem = R.id.navigation_invalid;
-  protected Toolbar mToolbar;
-  @Inject Prefs mPrefs;
-  private DrawerLayout mDrawerLayout;
+public abstract class MainActivity extends BaseActivity implements
+    NavigationView.OnNavigationItemSelectedListener {
+  @BindView(R.id.toolbar) Toolbar mToolbar;
+  @BindView(R.id.drawer_layout) DrawerLayout mDrawerLayout;
+  @BindView(R.id.navigation) NavigationView mNavigationView;
   private ActionBarDrawerToggle mDrawerToggle;
-  private String mUserId;
-  private User mCurrentUser;
-  private NavigationView mNavigationView;
   private View mHeaderView;
   private Handler mHandler;
 
@@ -97,15 +85,9 @@ public class MainActivity extends BaseActivity implements
     new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert)
         .setTitle(R.string.Logout)
         .setMessage(R.string.logout_confirmation)
-        .setPositiveButton(android.R.string.yes,
-            (dialog, which) -> navigateToLogout())
+        .setPositiveButton(android.R.string.yes, (dialog, which) -> navigateToLogout())
         .setNegativeButton(android.R.string.no, null)
         .show();
-  }
-
-  private void navigateToLogout() {
-    this.navigator.navigateToLogout(this);
-    this.finish();
   }
 
   private void startInviteIntent() {
@@ -122,11 +104,9 @@ public class MainActivity extends BaseActivity implements
     }
   }
 
-  @Override public void onBackPressed() {
-    if (!ApiUtils.isOverApi11()) {
-      return;
-    }
-    super.onBackPressed();
+  private void navigateToLogout() {
+    this.navigator.navigateToLogout(this);
+    this.finish();
   }
 
   @Override protected void onResume() {
@@ -140,104 +120,27 @@ public class MainActivity extends BaseActivity implements
         .setChecked(true);
   }
 
-  protected int getCurrentNavDrawerItem() {
-    return R.id.navigation_invalid;
-  }
+  protected abstract int getCurrentNavDrawerItem();
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    if (isFinishing()) {
-      return;
-    }
-
-
-    // Register Activity with the component
-    ((AbstractStudIPApplication) getApplication()).getAppComponent()
-        .inject(this);
-
     mHandler = new Handler();
-
-
-    mCurrentUser = User.fromJson(mPrefs.getUserInfo());
-    if (mCurrentUser != null) {
-      mUserId = mCurrentUser.userId;
-    }
-
-    initNavigation();
-  }
-
-  private void initNavigation() {
-    mSelectedNavItem = getCurrentNavDrawerItem();
-    mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-    if (mDrawerLayout == null) {
-      Timber.w("No drawer found");
-
-      return;
-    }
-
-    mDrawerToggle = new ActionBarDrawerToggle(MainActivity.this, mDrawerLayout,
-        R.string.open_drawer, R.string.close_drawer);
-    mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-    mNavigationView = (NavigationView) findViewById(R.id.navigation);
-    mHeaderView = LayoutInflater.from(this)
-        .inflate(R.layout.nav_header, null);
-    mHeaderView.setOnClickListener(this);
-    mNavigationView.addHeaderView(mHeaderView);
-    mNavigationView.setNavigationItemSelectedListener(this);
-
-    setNavHeaderInformation();
-    selectNavItem();
-  }
-
-  private void setNavHeaderInformation() {
-    if (mCurrentUser != null) {
-      TextView userNameTextView = (TextView) mHeaderView.findViewById(R.id.user_name);
-      TextView userEmailTextView = (TextView) mHeaderView.findViewById(R.id.user_email);
-      ImageView userImageView = (ImageView) mHeaderView.findViewById(R.id.user_image);
-
-      userNameTextView.setText(mCurrentUser.getFullName());
-      userEmailTextView.setText(mCurrentUser.email);
-
-      Picasso.with(this)
-          .load(mCurrentUser.avatarNormal)
-          .fit()
-          .centerCrop()
-          .into(userImageView);
-    } else {
-      mHeaderView.setVisibility(View.GONE);
-    }
   }
 
   @Override protected void onPostCreate(Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
     // Sync the toggle state after onRestoreInstanceState has occurred.
-    initNavigation();
     mDrawerToggle.syncState();
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-      // Fade content back in
-      View content = findViewById(R.id.content_frame);
-      if (content != null) {
-        content.setAlpha(0);
-        content.animate()
-            .alpha(1)
-            .setDuration(250);
-      } else {
-        Timber.w("No view with ID main_content to fade in.");
-      }
-    }
   }
 
   @Override public void setContentView(@LayoutRes int layoutResID) {
     super.setContentView(layoutResID);
+    ButterKnife.bind(this);
     initToolbar();
+    initNavigation();
   }
 
   private void initToolbar() {
-    mToolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(mToolbar);
 
     ActionBar actionBar = getSupportActionBar();
@@ -247,40 +150,29 @@ public class MainActivity extends BaseActivity implements
     }
   }
 
-  protected Bundle getFragmentArguments() {
-    Bundle args = new Bundle();
-    Intent intent = getIntent();
+  private void initNavigation() {
+    if (mDrawerLayout == null) {
+      Timber.w("No drawer found");
 
-    if (intent == null) {
-      return args;
+      return;
     }
 
-    final Bundle intentExtras = intent.getExtras();
-    if (intentExtras != null) {
-      args.putAll(intentExtras);
-    }
+    mDrawerToggle = new ActionBarDrawerToggle(MainActivity.this, mDrawerLayout,
+        R.string.open_drawer, R.string.close_drawer);
+    mDrawerLayout.addDrawerListener(mDrawerToggle);
 
-    return args;
+    mHeaderView = LayoutInflater.from(this)
+        .inflate(R.layout.nav_header, null);
+    mNavigationView.addHeaderView(mHeaderView);
+    mNavigationView.setNavigationItemSelectedListener(this);
+
+    selectNavItem();
   }
 
   @Override public boolean onNavigationItemSelected(final android.view.MenuItem menuItem) {
     menuItem.setChecked(true);
 
-    mHandler.postDelayed(new Runnable() {
-      @Override public void run() {
-        navigateTo(menuItem.getItemId());
-      }
-    }, 250);
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-      // fade out the main content
-      View content = findViewById(R.id.content_frame);
-      if (content != null) {
-        content.animate()
-            .alpha(0)
-            .setDuration(150);
-      }
-    }
+    mHandler.postDelayed(() -> navigateTo(menuItem.getItemId()), 250);
     mDrawerLayout.closeDrawer(GravityCompat.START);
 
     return false;
@@ -318,17 +210,6 @@ public class MainActivity extends BaseActivity implements
     } else {
       startActivity(intent);
       finish();
-    }
-  }
-
-  @Override public void onClick(View v) {
-    if (mUserId != null) {
-      Intent intent = new Intent(this, UserDetailsActivity.class);
-      Bundle args = new Bundle();
-      args.putString(UserDetailsActivity.USER_ID, mUserId);
-      intent.putExtras(args);
-      startActivity(intent);
-      mDrawerLayout.closeDrawers();
     }
   }
 
