@@ -30,7 +30,7 @@ public class GetOutboxMessages extends UseCase {
     this.messagesRepository = messagesRepository;
   }
 
-  @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable buildUseCaseObservable(boolean forceUpdate) {
     return messagesRepository.outboxMessages();
   }
 }

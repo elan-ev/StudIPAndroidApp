@@ -42,7 +42,7 @@ public class LogoutUser extends UseCase {
     this.app = app;
   }
 
-  @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable buildUseCaseObservable(boolean forceUpdate) {
     return credentialsRepository.clear()
         .doOnNext(aVoid -> prefs.clearPrefs())
         .doOnNext(aVoid -> Realm.deleteRealm(realmConfig))

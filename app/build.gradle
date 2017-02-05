@@ -6,7 +6,6 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-
 import java.text.SimpleDateFormat
 
 // Production-Release versioning
@@ -27,9 +26,10 @@ apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'realm-android'
 
 repositories {
+  jcenter()
+  maven { url 'https://jitpack.io' }
   maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
   maven { url 'https://maven.fabric.io/public' }
-  jcenter()
 }
 
 dependencies {
@@ -100,6 +100,11 @@ dependencies {
   compile 'com.jakewharton.timber:timber:4.3.1'
 
   // Test deps
+  androidTestApt 'com.google.dagger:dagger-compiler:2.8'
+  androidTestCompile('org.mockito:mockito-core:2.7.0') {
+    exclude module: 'hamcrest-core'
+  }
+  androidTestCompile 'org.mockito:mockito-android:2.7.0'
   androidTestCompile 'com.android.support:support-v4:25.1.0'
   androidTestCompile 'com.android.support:appcompat-v7:25.1.0'
   androidTestCompile 'com.android.support:recyclerview-v7:25.1.0'
@@ -112,17 +117,23 @@ dependencies {
   // Espresso core
   androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2')
   // Espresso-contrib for DatePicker, RecyclerView, Drawer actions, Accessibility checks, CountingIdlingResource
-  androidTestCompile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
+  androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2.2') {
+    exclude module: 'support-annotations'
+  }
   // Espresso-web for WebView support
-  androidTestCompile 'com.android.support.test.espresso:espresso-web:2.2.2'
+  androidTestCompile('com.android.support.test.espresso:espresso-web:2.2.2')
   // Espresso-idling-resource for synchronization with background jobs
-  androidTestCompile 'com.android.support.test.espresso:espresso-idling-resource:2.2.2'
+  androidTestCompile('com.android.support.test.espresso:espresso-idling-resource:2.2.2')
+
+  //Mocking
+  androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
 
   // Dependencies for local unit tests
+  testApt 'com.google.dagger:dagger-compiler:2.8'
   testCompile('junit:junit:4.12') {
     exclude module: 'hamcrest-core'
   }
-  testCompile('org.mockito:mockito-core:2.2.25') {
+  testCompile('org.mockito:mockito-core:2.7.0') {
     exclude module: 'hamcrest-core'
   }
   testCompile 'org.hamcrest:hamcrest-core:1.3'
@@ -186,7 +197,10 @@ android {
     buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
 
     // Testing settings
-    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    testApplicationId "de.elanev.studip.android.app.test"
+    testHandleProfiling true
+    testFunctionalTest true
+    testInstrumentationRunner "de.elanev.studip.android.app.runner.MockTestRunner"
     testInstrumentationRunnerArguments disableAnalytics: 'true'
 
     // Enabling multidex support.

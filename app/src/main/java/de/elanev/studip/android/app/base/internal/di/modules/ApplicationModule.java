@@ -59,7 +59,7 @@ public class ApplicationModule {
     this.mApplication = application;
   }
 
-  @Provides AbstractStudIPApplication abstractStudIPApplication() {
+  @Provides public AbstractStudIPApplication abstractStudIPApplication() {
     return (AbstractStudIPApplication) this.mApplication;
   }
 
@@ -133,17 +133,17 @@ public class ApplicationModule {
   }
 
   // Scheduling
-  @Provides @Singleton PostExecutionThread providePostExecutionExecutor(
+  @Provides @Singleton public PostExecutionThread providePostExecutionExecutor(
       PostExecutionThreadImpl postExecutionExecutor) {
     return postExecutionExecutor;
   }
 
-  @Provides @Singleton ThreadExecutor provideThreadExecutor(ThreadExecutorImpl threadExecutor) {
+  @Provides @Singleton public ThreadExecutor provideThreadExecutor(ThreadExecutorImpl threadExecutor) {
     return threadExecutor;
   }
 
   // Database
-  @Provides @Singleton RealmConfiguration provideRealmConfiguration(Context context) {
+  @Provides @Singleton public RealmConfiguration provideRealmConfiguration(Context context) {
     Realm.init(context);
 
     RealmConfiguration.Builder builder = new RealmConfiguration.Builder();

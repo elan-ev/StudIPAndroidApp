@@ -37,7 +37,7 @@ public class RequestUserAuth extends UseCase<String> {
     this.endpointsRepository = endpointsRepository;
   }
 
-  @Override protected Observable<String> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<String> buildUseCaseObservable(boolean forceUpdate) {
     return this.endpointsRepository.endpoint(endpointId)
         .flatMap(authService::auth);
   }

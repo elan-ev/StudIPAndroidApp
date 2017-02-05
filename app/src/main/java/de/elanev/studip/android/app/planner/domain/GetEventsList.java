@@ -33,7 +33,7 @@ public class GetEventsList extends UseCase<List<Event>> {
     this.coursesRepository = coursesRepository;
   }
 
-  @Override protected Observable<List<Event>> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<List<Event>> buildUseCaseObservable(boolean forceUpdate) {
     return repository.eventsList(forceUpdate)
         .flatMap(events -> Observable.defer(() -> Observable.from(events)
             //FIXME: Find better way to filter the events for the next two weeks

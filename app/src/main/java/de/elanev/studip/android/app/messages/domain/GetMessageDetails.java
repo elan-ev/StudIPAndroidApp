@@ -34,7 +34,7 @@ public class GetMessageDetails extends UseCase {
     this.messageRepository = messagesRepository;
   }
 
-  @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable buildUseCaseObservable(boolean forceUpdate) {
     return messageRepository.message(messageId);
   }
 

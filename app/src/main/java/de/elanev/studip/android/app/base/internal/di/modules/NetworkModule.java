@@ -93,11 +93,11 @@ public class NetworkModule {
         .build();
   }
 
-  @Provides @Singleton JacksonConverterFactory providesJacksonConverterFactory() {
+  @Provides @Singleton public JacksonConverterFactory providesJacksonConverterFactory() {
     return JacksonConverterFactory.create();
   }
 
-  @Provides @Singleton RxJavaCallAdapterFactory providesRxJavaCallAdapterFactory() {
+  @Provides @Singleton public RxJavaCallAdapterFactory providesRxJavaCallAdapterFactory() {
     return RxJavaCallAdapterFactory.create();
   }
 

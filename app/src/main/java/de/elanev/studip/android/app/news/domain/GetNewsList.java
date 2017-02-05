@@ -34,7 +34,7 @@ public class GetNewsList extends UseCase<List<NewsItem>> {
     this.coursesRepository = coursesRepository;
   }
 
-  @Override protected Observable<List<NewsItem>> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<List<NewsItem>> buildUseCaseObservable(boolean forceUpdate) {
     Observable<List<NewsItem>> coursesObs = coursesRepository.courses(forceUpdate)
         .flatMap(domainCourses -> Observable.defer(() -> Observable.from(domainCourses)
             .flatMap(domainCourse -> mRepository.newsForRange(domainCourse.getCourseId(),

@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.news.presentation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
@@ -29,6 +30,10 @@ public class NewsActivity extends MainActivity implements HasComponent<NewsCompo
     NewsListFragment.NewsListListener {
 
   private NewsComponent mNewsComponent;
+
+  public static Intent getCallingIntent(Context context) {
+    return new Intent(context, NewsActivity.class);
+  }
 
   @Override protected int getCurrentNavDrawerItem() {
     return R.id.navigation_news;
@@ -53,6 +58,10 @@ public class NewsActivity extends MainActivity implements HasComponent<NewsCompo
     return this.mNewsComponent;
   }
 
+  @VisibleForTesting void setComponent(NewsComponent component) {
+    this.mNewsComponent = component;
+  }
+
   @Override public void onNewsClicked(NewsModel news) {
     Intent intent = new Intent();
     Bundle args = new Bundle();
@@ -60,9 +69,5 @@ public class NewsActivity extends MainActivity implements HasComponent<NewsCompo
     intent.setClass(this, NewsViewActivity.class);
     intent.putExtras(args);
     startActivity(intent);
-  }
-
-  public static Intent getCallingIntent(Context context) {
-    return new Intent(context, NewsActivity.class);
   }
 }

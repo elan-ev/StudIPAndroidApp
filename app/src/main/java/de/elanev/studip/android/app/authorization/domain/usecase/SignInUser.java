@@ -37,7 +37,7 @@ public class SignInUser extends UseCase {
     this.prefs = prefs;
   }
 
-  @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable buildUseCaseObservable(boolean forceUpdate) {
     return this.authService.accessToken()
         .doOnNext(credentials -> {
           this.credentialsRepository.save(credentials);

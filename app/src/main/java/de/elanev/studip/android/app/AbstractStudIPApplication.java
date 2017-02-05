@@ -23,7 +23,7 @@ import io.realm.Realm;
  */
 public abstract class AbstractStudIPApplication extends Application {
   private static AbstractStudIPApplication mInstance;
-  private ApplicationComponent mApplicationComponent;
+  private final ApplicationComponent applicationComponent = buildAppComponent();
 
   public static synchronized AbstractStudIPApplication getInstance() {
     return mInstance;
@@ -49,13 +49,13 @@ public abstract class AbstractStudIPApplication extends Application {
     Realm.init(this);
   }
 
-  public void buildAppComponent() {
-    mApplicationComponent = DaggerApplicationComponent.builder()
+  public ApplicationComponent buildAppComponent() {
+    return DaggerApplicationComponent.builder()
         .applicationModule(new ApplicationModule(this))
         .build();
   }
 
   public ApplicationComponent getAppComponent() {
-    return mApplicationComponent;
+    return applicationComponent;
   }
 }

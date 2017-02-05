@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -8,10 +8,11 @@
 
 package de.elanev.studip.android.app.news.internal.di;
 
+import org.mockito.Mockito;
+
 import javax.inject.Named;
 
 import dagger.Module;
-import dagger.Provides;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -24,26 +25,15 @@ import de.elanev.studip.android.app.news.domain.NewsRepository;
  * @author joern
  */
 @Module
-public class NewsModule {
-
-  private String newsId = "";
-
-  public NewsModule() {}
-
-  public NewsModule(String id) {
-    this.newsId = id;
-  }
-
-  @Provides @PerActivity @Named("newsDetails") public UseCase providesGetNewsDetailsUseCase(
+public class NewsTestModule {
+  @PerActivity @Named("newsDetails") public UseCase providesGetNewsDetailsUseCase(
       NewsRepository newsRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
-
-    return new GetNewsDetails(newsId, newsRepository, threadExecutor, postExecutionThread);
+    return Mockito.mock(GetNewsDetails.class);
   }
 
-  @Provides @PerActivity @Named("newsList") public UseCase provideGetNewsListUseCase(
+  @PerActivity @Named("newsList") public UseCase provideGetNewsListUseCase(
       GetNewsList getNewsList) {
-
-    return getNewsList;
+    return Mockito.mock(GetNewsList.class);
   }
 }

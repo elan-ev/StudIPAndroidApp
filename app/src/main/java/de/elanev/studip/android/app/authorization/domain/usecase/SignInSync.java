@@ -41,7 +41,7 @@ public class SignInSync extends UseCase {
     this.prefs = prefs;
   }
 
-  @RxLogObservable @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
+  @RxLogObservable @Override public Observable buildUseCaseObservable(boolean forceUpdate) {
     Observable userObs = Observable.defer(() -> userRepository.get()
         .currentUser(forceUpdate)
         .doOnNext(user -> {
