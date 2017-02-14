@@ -20,7 +20,7 @@ import de.elanev.studip.android.app.planner.domain.GetEventsList;
 @Module
 public class PlannerModule {
 
-  @PerActivity @Provides UseCase providesGetEventsListUseCase(GetEventsList getEventsList) {
+  @PerActivity @Provides UseCase provideGetEventsListUseCase(GetEventsList getEventsList) {
     return getEventsList;
   }
 }

@@ -36,23 +36,23 @@ public class AuthModule {
     this.endpointId = endpointId;
   }
 
-  @Provides @PerActivity @Named("logoutUser") UseCase providesLogoutUseCase(LogoutUser logoutUser) {
+  @Provides @PerActivity @Named("logoutUser") UseCase provideLogoutUseCase(LogoutUser logoutUser) {
     return logoutUser;
   }
 
-  @Provides @PerActivity @Named("requestUserAuth") UseCase<String> providesRequestUserAuthUseCase(
+  @Provides @PerActivity @Named("requestUserAuth") UseCase<String> provideRequestUserAuthUseCase(
       AuthService authService, EndpointsRepository repository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
     return new RequestUserAuth(endpointId, authService, repository, threadExecutor,
         postExecutionThread);
   }
 
-  @Provides @PerActivity @Named("signInUser") UseCase providesSignInUserUseCase(
+  @Provides @PerActivity @Named("signInUser") UseCase provideSignInUserUseCase(
       SignInUser signInUser) {
     return signInUser;
   }
 
-  @Provides @PerActivity @Named("signInSync") UseCase providesSignInSyncUseCase(
+  @Provides @PerActivity @Named("signInSync") UseCase provideSignInSyncUseCase(
       SignInSync signInSync) {
     return signInSync;
   }

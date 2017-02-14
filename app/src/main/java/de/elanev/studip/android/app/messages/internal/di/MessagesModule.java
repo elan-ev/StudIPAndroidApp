@@ -36,19 +36,19 @@ public class MessagesModule {
     this.messageId = messageId;
   }
 
-  @Provides @PerFragment @Named("inbox") UseCase providesInboxMessagesUseCase(
+  @Provides @PerFragment @Named("inbox") UseCase provideInboxMessagesUseCase(
       GetInboxMessages getInboxMessages) {
 
     return getInboxMessages;
   }
 
-  @Provides @PerFragment @Named("outbox") UseCase providesOutboxMessagesUseCase(
+  @Provides @PerFragment @Named("outbox") UseCase provideOutboxMessagesUseCase(
       GetOutboxMessages getOutboxMessages) {
 
     return getOutboxMessages;
   }
 
-  @Provides @PerFragment @Named("messageDetails") UseCase providesGetNewsDetailsUseCase(
+  @Provides @PerFragment @Named("messageDetails") UseCase provideGetNewsDetailsUseCase(
       MessagesRepository messagesRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 
@@ -56,14 +56,14 @@ public class MessagesModule {
         postExecutionThread);
   }
 
-  @Provides @PerFragment @Named("deleteMessage") UseCase providesDeleteMessageUseCase(
+  @Provides @PerFragment @Named("deleteMessage") UseCase provideDeleteMessageUseCase(
       MessagesRepository messagesRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 
     return new DeleteMessage(messageId, messagesRepository, threadExecutor, postExecutionThread);
   }
 
-  @Provides @PerFragment @Named("sendMessage") UseCase providesSendMessageUseCase(
+  @Provides @PerFragment @Named("sendMessage") UseCase provideSendMessageUseCase(
       SendMessage sendMessageUseCase) {
 
     return sendMessageUseCase;

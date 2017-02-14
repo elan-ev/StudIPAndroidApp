@@ -34,7 +34,7 @@ public class NewsModule {
     this.newsId = id;
   }
 
-  @Provides @PerActivity @Named("newsDetails") public UseCase providesGetNewsDetailsUseCase(
+  @Provides @PerActivity @Named("newsDetails") public UseCase provideGetNewsDetailsUseCase(
       NewsRepository newsRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 

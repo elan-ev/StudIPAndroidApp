@@ -64,17 +64,13 @@ public class ApplicationModule {
   }
 
   //Serialization
-  @Provides @Singleton public ObjectMapper providesObjectMapper() {
+  @Provides @Singleton public ObjectMapper provideObjectMapper() {
     return new ObjectMapper();
   }
 
   // Android
   @Provides @Singleton public Context provideContext() {
     return mApplication;
-  }
-
-  @Provides @Singleton public ContentResolver provideContentResolver(Context context) {
-    return context.getContentResolver();
   }
 
   // Prefs
@@ -98,37 +94,37 @@ public class ApplicationModule {
     return contactsDataRepository;
   }
 
-  @Provides @Singleton public PlannerRepository providesPlannerRepository(
+  @Provides @Singleton public PlannerRepository providePlannerRepository(
       PlannerDataRepository plannerDataRepository) {
     return plannerDataRepository;
   }
 
-  @Provides @Singleton public MessagesRepository providesMessagesRepository(
+  @Provides @Singleton public MessagesRepository provideMessagesRepository(
       MessagesDataRepository messagesDataRepository) {
     return messagesDataRepository;
   }
 
-  @Provides @Singleton public CoursesRepository providesCoursesRepository(
+  @Provides @Singleton public CoursesRepository provideCoursesRepository(
       CoursesDataRepository coursesDataRepository) {
     return coursesDataRepository;
   }
 
-  @Provides @Singleton public CredentialsRepository providesAuthorizationRepository(
+  @Provides @Singleton public CredentialsRepository provideAuthorizationRepository(
       CredentialsDataRepository authorizationDataRepository) {
     return authorizationDataRepository;
   }
 
-  @Provides @Singleton public SettingsRepository providesSettingsRepository(
+  @Provides @Singleton public SettingsRepository provideSettingsRepository(
       SettingsDataRepository settingsDataRepository) {
     return settingsDataRepository;
   }
 
-  @Provides @Singleton public EndpointsRepository providesEndpointsRepository(
+  @Provides @Singleton public EndpointsRepository provideEndpointsRepository(
       EndpointsDataRepository endpointsDataRepository) {
     return endpointsDataRepository;
   }
 
-  @Provides @Singleton public AuthService providesAuthService(AuthServiceImpl authService) {
+  @Provides @Singleton public AuthService provideAuthService(AuthServiceImpl authService) {
     return authService;
   }
 
