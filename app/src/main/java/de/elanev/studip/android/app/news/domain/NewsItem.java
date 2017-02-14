@@ -16,7 +16,7 @@ import de.elanev.studip.android.app.user.domain.User;
  */
 public class NewsItem {
   // Required property news id
-  private final String newsId;
+  private String newsId;
   private String title;
   private Long date;
   private String body;
@@ -24,23 +24,16 @@ public class NewsItem {
   private String mRange;
   private Course course;
 
+  public NewsItem() {}
+
   public NewsItem(String newsId) {this.newsId = newsId;}
-
-  @Override public String toString() {
-    String newsStr = "**************** News **************\n";
-    newsStr += "id=" + this.getNewsId() + "\n";
-    newsStr += "topic=" + this.getTitle() + "\n";
-    newsStr += "date=" + this.getDate() + "\n";
-    newsStr += "body=" + this.getBody() + "\n";
-    newsStr += "author=" + this.getAuthor() + "\n";
-    newsStr += "course=" + this.getCourse() + "\n";
-    newsStr += "**************************************";
-
-    return newsStr;
-  }
 
   public String getNewsId() {
     return newsId;
+  }
+
+  public void setNewsId(String newsId) {
+    this.newsId = newsId;
   }
 
   public String getTitle() {
@@ -81,6 +74,12 @@ public class NewsItem {
 
   public void setCourse(Course course) {
     this.course = course;
+  }
+
+  @Override public String toString() {
+    return "NewsItem{" + "newsId='" + newsId + '\'' + ", title='" + title + '\'' + ", date=" + date
+        + ", body='" + body + '\'' + ", author=" + author + ", mRange='" + mRange + '\''
+        + ", course=" + course + '}';
   }
 
   public String getRange() {
