@@ -12,7 +12,7 @@ import android.app.Application;
 import android.content.Context;
 import android.support.test.runner.AndroidJUnitRunner;
 
-import de.elanev.studip.android.app.MockStudIPApplication;
+import de.elanev.studip.android.app.TestStudIPApplication;
 
 /**
  * @author joern
@@ -21,7 +21,6 @@ import de.elanev.studip.android.app.MockStudIPApplication;
 public class MockTestRunner extends AndroidJUnitRunner {
   @Override public Application newApplication(ClassLoader cl, String className,
       Context context) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-    return super.newApplication(cl, MockStudIPApplication.class.getName(), context);
+    return newApplication(TestStudIPApplication.class, context);
   }
-
 }
