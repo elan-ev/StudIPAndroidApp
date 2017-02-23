@@ -8,10 +8,10 @@
 
 package de.elanev.studip.android.app;
 
+import de.elanev.studip.android.app.base.internal.di.component.DaggerApplicationTestComponent;
 import de.elanev.studip.android.app.base.internal.di.component.MockApplicationModule;
 import de.elanev.studip.android.app.base.internal.di.component.MockNetworkModule;
 import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
-import de.elanev.studip.android.app.base.internal.di.components.DaggerApplicationComponent;
 
 /**
  * @author joern
@@ -20,7 +20,7 @@ import de.elanev.studip.android.app.base.internal.di.components.DaggerApplicatio
 public class TestStudIPApplication extends StudIPApplication {
 
   @Override public ApplicationComponent buildAppComponent() {
-    return DaggerApplicationComponent.builder()
+    return DaggerApplicationTestComponent.builder()
         .applicationModule(new MockApplicationModule(TestStudIPApplication.this))
         .networkModule(new MockNetworkModule())
         .build();
