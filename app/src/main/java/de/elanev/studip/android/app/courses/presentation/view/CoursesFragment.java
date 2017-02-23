@@ -165,7 +165,9 @@ public class CoursesFragment extends
           .getSemesterId(), section);
     }
 
-    this.adapter.addSection(unlimitedSection);
+    if (!unlimitedSection.isEmpty()) {
+      this.adapter.addSection(unlimitedSection);
+    }
     this.adapter.notifyDataSetChanged();
   }
 
