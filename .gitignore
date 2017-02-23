@@ -108,6 +108,7 @@ gradle.xml
 dictionaries
 .idea/misc.xml
 .idea/vcs.xml
+captures
 
 # Unwanted binaries
 *.db
