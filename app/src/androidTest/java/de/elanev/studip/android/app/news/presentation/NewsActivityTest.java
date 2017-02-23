@@ -25,7 +25,6 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author joern
@@ -34,9 +33,8 @@ import static org.mockito.ArgumentMatchers.any;
 @LargeTest
 //Test GetNewsList and GetNewsDetails UseCase
 public class NewsActivityTest {
-  @Rule public ActivityTestRule<NewsActivity> newsActivityActivityTestRule = new ActivityTestRule<NewsActivity>(
+  @Rule public ActivityTestRule<NewsActivity> newsActivityActivityTestRule = new ActivityTestRule<>(
       NewsActivity.class);
-
 
   @Test public void shouldShowNewsList() {
     onView(withText(MockNewsRepository.NEWS_TITLE)).check(matches(isDisplayed()));
@@ -45,7 +43,8 @@ public class NewsActivityTest {
 
   @Test public void shouldShowNewsDetailsOnClick() {
     onView(withText(MockNewsRepository.NEWS_TITLE)).perform(click());
-    onView(withId(R.id.text1)).check(matches(withText(MockNewsRepository.USER_NAME))); //News author
+    onView(withId(R.id.text1)).check(
+        matches(withText(MockNewsRepository.NEWS_AUTHOR.getFullname()))); // News author
     onView(withId(R.id.text2)).check(matches(isDisplayed())); // News date (localized)
     onView(withId(R.id.news_title)).check(matches(withText(MockNewsRepository.NEWS_TITLE)));
     onView(withId(R.id.news_body)).check(matches(withText(MockNewsRepository.NEWS_BODY)));

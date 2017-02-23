@@ -11,8 +11,10 @@ package de.elanev.studip.android.app.news.data.repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.elanev.studip.android.app.course.data.repository.MockCourseRepository;
 import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
+import de.elanev.studip.android.app.user.data.repository.MockUserRepository;
 import de.elanev.studip.android.app.user.domain.User;
 import de.elanev.studip.android.app.util.TextTools;
 import rx.Observable;
@@ -25,15 +27,13 @@ public class MockNewsRepository implements NewsRepository {
   public static final String NEWS_TITLE = "Test News";
   public static final String NEWS_TITLE_RANGE = "Range Test News Title";
   public static final String NEWS_BODY = "Test News Body";
+  public static final String USER_NAME = "News Test User";
   private static final String NEWS_ID = "123";
   private static final Long NEWS_DATE = 946684800L;
-  public static final String USER_NAME = "News Test User";
+  public static final User NEWS_AUTHOR = MockUserRepository.TEACHER;
 
   @Override public Observable<NewsItem> newsItem(String id, boolean forceUpdate) {
     NewsItem newsItem = createNewsItem(id);
-    User user = new User("TestUser1");
-    user.setFullname(USER_NAME);
-    newsItem.setAuthor(user);
     return Observable.just(newsItem);
   }
 
@@ -42,6 +42,8 @@ public class MockNewsRepository implements NewsRepository {
     newsItem.setTitle(NEWS_TITLE);
     newsItem.setBody(NEWS_BODY);
     newsItem.setDate(NEWS_DATE);
+    newsItem.setRange(MockCourseRepository.COURSE_ID);
+    newsItem.setAuthor(NEWS_AUTHOR);
 
     if (TextTools.isEmpty(id)) {
       newsItem.setNewsId(id);
