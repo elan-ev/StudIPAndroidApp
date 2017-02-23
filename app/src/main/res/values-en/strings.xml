@@ -79,7 +79,7 @@
     <!-- CourseView Activity -->
     <string name="upcoming_events">Upcoming events</string>
     <string name="appointments">Appointments</string>
-    <string name="attendees">Participants</string>
+    <string name="Participants">Participants</string>
     <string name="time_room">Time / Room</string>
     <string name="Teacher">Teacher</string>
     <string name="next_appointments">Next appointments</string>

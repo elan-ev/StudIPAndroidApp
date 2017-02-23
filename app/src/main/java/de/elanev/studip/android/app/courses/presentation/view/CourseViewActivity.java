@@ -109,7 +109,7 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
       tabs.add(new Tab(getString(R.string.Schedule), CourseScheduleFragment.class, args));
     }
     if (modules.isParticipants()) {
-      tabs.add(new Tab(getString(R.string.attendees), CourseAttendeesFragment.class, args));
+      tabs.add(new Tab(getString(R.string.Participants), CourseAttendeesFragment.class, args));
     }
     if (modules.isForum()) {
       tabs.add(new Tab(getString(R.string.forum), ForumCategoriesListFragment.class, args));
