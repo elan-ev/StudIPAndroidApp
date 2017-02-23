@@ -14,13 +14,26 @@ import de.elanev.studip.android.app.user.domain.User;
  * @author joern
  */
 public class Message {
-  private boolean unread;
-  private String message;
-  private long date;
-  private String subject;
   private String messageId;
+  private String subject;
+  private long date;
+  private String message;
   private User sender;
   private User receiver;
+  private boolean unread;
+
+  public Message() {}
+
+  public Message(String messageId, String subject, long date, String message, User sender,
+      User receiver, boolean unread) {
+    this.messageId = messageId;
+    this.subject = subject;
+    this.date = date;
+    this.message = message;
+    this.sender = sender;
+    this.receiver = receiver;
+    this.unread = unread;
+  }
 
   public boolean isUnread() {
     return unread;

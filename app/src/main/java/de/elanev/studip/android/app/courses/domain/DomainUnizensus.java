@@ -16,6 +16,14 @@ public class DomainUnizensus {
   private String type;
   private String url;
 
+  public DomainUnizensus() {
+  }
+
+  public DomainUnizensus(String type, String url) {
+    this.type = type;
+    this.url = url;
+  }
+
   public String getUrl() {
     return url;
   }

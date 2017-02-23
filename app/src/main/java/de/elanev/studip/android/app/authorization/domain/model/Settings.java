@@ -28,6 +28,13 @@ public class Settings {
   public static class SeminarTypeData {
     private String name;
 
+    public SeminarTypeData() {
+    }
+
+    public SeminarTypeData(String name) {
+      this.name = name;
+    }
+
     public String getName() {
       return name;
     }
