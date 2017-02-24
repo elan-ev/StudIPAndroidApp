@@ -14,6 +14,9 @@ import de.elanev.studip.android.app.authorization.data.repository.MockSettingsRe
 import de.elanev.studip.android.app.authorization.data.repository.SettingsDataRepository;
 import de.elanev.studip.android.app.authorization.domain.SettingsRepository;
 import de.elanev.studip.android.app.base.internal.di.modules.ApplicationModule;
+import de.elanev.studip.android.app.contacts.data.repository.ContactsDataRepository;
+import de.elanev.studip.android.app.contacts.data.repository.MockContactsRepository;
+import de.elanev.studip.android.app.contacts.domain.ContactsRepository;
 import de.elanev.studip.android.app.course.data.repository.MockCourseRepository;
 import de.elanev.studip.android.app.courses.data.repository.CoursesDataRepository;
 import de.elanev.studip.android.app.courses.domain.CoursesRepository;
@@ -30,7 +33,6 @@ import de.elanev.studip.android.app.user.domain.UserRepository;
 /**
  * @author joern
  */
-
 public class MockApplicationModule extends ApplicationModule {
   public MockApplicationModule(Application application) {
     super(application);
@@ -44,14 +46,19 @@ public class MockApplicationModule extends ApplicationModule {
     return new MockUserRepository();
   }
 
-  @Override public CoursesRepository provideCoursesRepository(
-      CoursesDataRepository coursesDataRepository) {
-    return new MockCourseRepository();
+  @Override public ContactsRepository provideContactsRepository(
+      ContactsDataRepository contactsDataRepository) {
+    return new MockContactsRepository();
   }
 
   @Override public MessagesRepository provideMessagesRepository(
       MessagesDataRepository messagesDataRepository) {
     return new MockMessagesRepository();
+  }
+
+  @Override public CoursesRepository provideCoursesRepository(
+      CoursesDataRepository coursesDataRepository) {
+    return new MockCourseRepository();
   }
 
   @Override public SettingsRepository provideSettingsRepository(
