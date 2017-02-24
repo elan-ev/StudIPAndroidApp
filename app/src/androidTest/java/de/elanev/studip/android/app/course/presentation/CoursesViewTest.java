@@ -53,24 +53,26 @@ public class CoursesViewTest {
       CoursesActivity.class);
 
   @Test public void shouldDisplayCoursesList() {
-    onView(withText(MockCourseRepository.COURSE_TITLE)).check(matches(isDisplayed()));
-    onView(withText(MockSettingsRepository.semTypes.get(MockCourseRepository.COURSE_TYPE_INT)
+    onView(withText(MockCourseRepository.COURSE.getTitle())).check(matches(isDisplayed()));
+    onView(withText(MockSettingsRepository.semTypes.get(MockCourseRepository.COURSE.getType())
         .getName())).check(matches(isDisplayed()));
-    onView(withText(MockCourseRepository.COURSE_SEMESTER_NAME)).check(matches(isDisplayed()));
+    onView(withText(MockCourseRepository.COURSE.getSemester()
+        .getTitle())).check(matches(isDisplayed()));
     onView(withText(R.string.course_without_duration_limit)).check(doesNotExist());
   }
 
   @Test public void shouldDisplayCourseOverview() {
-    onView(withText(MockCourseRepository.COURSE_TITLE)).perform(click());
+    onView(withText(MockCourseRepository.COURSE.getTitle())).perform(click());
     onView(allOf(instanceOf(TextView.class), withParent(withId(R.id.toolbar)))).check(
-        matches(withText(MockCourseRepository.COURSE_TITLE)));
+        matches(withText(MockCourseRepository.COURSE.getTitle())));
     onView(withText(R.string.Overview)).check(matches(isSelected()));
-    onView(withId(R.id.course_title)).check(matches(withText(MockCourseRepository.COURSE_TITLE)));
+    onView(withId(R.id.course_title)).check(
+        matches(withText(MockCourseRepository.COURSE.getTitle())));
     onView(withId(R.id.course_type)).check(matches(withText(
-        MockSettingsRepository.semTypes.get(MockCourseRepository.COURSE_TYPE_INT)
+        MockSettingsRepository.semTypes.get(MockCourseRepository.COURSE.getType())
             .getName())));
     onView(withId(R.id.course_description)).check(
-        matches(withText(MockCourseRepository.COURSE_DESCRIPTION)));
+        matches(withText(MockCourseRepository.COURSE.getDescription())));
     onView(withId(R.id.text1)).check(matches(withText(MockUserRepository.TEACHER.getFullname())));
     onView(withId(R.id.text2)).check(matches(withText("")));
     onView(withId(R.id.news_title)).check(matches(withText(MockNewsRepository.NEWS_TITLE)));
@@ -80,7 +82,7 @@ public class CoursesViewTest {
   }
 
   @Test public void shouldToggleNewsBody() {
-    onView(withText(MockCourseRepository.COURSE_TITLE)).perform(click());
+    onView(withText(MockCourseRepository.COURSE.getTitle())).perform(click());
     onView(withId(R.id.news_text)).check(matches(not(isDisplayed())));
     onView(withId(R.id.show_news_body)).perform(click());
     onView(withId(R.id.news_text)).check(matches(isDisplayed()));
@@ -89,14 +91,14 @@ public class CoursesViewTest {
   }
 
   @Test public void shouldDisplayCourseSchedule() {
-    onView(withText(MockCourseRepository.COURSE_TITLE)).perform(click());
+    onView(withText(MockCourseRepository.COURSE.getTitle())).perform(click());
     onView(withText(R.string.Schedule)).perform(click());
     onView(withText(R.string.Schedule)).check(matches(isSelected()));
-    onView(withText(MockCourseRepository.COURSE_EVENT_TITLE)).check(matches(isDisplayed()));
+    onView(withText(MockCourseRepository.COURSE_EVENT.getTitle())).check(matches(isDisplayed()));
   }
 
   @Test public void shouldDisplayParticipantsList() {
-    onView(withText(MockCourseRepository.COURSE_TITLE)).perform(click());
+    onView(withText(MockCourseRepository.COURSE.getTitle())).perform(click());
     onView(withText(R.string.Participants)).perform(click());
     onView(withText(R.string.Participants)).check(matches(isSelected()));
     onView(withText(R.string.Teacher)).check(matches(isDisplayed()));
@@ -108,7 +110,7 @@ public class CoursesViewTest {
   }
 
   @Test public void shouldDisplayUserProfileOnParticipantsSelection() {
-    onView(withText(MockCourseRepository.COURSE_TITLE)).perform(click());
+    onView(withText(MockCourseRepository.COURSE.getTitle())).perform(click());
     onView(withText(R.string.Participants)).perform(click());
     onView(withText(MockUserRepository.STUDENT.getFullname())).perform(click());
     intended(hasComponent(UserDetailsActivity.class.getName()));

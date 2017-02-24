@@ -42,7 +42,7 @@ public class MockNewsRepository implements NewsRepository {
     newsItem.setTitle(NEWS_TITLE);
     newsItem.setBody(NEWS_BODY);
     newsItem.setDate(NEWS_DATE);
-    newsItem.setRange(MockCourseRepository.COURSE_ID);
+    newsItem.setRange(MockCourseRepository.COURSE.getCourseId());
     newsItem.setAuthor(NEWS_AUTHOR);
 
     if (TextTools.isEmpty(id)) {

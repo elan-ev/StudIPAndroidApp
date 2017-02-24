@@ -27,6 +27,25 @@ public class Event {
   private String courseId;
   private boolean canceled;
 
+  public Event() {}
+
+  public Event(String eventId, DomainCourse course, Long start, Long end, String title,
+      String description, String room, String color, String category, String courseId,
+      boolean canceled) {
+
+    this.eventId = eventId;
+    this.course = course;
+    this.start = start;
+    this.end = end;
+    this.title = title;
+    this.description = description;
+    this.room = room;
+    this.color = color;
+    this.category = category;
+    this.courseId = courseId;
+    this.canceled = canceled;
+  }
+
   public String getCategory() {
     return category;
   }
@@ -99,12 +118,12 @@ public class Event {
     this.room = room;
   }
 
-  public void setCourseId(String courseId) {
-    this.courseId = courseId;
-  }
-
   public String getCourseId() {
     return courseId;
+  }
+
+  public void setCourseId(String courseId) {
+    this.courseId = courseId;
   }
 
   public boolean isCanceled() {
