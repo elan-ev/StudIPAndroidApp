@@ -15,6 +15,7 @@ env:
 android:
   components:
     - tools
+    - tools
     - platform-tools
     - extra-android-support
     - extra-android-m2repository
