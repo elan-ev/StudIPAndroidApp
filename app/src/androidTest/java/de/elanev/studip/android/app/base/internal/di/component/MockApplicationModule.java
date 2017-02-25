@@ -9,6 +9,7 @@
 package de.elanev.studip.android.app.base.internal.di.component;
 
 import android.app.Application;
+import android.content.Context;
 
 import de.elanev.studip.android.app.authorization.data.repository.MockSettingsRepository;
 import de.elanev.studip.android.app.authorization.data.repository.SettingsDataRepository;
@@ -26,9 +27,14 @@ import de.elanev.studip.android.app.messages.domain.MessagesRepository;
 import de.elanev.studip.android.app.news.data.repository.MockNewsRepository;
 import de.elanev.studip.android.app.news.data.repository.NewsDataRepository;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
+import de.elanev.studip.android.app.planner.data.repository.MockPlannerRepository;
+import de.elanev.studip.android.app.planner.data.repository.PlannerDataRepository;
+import de.elanev.studip.android.app.planner.domain.PlannerRepository;
 import de.elanev.studip.android.app.user.data.repository.MockUserRepository;
 import de.elanev.studip.android.app.user.data.repository.UserDataRepository;
 import de.elanev.studip.android.app.user.domain.UserRepository;
+import de.elanev.studip.android.app.util.MockPrefs;
+import de.elanev.studip.android.app.util.Prefs;
 
 /**
  * @author joern
@@ -36,6 +42,10 @@ import de.elanev.studip.android.app.user.domain.UserRepository;
 public class MockApplicationModule extends ApplicationModule {
   public MockApplicationModule(Application application) {
     super(application);
+  }
+
+  @Override public Prefs providePrefs(Context context) {
+    return new MockPrefs(context);
   }
 
   @Override public NewsRepository provideNewsRepository(NewsDataRepository newsDataRepository) {
@@ -49,6 +59,11 @@ public class MockApplicationModule extends ApplicationModule {
   @Override public ContactsRepository provideContactsRepository(
       ContactsDataRepository contactsDataRepository) {
     return new MockContactsRepository();
+  }
+
+  @Override public PlannerRepository providePlannerRepository(
+      PlannerDataRepository plannerDataRepository) {
+    return new MockPlannerRepository();
   }
 
   @Override public MessagesRepository provideMessagesRepository(
