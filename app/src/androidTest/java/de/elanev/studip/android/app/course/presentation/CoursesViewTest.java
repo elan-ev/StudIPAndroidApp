@@ -37,6 +37,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isSelected;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -102,7 +103,9 @@ public class CoursesViewTest {
     onView(withText(R.string.Participants)).perform(click());
     onView(withText(R.string.Participants)).check(matches(isSelected()));
     onView(withText(R.string.Teacher)).check(matches(isDisplayed()));
-    onView(withId(R.id.text1)).check(matches(withText(MockUserRepository.TEACHER.getFullname())));
+    // Match against view id and text because the text appears multiple times in view pager
+    onView(allOf(withText(MockUserRepository.TEACHER.getFullname()), withId(R.id.fullname))).check(
+        matches(isDisplayed()));
     onView(withText(R.string.Tutor)).check(matches(isDisplayed()));
     onView(withText(MockUserRepository.TUTOR.getFullname())).check(matches(isDisplayed()));
     onView(withText(R.string.Student)).check(matches(isDisplayed()));
