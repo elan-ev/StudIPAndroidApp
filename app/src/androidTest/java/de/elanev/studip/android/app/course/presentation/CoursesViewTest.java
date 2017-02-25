@@ -11,7 +11,7 @@ package de.elanev.studip.android.app.course.presentation;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.widget.TextView;
+import android.support.v7.widget.Toolbar;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +24,7 @@ import de.elanev.studip.android.app.courses.presentation.view.CoursesActivity;
 import de.elanev.studip.android.app.news.data.repository.MockNewsRepository;
 import de.elanev.studip.android.app.user.data.repository.MockUserRepository;
 import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
+import de.elanev.studip.android.app.util.ToolbarMatchers;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -31,14 +32,13 @@ import static android.support.test.espresso.assertion.ViewAssertions.doesNotExis
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isSelected;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -63,8 +63,8 @@ public class CoursesViewTest {
 
   @Test public void shouldDisplayCourseOverview() {
     onView(withText(MockCourseRepository.COURSE.getTitle())).perform(click());
-    onView(allOf(instanceOf(TextView.class), withParent(withId(R.id.toolbar)))).check(
-        matches(withText(MockCourseRepository.COURSE.getTitle())));
+    onView(isAssignableFrom(Toolbar.class)).check(
+        matches(ToolbarMatchers.withToolbarTitle(is(MockCourseRepository.COURSE.getTitle()))));
     onView(withText(R.string.Overview)).check(matches(isSelected()));
     onView(withId(R.id.course_title)).check(
         matches(withText(MockCourseRepository.COURSE.getTitle())));
