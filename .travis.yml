@@ -16,7 +16,7 @@ branches:
     - master
 
 script:
-  - ./gradlew connectedBetaStagingAndroidTest --stacktrace && ./gradlew connectedProductionStagingAndroidTest --stacktrace
+  - ./gradlew connectedBetaStagingAndroidTest && ./gradlew connectedProductionStagingAndroidTest
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
