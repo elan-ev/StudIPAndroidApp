@@ -1,35 +1,34 @@
 language: android
 jdk: oraclejdk8
-cache: false
-sudo: false
-env:
-  matrix:
-  - ANDROID_TARGET=android-16 ANDROID_ABI=armeabi-v7a
-  - ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
-  - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
-  - ANDROID_TARGET=android-22 ANDROID_ABI=armeabi-v7a
-  - ANDROID_TARGET=android-23 ANDROID_ABI=armeabi-v7a
-  - ANDROID_TARGET=android-24 ANDROID_ABI=armeabi-v7a
-  - ANDROID_TARGET=android-25 ANDROID_ABI=armeabi-v7a
-  global: MALLOC_ARENA_MAX=2
+
 android:
   components:
     - tools
-    - tools
     - platform-tools
-    - extra-android-support
-    - extra-android-m2repository
     - build-tools-25.0.2
     - android-25
+    - extra-android-m2repository
+    - extra-google-m2repository
+    - extra-android-support
 
-before_script:
-  # Create and start emulator
-  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - adb wait-for-device
-  - adb shell input keyevent 82 &
+branches:
+  only:
+    - master
 
-script: ./gradlew connectedBetaStagingAndroidTest && ./gradlew connectedProductionStagingAndroidTest
+script:
+  - ./gradlew connectedBetaStagingAndroidTest --stacktrace && ./gradlew
+  connectedProductionStagingAndroidTest --stacktrace
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache
+    
 notifications:
   slack:
     secure: Ov7XJdmH5SB1zQlVVT7gozs42Ju1XIONyC2B8+dwKqAxdXEjscTUFkKOPOLVGtfloAd2/8t70LeB1CxIByBMy/WMU4VNYloGMD2FrwFasGhveXCVubKla33miE/Iq+4/R3TXxWffk4Pvvj6BE3D0rQJw8+0RvbBzLsh928USj7E=
