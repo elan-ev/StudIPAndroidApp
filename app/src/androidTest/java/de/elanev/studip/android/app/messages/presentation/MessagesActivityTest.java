@@ -12,7 +12,9 @@ import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.WindowManager;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +27,7 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.clearText;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static android.support.test.espresso.action.ViewActions.swipeDown;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -45,6 +48,15 @@ public class MessagesActivityTest {
   private static final String TEXT_TO_TYPE = "Test Reply Text";
   @Rule public IntentsTestRule<MessagesActivity> testRule = new IntentsTestRule<>(
       MessagesActivity.class);
+
+  @Before public void setUp() {
+    MessagesActivity activity = testRule.getActivity();
+    Runnable wakeUpDevice = () -> activity.getWindow()
+        .addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    activity.runOnUiThread(wakeUpDevice);
+  }
 
   @Test public void shouldShowInAndOutboxList() {
     onView(withText(MockMessagesRepository.INBOX_MESSAGE.getSubject())).check(
@@ -77,8 +89,10 @@ public class MessagesActivityTest {
     onView(withText(R.string.reply)).perform(click());
     onView(withId(R.id.message_subject)).perform(clearText())
         .perform(typeText(SUBJECT_TO_TYPE));
+    onView(withId(R.id.message_subject)).perform(closeSoftKeyboard());
     onView(withId(R.id.message_body)).perform(clearText())
         .perform(typeText(TEXT_TO_TYPE));
+    onView(withId(R.id.message_subject)).perform(closeSoftKeyboard());
     onView(withId(R.id.send_icon)).perform(click());
     onView(withText(MockMessagesRepository.INBOX_MESSAGE.getSubject())).check(
         matches(isDisplayed()));
@@ -94,7 +108,8 @@ public class MessagesActivityTest {
     onView(withText(R.string.delete)).perform(click());
 
     onView(withText(MockMessagesRepository.OUTBOX_MESSAGE.getSubject())).perform(click());
-    onView(withText(MockMessagesRepository.OUTBOX_MESSAGE.getSubject())).check(matches(isDisplayed()));
+    onView(withText(MockMessagesRepository.OUTBOX_MESSAGE.getSubject())).check(
+        matches(isDisplayed()));
     onView(withId(R.id.fab)).perform(click());
     onView(withText(R.string.delete)).perform(click());
 

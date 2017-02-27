@@ -11,7 +11,9 @@ package de.elanev.studip.android.app.news.presentation;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.WindowManager;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,8 +35,16 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 @LargeTest
 //Test GetNewsList and GetNewsDetails UseCase
 public class NewsActivityTest {
-  @Rule public ActivityTestRule<NewsActivity> newsActivityActivityTestRule = new ActivityTestRule<>(
-      NewsActivity.class);
+  @Rule public ActivityTestRule<NewsActivity> testRule = new ActivityTestRule<>(NewsActivity.class);
+
+  @Before public void setUp() {
+    NewsActivity activity = testRule.getActivity();
+    Runnable wakeUpDevice = () -> activity.getWindow()
+        .addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    activity.runOnUiThread(wakeUpDevice);
+  }
 
   @Test public void shouldShowNewsList() {
     onView(withText(MockNewsRepository.NEWS_TITLE)).check(matches(isDisplayed()));

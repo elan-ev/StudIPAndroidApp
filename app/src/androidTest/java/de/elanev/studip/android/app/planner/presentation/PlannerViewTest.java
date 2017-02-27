@@ -15,8 +15,10 @@ import android.provider.CalendarContract;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +58,15 @@ public class PlannerViewTest {
   //TODO: Test persistence of preferred views after refactoring Prefs to repository pattern
   @Rule public IntentsTestRule<PlannerActivity> testRule = new IntentsTestRule<>(
       PlannerActivity.class);
+
+  @Before public void setUp() {
+    PlannerActivity activity = testRule.getActivity();
+    Runnable wakeUpDevice = () -> activity.getWindow()
+        .addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    activity.runOnUiThread(wakeUpDevice);
+  }
 
   @Test public void shouldDisplayEventsInListView() {
     onView(withText(MockPlannerRepository.VALID_EVENT.getTitle())).check(matches(isDisplayed()));
