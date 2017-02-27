@@ -150,8 +150,6 @@ android {
   useLibrary 'org.apache.http.legacy'
 
   dexOptions {
-    // Skip pre-dexing when running on Travis CI or when disabled via -Dpre-dex=false.
-    preDexLibraries = preDexEnabled && !isTravis
     javaMaxHeapSize "2g" //specify the heap size for the dex process
   }
 

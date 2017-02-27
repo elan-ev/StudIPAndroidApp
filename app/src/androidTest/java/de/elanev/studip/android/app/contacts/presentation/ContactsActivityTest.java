@@ -11,7 +11,9 @@ package de.elanev.studip.android.app.contacts.presentation;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.WindowManager;
 
+import org.aspectj.lang.annotation.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +37,15 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 public class ContactsActivityTest {
   @Rule public IntentsTestRule<ContactsActivity> testRule = new IntentsTestRule<>(
       ContactsActivity.class);
+
+  @Before public void setUp() {
+    ContactsActivity activity = testRule.getActivity();
+    Runnable wakeUpDevice = () -> activity.getWindow()
+        .addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    activity.runOnUiThread(wakeUpDevice);
+  }
 
   @Test public void shouldDisplayContactGroups() {
     onView(withText(MockContactsRepository.TEACHERS_GROUP.getName())).check(matches(isDisplayed()));
