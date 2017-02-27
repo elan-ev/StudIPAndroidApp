@@ -144,8 +144,6 @@ def buildTime() {
   return df.format(new Date())
 }
 
-def isTravis = "true".equals(System.getenv("TRAVIS"))
-def preDexEnabled = "true".equals(System.getProperty("pre-dex", "true"))
 android {
   useLibrary 'org.apache.http.legacy'
 
@@ -245,7 +243,6 @@ android {
       versionNameSuffix '-DEBUG'
       debuggable = true
       testCoverageEnabled false
-      signingConfig signingConfigs.debug
     }
     staging {
       ext.enableCrashlytics = false
