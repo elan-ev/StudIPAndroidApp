@@ -8,12 +8,16 @@
 
 package de.elanev.studip.android.app.messages.presentation;
 
+import android.support.test.espresso.UiController;
+import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.View;
 import android.view.WindowManager;
 
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +37,7 @@ import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
@@ -100,7 +105,7 @@ public class MessagesActivityTest {
     onView(withText(R.string.Outbox)).perform(click());
     onView(allOf(instanceOf(SwipeRefreshLayout.class),
         hasDescendant(withText(MockMessagesRepository.OUTBOX_MESSAGE.getSubject())))).perform(
-        swipeDown());
+        withCustomConstraints(swipeDown(), isDisplayingAtLeast(85)));
     onView(withText(SUBJECT_TO_TYPE)).check(matches(isDisplayed()));
     onView(withText(SUBJECT_TO_TYPE)).perform(click());
     onView(withText(SUBJECT_TO_TYPE)).check(matches(isDisplayed()));
@@ -115,8 +120,25 @@ public class MessagesActivityTest {
 
     onView(allOf(instanceOf(SwipeRefreshLayout.class),
         hasDescendant(withText(MockMessagesRepository.OUTBOX_MESSAGE.getSubject())))).perform(
-        swipeDown());
+        withCustomConstraints(swipeDown(), isDisplayingAtLeast(85)));
     onView(allOf(withText(R.string.no_messages), isDisplayed())).check(matches(isDisplayed()));
+  }
+
+  public static ViewAction withCustomConstraints(final ViewAction action,
+      final Matcher<View> constraints) {
+    return new ViewAction() {
+      @Override public Matcher<View> getConstraints() {
+        return constraints;
+      }
+
+      @Override public String getDescription() {
+        return action.getDescription();
+      }
+
+      @Override public void perform(UiController uiController, View view) {
+        action.perform(uiController, view);
+      }
+    };
   }
 
 }
