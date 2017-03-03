@@ -18,7 +18,6 @@ import de.elanev.studip.android.app.user.data.entity.UserEntityDataMapper;
 import de.elanev.studip.android.app.user.data.entity.UserEntityUtil;
 import de.elanev.studip.android.app.user.data.repository.DataStore.UserCloudDataStore;
 import de.elanev.studip.android.app.user.data.repository.DataStore.UserDataStore;
-import de.elanev.studip.android.app.user.data.repository.DataStore.UserDataStoreFactory;
 import de.elanev.studip.android.app.user.data.repository.DataStore.UserRealmDataStore;
 import rx.Observable;
 
@@ -38,17 +37,21 @@ public class UserDataRepositoryTest {
   @Before public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
-    userDataRepository = new UserDataRepository(mockUserDataMapper, mockUserCloudDataStore, mockUserRealmDataStore);
+    userDataRepository = new UserDataRepository(mockUserDataMapper, mockUserCloudDataStore,
+        mockUserRealmDataStore);
   }
 
   @Test public void shouldReturnUserOnValidUserId() throws Exception {
-    UserEntity userEntity = new UserEntity();
-    given(mockUserDataStore.userEntity(UserEntityUtil.FAKE_USER_ID)).willReturn(
+    UserEntity userEntity = UserEntityUtil.createFakeUserEntity();
+    given(mockUserCloudDataStore.userEntity(UserEntityUtil.FAKE_USER_ID)).willReturn(
+        Observable.just(userEntity));
+    given(mockUserRealmDataStore.userEntity(UserEntityUtil.FAKE_USER_ID)).willReturn(
         Observable.just(userEntity));
 
     userDataRepository.user(UserEntityUtil.FAKE_USER_ID, false);
 
-    verify(mockUserDataStore).userEntity(UserEntityUtil.FAKE_USER_ID);
+    verify(mockUserCloudDataStore).userEntity(UserEntityUtil.FAKE_USER_ID);
+    verify(mockUserRealmDataStore).userEntity(UserEntityUtil.FAKE_USER_ID);
   }
 
 }

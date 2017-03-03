@@ -31,9 +31,9 @@ test:
     # Take screenshot and add to build artifacts
     #- adb shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > $CIRCLE_ARTIFACTS/screen-after-$(date +"%T").png
     # run unit testas
-    #- ./gradlew testBetaStagingUnitTest && ./gradlew testProductionStagingUnitTest
+    - ./gradlew testBetaStagingUnitTest && ./gradlew testProductionStagingUnitTest
     #run lint tests
-    #- ./gradlew lintBetaStaging && ./gradlew lintProductionStaging
+    - ./gradlew lintBetaStaging && ./gradlew lintProductionStaging
     # copy the build outputs to artifacts
     - cp -r app/build/outputs $CIRCLE_ARTIFACTS
     # copy the test results to the test results directory.
