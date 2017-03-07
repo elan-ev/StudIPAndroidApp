@@ -32,7 +32,7 @@ public class MockUserRepository implements UserRepository {
   public static final User STUDENT = new User(USER_STUDENTS_ID, "Test Student", "testStudent",
       "http://student.test/avatar.jpg", "student@test.mail", "+123/123", "http://student.test",
       "Test Student address 123, 12345 Student city", "testStudent", true);
-  public User defaultUser;
+  @SuppressWarnings("WeakerAccess") public User defaultUser;
 
   @Override public Observable<User> user(String userId, boolean forceUpdate) {
     return Observable.just(createUser(userId));

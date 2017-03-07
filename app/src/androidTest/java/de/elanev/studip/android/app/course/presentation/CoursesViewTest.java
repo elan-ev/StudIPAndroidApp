@@ -52,7 +52,7 @@ import static org.hamcrest.Matchers.notNullValue;
 @LargeTest
 public class CoursesViewTest {
   //TODO: Write tests for Forums, Documents, Recordings and Unizensus after refactoring to clean arch
-  @Rule public IntentsTestRule<CoursesActivity> testRule = new IntentsTestRule<CoursesActivity>(
+  @Rule public IntentsTestRule<CoursesActivity> testRule = new IntentsTestRule<>(
       CoursesActivity.class);
 
   @Before public void setUp() {

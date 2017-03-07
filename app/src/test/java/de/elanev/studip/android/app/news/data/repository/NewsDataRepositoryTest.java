@@ -18,7 +18,6 @@ import java.util.List;
 
 import de.elanev.studip.android.app.news.data.entity.NewsEntity;
 import de.elanev.studip.android.app.news.data.repository.datastore.CloudNewsDataStore;
-import de.elanev.studip.android.app.news.data.repository.datastore.NewsDataStore;
 import de.elanev.studip.android.app.news.data.repository.datastore.RealmNewsDataStore;
 import rx.Observable;
 

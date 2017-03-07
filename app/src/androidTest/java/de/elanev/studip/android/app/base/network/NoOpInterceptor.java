@@ -11,19 +11,12 @@ package de.elanev.studip.android.app.base.network;
 import java.io.IOException;
 
 import okhttp3.Response;
-import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer;
 import se.akerfeldt.okhttp.signpost.SigningInterceptor;
 
 /**
  * @author joern
  */
-
 public class NoOpInterceptor extends SigningInterceptor {
-  /**
-   * Constructs a new {@code SigningInterceptor}.
-   *
-   * @param consumer the {@link OkHttpOAuthConsumer} used to sign the requests.
-   */
   public NoOpInterceptor() {
     super(null);
   }

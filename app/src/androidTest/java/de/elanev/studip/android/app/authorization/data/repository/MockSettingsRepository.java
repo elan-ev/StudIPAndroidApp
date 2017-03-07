@@ -8,6 +8,8 @@
 
 package de.elanev.studip.android.app.authorization.data.repository;
 
+import android.annotation.SuppressLint;
+
 import java.util.HashMap;
 
 import de.elanev.studip.android.app.authorization.domain.SettingsRepository;
@@ -19,12 +21,12 @@ import rx.Observable;
  */
 
 public class MockSettingsRepository implements SettingsRepository {
-  public static final HashMap<Integer, Settings.SeminarTypeData> semTypes = new HashMap<>();
+  @SuppressLint("UseSparseArrays") public static final HashMap<Integer, Settings.SeminarTypeData> semTypes = new HashMap<>();
 
   static {
-    semTypes.put(1, new Settings.SeminarTypeData("Vorlesung"));
-    semTypes.put(2, new Settings.SeminarTypeData("Übungen"));
-    semTypes.put(3, new Settings.SeminarTypeData("Gruppe"));
+    semTypes.put(1, new Settings.SeminarTypeData("Lecture"));
+    semTypes.put(2, new Settings.SeminarTypeData("Exercise"));
+    semTypes.put(3, new Settings.SeminarTypeData("Group"));
   }
 
   @Override public Observable<Settings> studipSettings(boolean forceUpdate) {
