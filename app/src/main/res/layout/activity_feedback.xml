@@ -26,27 +26,6 @@
         />
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/feedback_email_text_input_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/keyline_1"
-        android:paddingStart="@dimen/keyline_1"
-        android:paddingRight="@dimen/keyline_1"
-        android:paddingEnd="@dimen/keyline_1"
-        app:errorEnabled="true"
-        >
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/feedback_sender_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:nextFocusForward="@+id/feedback_message"
-            android:imeOptions="actionNext"/>
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
         android:id="@+id/feedback_message_text_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -62,7 +41,9 @@
             android:layout_height="wrap_content"
             android:hint="@string/Message"
             android:inputType="textMultiLine"
-            android:imeOptions="actionNext"/>
+            android:imeOptions="actionNext"
+            android:minLines="3"/>
+
     </android.support.design.widget.TextInputLayout>
 
 
