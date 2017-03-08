@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.WindowManager;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,10 +52,17 @@ public class FeedbackViewTest {
   private String[] feedbackCategories;
 
   @Before public void setup() {
-    feedbackCategories = testRule.getActivity()
-        .getResources()
+    FeedbackActivity activity = testRule.getActivity();
+    Runnable wakeUpDevice = () -> activity.getWindow()
+        .addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    activity.runOnUiThread(wakeUpDevice);
+
+    feedbackCategories = activity.getResources()
         .getStringArray(R.array.feedback_category);
-    //Necessary to not start the real calendar app which would make all following tests fail
+
+    // mock Intent response for external Intents
     intending(not(isInternal())).respondWith(
         new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
   }

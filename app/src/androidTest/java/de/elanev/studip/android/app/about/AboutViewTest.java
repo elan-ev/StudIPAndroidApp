@@ -11,7 +11,9 @@ package de.elanev.studip.android.app.about;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.WindowManager;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +41,15 @@ import static org.hamcrest.core.StringContains.containsString;
 @RunWith(AndroidJUnit4.class)
 public class AboutViewTest {
   @Rule public IntentsTestRule<AboutActivity> testRule = new IntentsTestRule<>(AboutActivity.class);
+
+  @Before public void setup() {
+    AboutActivity activity = testRule.getActivity();
+    Runnable wakeUpDevice = () -> activity.getWindow()
+        .addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    activity.runOnUiThread(wakeUpDevice);
+  }
 
   @Test public void shouldDisplayBuildInfo() {
     onView(withId(R.id.version_text)).check(
