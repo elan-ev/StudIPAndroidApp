@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.news.data.repository.MockNewsRepository;
+import de.elanev.studip.android.app.util.DrawableMatchers;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -47,16 +48,23 @@ public class NewsActivityTest {
   }
 
   @Test public void shouldShowNewsList() {
-    onView(withText(MockNewsRepository.NEWS_TITLE)).check(matches(isDisplayed()));
-    onView(withText(MockNewsRepository.NEWS_TITLE_RANGE)).check(matches(isDisplayed()));
+    onView(withText(MockNewsRepository.GLOBAL_NEWS.getTitle())).check(matches(isDisplayed()));
+    onView(DrawableMatchers.withDrawable(R.drawable.ic_menu_news)).check(matches(isDisplayed()));
+    onView(withText(MockNewsRepository.COURSE_NEWS.getTitle())).check(matches(isDisplayed()));
+    onView(DrawableMatchers.withDrawable(R.drawable.ic_seminar_blue)).check(matches(isDisplayed()));
+    onView(withText(MockNewsRepository.INSTITUTE_NEWS.getTitle())).check(matches(isDisplayed()));
+    onView(DrawableMatchers.withDrawable(R.drawable.ic_action_global)).check(
+        matches(isDisplayed()));
   }
 
   @Test public void shouldShowNewsDetailsOnClick() {
-    onView(withText(MockNewsRepository.NEWS_TITLE)).perform(click());
-    onView(withId(R.id.text1)).check(
-        matches(withText(MockNewsRepository.NEWS_AUTHOR.getFullname()))); // News author
+    onView(withText(MockNewsRepository.GLOBAL_NEWS.getTitle())).perform(click());
+    onView(withId(R.id.text1)).check(matches(withText(MockNewsRepository.GLOBAL_NEWS.getAuthor()
+        .getFullname()))); // News author
     onView(withId(R.id.text2)).check(matches(isDisplayed())); // News date (localized)
-    onView(withId(R.id.news_title)).check(matches(withText(MockNewsRepository.NEWS_TITLE)));
-    onView(withId(R.id.news_body)).check(matches(withText(MockNewsRepository.NEWS_BODY)));
+    onView(withId(R.id.news_title)).check(
+        matches(withText(MockNewsRepository.GLOBAL_NEWS.getTitle())));
+    onView(withId(R.id.news_body)).check(
+        matches(withText(MockNewsRepository.GLOBAL_NEWS.getBody())));
   }
 }

@@ -8,15 +8,18 @@
 
 package de.elanev.studip.android.app.news.data.repository;
 
-import java.util.ArrayList;
+import android.text.TextUtils;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import de.elanev.studip.android.app.StudIPConstants;
 import de.elanev.studip.android.app.course.data.repository.MockCourseRepository;
+import de.elanev.studip.android.app.courses.data.entity.Course;
 import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.domain.NewsRepository;
 import de.elanev.studip.android.app.user.data.repository.MockUserRepository;
-import de.elanev.studip.android.app.user.domain.User;
-import de.elanev.studip.android.app.util.TextTools;
 import rx.Observable;
 
 /**
@@ -24,48 +27,56 @@ import rx.Observable;
  */
 
 public class MockNewsRepository implements NewsRepository {
-  public static final String NEWS_TITLE = "Test News";
-  public static final String NEWS_TITLE_RANGE = "Range Test News Title";
-  public static final String NEWS_BODY = "Test News Body";
-  public static final String USER_NAME = "News Test User";
-  private static final String NEWS_ID = "123";
-  private static final Long NEWS_DATE = 946684800L;
-  public static final User NEWS_AUTHOR = MockUserRepository.TEACHER;
+  private static final String GLOBAL_NEWS_ID = "globalNewsId1";
+  public static final NewsItem GLOBAL_NEWS = new NewsItem(GLOBAL_NEWS_ID, "Global news Title",
+      946684800L, "Global news body", MockUserRepository.TEACHER,
+      StudIPConstants.STUDIP_NEWS_GLOBAL_RANGE, null);
+  private static final String COURSE_NEWS_ID = "courseNewsId1";
+
+  //FIXME: Use the correct course form the MockRepo after the NewsRepo was fixed
+  private static final Course COURSE = createCourse();
+  public static final NewsItem COURSE_NEWS = new NewsItem(COURSE_NEWS_ID, "Course news Title",
+      946684800L, "Course news body", MockUserRepository.TEACHER, COURSE.getCourseId(), COURSE);
+  private static final String INSTITUTE_NEWS_ID = "instituteNewsId1";
+  //FIXME
+  public static final NewsItem INSTITUTE_NEWS = new NewsItem(INSTITUTE_NEWS_ID,
+      "Institute news Title", 946684800L, "Course news body", MockUserRepository.TEACHER, null,
+      null);
+
+  private static Course createCourse() {
+    Course course = new Course();
+    course.setCourseId(MockCourseRepository.COURSE.getCourseId());
+    return course;
+  }
 
   @Override public Observable<NewsItem> newsItem(String id, boolean forceUpdate) {
-    NewsItem newsItem = createNewsItem(id);
-    return Observable.just(newsItem);
+    return Observable.just(createNewsItem(id));
   }
 
   private NewsItem createNewsItem(String id) {
-    NewsItem newsItem = new NewsItem();
-    newsItem.setTitle(NEWS_TITLE);
-    newsItem.setBody(NEWS_BODY);
-    newsItem.setDate(NEWS_DATE);
-    newsItem.setRange(MockCourseRepository.COURSE.getCourseId());
-    newsItem.setAuthor(NEWS_AUTHOR);
-
-    if (TextTools.isEmpty(id)) {
-      newsItem.setNewsId(id);
+    switch (id) {
+      case COURSE_NEWS_ID:
+        return COURSE_NEWS;
+      case GLOBAL_NEWS_ID:
+        return GLOBAL_NEWS;
+      case INSTITUTE_NEWS_ID:
+        return INSTITUTE_NEWS;
+      default:
+        return null;
     }
-
-    return newsItem;
   }
 
   @Override public Observable<List<NewsItem>> newsList(boolean forceUpdate) {
-    List<NewsItem> items = new ArrayList<>(1);
-    items.add(createNewsItem(NEWS_ID));
-
-    return Observable.just(items);
+    return Observable.just(Arrays.asList(COURSE_NEWS, GLOBAL_NEWS, INSTITUTE_NEWS));
   }
 
-  @Override public Observable<List<NewsItem>> newsForRange(String id, boolean forceUpdate) {
-    List<NewsItem> items = new ArrayList<>(1);
-    NewsItem item = createNewsItem(NEWS_ID);
-    item.setTitle(NEWS_TITLE_RANGE);
-    item.setRange(id);
-    items.add(item);
-
-    return Observable.just(items);
+  @Override public Observable<List<NewsItem>> newsForRange(String range, boolean forceUpdate) {
+    if (TextUtils.equals(range, GLOBAL_NEWS.getRange())) {
+      return Observable.just(Collections.singletonList(GLOBAL_NEWS));
+    } else if (TextUtils.equals(range, COURSE_NEWS.getRange())) {
+      return Observable.just(Collections.singletonList(COURSE_NEWS));
+    } else {
+      return Observable.just(Collections.singletonList(INSTITUTE_NEWS));
+    }
   }
 }
