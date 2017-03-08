@@ -87,10 +87,12 @@ public class CoursesViewTest {
         matches(withText(MockCourseRepository.COURSE.getDescription())));
     onView(withId(R.id.text1)).check(matches(withText(MockUserRepository.TEACHER.getFullname())));
     onView(withId(R.id.text2)).check(matches(withText("")));
-    onView(withId(R.id.news_title)).check(matches(withText(MockNewsRepository.NEWS_TITLE)));
+    onView(withId(R.id.news_title)).check(
+        matches(withText(MockNewsRepository.COURSE_NEWS.getTitle())));
     onView(withId(R.id.news_author)).check(matches(notNullValue()))
         .check(matches(withText(containsString(MockUserRepository.TEACHER.getFullname()))));
-    onView(withId(R.id.news_text)).check(matches(withText(MockNewsRepository.NEWS_BODY)));
+    onView(withId(R.id.news_text)).check(
+        matches(withText(MockNewsRepository.COURSE_NEWS.getBody())));
   }
 
   @Test public void shouldToggleNewsBody() {

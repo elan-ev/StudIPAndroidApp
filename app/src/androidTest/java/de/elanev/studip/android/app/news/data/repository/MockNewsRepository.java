@@ -40,8 +40,8 @@ public class MockNewsRepository implements NewsRepository {
   private static final String INSTITUTE_NEWS_ID = "instituteNewsId1";
   //FIXME
   public static final NewsItem INSTITUTE_NEWS = new NewsItem(INSTITUTE_NEWS_ID,
-      "Institute news Title", 946684800L, "Course news body", MockUserRepository.TEACHER, null,
-      null);
+      "Institute news Title", 946684800L, "Course news body", MockUserRepository.TEACHER,
+      "institute", null);
 
   private static Course createCourse() {
     Course course = new Course();
