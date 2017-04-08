@@ -135,7 +135,7 @@ public class FeedbackActivity extends BaseActivity implements AdapterView.OnItem
       intent.putExtra(Intent.EXTRA_TEXT,
           String.format(getString(R.string.feedback_form_message_template),
               feedbackMessageInput.getText(), Build.VERSION.SDK_INT, BuildConfig.VERSION_NAME,
-              BuildConfig.VERSION_CODE, BuildConfig.BUILD_TIME));
+              BuildConfig.VERSION_CODE));
 
       // Start email app if one is installed
       if (intent.resolveActivity(getPackageManager()) != null) {

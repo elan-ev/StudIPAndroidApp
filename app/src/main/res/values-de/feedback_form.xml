@@ -10,7 +10,7 @@
     <string name="feedback_form_message_template">
         %1$s\n\n===============\n
         \nAndroid API Version: %2$d\nStud.IP mobil Version: %3$s
-        \nBuild: %4$d (%5$s)
+        \nBuild: %4$d
     </string>
 
     <string-array name="feedback_category">
