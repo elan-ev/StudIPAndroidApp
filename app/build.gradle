@@ -8,7 +8,7 @@
 // Production-Release versioning
 def versionMajor = 1  // max. 9
 def versionMinor = 3  // max. 99
-def versionPatch = 1 // max. 99
+def versionPatch = 6 // max. 99
 
 // Beta- and Alpha-Release versioning
 def versionMajorBeta = 1 // max. 9
