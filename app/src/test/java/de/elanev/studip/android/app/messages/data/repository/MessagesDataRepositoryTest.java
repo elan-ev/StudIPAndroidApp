@@ -34,8 +34,8 @@ public class MessagesDataRepositoryTest {
   private static final String FAKE_ID = "123";
   private static final String FAKE_SUBJECT = "fake-subject";
   private static final String FAKE_MESSAGE = "fake-message";
-  MessageEntity messageEntity;
-  Message message;
+  private MessageEntity messageEntity;
+  private Message message;
   @Mock private MessagesEntityDataMapper mockMessagesEntityMapper;
   @Mock private MessagesDataStoreFactory mockMessagesDataStoreFactory;
   @Mock private MessagesDataStore mockMessagesDataStore;

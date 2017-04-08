@@ -46,7 +46,7 @@ public class GetCourseOverview extends UseCase {
     this.settingsRepository = settingsRepository;
   }
 
-  @Override protected Observable buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable buildUseCaseObservable(boolean forceUpdate) {
     Observable<Settings> settingsObs = settingsRepository.studipSettings(forceUpdate);
 
     Observable<DomainCourse> courseObs = settingsObs.flatMap(

@@ -17,6 +17,7 @@ import de.elanev.studip.android.app.base.BaseRxLcePresenter;
 import de.elanev.studip.android.app.base.DefaultSubscriber;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.news.domain.GetNewsList;
 import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.presentation.mapper.NewsModelDataMapper;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
@@ -29,12 +30,12 @@ import timber.log.Timber;
 @PerActivity
 public class NewsListPresenter extends BaseRxLcePresenter<NewsListView, List<NewsModel>> {
 
-  private final UseCase getNewsList;
+  private final GetNewsList getNewsList;
   private final NewsModelDataMapper mNewsModelDataMapper;
 
   @Inject NewsListPresenter(@Named("newsList") UseCase getNewsListUseCase,
       NewsModelDataMapper dataMapper) {
-    this.getNewsList = getNewsListUseCase;
+    this.getNewsList = (GetNewsList) getNewsListUseCase;
     this.mNewsModelDataMapper = dataMapper;
   }
 

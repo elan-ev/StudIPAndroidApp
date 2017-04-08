@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -34,19 +34,21 @@ public class GetNewsList extends UseCase<List<NewsItem>> {
     this.coursesRepository = coursesRepository;
   }
 
-  @Override protected Observable<List<NewsItem>> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<List<NewsItem>> buildUseCaseObservable(boolean forceUpdate) {
     Observable<List<NewsItem>> coursesObs = coursesRepository.courses(forceUpdate)
         .flatMap(domainCourses -> Observable.defer(() -> Observable.from(domainCourses)
             .flatMap(domainCourse -> mRepository.newsForRange(domainCourse.getCourseId(),
                 forceUpdate))));
 
     return Observable.zip(mRepository.newsList(forceUpdate), coursesObs, (news, courses) -> {
-
       ArrayList<NewsItem> newsItems = new ArrayList<>(news.size() + courses.size());
       newsItems.addAll(news);
       newsItems.addAll(courses);
 
       return newsItems;
-    });
+    })
+        .flatMap(newsItems -> Observable.from(newsItems)
+            .distinct()
+            .toList());
   }
 }

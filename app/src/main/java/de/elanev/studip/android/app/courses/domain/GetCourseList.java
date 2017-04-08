@@ -35,7 +35,7 @@ public class GetCourseList extends UseCase<List<DomainCourse>> {
     this.settingsRepository = settingsRepository;
   }
 
-  @Override protected Observable<List<DomainCourse>> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<List<DomainCourse>> buildUseCaseObservable(boolean forceUpdate) {
     Observable<Settings> settingsObs = settingsRepository.studipSettings(forceUpdate);
     Observable<List<DomainCourse>> coursesObs = coursesRepository.courses(forceUpdate);
 

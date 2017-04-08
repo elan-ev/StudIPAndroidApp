@@ -33,7 +33,7 @@ public class GetCourseSchedule extends UseCase<List<Event>> {
     this.repository = coursesRepository;
   }
 
-  @Override protected Observable<List<Event>> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<List<Event>> buildUseCaseObservable(boolean forceUpdate) {
     return this.repository.courseEvents(id, forceUpdate)
         .flatMap(courseEvents -> Observable.defer(() -> Observable.from(courseEvents))
             .filter(courseEvent -> courseEvent.getStart() * 1000L > System.currentTimeMillis()))

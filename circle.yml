@@ -1,0 +1,40 @@
+machine:
+    java:
+        version: oraclejdk8
+    environment:
+        TERM: "dumb"
+        ADB_INSTALL_TIMEOUT: "10"
+        GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+
+dependencies:
+  pre:
+    - echo y | android update sdk --no-ui --all --filter "tools"
+    - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.2"
+    - echo y | android update sdk --no-ui --all --filter tool,extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository,android-22
+
+test:
+  override:
+    # start the emulator
+    - emulator -avd circleci-android22 -no-audio -no-window:
+        background: true
+        parallel: true
+    # wait for it to have booted
+    - circle-android wait-for-boot
+    # unlock the emulator screen
+    - sleep 30
+    - adb shell input keyevent 82
+    # Take screenshot and add to build artifacts
+    #- adb shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > $CIRCLE_ARTIFACTS/screen-before-$(date +"%T").png
+    # run tests  against the emulator.
+    - ./gradlew connectedBetaStagingAndroidTest -PdisablePreDex
+    #- ./gradlew connectedProductionStagingAndroidTest -PdisablePreDex
+    # Take screenshot and add to build artifacts
+    #- adb shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > $CIRCLE_ARTIFACTS/screen-after-$(date +"%T").png
+    # run unit testas
+    - ./gradlew testBetaStagingUnitTest && ./gradlew testProductionStagingUnitTest
+    #run lint tests
+    - ./gradlew lintBetaStaging && ./gradlew lintProductionStaging
+    # copy the build outputs to artifacts
+    - cp -r app/build/outputs $CIRCLE_ARTIFACTS
+    # copy the test results to the test results directory.
+    - cp -r app/build/outputs/androidTest-results/* $CIRCLE_TEST_REPORTS

@@ -37,7 +37,7 @@ public class GetCourseUsers extends UseCase<CourseUsers> {
     this.coursesRepository = coursesRepository;
   }
 
-  @Override protected Observable<CourseUsers> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<CourseUsers> buildUseCaseObservable(boolean forceUpdate) {
     return this.coursesRepository.course(id, forceUpdate)
         .flatMap(course -> {
           Observable<List<User>> teachersObs = userRepository.getUsers(course.getTeachers(), forceUpdate);

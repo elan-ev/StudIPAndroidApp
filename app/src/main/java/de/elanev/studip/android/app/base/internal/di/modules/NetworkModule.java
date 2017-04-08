@@ -39,7 +39,7 @@ import se.akerfeldt.okhttp.signpost.SigningInterceptor;
 public class NetworkModule {
   private static final long CACHE_SIZE = 10 * 1024 * 1024;
 
-  @SuppressLint("NewApi") @Provides public OAuthCredentials providesOAuthCredentials(
+  @SuppressLint("NewApi") @Provides public OAuthCredentials provideOAuthCredentials(
       RealmConfiguration realmConfiguration, CredentialsEntityDataMapper mapper) {
     try (Realm realm = Realm.getInstance(realmConfiguration)) {
       OAuthCredentialsEntity entity = realm.where(OAuthCredentialsEntity.class)
@@ -62,18 +62,18 @@ public class NetworkModule {
     return new StudIpLegacyApiService(retrofit);
   }
 
-  @Provides @Singleton public Cache providesOkHttpCache(Context context) {
+  @Provides @Singleton public Cache provideOkHttpCache(Context context) {
     return new Cache(context.getCacheDir(), CACHE_SIZE);
   }
 
-  @Provides @Singleton public HttpLoggingInterceptor providesLoggingInterceptor() {
+  @Provides @Singleton public HttpLoggingInterceptor provideLoggingInterceptor() {
     HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
     loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
     return loggingInterceptor;
   }
 
-  @Provides @Singleton public SigningInterceptor providesSignInterceptor(
+  @Provides @Singleton public SigningInterceptor provideSignInterceptor(
       OAuthCredentials credentials) {
     OkHttpOAuthConsumer oAuthConsumer = new OkHttpOAuthConsumer(credentials.getEndpoint()
         .getConsumerKey(), credentials.getEndpoint()
@@ -84,7 +84,7 @@ public class NetworkModule {
     return new SigningInterceptor(oAuthConsumer);
   }
 
-  @Provides @Singleton public OkHttpClient providesOkHttpClient(Cache cache,
+  @Provides @Singleton public OkHttpClient provideOkHttpClient(Cache cache,
       HttpLoggingInterceptor loggingInterceptor, SigningInterceptor signingInterceptor) {
 
     return new OkHttpClient.Builder().addInterceptor(loggingInterceptor)
@@ -93,15 +93,15 @@ public class NetworkModule {
         .build();
   }
 
-  @Provides @Singleton JacksonConverterFactory providesJacksonConverterFactory() {
+  @Provides @Singleton public JacksonConverterFactory provideJacksonConverterFactory() {
     return JacksonConverterFactory.create();
   }
 
-  @Provides @Singleton RxJavaCallAdapterFactory providesRxJavaCallAdapterFactory() {
+  @Provides @Singleton public RxJavaCallAdapterFactory provideRxJavaCallAdapterFactory() {
     return RxJavaCallAdapterFactory.create();
   }
 
-  @Provides @Singleton public Retrofit providesRetrofit(Prefs prefs, OkHttpClient client,
+  @Provides @Singleton public Retrofit provideRetrofit(Prefs prefs, OkHttpClient client,
       JacksonConverterFactory jacksonConverterFactory,
       RxJavaCallAdapterFactory rxJavaCallAdapterFactory) {
 

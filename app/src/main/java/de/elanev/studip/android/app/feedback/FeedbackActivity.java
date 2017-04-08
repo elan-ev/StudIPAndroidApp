@@ -46,8 +46,6 @@ public class FeedbackActivity extends BaseActivity implements AdapterView.OnItem
   @BindView(R.id.feedback_category) Spinner feedbackCategorySpinner;
   @BindView(R.id.feedback_message_text_input_layout) TextInputLayout feedbackMessageInputLayout;
   @BindView(R.id.feedback_message) TextInputEditText feedbackMessageInput;
-  @BindView(R.id.feedback_email_text_input_layout) TextInputLayout feedbackSenderAddressInputLayout;
-  @BindView(R.id.feedback_sender_address) TextInputEditText feedbackSenderAddressInput;
   @BindView(R.id.toolbar) Toolbar toolbar;
   private String selectedCategory;
 
@@ -83,6 +81,7 @@ public class FeedbackActivity extends BaseActivity implements AdapterView.OnItem
         R.array.feedback_category, android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     feedbackCategorySpinner.setAdapter(adapter);
+    feedbackCategorySpinner.setOnItemSelectedListener(this);
 
     selectedCategory = getResources().getStringArray(R.array.feedback_category)[0];
   }
@@ -147,11 +146,6 @@ public class FeedbackActivity extends BaseActivity implements AdapterView.OnItem
 
   public boolean validateFormFields() {// Check if all fields are filled
     boolean isValid = true;
-
-    if (TextUtils.isEmpty(feedbackSenderAddressInput.getText())) {
-      feedbackSenderAddressInputLayout.setError(getString(R.string.error_valid_email));
-      isValid = false;
-    }
 
     if (TextUtils.isEmpty(feedbackMessageInput.getText())) {
       feedbackMessageInputLayout.setError(getString(R.string.error_missing_message));

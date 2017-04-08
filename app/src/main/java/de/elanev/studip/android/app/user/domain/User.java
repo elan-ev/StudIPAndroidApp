@@ -27,6 +27,21 @@ public class User {
   private String skypeAddress;
   private boolean showSkypeOnline;
 
+  public User(String userId, String fullname, String username, String avatarUrl, String email,
+      String phone, String homepageUrl, String privateAddress, String skypeAddress,
+      boolean showSkypeOnline) {
+    this.userId = userId;
+    this.fullname = fullname;
+    this.username = username;
+    this.avatarUrl = avatarUrl;
+    this.email = email;
+    this.phone = phone;
+    this.homepageUrl = homepageUrl;
+    this.privateAddress = privateAddress;
+    this.skypeAddress = skypeAddress;
+    this.showSkypeOnline = showSkypeOnline;
+  }
+
   public User(String userId) {this.userId = userId;}
 
   public String getPhone() {

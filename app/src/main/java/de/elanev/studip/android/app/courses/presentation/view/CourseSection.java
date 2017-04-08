@@ -61,6 +61,10 @@ class CourseSection extends StatelessSection {
     this.onItemClickListener = onClickListener;
   }
 
+  public boolean isEmpty() {
+    return this.data == null || this.data.isEmpty();
+  }
+
   @Override public int getContentItemsTotal() {
     return this.data != null ? this.data.size() : 0;
   }

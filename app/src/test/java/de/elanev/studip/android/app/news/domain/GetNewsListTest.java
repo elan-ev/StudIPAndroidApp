@@ -33,7 +33,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author joern
  */
 public class GetNewsListTest {
-  private static final String FAKE_COURSE_ID = "123";
   private GetNewsList getNewsList;
 
   @Mock private NewsRepository mockNewsRepository;

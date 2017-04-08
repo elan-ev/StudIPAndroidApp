@@ -23,7 +23,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -38,7 +37,7 @@ public class SendMessageTest {
   @Mock private MessagesRepository mockMessagesRepository;
   @Mock private ThreadExecutor mockThreadExecutor;
   @Mock private PostExecutionThread mockPostExecutionThread;
-  @Mock private DefaultSubscriber<Message> mockSubScriber;
+  @Mock private DefaultSubscriber<Message> mockSubscriber;
   @Mock private User mockUser;
 
   @Before public void setUp() throws Exception {
@@ -50,15 +49,15 @@ public class SendMessageTest {
 
   @Test public void executeShouldFailIfMessageIsEmpty() throws
       Exception {
-    sendMessage.execute(mockSubScriber);
-    verify(mockSubScriber).onError(any(IllegalStateException.class));
+    sendMessage.execute(mockSubscriber);
+    verify(mockSubscriber).onError(any(IllegalStateException.class));
   }
 
   @Test public void executeShouldFailIfMessageReceiverIsEmpty() throws
       Exception {
     sendMessage.setMessage(new Message());
-    sendMessage.execute(mockSubScriber);
-    verify(mockSubScriber).onError(any(IllegalStateException.class));
+    sendMessage.execute(mockSubscriber);
+    verify(mockSubscriber).onError(any(IllegalStateException.class));
   }
 
   @Test public void buildUseCaseObservable() throws Exception {

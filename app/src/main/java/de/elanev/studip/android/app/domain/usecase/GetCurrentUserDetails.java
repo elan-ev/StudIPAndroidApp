@@ -33,7 +33,7 @@ public class GetCurrentUserDetails extends UseCase<User> {
     this.userRepository = userRepository;
   }
 
-  @Override protected Observable<User> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<User> buildUseCaseObservable(boolean forceUpdate) {
     String currentUserId = prefs.getCurrentUserId();
 
     return userRepository.user(currentUserId, forceUpdate);

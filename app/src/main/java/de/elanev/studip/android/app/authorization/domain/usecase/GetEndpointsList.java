@@ -33,7 +33,7 @@ public class GetEndpointsList extends UseCase<List<Endpoint>> {
     this.endpointsRepository = endpointsRepository;
   }
 
-  @Override protected Observable<List<Endpoint>> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<List<Endpoint>> buildUseCaseObservable(boolean forceUpdate) {
     return this.endpointsRepository.endpoints();
   }
 }

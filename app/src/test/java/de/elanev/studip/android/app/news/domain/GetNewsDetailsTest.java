@@ -13,11 +13,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.UUID;
-
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
-import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 import static org.mockito.BDDMockito.given;

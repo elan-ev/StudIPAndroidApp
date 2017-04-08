@@ -30,7 +30,7 @@ public class GetCourseCensusUrl extends UseCase<String> {
     this.repository = coursesRepository;
   }
 
-  @Override protected Observable<String> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<String> buildUseCaseObservable(boolean forceUpdate) {
     return this.repository.course(id, forceUpdate)
         .flatMap(course -> {
           if (course.getCourseAdditionalData() != null && course.getCourseAdditionalData()

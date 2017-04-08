@@ -40,13 +40,13 @@ public class CoursesModule {
     this.id = id;
   }
 
-  @Provides @PerActivity @Named("courseList") UseCase providesGetCourseListUseCase(
+  @Provides @PerActivity @Named("courseList") UseCase provideGetCourseListUseCase(
       GetCourseList getCourseList) {
 
     return getCourseList;
   }
 
-  @Provides @PerActivity @Named("courseOverview") UseCase providesGetCourseOverviewUseCase(
+  @Provides @PerActivity @Named("courseOverview") UseCase provideGetCourseOverviewUseCase(
       GetNewsList getNewsList, CoursesRepository coursesRepository, UserRepository userRepository,
       SettingsRepository settingsRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
@@ -55,14 +55,14 @@ public class CoursesModule {
         postExecutionThread, userRepository, settingsRepository);
   }
 
-  @Provides @PerActivity @Named("getCourseSchedule") UseCase providesGetCourseScheduleUseCase(
+  @Provides @PerActivity @Named("getCourseSchedule") UseCase provideGetCourseScheduleUseCase(
       CoursesRepository coursesRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 
     return new GetCourseSchedule(this.id, coursesRepository, threadExecutor, postExecutionThread);
   }
 
-  @Provides @PerActivity @Named("getCourseUsers") UseCase providesGetCourseUsersUseCase(
+  @Provides @PerActivity @Named("getCourseUsers") UseCase provideGetCourseUsersUseCase(
       UserRepository userRepository, CoursesRepository coursesRepository,
       ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
 
@@ -70,7 +70,7 @@ public class CoursesModule {
         postExecutionThread);
   }
 
-  @Provides @PerActivity @Named("getCourseCensusUrl") UseCase providesCourseCensusUrl(
+  @Provides @PerActivity @Named("getCourseCensusUrl") UseCase provideCourseCensusUrl(
       CoursesRepository coursesRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 

@@ -27,11 +27,7 @@ public class UserTest {
   private static final String FAKE_PHONE = "+49 123 456789";
   private static final String FAKE_PRIVATE_ADDRESS = "Baum 3, 00000 Lummerland";
   private static final String FAKE_SKYPE_ADDRESS = "PeterThePan";
-  private static final Object FAKE_USER_STRING = "*********** User ***********\n" + "id=123\n"
-      + "username=peterpan\n" + "fullname=Dr. Peter Pan\n" + "avatar url=http://gooogle.de\n"
-      + "email=peter@pan.de\n" + "private address=Baum 3, 00000 Lummerland\n"
-      + "homepage url=http://www.google.de\n" + "skype address=PeterThePan\n" + "show skype=false\n"
-      + "********************************";
+  private static final Object FAKE_USER_STRING = "User{userId='123', fullname='Dr. Peter Pan', username='peterpan', avatarUrl='http://gooogle.de', email='peter@pan.de', phone='+49 123 456789', homepageUrl='http://www.google.de', privateAddress='Baum 3, 00000 Lummerland', skypeAddress='PeterThePan', showSkypeOnline=false}";
 
   private User user;
 

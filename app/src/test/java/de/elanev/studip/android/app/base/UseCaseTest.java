@@ -84,7 +84,7 @@ public class UseCaseTest {
       super.execute(subscriber);
     }
 
-    @Override protected Observable<Integer> buildUseCaseObservable(boolean forceUpdate) {
+    @Override public Observable<Integer> buildUseCaseObservable(boolean forceUpdate) {
       return Observable.just(1, 2, 3)
           .delay(10, TimeUnit.MILLISECONDS);
     }

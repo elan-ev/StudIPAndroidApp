@@ -20,6 +20,19 @@ public class Semester {
   private long seminarsBegin;
   private long seminarsEnd;
 
+  public Semester() {}
+
+  public Semester(String semesterId, String title, String description, long begin, long end,
+      long seminarsBegin, long seminarsEnd) {
+    this.semesterId = semesterId;
+    this.title = title;
+    this.description = description;
+    this.begin = begin;
+    this.end = end;
+    this.seminarsBegin = seminarsBegin;
+    this.seminarsEnd = seminarsEnd;
+  }
+
   public long getSeminarsEnd() {
     return seminarsEnd;
   }

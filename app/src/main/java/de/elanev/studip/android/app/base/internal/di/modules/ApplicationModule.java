@@ -59,22 +59,18 @@ public class ApplicationModule {
     this.mApplication = application;
   }
 
-  @Provides AbstractStudIPApplication abstractStudIPApplication() {
+  @Provides public AbstractStudIPApplication abstractStudIPApplication() {
     return (AbstractStudIPApplication) this.mApplication;
   }
 
   //Serialization
-  @Provides @Singleton public ObjectMapper providesObjectMapper() {
+  @Provides @Singleton public ObjectMapper provideObjectMapper() {
     return new ObjectMapper();
   }
 
   // Android
   @Provides @Singleton public Context provideContext() {
     return mApplication;
-  }
-
-  @Provides @Singleton public ContentResolver provideContentResolver(Context context) {
-    return context.getContentResolver();
   }
 
   // Prefs
@@ -98,52 +94,52 @@ public class ApplicationModule {
     return contactsDataRepository;
   }
 
-  @Provides @Singleton public PlannerRepository providesPlannerRepository(
+  @Provides @Singleton public PlannerRepository providePlannerRepository(
       PlannerDataRepository plannerDataRepository) {
     return plannerDataRepository;
   }
 
-  @Provides @Singleton public MessagesRepository providesMessagesRepository(
+  @Provides @Singleton public MessagesRepository provideMessagesRepository(
       MessagesDataRepository messagesDataRepository) {
     return messagesDataRepository;
   }
 
-  @Provides @Singleton public CoursesRepository providesCoursesRepository(
+  @Provides @Singleton public CoursesRepository provideCoursesRepository(
       CoursesDataRepository coursesDataRepository) {
     return coursesDataRepository;
   }
 
-  @Provides @Singleton public CredentialsRepository providesAuthorizationRepository(
+  @Provides @Singleton public CredentialsRepository provideAuthorizationRepository(
       CredentialsDataRepository authorizationDataRepository) {
     return authorizationDataRepository;
   }
 
-  @Provides @Singleton public SettingsRepository providesSettingsRepository(
+  @Provides @Singleton public SettingsRepository provideSettingsRepository(
       SettingsDataRepository settingsDataRepository) {
     return settingsDataRepository;
   }
 
-  @Provides @Singleton public EndpointsRepository providesEndpointsRepository(
+  @Provides @Singleton public EndpointsRepository provideEndpointsRepository(
       EndpointsDataRepository endpointsDataRepository) {
     return endpointsDataRepository;
   }
 
-  @Provides @Singleton public AuthService providesAuthService(AuthServiceImpl authService) {
+  @Provides @Singleton public AuthService provideAuthService(AuthServiceImpl authService) {
     return authService;
   }
 
   // Scheduling
-  @Provides @Singleton PostExecutionThread providePostExecutionExecutor(
+  @Provides @Singleton public PostExecutionThread providePostExecutionExecutor(
       PostExecutionThreadImpl postExecutionExecutor) {
     return postExecutionExecutor;
   }
 
-  @Provides @Singleton ThreadExecutor provideThreadExecutor(ThreadExecutorImpl threadExecutor) {
+  @Provides @Singleton public ThreadExecutor provideThreadExecutor(ThreadExecutorImpl threadExecutor) {
     return threadExecutor;
   }
 
   // Database
-  @Provides @Singleton RealmConfiguration provideRealmConfiguration(Context context) {
+  @Provides @Singleton public RealmConfiguration provideRealmConfiguration(Context context) {
     Realm.init(context);
 
     RealmConfiguration.Builder builder = new RealmConfiguration.Builder();

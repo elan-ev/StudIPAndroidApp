@@ -50,7 +50,7 @@ public abstract class UseCase<T> {
   /**
    * Builds an {@link rx.Observable} which will be used when executing the current {@link UseCase}.
    */
-  protected abstract Observable<T> buildUseCaseObservable(boolean forceUpdate);
+  public abstract Observable<T> buildUseCaseObservable(boolean forceUpdate);
 
   private Observable.Transformer<T, T> applySchedulers() {
     return tObservable -> tObservable.subscribeOn(threadExecutor.getScheduler())

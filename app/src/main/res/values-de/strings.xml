@@ -81,7 +81,7 @@
     <!-- CourseView Activity -->
     <string name="upcoming_events">Anstehende Termine</string>
     <string name="appointments">Termine</string>
-    <string name="attendees">Mitglieder</string>
+    <string name="Participants">Mitglieder</string>
     <string name="time_room">Zeit / Veranstaltunsort</string>
     <string name="Teacher">DozentInnen</string>
     <string name="next_appointments">Nächste Termin</string>
