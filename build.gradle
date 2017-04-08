@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -7,28 +7,35 @@
  */
 
 allprojects {
-    buildscript {
-        repositories {
-            mavenCentral()
-        }
+  buildscript {
+    repositories {
+      mavenCentral()
     }
+  }
 
-    dependencies {
-        repositories {
-            mavenCentral()
-        }
+  dependencies {
+    repositories {
+      mavenCentral()
     }
+  }
 }
 
 buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0'
-    }
+  repositories {
+    mavenCentral()
+    maven { url 'https://maven.fabric.io/public' }
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:2.3.1'
+    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    classpath 'io.fabric.tools:gradle:1.+'
+    classpath "com.fernandocejas.frodo:frodo-plugin:0.8.3"
+    classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
+    classpath "io.realm:realm-gradle-plugin:2.2.1"
+  }
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.10'
+  gradleVersion = '2.10'
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2017 ELAN e.V.
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the GNU Public License v3.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.gnu.org/licenses/gpl.html
+  -->
+<resources>
+
+    <string name="feedback_form_message_template">
+        %1$s\n\n===============\n
+        \nAndroid API Version: %2$d\nStud.IP mobil Version: %3$s
+        \nBuild: %4$d (%5$s)
+    </string>
+
+    <string-array name="feedback_category">
+        <item>Feedback</item>
+        <item>Issue</item>
+        <item>Missing Service</item>
+        <item>Feature Request</item>
+    </string-array>
+
+    <string name="feedback_form_action">Send email</string>
+
+    <!-- Error messages -->
+    <string name="error_valid_email">Please enter a valid email address</string>
+    <string name="error_missing_message">Please enter a feedback message</string>
+
+</resources>

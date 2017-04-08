@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2016 ELAN e.V.
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the GNU Public License v3.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.gnu.org/licenses/gpl.html
+  -->
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/keyline_1"
+    android:paddingBottom="20dp"
+    android:background="?android:selectableItemBackground">
+
+    <TextView
+        android:id="@+id/text1"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/keyline_1"
+        android:paddingStart="@dimen/keyline_1"
+        android:paddingRight="0dp"
+        android:paddingEnd="0dp"
+
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/primary_text_light"
+        android:textSize="@dimen/text_size_largemedium"
+
+        tools:text="Sample Event Title"
+        android:layout_toLeftOf="@+id/add_to_calendar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+
+    <TextView
+        android:id="@+id/text2"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/keyline_1"
+        android:paddingStart="@dimen/keyline_1"
+        android:paddingRight="0dp"
+        android:paddingEnd="0dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/primary_text_light"
+        android:textSize="@dimen/text_size_medium"
+        android:layout_below="@id/text1"
+
+        tools:text="Sample Event Room Info 1234"
+        android:layout_toLeftOf="@+id/add_to_calendar"
+        android:layout_toStartOf="@id/add_to_calendar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+
+
+    <TextView
+        android:id="@+id/text3"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text2"
+        android:paddingLeft="@dimen/keyline_1"
+        android:paddingStart="@dimen/keyline_1"
+        android:paddingRight="0dp"
+        android:paddingEnd="0dp"
+
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="@color/secondary_text_light"
+        android:textSize="@dimen/text_size_medium"
+
+        tools:text="@string/lipsum_short"
+        android:layout_toLeftOf="@+id/add_to_calendar"
+        android:layout_toStartOf="@+id/add_to_calendar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+
+    <ImageView
+        android:id="@+id/add_to_calendar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        app:srcCompat="@drawable/ic_add_black_24dp"
+        android:layout_alignTop="@+id/text2"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:contentDescription="@string/add_to_calendar"/>
+
+</RelativeLayout>

@@ -52,7 +52,6 @@ If you want to contribute to this project, feel free to do so. At first you need
 ## Libs
 * [oauth-signpost][4]
 * [Jackson JSON Processor][5]
-* [Google Volley HTTP][7]
 * [Square Picasso][10]
 * [Square Retrofit][14]
 * [RXJava][15]
@@ -76,7 +75,6 @@ If you want to contribute to this project, feel free to do so. At first you need
 [3]: http://code.google.com/p/maven-android-plugin/wiki/GettingStarted
 [4]: http://code.google.com/p/oauth-signpost/
 [5]: http://wiki.fasterxml.com/JacksonHome
-[7]: https://android.googlesource.com/platform/frameworks/volley/
 [8]: http://www.elan-ev.de/
 [9]: http://developer.android.com/sdk/installing/studio.html
 [10]: http://square.github.io/picasso/
