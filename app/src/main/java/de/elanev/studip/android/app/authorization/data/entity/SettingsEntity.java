@@ -19,6 +19,7 @@ import java.util.HashMap;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SettingsEntity {
   private HashMap<Integer, SeminarTypeData> semTypes;
+  private String apiVersion;
 
   @JsonProperty("SEM_TYPE") public HashMap<Integer, SeminarTypeData> getSemTypes() {
     return semTypes;
@@ -26,6 +27,14 @@ public class SettingsEntity {
 
   @JsonProperty("SEM_TYPE") public void setSemTypes(HashMap<Integer, SeminarTypeData> semTypes) {
     this.semTypes = semTypes;
+  }
+
+  @JsonProperty("API_VERSION") public String getApiVersion() {
+    return apiVersion;
+  }
+
+  @JsonProperty("API_VERSION") public void setApiVersion(String apiVersion) {
+    this.apiVersion = apiVersion;
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
@@ -45,7 +54,6 @@ public class SettingsEntity {
   /*
    * Unused /studip/settings properties
    */
-  //  @JsonProperty("API_VERSION") public String apiVersion;
   //  @JsonProperty("ALLOW_CHANGE_USERNAME") public boolean isAllowChangeUsername;
   //  @JsonProperty("ALLOW_CHANGE_EMAIL") public boolean isAllowChangeEmail;
   //  @JsonProperty("ALLOW_CHANGE_NAME") public boolean isAllowChangeName;
