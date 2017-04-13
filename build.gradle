@@ -27,12 +27,12 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:2.3.1'
-    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    classpath 'io.fabric.tools:gradle:1.+'
+    classpath "com.android.tools.build:gradle:2.3.1"
+    classpath "com.neenbedankt.gradle.plugins:android-apt:1.8"
+    classpath "io.fabric.tools:gradle:1.+"
     classpath "com.fernandocejas.frodo:frodo-plugin:0.8.3"
-    classpath 'me.tatarka:gradle-retrolambda:3.6.0'
-    classpath "io.realm:realm-gradle-plugin:2.3.0"
+    classpath "me.tatarka:gradle-retrolambda:3.6.0"
+    classpath "io.realm:realm-gradle-plugin:3.1.2"
   }
 }
 
@@ -46,4 +46,95 @@ subprojects {
       project.android.dexOptions.preDexLibraries = rootProject.ext.preDexLibs
     }
   }
+}
+
+ext {
+  // Android
+  compileSdkVersion = 25
+  buildToolsVersion = '25.0.2'
+  minSdkVersion = 15
+  targetSdkVersion = 25
+
+  // Libraries
+  supportLibVersion = '25.3.1'
+  crashlyticsVersion = '2.6.7@aar'
+  okhttpVersion = '3.6.0'
+  retrofitVersion = '2.2.0'
+  picassoVersion = '2.5.2'
+  picassoOkHttpDownloaderVersion = '1.1.0'
+  jacksonVersion = '2.8.8'
+  signpostVersion = '1.2.1.2'
+  okhttpSignpostVersion = '1.1.0'
+  rxjavaVersion = '1.2.9'
+  rxandroidVersion = '0.25.0'
+  butterknifeVersion = '8.5.1'
+  daggerVersion = '2.10'
+  javaxAnnotationVersion = '1.0'
+  mosbyVersion = '2.0.1'
+  smoothprogressbarVersion = '1.2.0'
+  sectionedrecyclerviewadapterVersion = '1.0.4'
+  circleimageviewVersion = '2.1.0'
+  androidWeekViewVersion = '2.0.2'
+  fabSpeedDialVersion = '1.0.6'
+  timberVersion = '4.5.1'
+
+  // Testing
+  testSupportLibVersion = '0.5'
+  espressoVersion = '2.2.2'
+  mockitoVersion = '2.7.22'
+  jUnitVersion = '4.12'
+  hamcrestVersion = '1.3'
+
+  depsSupport = [
+      supportv4   : "com.android.support:support-v4:${supportLibVersion}",
+      appcompat   : "com.android.support:appcompat-v7:${supportLibVersion}",
+      recyclerView: "com.android.support:recyclerview-v7:${supportLibVersion}",
+      design      : "com.android.support:design:${supportLibVersion}",
+      cardview    : "com.android.support:cardview-v7:${supportLibVersion}",
+      annotations : "com.android.support:support-annotations:${supportLibVersion}",
+  ]
+
+  depsCode = [
+      crashlytics                 : "com.crashlytics.sdk.android:crashlytics:${crashlyticsVersion}",
+      okHttp                      : "com.squareup.okhttp3:okhttp:${okhttpVersion}",
+      okhttpLoggingInterceptor    : "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}",
+      retrofit                    : "com.squareup.retrofit2:retrofit:${retrofitVersion}",
+      retrofitJackson             : "com.squareup.retrofit2:converter-jackson:${retrofitVersion}",
+      retrofitRxJava              : "com.squareup.retrofit2:adapter-rxjava:${retrofitVersion}",
+      picasso                     : "com.squareup.picasso:picasso:${picassoVersion}",
+      picassoOkhttp               : "com.jakewharton.picasso:picasso2-okhttp3-downloader:${picassoOkHttpDownloaderVersion}",
+      jacksonDatabind             : "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
+      jacksonAnnotations          : "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}",
+      signpostOAuth               : "oauth.signpost:oauth-signpost:${signpostVersion}",
+      signpostOkhttp              : "se.akerfeldt:okhttp-signpost:${okhttpSignpostVersion}",
+      rxJava                      : "io.reactivex:rxjava:${rxjavaVersion}",
+      rxAndroid                   : "io.reactivex:rxandroid:${rxandroidVersion}",
+      butterknife                 : "com.jakewharton:butterknife:${butterknifeVersion}",
+      butterknifeCompiler         : "com.jakewharton:butterknife-compiler:${butterknifeVersion}",
+      dagger                      : "com.google.dagger:dagger:${daggerVersion}",
+      daggerAndroid               : "com.google.dagger:dagger-android:${daggerVersion}",
+      daggerCompiler              : "com.google.dagger:dagger-compiler:${daggerVersion}",
+      javaxAnnotation             : "javax.annotation:jsr250-api:${javaxAnnotationVersion}",
+      mosbyMvp                    : "com.hannesdorfmann.mosby:mvp:${mosbyVersion}",
+      mosbyViewState              : "com.hannesdorfmann.mosby:viewstate:${mosbyVersion}",
+      smoothCircularProgressbar   : "com.github.castorflex.smoothprogressbar:library-circular:${smoothprogressbarVersion}",
+      sectionedrecyclerviewadapter: "io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:${sectionedrecyclerviewadapterVersion}",
+      circleimageview             : "de.hdodenhof:circleimageview:${circleimageviewVersion}",
+      androidWeekView             : "com.github.quivr:android-week-view:${androidWeekViewVersion}",
+      fabSpeedDial                : "io.github.yavski:fab-speed-dial:${fabSpeedDialVersion}",
+      timber                      : "com.jakewharton.timber:timber:${timberVersion}"
+  ]
+
+  depsTest = [
+      testRunner         : "com.android.support.test:runner:${testSupportLibVersion}",
+      testRules          : "com.android.support.test:rules:${testSupportLibVersion}",
+      espressoCore       : "com.android.support.test.espresso:espresso-core:${espressoVersion}",
+      espressoIntents    : "com.android.support.test.espresso:espresso-intents:${espressoVersion}",
+      mockito            : "org.mockito:mockito-core:${mockitoVersion}",
+      mockitoAndroid     : "org.mockito:mockito-android:${mockitoVersion}",
+      junit              : "junit:junit:${jUnitVersion}",
+      hamcrest           : "org.hamcrest:hamcrest-core:${hamcrestVersion}",
+      hamcrestIntegration: "org.hamcrest:hamcrest-integration:${hamcrestVersion}",
+      hamcrestLibrary    : "org.hamcrest:hamcrest-library:${hamcrestVersion}"
+  ]
 }

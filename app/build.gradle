@@ -30,127 +30,92 @@ repositories {
 }
 
 dependencies {
+  def support = rootProject.ext.depsSupport;
+  def code = rootProject.ext.depsCode;
+  def test = rootProject.ext.depsTest;
 
-  // Crashlytics Kit
-  compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
+  // Android Support Libs
+  compile support.supportv4
+  compile support.appcompat
+  compile support.recyclerView
+  compile support.design
+  compile support.cardview
+  compile support.annotations
+  // API
+  compile code.okHttp
+  compile code.retrofit
+  compile code.retrofitJackson
+  compile code.retrofitRxJava
+  compile code.jacksonDatabind
+  compile code.jacksonAnnotations
+  compile code.signpostOAuth
+  compile code.signpostOkhttp
+  // RxJava
+  //TODO: Update rxjava and rxandroid to 2.x
+  compile code.rxJava
+  compile code.rxAndroid
+  // Dependency injection
+  compile code.dagger
+  compile code.daggerAndroid
+  apt code.daggerCompiler
+  provided code.javaxAnnotation
+  // MVP
+  compile code.mosbyMvp
+  compile code.mosbyViewState
+  // UI
+  compile code.butterknife
+  apt code.butterknifeCompiler
+  compile code.smoothCircularProgressbar
+  compile code.sectionedrecyclerviewadapter
+  compile code.circleimageview
+  compile code.androidWeekView
+  compile code.fabSpeedDial
+  compile code.picasso
+  compile code.picassoOkhttp
+  // Logging
+  compile code.timber
+  compile code.okhttpLoggingInterceptor
+  compile(code.crashlytics) {
     transitive = true;
   }
-  // Android Support Libs
-  compile 'com.android.support:support-v4:25.2.0'
-  compile 'com.android.support:appcompat-v7:25.2.0'
-  compile 'com.android.support:recyclerview-v7:25.2.0'
-  compile 'com.android.support:design:25.2.0'
-  compile 'com.android.support:cardview-v7:25.2.0'
-  compile 'com.android.support:support-annotations:25.2.0'
-  // Square Libs
-  compile 'com.squareup.okhttp3:okhttp:3.4.2'
-  compile 'com.squareup.okhttp3:okhttp-urlconnection:3.4.2'
-  compile 'com.squareup.okhttp3:logging-interceptor:3.4.2'
-  compile 'com.squareup.retrofit2:retrofit:2.1.0'
-  compile 'com.squareup.retrofit2:converter-jackson:2.1.0'
-  compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
-  compile 'com.squareup.retrofit2:retrofit-mock:2.1.0'
-  compile 'com.squareup.picasso:picasso:2.5.2'
-  compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
-  // Jackson JSON Parsing
-  compile 'com.fasterxml.jackson.core:jackson-databind:2.8.2'
-  compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.2'
-  // SignPost OAuth
-  compile 'oauth.signpost:oauth-signpost:1.2.1.2'
-  compile('oauth.signpost:signpost-commonshttp4:1.2.1.2') {
-    exclude module: 'commons-logging'
-    exclude module: 'httpcore'
-    exclude module: 'httpclient'
-  }
-  compile('oauth.signpost:signpost-core:1.2.1.2') {
-    exclude module: 'commons-codec'
-  }
-  compile 'se.akerfeldt:okhttp-signpost:1.1.0'
-  // RxJava
-
-  //TODO: Update rxjava and rxandroid to 2.x
-  compile 'io.reactivex:rxjava:1.2.5'
-  compile 'io.reactivex:rxandroid:0.25.0'
-  // Dependency injection
-  compile 'com.jakewharton:butterknife:8.4.0'
-  apt 'com.jakewharton:butterknife-compiler:8.4.0'
-  compile 'com.google.dagger:dagger:2.8'
-  compile 'com.google.dagger:dagger-android:2.8'
-  apt 'com.google.dagger:dagger-compiler:2.8'
-  provided 'javax.annotation:jsr250-api:1.0'
-  // MVP
-  compile 'com.hannesdorfmann.mosby:mvp:2.0.1'
-  compile 'com.hannesdorfmann.mosby:viewstate:2.0.1'
-  // UI
-  compile 'com.github.castorflex.smoothprogressbar:library-circular:1.2.0'
-  // Other
-  compile 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.0.4'
-  compile 'de.hdodenhof:circleimageview:2.1.0'
-  compile 'com.github.quivr:android-week-view:2.0.2'
-  compile 'io.github.yavski:fab-speed-dial:1.0.6'
-  compile 'com.jakewharton.timber:timber:4.3.1'
-  // Test deps
-  androidTestApt 'com.google.dagger:dagger-compiler:2.8'
-  androidTestCompile('org.mockito:mockito-core:2.7.0') {
+  // Instrumentation tests
+  androidTestApt code.daggerCompiler
+  androidTestCompile test.testRunner
+  androidTestCompile test.testRules
+  androidTestCompile support.annotations
+  androidTestCompile test.espressoCore
+  androidTestCompile test.espressoIntents
+  androidTestCompile test.junit
+  androidTestCompile test.mockitoAndroid
+  androidTestCompile(test.mockito) {
     exclude module: 'hamcrest-core'
   }
-  androidTestCompile 'org.mockito:mockito-android:2.7.0'
-  androidTestCompile 'com.android.support:support-v4:25.2.0'
-  androidTestCompile 'com.android.support:appcompat-v7:25.2.0'
-  androidTestCompile 'com.android.support:recyclerview-v7:25.2.0'
-  androidTestCompile 'com.android.support:design:25.2.0'
-  androidTestCompile 'com.android.support:support-annotations:25.2.0'
-  // Android JUnit Runner
-  androidTestCompile 'com.android.support.test:runner:0.5'
-  // JUnit4 Rules
-  androidTestCompile 'com.android.support.test:rules:0.5'
-  // Espresso core
-  androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
-  // Espresso-contrib for DatePicker, RecyclerView, Drawer actions, Accessibility checks, CountingIdlingResource
-  androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2.2') {
-    exclude module: 'support-annotations'
-  }
-  // Espresso-intent for Intent support
-  androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.2'
-
-  //Mocking
-  androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
-  // Dependencies for local unit tests
-  testApt 'com.google.dagger:dagger-compiler:2.8'
-  testCompile('junit:junit:4.12') {
+  // Unit tests
+  testCompile test.hamcrest
+  testCompile test.hamcrestIntegration
+  testCompile test.hamcrestLibrary
+  testApt code.daggerCompiler
+  testCompile(test.junit) {
     exclude module: 'hamcrest-core'
   }
-  testCompile('org.mockito:mockito-core:2.7.0') {
+  testCompile(test.mockito) {
     exclude module: 'hamcrest-core'
   }
-  testCompile 'org.hamcrest:hamcrest-core:1.3'
-  testCompile 'org.hamcrest:hamcrest-integration:1.3'
-  testCompile 'org.hamcrest:hamcrest-library:1.3'
-  androidTestCompile 'junit:junit:4.12'
 }
 
 android {
-  dexOptions {
-    javaMaxHeapSize "2g" //specify the heap size for the dex process
+  compileSdkVersion rootProject.ext.compileSdkVersion
+  buildToolsVersion rootProject.ext.buildToolsVersion
+
+  configurations.all {
+    //Temp fix for conflict in androidTestCompile. DaggerCompiler and espresso-core import the
+    // same lib in version 2.0.1 (Espresso-core) and 3.0.1 (Dagger)
+    // TODO: check espresso for updated dependency and remove this fix
+    resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
   }
-
-
-  lintOptions {
-    abortOnError false
-  }
-
-  compileSdkVersion 25
-  buildToolsVersion '25.0.2'
 
   // Testing option
   testBuildType "staging"
-
-  // Always show the result of every unit test, even if it passes.
-  testOptions.unitTests.all {
-    testLogging {
-      events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
-    }
-  }
 
   signingConfigs {
     release
@@ -161,8 +126,6 @@ android {
       storePassword 'android'
     }
   }
-
-  //Read signing config from release.properties in root
   if (rootProject.file("release.properties").exists()) {
     def props = new Properties()
     props.load(new FileInputStream(rootProject.file("release.properties")))
@@ -172,11 +135,11 @@ android {
     android.signingConfigs.release.keyAlias props.getProperty("keyAlias")
     android.signingConfigs.release.keyPassword props.getProperty("keyAliasPassword")
   }
-
+  
   defaultConfig {
     applicationId "de.elanev.studip.android.app"
-    minSdkVersion 15
-    targetSdkVersion 25
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.targetSdkVersion
 
     // Testing settings
     testApplicationId "de.elanev.studip.android.app.test"
@@ -189,12 +152,6 @@ android {
     setProperty("archivesBaseName", "studip_mobil")
 
     vectorDrawables.useSupportLibrary = true
-  }
-
-  compileOptions {
-    // Enable Java 8 SourceCode features
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
   }
 
   productFlavors {
@@ -241,6 +198,17 @@ android {
     }
   }
 
+  dexOptions {
+    javaMaxHeapSize "2g" //specify the heap size for the dex process
+  }
+  lintOptions {
+    abortOnError false
+  }
+  compileOptions {
+    // Enable Java 8 SourceCode features
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
   packagingOptions {
     exclude 'META-INF/DEPENDENCIES'
     exclude 'META-INF/NOTICE'
@@ -248,5 +216,4 @@ android {
     exclude 'META-INF/LICENSE.txt'
     exclude 'META-INF/NOTICE.txt'
   }
-
 }
