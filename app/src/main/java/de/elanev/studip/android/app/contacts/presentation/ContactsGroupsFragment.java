@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -47,17 +47,16 @@ public class ContactsGroupsFragment extends
     ContactsView, SwipeRefreshLayout.OnRefreshListener {
 
   @Inject ContactsPresenter presenter;
-  @BindView(R.id.list) EmptyRecyclerView mRecyclerView;
-  @BindView(R.id.emptyView) TextView mEmptyView;
-  @BindView(R.id.contentView) SwipeRefreshLayout contentView;
-  private SectionedRecyclerViewAdapter contactsAdapter;
-  private ContactsListListener contactsListListener;
-
   private final ContactsSection.ContactClickListener onClickListener = userModel -> {
     if (this.presenter != null && userModel != null) {
       this.presenter.onContactClicked(userModel);
     }
   };
+  @BindView(R.id.list) EmptyRecyclerView mRecyclerView;
+  @BindView(R.id.emptyView) TextView mEmptyView;
+  @BindView(R.id.contentView) SwipeRefreshLayout contentView;
+  private SectionedRecyclerViewAdapter contactsAdapter;
+  private ContactsListListener contactsListListener;
   private List<ContactGroupModel> sectionsData;
 
   public ContactsGroupsFragment() {
@@ -111,14 +110,6 @@ public class ContactsGroupsFragment extends
     return this.presenter;
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-
-    if (activity instanceof ContactsListListener) {
-      this.contactsListListener = (ContactsListListener) activity;
-    }
-  }
-
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     contentView.setOnRefreshListener(this);
@@ -144,7 +135,19 @@ public class ContactsGroupsFragment extends
     super.onCreate(savedInstanceState);
 
     ContactsComponent component = this.getComponent(ContactsComponent.class);
-    component.inject(this);
+    if (component != null) {
+      component.inject(this);
+    } else {
+      componentNotFound();
+    }
+  }
+
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (activity instanceof ContactsListListener) {
+      this.contactsListListener = (ContactsListListener) activity;
+    }
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater,

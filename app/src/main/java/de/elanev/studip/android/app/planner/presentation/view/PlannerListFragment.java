@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,6 @@ import android.widget.TextView;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.data.RetainingLceViewState;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -34,8 +33,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
-import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
-import de.elanev.studip.android.app.courses.presentation.model.CourseModulesModel;
 import de.elanev.studip.android.app.planner.internal.di.PlannerComponent;
 import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
 import de.elanev.studip.android.app.planner.presentation.presenter.PlannerListPresenter;
@@ -89,14 +86,6 @@ public class PlannerListFragment extends
     super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
     getActivity().setTitle(R.string.Planner);
-  }
-
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-
-    if (activity instanceof PlannerEventListener) {
-      this.plannerEventListener = (PlannerEventListener) activity;
-    }
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater,
@@ -153,7 +142,20 @@ public class PlannerListFragment extends
     super.onCreate(savedInstanceState);
 
     PlannerComponent component = getComponent(PlannerComponent.class);
-    component.inject(this);
+
+    if (component != null) {
+      component.inject(this);
+    } else {
+      componentNotFound();
+    }
+  }
+
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (activity instanceof PlannerEventListener) {
+      this.plannerEventListener = (PlannerEventListener) activity;
+    }
   }
 
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
