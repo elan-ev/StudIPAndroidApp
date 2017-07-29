@@ -14,12 +14,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.messages.presentation.model.MessageModel;
 import de.elanev.studip.android.app.messages.presentation.view.MessageComposeActivity;
 import de.elanev.studip.android.app.user.interal.di.DaggerUserComponent;
@@ -31,7 +33,7 @@ import de.elanev.studip.android.app.user.presentation.model.UserModel;
  * @author joern
  */
 public class UserDetailsActivity extends AppCompatActivity implements HasComponent<UserComponent>,
-    UserDetailsFragment.FabClickListener {
+    UserDetailsFragment.FabClickListener, BaseLceFragment.OnComponentNotFoundErrorListener {
 
   public static final String USER_ID = "user-id";
   @BindView(R.id.toolbar) Toolbar toolbar;
@@ -108,5 +110,11 @@ public class UserDetailsActivity extends AppCompatActivity implements HasCompone
     Intent intent = new Intent(this, MessageComposeActivity.class);
     intent.putExtras(extras);
     startActivity(intent);
+  }
+
+  @Override public void onComponentNotFound() {
+    Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT)
+        .show();
+    finish();
   }
 }

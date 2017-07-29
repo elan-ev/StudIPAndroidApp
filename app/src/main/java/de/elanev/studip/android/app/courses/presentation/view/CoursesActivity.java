@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -11,11 +11,13 @@ package de.elanev.studip.android.app.courses.presentation.view;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.courses.internal.di.CoursesComponent;
 import de.elanev.studip.android.app.courses.internal.di.CoursesModule;
 import de.elanev.studip.android.app.courses.internal.di.DaggerCoursesComponent;
@@ -25,7 +27,7 @@ import de.elanev.studip.android.app.courses.presentation.model.CourseModel;
  * @author joern
  */
 public class CoursesActivity extends MainActivity implements HasComponent<CoursesComponent>,
-    CoursesFragment.CourseListListener {
+    CoursesFragment.CourseListListener, BaseLceFragment.OnComponentNotFoundErrorListener {
 
   private CoursesComponent coursesComponent;
 
@@ -63,5 +65,11 @@ public class CoursesActivity extends MainActivity implements HasComponent<Course
     Intent intent = CourseViewActivity.getCallingIntent(this);
     intent.putExtras(args);
     startActivity(intent);
+  }
+
+  @Override public void onComponentNotFound() {
+    Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT)
+        .show();
+    finish();
   }
 }

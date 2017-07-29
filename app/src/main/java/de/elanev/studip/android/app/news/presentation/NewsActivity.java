@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -11,12 +11,14 @@ package de.elanev.studip.android.app.news.presentation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 import android.support.annotation.VisibleForTesting;
 
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.news.internal.di.DaggerNewsComponent;
 import de.elanev.studip.android.app.news.internal.di.NewsComponent;
 import de.elanev.studip.android.app.news.internal.di.NewsModule;
@@ -27,7 +29,7 @@ import de.elanev.studip.android.app.news.presentation.view.NewsListFragment;
  * @author joern
  */
 public class NewsActivity extends MainActivity implements HasComponent<NewsComponent>,
-    NewsListFragment.NewsListListener {
+    NewsListFragment.NewsListListener, BaseLceFragment.OnComponentNotFoundErrorListener {
 
   private NewsComponent mNewsComponent;
 
@@ -69,5 +71,10 @@ public class NewsActivity extends MainActivity implements HasComponent<NewsCompo
     intent.setClass(this, NewsViewActivity.class);
     intent.putExtras(args);
     startActivity(intent);
+  }
+
+  @Override public void onComponentNotFound() {
+    Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT);
+    finish();
   }
 }

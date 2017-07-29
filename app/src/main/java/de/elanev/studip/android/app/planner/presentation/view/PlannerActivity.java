@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -23,6 +24,7 @@ import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.courses.presentation.view.CourseViewActivity;
 import de.elanev.studip.android.app.planner.internal.di.DaggerPlannerComponent;
 import de.elanev.studip.android.app.planner.internal.di.PlannerComponent;
@@ -34,7 +36,7 @@ import de.elanev.studip.android.app.util.Prefs;
  * @author joern
  */
 public class PlannerActivity extends MainActivity implements HasComponent<PlannerComponent>,
-    PlannerEventListener {
+    PlannerEventListener, BaseLceFragment.OnComponentNotFoundErrorListener {
   public static final String PLANNER_VIEW_TIMETABLE = "planner-view-timetable";
   public static final String PLANNER_VIEW_LIST = "planner-view-list";
   private static final String PLANNER_PREFERRED_VIEW = "planner-preferred-view";
@@ -172,5 +174,11 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
         .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, model.getEnd() * 1000L);
 
     startActivity(intent);
+  }
+
+  @Override public void onComponentNotFound() {
+    Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT)
+        .show();
+    finish();
   }
 }

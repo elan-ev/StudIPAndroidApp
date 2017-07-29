@@ -80,9 +80,13 @@ public class CourseOverviewFragment extends
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    CoursesComponent component = this.getComponent(CoursesComponent.class);
 
-    this.getComponent(CoursesComponent.class)
-        .inject(this);
+    if (component != null) {
+      component.inject(this);
+    } else {
+      componentNotFound();
+    }
   }
 
   @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,

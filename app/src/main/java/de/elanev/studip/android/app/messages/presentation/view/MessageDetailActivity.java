@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -15,19 +15,22 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.messages.internal.di.DaggerMessagesComponent;
 import de.elanev.studip.android.app.messages.internal.di.MessagesComponent;
 import de.elanev.studip.android.app.messages.internal.di.MessagesModule;
 import de.elanev.studip.android.app.messages.presentation.model.MessageModel;
 
 public class MessageDetailActivity extends AppCompatActivity implements
-    HasComponent<MessagesComponent>, MessageViewFragment.MessageListener {
+    HasComponent<MessagesComponent>, MessageViewFragment.MessageListener,
+    BaseLceFragment.OnComponentNotFoundErrorListener {
   public static final String MESSAGE_ID = "message-id";
   @BindView(R.id.toolbar) Toolbar mToolbar;
 
@@ -130,5 +133,11 @@ public class MessageDetailActivity extends AppCompatActivity implements
     extras.putSerializable(MessageComposeActivity.MESSAGE, messageModel);
 
     startComposeActivity(extras);
+  }
+
+  @Override public void onComponentNotFound() {
+    Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT)
+        .show();
+    finish();
   }
 }

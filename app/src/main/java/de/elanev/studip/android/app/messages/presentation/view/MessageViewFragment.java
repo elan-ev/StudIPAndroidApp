@@ -68,8 +68,21 @@ public class MessageViewFragment extends
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    this.getComponent(MessagesComponent.class)
-        .inject(this);
+    MessagesComponent component = this.getComponent(MessagesComponent.class);
+
+    if (component != null) {
+      component.inject(this);
+    } else {
+      componentNotFound();
+    }
+  }
+
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (activity instanceof MessageListener) {
+      this.messageListener = (MessageListener) activity;
+    }
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater,
@@ -194,14 +207,6 @@ public class MessageViewFragment extends
 
   @NonNull @Override public MessageViewPresenter createPresenter() {
     return this.presenter;
-  }
-
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-
-    if (activity instanceof MessageListener) {
-      this.messageListener = (MessageListener) activity;
-    }
   }
 
   @Override public void showMessageDeleted() {

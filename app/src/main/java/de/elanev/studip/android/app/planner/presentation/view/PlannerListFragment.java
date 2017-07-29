@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -88,14 +88,6 @@ public class PlannerListFragment extends
     getActivity().setTitle(R.string.Planner);
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-
-    if (activity instanceof PlannerEventListener) {
-      this.plannerEventListener = (PlannerEventListener) activity;
-    }
-  }
-
   @Nullable @Override public View onCreateView(LayoutInflater inflater,
       @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.fragment_planner_list, container, false);
@@ -150,7 +142,20 @@ public class PlannerListFragment extends
     super.onCreate(savedInstanceState);
 
     PlannerComponent component = getComponent(PlannerComponent.class);
-    component.inject(this);
+
+    if (component != null) {
+      component.inject(this);
+    } else {
+      componentNotFound();
+    }
+  }
+
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (activity instanceof PlannerEventListener) {
+      this.plannerEventListener = (PlannerEventListener) activity;
+    }
   }
 
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {

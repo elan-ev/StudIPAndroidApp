@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -121,8 +121,13 @@ public class CourseScheduleFragment extends
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    this.getComponent(CoursesComponent.class)
-        .inject(this);
+    CoursesComponent component = this.getComponent(CoursesComponent.class);
+
+    if (component != null) {
+      component.inject(this);
+    } else {
+      componentNotFound();
+    }
   }
 
   @Override public void onRefresh() {
