@@ -23,6 +23,7 @@ import de.elanev.studip.android.app.authorization.internal.di.modules.AuthModule
 import de.elanev.studip.android.app.authorization.presentation.model.EndpointModel;
 import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.news.presentation.NewsActivity;
 
@@ -33,7 +34,8 @@ import de.elanev.studip.android.app.news.presentation.NewsActivity;
  * @author joern
  */
 public class SignInActivity extends BaseActivity implements ServerListFragment.EndpointListListener,
-    OnAuthListener, SignInListener, HasComponent<AuthComponent> {
+    OnAuthListener, SignInListener, HasComponent<AuthComponent>,
+    BaseLceFragment.OnComponentNotFoundErrorListener {
 
   static final String SELECTED_SERVER = "selected_server";
   static final String AUTH_SUCCESS = "auth_success";
@@ -140,5 +142,9 @@ public class SignInActivity extends BaseActivity implements ServerListFragment.E
         .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     ft.replace(R.id.content_frame, frag, SignInFragment.class.getName())
         .commit();
+  }
+
+  @Override public void onComponentNotFound() {
+
   }
 }
