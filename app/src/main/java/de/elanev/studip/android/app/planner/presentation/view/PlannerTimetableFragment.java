@@ -77,14 +77,6 @@ public class PlannerTimetableFragment extends
     return this.presenter;
   }
 
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-
-    if (activity instanceof PlannerEventListener) {
-      this.plannerEventListener = (PlannerEventListener) activity;
-    }
-  }
-
   @Override public void onSaveInstanceState(Bundle outState) {
     Calendar currVisible = weekView.getFirstVisibleDay();
     outState.putSerializable(CURRENT_DATE, currVisible);
@@ -157,13 +149,27 @@ public class PlannerTimetableFragment extends
     super.onCreate(savedInstanceState);
 
     // Dependency injection stuff
-    getComponent(PlannerComponent.class).inject(this);
+    PlannerComponent component = getComponent(PlannerComponent.class);
+
+    if (component != null) {
+      component.inject(this);
+    } else {
+      componentNotFound();
+    }
 
     // Fragment up
     setHasOptionsMenu(true);
 
     currentOrientation = getResources().getConfiguration().orientation;
     preferredDayCount = mPrefs.getPreferredPlannerTimetableViewDayCount();
+  }
+
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (activity instanceof PlannerEventListener) {
+      this.plannerEventListener = (PlannerEventListener) activity;
+    }
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,

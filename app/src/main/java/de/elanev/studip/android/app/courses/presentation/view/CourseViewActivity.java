@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,6 +32,7 @@ import butterknife.ButterKnife;
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.base.internal.di.components.HasComponent;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 import de.elanev.studip.android.app.base.presentation.view.activity.BaseActivity;
 import de.elanev.studip.android.app.courses.internal.di.CoursesComponent;
 import de.elanev.studip.android.app.courses.internal.di.CoursesModule;
@@ -45,7 +47,8 @@ import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
  * schedule, participants and documents.
  */
 public class CourseViewActivity extends BaseActivity implements HasComponent<CoursesComponent>,
-    CourseAttendeesFragment.CourseUsersListListener {
+    CourseAttendeesFragment.CourseUsersListListener,
+    BaseLceFragment.OnComponentNotFoundErrorListener {
   public static final String COURSE_ID = "course-id";
   public static final String COURSE_MODULES = "course-modules";
   @BindView(R.id.pager) ViewPager mPager;
@@ -170,6 +173,12 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
 
       startActivity(intent);
     }
+  }
+
+  @Override public void onComponentNotFound() {
+    Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT)
+        .show();
+    finish();
   }
 
   public static class FragmentsAdapter extends FragmentPagerAdapter {

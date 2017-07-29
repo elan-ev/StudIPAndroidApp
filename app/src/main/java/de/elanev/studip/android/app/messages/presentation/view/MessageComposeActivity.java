@@ -14,13 +14,16 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.elanev.studip.android.app.R;
+import de.elanev.studip.android.app.base.presentation.view.BaseLceFragment;
 
 public class MessageComposeActivity extends AppCompatActivity implements
-    MessageComposeFragment.MessageComposeListener {
+    MessageComposeFragment.MessageComposeListener,
+    BaseLceFragment.OnComponentNotFoundErrorListener {
 
   public static final String TAG = MessageComposeActivity.class.getSimpleName();
   public static final String MESSAGE_ACTION_FLAG = "message_action_flag";
@@ -84,5 +87,11 @@ public class MessageComposeActivity extends AppCompatActivity implements
 
   @Override public void onMessageComposeFinished() {
     this.finish();
+  }
+
+  @Override public void onComponentNotFound() {
+    Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT)
+        .show();
+    finish();
   }
 }

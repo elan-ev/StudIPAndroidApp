@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@ package de.elanev.studip.android.app.news.presentation.view;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
@@ -108,13 +109,15 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
     return mData;
   }
 
-  public void setData(List<NewsModel> newData) {
-    final DiffCallback diffCallback = new DiffCallback(this.mData, newData);
-    final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+  public void setData(@Nullable List<NewsModel> newData) {
+    if (newData != null) {
+      final DiffCallback diffCallback = new DiffCallback(this.mData, newData);
+      final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
 
-    this.mData.clear();
-    this.mData.addAll(newData);
-    diffResult.dispatchUpdatesTo(this);
+      this.mData.clear();
+      this.mData.addAll(newData);
+      diffResult.dispatchUpdatesTo(this);
+    }
   }
 
   public void setOnItemClickListener(NewsClickListener clickListener) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -64,14 +64,6 @@ public class CourseAttendeesFragment extends
 
   @NonNull @Override public CourseAttendeesPresenter createPresenter() {
     return this.presenter;
-  }
-
-  @Override public void onAttach(Activity activity) {
-    super.onAttach(activity);
-
-    if (activity instanceof CourseUsersListListener) {
-      this.courseUsersListListener = (CourseUsersListListener) activity;
-    }
   }
 
   @NonNull @Override public LceViewState<CourseUsersModel, CourseAttendeesView> createViewState() {
@@ -140,8 +132,20 @@ public class CourseAttendeesFragment extends
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    this.getComponent(CoursesComponent.class)
-        .inject(this);
+    CoursesComponent component = this.getComponent(CoursesComponent.class);
+    if (component != null) {
+      component.inject(this);
+    } else {
+      componentNotFound();
+    }
+  }
+
+  @Override public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (activity instanceof CourseUsersListListener) {
+      this.courseUsersListListener = (CourseUsersListListener) activity;
+    }
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater,
