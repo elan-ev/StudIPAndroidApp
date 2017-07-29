@@ -40,8 +40,7 @@ public class AuthServiceImpl implements AuthService {
   @Override public Observable<String> auth(Endpoint endpoint) {
     EndpointEntity endpointEntity = endpointMapper.transform(endpoint);
     oAuthConnector.with(endpointEntity);
-
-    return Observable.fromEmitter(emitter -> {
+    return Observable.create(emitter -> {
       final OAuthConnector.OAuthRequestTokenCallbacks requestTokenCallbacks = new OAuthConnector.OAuthRequestTokenCallbacks() {
         @Override public void onRequestTokenReceived(String authUrl) {
           emitter.onNext(authUrl);
@@ -52,13 +51,13 @@ public class AuthServiceImpl implements AuthService {
           emitter.onError(new Throwable(e.errorMessage));
         }
       };
-      emitter.setCancellation(() -> oAuthConnector.cancel());
+      emitter.setCancellation(oAuthConnector::cancel);
       oAuthConnector.getRequestToken(requestTokenCallbacks);
     }, Emitter.BackpressureMode.NONE);
   }
 
   @Override public Observable<OAuthCredentials> accessToken() {
-    return Observable.fromEmitter(emitter -> {
+    return Observable.create(emitter -> {
       final OAuthConnector.OAuthAccessTokenCallbacks accessTokenCallbacks = new OAuthConnector.OAuthAccessTokenCallbacks() {
         @Override public void onAccessTokenRequestError(OAuthConnector.OAuthError e) {
           emitter.onError(new Throwable(e.errorMessage));
@@ -70,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
         }
       };
 
-      emitter.setCancellation(() -> oAuthConnector.cancel());
+      emitter.setCancellation(oAuthConnector::cancel);
       oAuthConnector.getAccessToken(accessTokenCallbacks);
     }, Emitter.BackpressureMode.NONE);
   }
