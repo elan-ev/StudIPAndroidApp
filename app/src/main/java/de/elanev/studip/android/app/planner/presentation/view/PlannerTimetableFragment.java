@@ -155,13 +155,14 @@ public class PlannerTimetableFragment extends
       component.inject(this);
     } else {
       componentNotFound();
+      return;
     }
 
     // Fragment up
     setHasOptionsMenu(true);
 
     currentOrientation = getResources().getConfiguration().orientation;
-    preferredDayCount = mPrefs.getPreferredPlannerTimetableViewDayCount();
+    preferredDayCount = (mPrefs != null) ? mPrefs.getPreferredPlannerTimetableViewDayCount() : 1;
   }
 
   @Override public void onAttach(Activity activity) {
@@ -246,7 +247,7 @@ public class PlannerTimetableFragment extends
           eventEndCal.setTimeInMillis(plannerEventModel.getEnd() * 1000L);
 
           if (eventStartCal.get(Calendar.YEAR) == newYear
-              && eventStartCal.get(Calendar.MONTH) +1 == newMonth) {
+              && eventStartCal.get(Calendar.MONTH) + 1 == newMonth) {
             String eventTitle = plannerEventModel.getTitle();
             if (plannerEventModel.getCourse() != null && !TextUtils.isEmpty(
                 plannerEventModel.getRoom())) {
