@@ -14,7 +14,7 @@ import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
 import de.elanev.studip.android.app.base.UseCase;
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.planner.domain.GetEventsList;
 import de.elanev.studip.android.app.planner.presentation.mapper.PlannerModelDataMapper;
 import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel;
@@ -25,7 +25,7 @@ import timber.log.Timber;
 /**
  * @author joern
  */
-@PerActivity
+@PerFragment
 public class PlannerTimetablePresenter extends
     BaseRxLcePresenter<PlannerTimetableView, List<PlannerEventModel>> {
 

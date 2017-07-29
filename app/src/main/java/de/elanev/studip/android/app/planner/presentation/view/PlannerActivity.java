@@ -43,7 +43,6 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
   private static final String FRAGMENT_TAG = "planner-fragment";
   @Inject Prefs prefs;
   private int mOrientation;
-  private PlannerComponent plannerComponent;
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.planner_activity_menu, menu);
@@ -94,10 +93,6 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
 
   private void initInjector() {
     getApplicationComponent().inject(this);
-    this.plannerComponent = DaggerPlannerComponent.builder()
-        .applicationComponent(((AbstractStudIPApplication) getApplication()).getAppComponent())
-        .plannerModule(new PlannerModule())
-        .build();
   }
 
   private void initFragment(String preferredView) {
@@ -149,7 +144,10 @@ public class PlannerActivity extends MainActivity implements HasComponent<Planne
   }
 
   @Override public PlannerComponent getComponent() {
-    return plannerComponent;
+    return DaggerPlannerComponent.builder()
+        .applicationComponent(((AbstractStudIPApplication) getApplication()).getAppComponent())
+        .plannerModule(new PlannerModule())
+        .build();
   }
 
   @Override public void onPlannerEventSelected(PlannerEventModel model) {

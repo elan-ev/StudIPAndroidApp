@@ -43,12 +43,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.BuildConfig;
 import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.authorization.data.OAuthConnector;
 import de.elanev.studip.android.app.authorization.data.entity.OAuthCredentialsEntity;
-import de.elanev.studip.android.app.base.internal.di.components.ApplicationComponent;
 import de.elanev.studip.android.app.courses.data.entity.Document;
 import de.elanev.studip.android.app.courses.data.entity.DocumentFolder;
 import de.elanev.studip.android.app.courses.data.entity.DocumentFolders;
@@ -297,10 +295,6 @@ public class CourseDocumentsFragment extends ReactiveListFragment {
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    // Inject this Fragment into the NewsComponent
-    ApplicationComponent component = ((AbstractStudIPApplication) getActivity().getApplication()).getAppComponent();
-    component.inject(this);
 
     Bundle args = getArguments();
     if (args == null) {

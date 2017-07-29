@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.courses.presentation.mapper.CourseModelDataMapper;
 import de.elanev.studip.android.app.planner.domain.Event;
 import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel;
@@ -21,7 +21,7 @@ import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel
 /**
  * @author joern
  */
-@PerActivity
+@PerFragment
 public class PlannerModelDataMapper {
   private final CourseModelDataMapper dataMapper;
 

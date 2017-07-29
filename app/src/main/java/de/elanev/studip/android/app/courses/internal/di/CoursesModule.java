@@ -16,7 +16,7 @@ import de.elanev.studip.android.app.authorization.domain.SettingsRepository;
 import de.elanev.studip.android.app.base.UseCase;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.courses.domain.CoursesRepository;
 import de.elanev.studip.android.app.courses.domain.GetCourseCensusUrl;
 import de.elanev.studip.android.app.courses.domain.GetCourseList;
@@ -40,13 +40,13 @@ public class CoursesModule {
     this.id = id;
   }
 
-  @Provides @PerActivity @Named("courseList") UseCase provideGetCourseListUseCase(
+  @Provides @PerFragment @Named("courseList") UseCase provideGetCourseListUseCase(
       GetCourseList getCourseList) {
 
     return getCourseList;
   }
 
-  @Provides @PerActivity @Named("courseOverview") UseCase provideGetCourseOverviewUseCase(
+  @Provides @PerFragment @Named("courseOverview") UseCase provideGetCourseOverviewUseCase(
       GetNewsList getNewsList, CoursesRepository coursesRepository, UserRepository userRepository,
       SettingsRepository settingsRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
@@ -55,14 +55,14 @@ public class CoursesModule {
         postExecutionThread, userRepository, settingsRepository);
   }
 
-  @Provides @PerActivity @Named("getCourseSchedule") UseCase provideGetCourseScheduleUseCase(
+  @Provides @PerFragment @Named("getCourseSchedule") UseCase provideGetCourseScheduleUseCase(
       CoursesRepository coursesRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 
     return new GetCourseSchedule(this.id, coursesRepository, threadExecutor, postExecutionThread);
   }
 
-  @Provides @PerActivity @Named("getCourseUsers") UseCase provideGetCourseUsersUseCase(
+  @Provides @PerFragment @Named("getCourseUsers") UseCase provideGetCourseUsersUseCase(
       UserRepository userRepository, CoursesRepository coursesRepository,
       ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
 
@@ -70,7 +70,7 @@ public class CoursesModule {
         postExecutionThread);
   }
 
-  @Provides @PerActivity @Named("getCourseCensusUrl") UseCase provideCourseCensusUrl(
+  @Provides @PerFragment @Named("getCourseCensusUrl") UseCase provideCourseCensusUrl(
       CoursesRepository coursesRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 

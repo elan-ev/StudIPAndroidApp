@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import javax.inject.Named;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
 import de.elanev.studip.android.app.base.UseCase;
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.courses.presentation.mapper.CourseModelDataMapper;
 import de.elanev.studip.android.app.courses.presentation.model.CourseScheduleModel;
 import de.elanev.studip.android.app.courses.presentation.view.CourseScheduleView;
@@ -27,7 +27,7 @@ import timber.log.Timber;
 /**
  * @author joern
  */
-@PerActivity
+@PerFragment
 public class CourseSchedulePresenter extends
     BaseRxLcePresenter<CourseScheduleView, List<CourseScheduleModel>> {
   private final UseCase<List<Event>> getCourseSchedule;

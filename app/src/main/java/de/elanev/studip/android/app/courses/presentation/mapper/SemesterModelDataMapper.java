@@ -10,14 +10,14 @@ package de.elanev.studip.android.app.courses.presentation.mapper;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.courses.domain.Semester;
 import de.elanev.studip.android.app.courses.presentation.model.SemesterModel;
 
 /**
  * @author joern
  */
-@PerActivity
+@PerFragment
 public class SemesterModelDataMapper {
   @Inject public SemesterModelDataMapper() {
   }
