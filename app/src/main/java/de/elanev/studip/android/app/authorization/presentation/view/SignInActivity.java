@@ -40,6 +40,7 @@ public class SignInActivity extends BaseActivity implements ServerListFragment.E
   static final String SELECTED_SERVER = "selected_server";
   static final String AUTH_SUCCESS = "auth_success";
   private AuthComponent component;
+  private boolean isActive = false;
 
   public static Intent getCallingIntent(Context context) {
     return new Intent(context, SignInActivity.class);
@@ -87,6 +88,18 @@ public class SignInActivity extends BaseActivity implements ServerListFragment.E
         .build();
   }
 
+  @Override protected void onStart() {
+    super.onStart();
+
+    isActive = true;
+  }
+
+  @Override protected void onStop() {
+    super.onStop();
+
+    isActive = false;
+  }
+
   @Override public void onAuthCanceled() {
     attachSignInServerListFragment();
   }
@@ -107,17 +120,21 @@ public class SignInActivity extends BaseActivity implements ServerListFragment.E
   }
 
   private void attachSignInServerListFragment() {
-    FragmentManager fm = getSupportFragmentManager();
-    Fragment fragment = fm.findFragmentByTag(ServerListFragment.class.getName());
+    if (isActive) {
+      FragmentManager fm = getSupportFragmentManager();
+      Fragment fragment = fm.findFragmentByTag(ServerListFragment.class.getName());
 
-    if (fragment == null) {
-      fragment = ServerListFragment.newInstance();
+      if (fragment == null) {
+        fragment = ServerListFragment.newInstance();
+      }
+
+      fm.beginTransaction()
+          .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+          .replace(R.id.content_frame, fragment, ServerListFragment.class.getName())
+          .commit();
+    } else {
+      finish();
     }
-
-    fm.beginTransaction()
-        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-        .replace(R.id.content_frame, fragment, ServerListFragment.class.getName())
-        .commit();
   }
 
   @Override public void onFeedbackSelected() {
