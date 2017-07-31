@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Run beta lint
           command: ./gradlew lintBetaStaging
-      -run:
+      - run:
           name: Run production lint
           command: ./gradlew lintProductionStaging
       - store_artifacts:
