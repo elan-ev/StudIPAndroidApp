@@ -1,28 +1,32 @@
+general:
+    artifacts:
+        - /home/ubuntu/AndroidCI/app/build/outputs/apk/
+
 machine:
     java:
         version: oraclejdk8
     environment:
-        TERM: "dumb"
-        ADB_INSTALL_TIMEOUT: "10"
-        GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+        ADB_INSTALL_TIMEOUT: "60"
+        GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx3072M -XX:+HeapDumpOnOutOfMemoryError"'
 
 dependencies:
-  pre:
-    - echo y | android update sdk --no-ui --all --filter "tools"
-    - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.3"
-    - echo y | android update sdk --no-ui --all --filter tool,extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository,android-23
-
+    pre:
+        - touch app/google-services.json
+        - echo $GOOGLE_SERVICES_JSON > app/google-services.json
+        - echo y | android update sdk --no-ui --all --filter "tools,android-24,build-tools-25.0.3,platform-tools,extra-android-m2repository,extra-android-support,extra-google-m2repository,extra-google-google_play_services"
+    cache_directories:
+        - /usr/local/android-sdk-linux/tools
+        - /usr/local/android-sdk-linux/build-tools/25.0.3
 test:
-  override:
-    # start the emulator
-    - emulator -avd circleci-android23 -no-audio -no-window:
-        background: true
-        parallel: true
-    # wait for it to have booted
+  pre:
+    - emulator -avd circleci-android22 -no-audio -no-window:
+          background: true
+          parallel: true
     - circle-android wait-for-boot
-    # unlock the emulator screen
+    # unlock emulator
     - sleep 30
     - adb shell input keyevent 82
+  override:
     # Take screenshot and add to build artifacts
     #- adb shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > $CIRCLE_ARTIFACTS/screen-before-$(date +"%T").png
     # run tests  against the emulator.
@@ -34,7 +38,6 @@ test:
     - ./gradlew testBetaStagingUnitTest && ./gradlew testProductionStagingUnitTest
     #run lint tests
     - ./gradlew lintBetaStaging && ./gradlew lintProductionStaging
-    # copy the build outputs to artifacts
+  post:
     - cp -r app/build/outputs $CIRCLE_ARTIFACTS
-    # copy the test results to the test results directory.
-    - cp -r app/build/outputs/androidTest-results/* $CIRCLE_TEST_REPORTS
+    - cp -r app/build/outputs/androidTest-results/connected/ $CIRCLE_TEST_REPORTS
