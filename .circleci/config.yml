@@ -19,7 +19,10 @@ jobs:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
       - run:
           name: Wait for emulator to boot
-          command: wait-for-boot
+          command: circle-android wait-for-boot
+      -run:
+          name: Unlock screen
+          command: sleep 30 && adb shell input keyevent 82
       - run:
           name: Run beta Android tests
           command: ./gradlew connectedBetaStagingAndroidTest -PdisablePreDex
