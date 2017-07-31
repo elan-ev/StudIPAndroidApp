@@ -1,0 +1,42 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/code
+    docker:
+      - image: circleci/android:api-26-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+      - run:
+          name: Run beta Android tests
+          command: ./gradlew connectedBetaStagingAndroidTest -PdisablePreDex
+      - run:
+          name: Run production Android tests
+          command: ./gradlew connectedProductionStagingAndroidTest -PdisablePreDex
+      - run:
+          name: Run beta unit tests
+          command: ./gradlew testBetaStagingUnitTest
+      - run:
+          name: Run production unit tests
+          command: ./gradlew testProductionStagingUnitTest
+      - run:
+          name: Run beta lint
+          command: ./gradlew lintBetaStaging
+      -run:
+          name: Run production lint
+          command: ./gradlew lintProductionStaging
+      - store_artifacts:
+          path: app/build/reports
+          destination: reports
+      - store_test_results:
+          path: app/build/test-results
