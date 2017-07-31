@@ -29,6 +29,10 @@
 
 -keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature,InnerClasses
 
+-keepclassmembers class de.elanev.studip.android.app.base.data.entity.** {
+   public *;
+}
+
 -keepclassmembers class de.elanev.studip.android.app.news.data.entity.** {
    public *;
 }
