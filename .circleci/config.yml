@@ -20,7 +20,7 @@ jobs:
       - run:
           name: Wait for emulator to boot
           command: circle-android wait-for-boot
-      -run:
+      - run:
           name: Unlock screen
           command: sleep 30 && adb shell input keyevent 82
       - run:
