@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -7,23 +7,6 @@
  */
 
 package de.elanev.studip.android.app.base;
-
-/**
- * Copyright (C) 2015 Fernando Cejas Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -67,7 +50,7 @@ public abstract class UseCase<T> {
   /**
    * Builds an {@link rx.Observable} which will be used when executing the current {@link UseCase}.
    */
-  protected abstract Observable<T> buildUseCaseObservable(boolean forceUpdate);
+  public abstract Observable<T> buildUseCaseObservable(boolean forceUpdate);
 
   private Observable.Transformer<T, T> applySchedulers() {
     return tObservable -> tObservable.subscribeOn(threadExecutor.getScheduler())
@@ -80,7 +63,7 @@ public abstract class UseCase<T> {
     }
   }
 
-  boolean isUnsubscribed() {
+  public boolean isUnsubscribed() {
     return subscription.isUnsubscribed();
   }
 }

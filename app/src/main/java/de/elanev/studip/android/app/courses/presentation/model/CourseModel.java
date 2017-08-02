@@ -30,8 +30,25 @@ public class CourseModel {
   private List<UserModel> students;
   private String color;
   private int type;
+  private String typeString;
   private CourseAdditionalDataModel courseAdditionalData;
   private SemesterModel semester;
+
+  public int getType() {
+    return type;
+  }
+
+  public void setType(int type) {
+    this.type = type;
+  }
+
+  public String getTypeString() {
+    return typeString;
+  }
+
+  public void setTypeString(String typeString) {
+    this.typeString = typeString;
+  }
 
   public String getCourseId() {
     return courseId;
@@ -127,14 +144,6 @@ public class CourseModel {
 
   public void setColor(String color) {
     this.color = color;
-  }
-
-  public int getType() {
-    return type;
-  }
-
-  public void setType(int type) {
-    this.type = type;
   }
 
   public CourseAdditionalDataModel getCourseAdditionalData() {

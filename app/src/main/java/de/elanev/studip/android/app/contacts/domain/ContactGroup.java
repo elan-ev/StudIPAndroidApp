@@ -21,6 +21,14 @@ public class ContactGroup {
   private String name;
   private List<User> members;
 
+  public ContactGroup() {}
+
+  public ContactGroup(String groupId, String name, List<User> members) {
+    this.groupId = groupId;
+    this.name = name;
+    this.members = members;
+  }
+
   public String getGroupId() {
     return groupId;
   }

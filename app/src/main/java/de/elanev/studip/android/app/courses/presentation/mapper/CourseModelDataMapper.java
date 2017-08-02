@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.courses.domain.CourseOverview;
 import de.elanev.studip.android.app.courses.domain.CourseUsers;
 import de.elanev.studip.android.app.courses.domain.DomainCourse;
@@ -33,7 +33,7 @@ import de.elanev.studip.android.app.user.presentation.mapper.UserModelDataMapper
  * @author joern
  */
 
-@PerActivity
+@PerFragment
 public class CourseModelDataMapper {
   private final UserModelDataMapper userModelDataMapper;
   private final CourseAdditionalDataModelDataMapper courseAdditionalDataModelDataMappeer;
@@ -74,6 +74,7 @@ public class CourseModelDataMapper {
     courseModel.setStudents(userModelDataMapper.transform(domainCourse.getStudentEntities()));
     courseModel.setColor(domainCourse.getColor());
     courseModel.setType(domainCourse.getType());
+    courseModel.setTypeString(domainCourse.getTypeString());
     courseModel.setCourseAdditionalData(
         courseAdditionalDataModelDataMappeer.transform(domainCourse.getCourseAdditionalData()));
     courseModel.setSemester(semesterModelDataMapper.transform(domainCourse.getSemester()));
@@ -102,16 +103,6 @@ public class CourseModelDataMapper {
     return courseOverviewModel;
   }
 
-  public List<CourseScheduleModel> transformCourseEvents(List<Event> events) {
-    ArrayList<CourseScheduleModel> courseScheduleModels = new ArrayList<>(events.size());
-
-    for (Event event : events) {
-      courseScheduleModels.add(transform(event));
-    }
-
-    return courseScheduleModels;
-  }
-
   private CourseScheduleModel transform(Event event) {
     if (event == null) return null;
 
@@ -124,6 +115,16 @@ public class CourseModelDataMapper {
     courseScheduleModel.setEnd(event.getEnd());
 
     return courseScheduleModel;
+  }
+
+  public List<CourseScheduleModel> transformCourseEvents(List<Event> events) {
+    ArrayList<CourseScheduleModel> courseScheduleModels = new ArrayList<>(events.size());
+
+    for (Event event : events) {
+      courseScheduleModels.add(transform(event));
+    }
+
+    return courseScheduleModels;
   }
 
   public CourseUsersModel transform(CourseUsers courseUsers) {

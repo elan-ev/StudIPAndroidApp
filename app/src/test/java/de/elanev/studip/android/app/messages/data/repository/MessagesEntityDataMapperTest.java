@@ -26,14 +26,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author joern
  */
 public class MessagesEntityDataMapperTest {
   private static final String FAKE_MESSAGE_ID = "123";
-  private static final String FAKE_SUBJCT = "Fake title";
+  private static final String FAKE_SUBJECT = "Fake title";
   private static final String FAKE_MESSAGE = "Fake body";
   private static final long FAKE_DATE = 123L;
 
@@ -78,7 +77,7 @@ public class MessagesEntityDataMapperTest {
 
     MessageEntity messageEntity = new MessageEntity();
     messageEntity.setMessageId(FAKE_MESSAGE_ID);
-    messageEntity.setSubject(FAKE_SUBJCT);
+    messageEntity.setSubject(FAKE_SUBJECT);
     messageEntity.setMessage(FAKE_MESSAGE);
     messageEntity.setDate(FAKE_DATE);
     messageEntity.setReceiver(mockReceiver);
@@ -92,7 +91,7 @@ public class MessagesEntityDataMapperTest {
     assertThat(message.getSender(), is(mockDomainSender));
     assertThat(message.getReceiver(), is(mockDomainReceiver));
     assertThat(message.getMessage(), is(FAKE_MESSAGE));
-    assertThat(message.getSubject(), is(FAKE_SUBJCT));
+    assertThat(message.getSubject(), is(FAKE_SUBJECT));
     assertThat(message.getDate(), is(FAKE_DATE));
     assertThat(message.isUnread(), is(true));
   }
@@ -101,7 +100,7 @@ public class MessagesEntityDataMapperTest {
 
     Message m = new Message();
     m.setMessageId(FAKE_MESSAGE_ID);
-    m.setSubject(FAKE_SUBJCT);
+    m.setSubject(FAKE_SUBJECT);
     m.setMessage(FAKE_MESSAGE);
     m.setDate(FAKE_DATE);
     m.setReceiver(mockDomainReceiver);
@@ -115,7 +114,7 @@ public class MessagesEntityDataMapperTest {
     assertThat(messageEntity.getSender(), is(mockSender));
     assertThat(messageEntity.getReceiver(), is(mockReceiver));
     assertThat(messageEntity.getMessage(), is(FAKE_MESSAGE));
-    assertThat(messageEntity.getSubject(), is(FAKE_SUBJCT));
+    assertThat(messageEntity.getSubject(), is(FAKE_SUBJECT));
     assertThat(messageEntity.getDate(), is(FAKE_DATE));
     assertThat(messageEntity.getUnread(), is(1));
   }

@@ -50,6 +50,7 @@ public class EventsEntityDataMapper {
     event.setEnd(eventEntity.getEnd());
     event.setCategory(eventEntity.getCategories());
     event.setCourseId(eventEntity.getCourseId());
+    event.setCanceled(eventEntity.isCanceled());
 
     return event;
   }

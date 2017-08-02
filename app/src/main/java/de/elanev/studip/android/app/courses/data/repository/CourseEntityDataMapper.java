@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import de.elanev.studip.android.app.courses.data.entity.RealmCourseEntity;
 import de.elanev.studip.android.app.courses.data.entity.RealmCourseModulesEntity;
 import de.elanev.studip.android.app.courses.domain.DomainCourse;
 import de.elanev.studip.android.app.courses.domain.DomainCourseModules;
-import de.elanev.studip.android.app.data.net.sync.SemesterEntityDataMapper;
 import de.elanev.studip.android.app.user.data.entity.UserEntityDataMapper;
 import io.realm.RealmList;
 
@@ -75,7 +74,7 @@ public class CourseEntityDataMapper {
     course.setCourseAdditionalData(courseAdditionalDataEntityDataMapper.transformFromRealm(
         realmCourseEntity.getCourseAdditionalData()));
     course.setModules(transformFromRealm(realmCourseEntity.getModules()));
-    course.setSemester(
+    course.setSemesterEntity(
         semesterEntityDataMapper.transformFromRealm(realmCourseEntity.getSemester()));
 
     return course;
@@ -120,7 +119,7 @@ public class CourseEntityDataMapper {
     domainCourse.setType(course.getType());
     domainCourse.setCourseAdditionalData(
         courseAdditionalDataEntityDataMapper.transform(course.getCourseAdditionalData()));
-    domainCourse.setSemester(semesterEntityDataMapper.transform(course.getSemester()));
+    domainCourse.setSemester(semesterEntityDataMapper.transform(course.getSemesterEntity()));
 
     return domainCourse;
   }
@@ -166,7 +165,8 @@ public class CourseEntityDataMapper {
     realmCourseEntity.setCourseAdditionalData(
         courseAdditionalDataEntityDataMapper.transformToRealm(course.getCourseAdditionalData()));
     realmCourseEntity.setModules(transformToRealm(course.getModules()));
-    realmCourseEntity.setSemester(semesterEntityDataMapper.transformToRealm(course.getSemester()));
+    realmCourseEntity.setSemester(
+        semesterEntityDataMapper.transformToRealm(course.getSemesterEntity()));
 
     return realmCourseEntity;
   }

@@ -29,14 +29,10 @@
 
 -keepattributes *Annotation*,EnclosingMethod,SourceFile,LineNumberTable,Signature,InnerClasses
 
--keep public class de.elanev.studip.android.app.backend.datamodel.** {
-  public void set*(***);
-  public *** get*();
-  public *** is*();
-}
--keepclassmembers class de.elanev.studip.android.app.data.datamodel.** {
+-keepclassmembers class de.elanev.studip.android.app.base.data.entity.** {
    public *;
 }
+
 -keepclassmembers class de.elanev.studip.android.app.news.data.entity.** {
    public *;
 }
@@ -47,6 +43,15 @@
    public *;
 }
 -keepclassmembers class de.elanev.studip.android.app.planner.data.entity.** {
+   public *;
+}
+-keepclassmembers class de.elanev.studip.android.app.authorization.data.entity.** {
+   public *;
+}
+-keepclassmembers class de.elanev.studip.android.app.user.data.entity.** {
+   public *;
+}
+-keepclassmembers class de.elanev.studip.android.app.contacts.data.entity.** {
    public *;
 }
 -keepclassmembers class **.R$* {public static <fields>;}

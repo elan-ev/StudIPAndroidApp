@@ -37,14 +37,7 @@ public class NewsItemTest {
   @Test public void shouldReturnCorrectString() throws Exception {
     insertFakeNewsData();
 
-    String expected = "**************** News **************\n";
-    expected += "id=123\n";
-    expected += "topic=Test topic\n";
-    expected += "date=123\n";
-    expected += "body=Test body\n";
-    expected += "author=null\n";
-    expected += "course=null\n";
-    expected += "**************************************";
+    String expected = "NewsItem{newsId='123', title='Test topic', date=123, body='Test body', author=null, mRange='123', course=null}";
 
     assertThat(newsItem.toString(), is(expected));
   }

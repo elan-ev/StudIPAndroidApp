@@ -46,7 +46,7 @@ public class SendMessage extends UseCase<Message> {
     super.execute(subscriber);
   }
 
-  @Override protected Observable<Message> buildUseCaseObservable(boolean forceUpdate) {
+  @Override public Observable<Message> buildUseCaseObservable(boolean forceUpdate) {
     return messageRepository.send(this.message);
   }
 

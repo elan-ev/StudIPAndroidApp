@@ -34,14 +34,14 @@ public class NewsModule {
     this.newsId = id;
   }
 
-  @Provides @PerActivity @Named("newsDetails") UseCase providesGetNewsDetailsUseCase(
+  @Provides @PerActivity @Named("newsDetails") public UseCase provideGetNewsDetailsUseCase(
       NewsRepository newsRepository, ThreadExecutor threadExecutor,
       PostExecutionThread postExecutionThread) {
 
     return new GetNewsDetails(newsId, newsRepository, threadExecutor, postExecutionThread);
   }
 
-  @Provides @PerActivity @Named("newsList") UseCase provideGetNewsListUseCase(
+  @Provides @PerActivity @Named("newsList") public UseCase provideGetNewsListUseCase(
       GetNewsList getNewsList) {
 
     return getNewsList;

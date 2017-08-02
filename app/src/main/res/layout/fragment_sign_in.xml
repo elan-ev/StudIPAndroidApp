@@ -30,7 +30,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="gone"
         android:gravity="center"
         android:layout_gravity="center"
         android:layout_weight="1"
@@ -50,8 +49,7 @@
             android:layout_margin="@dimen/layout_margin_normal"
             android:text="@string/authentication"
             android:textColor="@color/primary_text_dark"
-            android:textSize="@dimen/text_size_medium"
-            tools:text="Synchronizing some Stuff"/>
+            android:textSize="@dimen/text_size_medium"/>
     </LinearLayout>
 
 </LinearLayout>

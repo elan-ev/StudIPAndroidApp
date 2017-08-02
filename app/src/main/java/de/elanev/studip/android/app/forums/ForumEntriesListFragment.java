@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,6 @@ import de.elanev.studip.android.app.R;
 import de.elanev.studip.android.app.courses.data.entity.Course;
 import de.elanev.studip.android.app.courses.data.entity.ForumArea;
 import de.elanev.studip.android.app.courses.data.entity.ForumEntry;
-import de.elanev.studip.android.app.data.datamodel.User;
 import de.elanev.studip.android.app.widget.ReactiveListFragment;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
@@ -126,8 +125,8 @@ public class ForumEntriesListFragment extends ReactiveListFragment {
         args.putString(ForumEntry.SUBJECT, item.subject);
         args.putString(ForumEntry.CONTENT, item.content);
         args.putLong(ForumEntry.DATE, item.mkdate);
-        args.putString(User.NAME, item.user.getFullName());
-        args.putString(User.AVATAR, item.user.avatarNormal);
+        args.putString(ForumEntryActivity.USER_NAME, item.user.getFullName());
+        args.putString(ForumEntryActivity.USER_AVATAR, item.user.getAvatarUrl());
 
 // FIXME: Currently throws more errors than anything else. Marking the whole forum for the course
 // is useless anyway. Has to be fixed when the route is actually usable

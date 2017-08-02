@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import de.elanev.studip.android.app.planner.data.entity.EventEntity;
-import de.elanev.studip.android.app.planner.data.repository.datastore.PlanerRealmDataStore;
+import de.elanev.studip.android.app.planner.data.repository.datastore.PlannerRealmDataStore;
 import de.elanev.studip.android.app.planner.data.repository.datastore.PlannerCloudDataStore;
 import de.elanev.studip.android.app.planner.domain.Event;
 import de.elanev.studip.android.app.planner.domain.PlannerRepository;
@@ -27,10 +27,10 @@ import rx.Observable;
 public class PlannerDataRepository implements PlannerRepository {
   private final EventsEntityDataMapper entityDataMapper;
   private final PlannerCloudDataStore cloudDataStore;
-  private final PlanerRealmDataStore localDataStore;
+  private final PlannerRealmDataStore localDataStore;
 
   @Inject PlannerDataRepository(EventsEntityDataMapper eventsEntityDataMapper,
-      PlannerCloudDataStore cloudDataStore, PlanerRealmDataStore localDataStore) {
+      PlannerCloudDataStore cloudDataStore, PlannerRealmDataStore localDataStore) {
     this.entityDataMapper = eventsEntityDataMapper;
     this.cloudDataStore = cloudDataStore;
     this.localDataStore = localDataStore;

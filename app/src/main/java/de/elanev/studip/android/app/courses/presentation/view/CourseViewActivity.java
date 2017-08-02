@@ -46,9 +46,9 @@ import de.elanev.studip.android.app.user.presentation.view.UserDetailsActivity;
  * Activity for displaying a ViewPager with tabs for course overview,
  * schedule, participants and documents.
  */
-public class CourseViewActivity extends BaseActivity implements HasComponent<CoursesComponent>,
+public class CourseViewActivity extends BaseActivity implements
     CourseAttendeesFragment.CourseUsersListListener,
-    BaseLceFragment.OnComponentNotFoundErrorListener {
+    BaseLceFragment.OnComponentNotFoundErrorListener, HasComponent<CoursesComponent> {
   public static final String COURSE_ID = "course-id";
   public static final String COURSE_MODULES = "course-modules";
   @BindView(R.id.pager) ViewPager mPager;
@@ -72,18 +72,9 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
     modules = (CourseModulesModel) args.getSerializable(COURSE_MODULES);
     courseId = args.getString(COURSE_ID);
 
-    initInjector();
-
     ButterKnife.bind(this);
     setUpToolbar();
     setUpViewPager();
-  }
-
-  private void initInjector() {
-    this.component = DaggerCoursesComponent.builder()
-        .applicationComponent(((AbstractStudIPApplication) getApplication()).getAppComponent())
-        .coursesModule(new CoursesModule(courseId))
-        .build();
   }
 
   private void setUpToolbar() {
@@ -112,7 +103,7 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
       tabs.add(new Tab(getString(R.string.Schedule), CourseScheduleFragment.class, args));
     }
     if (modules.isParticipants()) {
-      tabs.add(new Tab(getString(R.string.attendees), CourseAttendeesFragment.class, args));
+      tabs.add(new Tab(getString(R.string.Participants), CourseAttendeesFragment.class, args));
     }
     if (modules.isForum()) {
       tabs.add(new Tab(getString(R.string.forum), ForumCategoriesListFragment.class, args));
@@ -157,10 +148,6 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
     super.onBackPressed();
   }
 
-  @Override public CoursesComponent getComponent() {
-    return this.component;
-  }
-
   @Override public void onCourseUserClicked(CourseUserModel courseUserModel) {
 
     String userId = courseUserModel.getUserId();
@@ -179,6 +166,14 @@ public class CourseViewActivity extends BaseActivity implements HasComponent<Cou
     Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT)
         .show();
     finish();
+  }
+
+  @Override public CoursesComponent getComponent() {
+    // Build a new fragement scoped component for each fragment asking for it
+    return DaggerCoursesComponent.builder()
+        .applicationComponent(((AbstractStudIPApplication) getApplication()).getAppComponent())
+        .coursesModule(new CoursesModule(courseId))
+        .build();
   }
 
   public static class FragmentsAdapter extends FragmentPagerAdapter {

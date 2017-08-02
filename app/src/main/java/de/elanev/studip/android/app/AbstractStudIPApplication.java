@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@ import io.realm.Realm;
  */
 public abstract class AbstractStudIPApplication extends Application {
   private static AbstractStudIPApplication mInstance;
-  private ApplicationComponent mApplicationComponent;
+  private final ApplicationComponent applicationComponent = buildAppComponent();
 
   public static synchronized AbstractStudIPApplication getInstance() {
     return mInstance;
@@ -41,10 +41,7 @@ public abstract class AbstractStudIPApplication extends Application {
 
   @Override public void onCreate() {
     super.onCreate();
-
-    mApplicationComponent = DaggerApplicationComponent.builder()
-        .applicationModule(new ApplicationModule(this))
-        .build();
+    buildAppComponent();
 
     // create instance
     mInstance = this;
@@ -52,7 +49,13 @@ public abstract class AbstractStudIPApplication extends Application {
     Realm.init(this);
   }
 
+  public ApplicationComponent buildAppComponent() {
+    return DaggerApplicationComponent.builder()
+        .applicationModule(new ApplicationModule(this))
+        .build();
+  }
+
   public ApplicationComponent getAppComponent() {
-    return mApplicationComponent;
+    return applicationComponent;
   }
 }

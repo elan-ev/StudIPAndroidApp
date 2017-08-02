@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -207,7 +208,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
   private void handleDownloadIconClick(final Recording recording) {
     final ArrayList<String> dialogOptions = getDialogOptions(recording);
     if (dialogOptions.isEmpty()) {
-      showErrorToast(R.string.recording_no_available);
+      showErrorToast();
       return;
     }
 
@@ -256,7 +257,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
   private void handleStreamingClick(final Recording recording) {
     final ArrayList<String> dialogOptions = getDialogOptions(recording);
     if (dialogOptions.isEmpty()) {
-      showErrorToast(R.string.recording_no_available);
+      showErrorToast();
       return;
     }
     String[] options = dialogOptions.toArray(new String[dialogOptions.size()]);
@@ -303,8 +304,8 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
     return dialogOptions;
   }
 
-  private void showErrorToast(int errorTextRes) {
-    Toast.makeText(getActivity(), errorTextRes, Toast.LENGTH_LONG)
+  private void showErrorToast() {
+    Toast.makeText(getActivity(), R.string.recording_no_available, Toast.LENGTH_LONG)
         .show();
   }
 
@@ -385,11 +386,11 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         startActivity(Intent.createChooser(intent,
             getActivity().getString(R.string.recordings_chooser_title)));
       } else {
-        showErrorToast(R.string.recording_no_available);
+        showErrorToast();
       }
 
     } else {
-      showErrorToast(R.string.recording_no_available);
+      showErrorToast();
     }
   }
 
@@ -455,7 +456,7 @@ public class CourseRecordingsFragment extends ReactiveListFragment implements
         e.printStackTrace();
       }
 
-      String durationString = String.format("%02d:%02d:%02d",
+      String durationString = String.format(Locale.getDefault(), "%02d:%02d:%02d",
           TimeUnit.MILLISECONDS.toHours(item.getDuration()),
           TimeUnit.MILLISECONDS.toMinutes(item.getDuration()) - TimeUnit.HOURS.toMinutes(
               (TimeUnit.MILLISECONDS).toHours(item.getDuration())),

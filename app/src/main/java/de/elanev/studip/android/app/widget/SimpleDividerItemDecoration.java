@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -35,14 +35,6 @@ public class SimpleDividerItemDecoration extends RecyclerView.ItemDecoration {
       View nextChild = parent.getChildAt(i+1);
 
       if (child != null && nextChild != null) {
-        // Check if it's a header view and skip the divider drawing
-        RecyclerView.LayoutManager manager = parent.getLayoutManager();
-        int viewType = manager.getItemViewType(child);
-
-        if (viewType == SimpleSectionedRecyclerViewAdapter.SECTION_HEADER_TYPE) {
-          continue;
-        }
-
         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
 
         int top = child.getBottom() + params.bottomMargin;

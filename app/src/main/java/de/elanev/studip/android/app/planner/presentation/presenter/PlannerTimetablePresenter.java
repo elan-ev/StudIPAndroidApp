@@ -14,10 +14,10 @@ import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
 import de.elanev.studip.android.app.base.UseCase;
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.planner.domain.GetEventsList;
-import de.elanev.studip.android.app.planner.presentation.mapper.PlanerModelDataMapper;
-import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
+import de.elanev.studip.android.app.planner.presentation.mapper.PlannerModelDataMapper;
+import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerTimetableView;
 import rx.Subscriber;
 import timber.log.Timber;
@@ -25,23 +25,23 @@ import timber.log.Timber;
 /**
  * @author joern
  */
-@PerActivity
+@PerFragment
 public class PlannerTimetablePresenter extends
-    BaseRxLcePresenter<PlannerTimetableView, List<PlanerEventModel>> {
+    BaseRxLcePresenter<PlannerTimetableView, List<PlannerEventModel>> {
 
-  private final PlanerModelDataMapper planerModelDataMapper;
+  private final PlannerModelDataMapper plannerModelDataMapper;
   private final GetEventsList getEventsList;
 
   @Inject public PlannerTimetablePresenter(UseCase getEventsList,
-      PlanerModelDataMapper planerModelDataMapper) {
+      PlannerModelDataMapper plannerModelDataMapper) {
     this.getEventsList = (GetEventsList) getEventsList;
-    this.planerModelDataMapper = planerModelDataMapper;
+    this.plannerModelDataMapper = plannerModelDataMapper;
   }
 
   public void loadData(boolean ptr) {
     this.getEventsList.get(ptr)
-        .map(planerModelDataMapper::transform)
-        .subscribe(new Subscriber<List<PlanerEventModel>>() {
+        .map(plannerModelDataMapper::transform)
+        .subscribe(new Subscriber<List<PlannerEventModel>>() {
           @Override public void onCompleted() {
             PlannerTimetablePresenter.this.onCompleted();
           }
@@ -51,8 +51,8 @@ public class PlannerTimetablePresenter extends
             PlannerTimetablePresenter.this.onError(e, ptr);
           }
 
-          @Override public void onNext(List<PlanerEventModel> planerEventModel) {
-            PlannerTimetablePresenter.this.onNext(planerEventModel);
+          @Override public void onNext(List<PlannerEventModel> plannerEventModels) {
+            PlannerTimetablePresenter.this.onNext(plannerEventModels);
           }
         });
   }

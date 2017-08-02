@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
+import android.support.annotation.VisibleForTesting;
 
 import de.elanev.studip.android.app.AbstractStudIPApplication;
 import de.elanev.studip.android.app.MainActivity;
@@ -57,6 +58,10 @@ public class NewsActivity extends MainActivity implements HasComponent<NewsCompo
 
   @Override public NewsComponent getComponent() {
     return this.mNewsComponent;
+  }
+
+  @VisibleForTesting void setComponent(NewsComponent component) {
+    this.mNewsComponent = component;
   }
 
   @Override public void onNewsClicked(NewsModel news) {

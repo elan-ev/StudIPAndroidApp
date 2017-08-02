@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,8 @@ import de.elanev.studip.android.app.R;
  * @author joern
  */
 public class ForumEntryActivity extends AppCompatActivity {
+  public static final String USER_NAME = "user-name";
+  public static final String USER_AVATAR = "user-avatar";
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@ import de.elanev.studip.android.app.user.domain.User;
  */
 public class NewsItem {
   // Required property news id
-  private final String newsId;
+  private String newsId;
   private String title;
   private Long date;
   private String body;
@@ -24,23 +24,46 @@ public class NewsItem {
   private String mRange;
   private Course course;
 
+  public NewsItem(String newsId, String title, Long date, String body, User author, String mRange,
+      Course course) {
+    this.newsId = newsId;
+    this.title = title;
+    this.date = date;
+    this.body = body;
+    this.author = author;
+    this.mRange = mRange;
+    this.course = course;
+  }
+  public NewsItem() {}
+
   public NewsItem(String newsId) {this.newsId = newsId;}
 
-  @Override public String toString() {
-    String newsStr = "**************** News **************\n";
-    newsStr += "id=" + this.getNewsId() + "\n";
-    newsStr += "topic=" + this.getTitle() + "\n";
-    newsStr += "date=" + this.getDate() + "\n";
-    newsStr += "body=" + this.getBody() + "\n";
-    newsStr += "author=" + this.getAuthor() + "\n";
-    newsStr += "course=" + this.getCourse() + "\n";
-    newsStr += "**************************************";
+  @Override public int hashCode() {
+    return newsId.hashCode();
+  }
 
-    return newsStr;
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    NewsItem newsItem = (NewsItem) o;
+
+    return newsId.equals(newsItem.newsId);
+
+  }
+
+  @Override public String toString() {
+    return "NewsItem{" + "newsId='" + newsId + '\'' + ", title='" + title + '\'' + ", date=" + date
+        + ", body='" + body + '\'' + ", author=" + author + ", mRange='" + mRange + '\''
+        + ", course=" + course + '}';
   }
 
   public String getNewsId() {
     return newsId;
+  }
+
+  public void setNewsId(String newsId) {
+    this.newsId = newsId;
   }
 
   public String getTitle() {

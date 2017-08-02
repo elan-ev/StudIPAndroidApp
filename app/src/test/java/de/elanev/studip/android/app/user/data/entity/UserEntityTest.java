@@ -36,7 +36,7 @@ public class UserEntityTest {
     UserEntity jsonUserEntity = UserEntity.fromJson(UserEntityUtil.FAKE_JSON);
 
     assertThat(jsonUserEntity, is(notNullValue()));
-    assertThat(jsonUserEntity.getFullName(), is(UserEntityUtil.FAKE_FULLNAME));
+    assertThat(jsonUserEntity != null ? jsonUserEntity.getFullName() : null, is(UserEntityUtil.FAKE_FULLNAME));
   }
 
   @Test public void toJson() throws Exception {

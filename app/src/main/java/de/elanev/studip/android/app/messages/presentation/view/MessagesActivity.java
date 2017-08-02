@@ -33,7 +33,7 @@ public class MessagesActivity extends MainActivity implements
   public static final String BOX_TYPE = "box-type";
   @BindView(R.id.sliding_tabs) TabLayout mTabLayout;
   @BindView(R.id.pager) ViewPager mViewPager;
-//  @BindView(R.id.fab) FloatingActionButton mFab;
+  // @BindView(R.id.fab) FloatingActionButton mFab;
 
   @Override protected int getCurrentNavDrawerItem() {
     return R.id.navigation_messages;
@@ -54,7 +54,6 @@ public class MessagesActivity extends MainActivity implements
 
     overridePendingTransition(0, 0);
   }
-
 
   private ArrayList<FragmentsAdapter.Tab> getTabs() {
     ArrayList<FragmentsAdapter.Tab> tabs = new ArrayList<>();

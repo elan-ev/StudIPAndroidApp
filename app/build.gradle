@@ -5,19 +5,15 @@
  * which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
  */
-
-
-import java.text.SimpleDateFormat
-
 // Production-Release versioning
 def versionMajor = 1  // max. 9
-def versionMinor = 3  // max. 99
-def versionPatch = 9 // max. 99
+def versionMinor = 4  // max. 99
+def versionPatch = 0 // max. 99
 
 // Beta- and Alpha-Release versioning
 def versionMajorBeta = 1 // max. 9
-def versionMinorBeta = 3 // max. 99
-def versionPatchBeta = 5 // max. 99
+def versionMinorBeta = 4 // max. 99
+def versionPatchBeta = 0 // max. 99
 
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
@@ -27,39 +23,38 @@ apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'realm-android'
 
 repositories {
-  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-  maven { url 'https://maven.fabric.io/public' }
   jcenter()
+  maven { url 'https://jitpack.io' }
+  maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  maven { url 'https://maven.fabric.io/public' }
 }
 
 dependencies {
+
   // Crashlytics Kit
-  compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
+  compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
     transitive = true;
   }
   // Android Support Libs
-  compile 'com.android.support:support-v4:25.1.0'
-  compile 'com.android.support:appcompat-v7:25.1.0'
-  compile 'com.android.support:recyclerview-v7:25.1.0'
-  compile 'com.android.support:design:25.1.0'
-  compile 'com.android.support:cardview-v7:25.1.0'
-  compile 'com.android.support:support-annotations:25.1.0'
-
+  compile 'com.android.support:support-v4:25.3.1'
+  compile 'com.android.support:appcompat-v7:25.3.1'
+  compile 'com.android.support:recyclerview-v7:25.3.1'
+  compile 'com.android.support:design:25.3.1'
+  compile 'com.android.support:cardview-v7:25.3.1'
+  compile 'com.android.support:support-annotations:25.3.1'
   // Square Libs
-  compile 'com.squareup.okhttp3:okhttp:3.4.2'
-  compile 'com.squareup.okhttp3:okhttp-urlconnection:3.4.2'
-  compile 'com.squareup.okhttp3:logging-interceptor:3.4.2'
-  compile 'com.squareup.retrofit2:retrofit:2.1.0'
-  compile 'com.squareup.retrofit2:converter-jackson:2.1.0'
-  compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
-  compile 'com.squareup.retrofit2:retrofit-mock:2.1.0'
+  compile 'com.squareup.okhttp3:okhttp:3.8.1'
+  compile 'com.squareup.okhttp3:okhttp-urlconnection:3.8.1'
+  compile 'com.squareup.okhttp3:logging-interceptor:3.8.1'
+  compile 'com.squareup.retrofit2:retrofit:2.3.0'
+  compile 'com.squareup.retrofit2:converter-jackson:2.3.0'
+  compile 'com.squareup.retrofit2:adapter-rxjava:2.3.0'
+  compile 'com.squareup.retrofit2:retrofit-mock:2.3.0'
   compile 'com.squareup.picasso:picasso:2.5.2'
   compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
-
   // Jackson JSON Parsing
-  compile 'com.fasterxml.jackson.core:jackson-databind:2.8.2'
-  compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.2'
-
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.8.9'
+  compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.9'
   // SignPost OAuth
   compile 'oauth.signpost:oauth-signpost:1.2.1.2'
   compile('oauth.signpost:signpost-commonshttp4:1.2.1.2') {
@@ -71,82 +66,76 @@ dependencies {
     exclude module: 'commons-codec'
   }
   compile 'se.akerfeldt:okhttp-signpost:1.1.0'
-
   // RxJava
+
+  //TODO: Update rxjava and rxandroid to 2.x
+  compile 'io.reactivex:rxjava:1.3.0'
   compile 'io.reactivex:rxandroid:0.25.0'
-  //TODO: Update to rxandroid version 1.1
-  // * Need to use new rxlifecyle in ReactiveFragment class
-//  compile 'io.reactivex:rxandroid:1.1.0'
-//  compile 'io.reactivex:rxjava:1.1.3'
-//  compile 'com.trello:rxlifecycle:0.5.0'
-
   // Dependency injection
-  compile 'com.jakewharton:butterknife:8.4.0'
-  apt 'com.jakewharton:butterknife-compiler:8.4.0'
-  compile 'com.google.dagger:dagger:2.8'
-  compile 'com.google.dagger:dagger-android:2.8'
-  apt 'com.google.dagger:dagger-compiler:2.8'
+  compile 'com.jakewharton:butterknife:8.7.0'
+  apt 'com.jakewharton:butterknife-compiler:8.7.0'
+  compile 'com.google.dagger:dagger:2.11'
+  compile 'com.google.dagger:dagger-android:2.11'
+  apt 'com.google.dagger:dagger-compiler:2.11'
   provided 'javax.annotation:jsr250-api:1.0'
-
   // MVP
   compile 'com.hannesdorfmann.mosby:mvp:2.0.1'
   compile 'com.hannesdorfmann.mosby:viewstate:2.0.1'
-
   // UI
   compile 'com.github.castorflex.smoothprogressbar:library-circular:1.2.0'
-
   // Other
-  compile 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.0.4'
+  compile 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.1.3'
   compile 'de.hdodenhof:circleimageview:2.1.0'
   compile 'com.github.quivr:android-week-view:2.0.2'
   compile 'io.github.yavski:fab-speed-dial:1.0.6'
-  compile 'com.jakewharton.timber:timber:4.3.1'
-
+  compile 'com.jakewharton.timber:timber:4.5.1'
   // Test deps
-  androidTestCompile 'com.android.support:support-v4:25.1.0'
-  androidTestCompile 'com.android.support:appcompat-v7:25.1.0'
-  androidTestCompile 'com.android.support:recyclerview-v7:25.1.0'
-  androidTestCompile 'com.android.support:design:25.1.0'
-  androidTestCompile 'com.android.support:support-annotations:25.1.0'
+  androidTestApt 'com.google.dagger:dagger-compiler:2.11'
+  androidTestCompile('org.mockito:mockito-core:2.8.47') {
+    exclude module: 'hamcrest-core'
+  }
+  androidTestCompile 'org.mockito:mockito-android:2.8.47'
+  androidTestCompile 'com.android.support:support-v4:25.3.1'
+  androidTestCompile 'com.android.support:appcompat-v7:25.3.1'
+  androidTestCompile 'com.android.support:recyclerview-v7:25.3.1'
+  androidTestCompile 'com.android.support:design:25.3.1'
+  androidTestCompile 'com.android.support:support-annotations:25.3.1'
   // Android JUnit Runner
   androidTestCompile 'com.android.support.test:runner:0.5'
   // JUnit4 Rules
   androidTestCompile 'com.android.support.test:rules:0.5'
   // Espresso core
-  androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2')
+  androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2') {
+    exclude group: 'com.google.code.findbugs'
+  }
   // Espresso-contrib for DatePicker, RecyclerView, Drawer actions, Accessibility checks, CountingIdlingResource
-  androidTestCompile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
-  // Espresso-web for WebView support
-  androidTestCompile 'com.android.support.test.espresso:espresso-web:2.2.2'
-  // Espresso-idling-resource for synchronization with background jobs
-  androidTestCompile 'com.android.support.test.espresso:espresso-idling-resource:2.2.2'
+  androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2.2') {
+    exclude module: 'support-annotations'
+    exclude group: 'com.google.code.findbugs'
+  }
+  // Espresso-intent for Intent support
+  androidTestCompile('com.android.support.test.espresso:espresso-intents:2.2.2') {
+    exclude group: 'com.google.code.findbugs'
+  }
 
+  //Mocking
+  androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
   // Dependencies for local unit tests
+  testApt 'com.google.dagger:dagger-compiler:2.11'
   testCompile('junit:junit:4.12') {
     exclude module: 'hamcrest-core'
   }
-  testCompile('org.mockito:mockito-core:2.2.25') {
+  testCompile('org.mockito:mockito-core:2.8.47') {
     exclude module: 'hamcrest-core'
   }
   testCompile 'org.hamcrest:hamcrest-core:1.3'
   testCompile 'org.hamcrest:hamcrest-integration:1.3'
   testCompile 'org.hamcrest:hamcrest-library:1.3'
+  androidTestCompile 'junit:junit:4.12'
 }
 
-def buildTime() {
-  def df = new SimpleDateFormat("yyyy-MM-dd HH:mm")
-  df.setTimeZone(TimeZone.getTimeZone("CET"))
-  return df.format(new Date())
-}
-
-def isTravis = "true".equals(System.getenv("TRAVIS"))
-def preDexEnabled = "true".equals(System.getProperty("pre-dex", "true"))
 android {
-  useLibrary 'org.apache.http.legacy'
-
   dexOptions {
-    // Skip pre-dexing when running on Travis CI or when disabled via -Dpre-dex=false.
-    preDexLibraries = preDexEnabled && !isTravis
     javaMaxHeapSize "2g" //specify the heap size for the dex process
   }
 
@@ -155,10 +144,12 @@ android {
     abortOnError false
   }
 
-  compileSdkVersion 25
-  buildToolsVersion '25.0.2'
+  compileSdkVersion 26
+  buildToolsVersion '26.0.1'
 
   // Testing option
+  testBuildType "staging"
+
   // Always show the result of every unit test, even if it passes.
   testOptions.unitTests.all {
     testLogging {
@@ -168,6 +159,12 @@ android {
 
   signingConfigs {
     release
+    debug {
+      keyAlias 'android'
+      keyPassword 'android'
+      storeFile file('debug.keystore')
+      storePassword 'android'
+    }
   }
 
   //Read signing config from release.properties in root
@@ -184,24 +181,17 @@ android {
   defaultConfig {
     applicationId "de.elanev.studip.android.app"
     minSdkVersion 15
-    targetSdkVersion 25
-
-    buildConfigField "String", "BUILD_TIME", "\"${buildTime()}\""
+    targetSdkVersion 26
 
     // Testing settings
-    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    testApplicationId "de.elanev.studip.android.app.test"
+    testHandleProfiling true
+    testFunctionalTest true
+    testInstrumentationRunner "de.elanev.studip.android.app.runner.MockTestRunner"
     testInstrumentationRunnerArguments disableAnalytics: 'true'
-
-    // Enabling multidex support.
-    // multiDexEnabled true
 
     // Set output file name based on versionName
     setProperty("archivesBaseName", "studip_mobil")
-
-    // Enable Jack Compiler -> currently not working with apt
-//    jackOptions {
-//      enabled true
-//    }
 
     vectorDrawables.useSupportLibrary = true
   }
@@ -225,21 +215,20 @@ android {
   }
 
   buildTypes {
-
     debug {
-      // Database name configuration
-      buildConfigField "String", "DATABASE", "\"studip_debug.db\""
-
       ext.enableCrashlytics = false
       versionNameSuffix '-DEBUG'
       debuggable = true
       testCoverageEnabled false
     }
-
+    staging {
+      ext.enableCrashlytics = false
+      versionNameSuffix '-STAGING'
+      debuggable = true
+      testCoverageEnabled true
+      signingConfig signingConfigs.debug
+    }
     release {
-      // Database name configuration
-      buildConfigField "String", "DATABASE", "\"studip_encrypted.db\""
-
       ext.enableCrashlytics = true
       versionNameSuffix '-RELEASE'
       debuggable = false
@@ -248,7 +237,6 @@ android {
       shrinkResources = true
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
     }
-
     applicationVariants.all { variant ->
       variant.outputs.each { output ->
         def file = output.outputFile
@@ -256,7 +244,6 @@ android {
             "-" + variant.productFlavors.versionCode + ".apk"))
       }
     }
-
   }
 
   packagingOptions {
@@ -265,8 +252,6 @@ android {
     exclude 'META-INF/LICENSE'
     exclude 'META-INF/LICENSE.txt'
     exclude 'META-INF/NOTICE.txt'
-    exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
-    exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
   }
 
 }

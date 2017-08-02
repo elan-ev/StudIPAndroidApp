@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@ package de.elanev.studip.android.app;
  * @author joern
  */
 public final class StudIPConstants {
-  public static final String STUDIP_SYSTEM_USER_ID = "____%system%____";
   public static final String STUDIP_MESSAGES_INBOX_IDENTIFIER = "in";
   public static final String STUDIP_MESSAGES_OUTBOX_IDENTIFIER = "out";
   public static final String STUDIP_NEWS_GLOBAL_RANGE = "studip";

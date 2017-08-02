@@ -62,7 +62,6 @@ public class MessagesListFragment extends
   private MessagesComponent messagesComponent;
   private List<MessageModel> data;
 
-
   public MessagesListFragment() {
     setRetainInstance(true);
   }
@@ -199,7 +198,7 @@ public class MessagesListFragment extends
   }
 
   @Override public void onRefresh() {
-    this.presenter.loadMessages(true, mBoxType);
+    this.loadData(true);
   }
 
   @Override public void viewMessage(MessageModel messageModel) {

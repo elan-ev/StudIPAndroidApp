@@ -31,7 +31,7 @@ public class GetUserDetails extends UseCase<User> {
     this.userRepository = userRepository;
   }
 
-  @Override protected Observable<User> buildUseCaseObservable(boolean forceUpdate) {
-    return this.userRepository.user(this.userId);
+  @Override public Observable<User> buildUseCaseObservable(boolean forceUpdate) {
+    return this.userRepository.user(this.userId, forceUpdate);
   }
 }

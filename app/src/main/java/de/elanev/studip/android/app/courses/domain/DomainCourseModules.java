@@ -20,6 +20,20 @@ public class DomainCourseModules {
   private boolean unizensus = false;
   private boolean forum = false;
 
+  public DomainCourseModules() {}
+
+  public DomainCourseModules(boolean overview, boolean schedule, boolean participants,
+      boolean documents, boolean recordings, boolean unizensus, boolean forum) {
+
+    this.overview = overview;
+    this.documents = documents;
+    this.schedule = schedule;
+    this.participants = participants;
+    this.recordings = recordings;
+    this.unizensus = unizensus;
+    this.forum = forum;
+  }
+
   public boolean isRecordings() {
     return recordings;
   }

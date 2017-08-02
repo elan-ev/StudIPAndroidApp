@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -12,12 +12,21 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import de.elanev.studip.android.app.authorization.data.repository.AuthorizationDataRepository;
-import de.elanev.studip.android.app.authorization.domain.AuthorizationRepository;
+import de.elanev.studip.android.app.AbstractStudIPApplication;
+import de.elanev.studip.android.app.authorization.data.AuthServiceImpl;
+import de.elanev.studip.android.app.authorization.data.repository.CredentialsDataRepository;
+import de.elanev.studip.android.app.authorization.data.repository.EndpointsDataRepository;
+import de.elanev.studip.android.app.authorization.data.repository.SettingsDataRepository;
+import de.elanev.studip.android.app.authorization.domain.AuthService;
+import de.elanev.studip.android.app.authorization.domain.CredentialsRepository;
+import de.elanev.studip.android.app.authorization.domain.EndpointsRepository;
+import de.elanev.studip.android.app.authorization.domain.SettingsRepository;
 import de.elanev.studip.android.app.base.data.executor.ThreadExecutorImpl;
 import de.elanev.studip.android.app.base.domain.executor.PostExecutionThread;
 import de.elanev.studip.android.app.base.domain.executor.ThreadExecutor;
@@ -50,18 +59,23 @@ public class ApplicationModule {
     this.mApplication = application;
   }
 
+  @Provides public AbstractStudIPApplication abstractStudIPApplication() {
+    return (AbstractStudIPApplication) this.mApplication;
+  }
+
+  //Serialization
+  @Provides @Singleton public ObjectMapper provideObjectMapper() {
+    return new ObjectMapper();
+  }
+
   // Android
   @Provides @Singleton public Context provideContext() {
     return mApplication;
   }
 
-  @Provides @Singleton public ContentResolver provideContentResolver(Context context) {
-    return context.getContentResolver();
-  }
-
   // Prefs
-  @Provides @Singleton public Prefs providePrefs(Context context, AuthorizationRepository authorizationRepository) {
-    return new Prefs(context, authorizationRepository);
+  @Provides @Singleton public Prefs providePrefs(Context context) {
+    return new Prefs(context);
   }
 
   // Repositories
@@ -80,38 +94,52 @@ public class ApplicationModule {
     return contactsDataRepository;
   }
 
-  @Provides @Singleton public PlannerRepository providesPlannerRepository(
+  @Provides @Singleton public PlannerRepository providePlannerRepository(
       PlannerDataRepository plannerDataRepository) {
     return plannerDataRepository;
   }
 
-  @Provides @Singleton public MessagesRepository providesMessagesRepository(
+  @Provides @Singleton public MessagesRepository provideMessagesRepository(
       MessagesDataRepository messagesDataRepository) {
     return messagesDataRepository;
   }
 
-  @Provides @Singleton public CoursesRepository providesCoursesRepository(
+  @Provides @Singleton public CoursesRepository provideCoursesRepository(
       CoursesDataRepository coursesDataRepository) {
     return coursesDataRepository;
   }
 
-  @Provides @Singleton public AuthorizationRepository providesAuthorizationRepository(
-      AuthorizationDataRepository authorizationDataRepository) {
+  @Provides @Singleton public CredentialsRepository provideAuthorizationRepository(
+      CredentialsDataRepository authorizationDataRepository) {
     return authorizationDataRepository;
   }
 
+  @Provides @Singleton public SettingsRepository provideSettingsRepository(
+      SettingsDataRepository settingsDataRepository) {
+    return settingsDataRepository;
+  }
+
+  @Provides @Singleton public EndpointsRepository provideEndpointsRepository(
+      EndpointsDataRepository endpointsDataRepository) {
+    return endpointsDataRepository;
+  }
+
+  @Provides @Singleton public AuthService provideAuthService(AuthServiceImpl authService) {
+    return authService;
+  }
+
   // Scheduling
-  @Provides @Singleton PostExecutionThread providePostExecutionExecutor(
+  @Provides @Singleton public PostExecutionThread providePostExecutionExecutor(
       PostExecutionThreadImpl postExecutionExecutor) {
     return postExecutionExecutor;
   }
 
-  @Provides @Singleton ThreadExecutor provideThreadExecutor(ThreadExecutorImpl threadExecutor) {
+  @Provides @Singleton public ThreadExecutor provideThreadExecutor(ThreadExecutorImpl threadExecutor) {
     return threadExecutor;
   }
 
   // Database
-  @Provides @Singleton RealmConfiguration provideRealmConfiguration(Context context) {
+  @Provides @Singleton public RealmConfiguration provideRealmConfiguration(Context context) {
     Realm.init(context);
 
     RealmConfiguration.Builder builder = new RealmConfiguration.Builder();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -14,10 +14,10 @@ import javax.inject.Inject;
 
 import de.elanev.studip.android.app.base.BaseRxLcePresenter;
 import de.elanev.studip.android.app.base.UseCase;
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
+import de.elanev.studip.android.app.base.internal.di.PerFragment;
 import de.elanev.studip.android.app.planner.domain.Event;
-import de.elanev.studip.android.app.planner.presentation.mapper.PlanerModelDataMapper;
-import de.elanev.studip.android.app.planner.presentation.model.PlanerEventModel;
+import de.elanev.studip.android.app.planner.presentation.mapper.PlannerModelDataMapper;
+import de.elanev.studip.android.app.planner.presentation.model.PlannerEventModel;
 import de.elanev.studip.android.app.planner.presentation.view.PlannerListView;
 import rx.Subscriber;
 import timber.log.Timber;
@@ -25,23 +25,23 @@ import timber.log.Timber;
 /**
  * @author joern
  */
-@PerActivity
+@PerFragment
 public class PlannerListPresenter extends
-    BaseRxLcePresenter<PlannerListView, List<PlanerEventModel>> {
+    BaseRxLcePresenter<PlannerListView, List<PlannerEventModel>> {
   private final UseCase<List<Event>> getEventsList;
-  private final PlanerModelDataMapper planerModelDataMapper;
+  private final PlannerModelDataMapper plannerModelDataMapper;
 
   @Inject PlannerListPresenter(UseCase getEventsListUseCase,
-      PlanerModelDataMapper planerModelDataMapper) {
+      PlannerModelDataMapper plannerModelDataMapper) {
     this.getEventsList = getEventsListUseCase;
-    this.planerModelDataMapper = planerModelDataMapper;
+    this.plannerModelDataMapper = plannerModelDataMapper;
   }
 
   public void loadEvents(final boolean ptr) {
 
     getEventsList.get(ptr)
-        .map(planerModelDataMapper::transform)
-        .subscribe(new Subscriber<List<PlanerEventModel>>() {
+        .map(plannerModelDataMapper::transform)
+        .subscribe(new Subscriber<List<PlannerEventModel>>() {
           @Override public void onCompleted() {
             PlannerListPresenter.this.onCompleted();
           }
@@ -51,8 +51,8 @@ public class PlannerListPresenter extends
             PlannerListPresenter.this.onError(e, ptr);
           }
 
-          @Override public void onNext(List<PlanerEventModel> planerEventModel) {
-            PlannerListPresenter.this.onNext(planerEventModel);
+          @Override public void onNext(List<PlannerEventModel> plannerEventModel) {
+            PlannerListPresenter.this.onNext(plannerEventModel);
           }
         });
   }
@@ -62,16 +62,16 @@ public class PlannerListPresenter extends
   }
 
   @SuppressWarnings("ConstantConditions") public void onEventClicked(
-      PlanerEventModel planerEventModel) {
+      PlannerEventModel plannerEventModel) {
     if (isViewAttached()) {
-      getView().viewEvent(planerEventModel);
+      getView().viewEvent(plannerEventModel);
     }
   }
 
   @SuppressWarnings("ConstantConditions") public void onEventLongClicked(
-      PlanerEventModel planerEventModel) {
+      PlannerEventModel plannerEventModel) {
     if (isViewAttached()) {
-      getView().addEventToCalendar(planerEventModel);
+      getView().addEventToCalendar(plannerEventModel);
     }
   }
 }

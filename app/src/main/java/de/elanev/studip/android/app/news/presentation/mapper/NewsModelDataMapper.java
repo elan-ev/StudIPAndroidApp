@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ELAN e.V.
+ * Copyright (c) 2017 ELAN e.V.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.elanev.studip.android.app.base.internal.di.PerActivity;
 import de.elanev.studip.android.app.news.domain.NewsItem;
 import de.elanev.studip.android.app.news.presentation.model.NewsModel;
 import de.elanev.studip.android.app.user.presentation.mapper.UserModelDataMapper;
@@ -21,7 +20,6 @@ import de.elanev.studip.android.app.user.presentation.mapper.UserModelDataMapper
 /**
  * @author joern
  */
-@PerActivity
 public class NewsModelDataMapper {
 
 
@@ -29,6 +27,16 @@ public class NewsModelDataMapper {
 
   @Inject NewsModelDataMapper(UserModelDataMapper userModelDataMapper) {
     this.userModelDataMapper = userModelDataMapper;
+  }
+
+  public List<NewsModel> transform(List<NewsItem> newsItems) {
+    ArrayList<NewsModel> newsModels = new ArrayList<>(newsItems.size());
+
+    for (NewsItem newsItem : newsItems) {
+      newsModels.add(transform(newsItem));
+    }
+
+    return newsModels;
   }
 
   public NewsModel transform(NewsItem newsItem) {
@@ -44,15 +52,5 @@ public class NewsModelDataMapper {
     newsModel.course = newsItem.getCourse();
 
     return newsModel;
-  }
-
-  public List<NewsModel> transform(List<NewsItem> newsItems) {
-    ArrayList<NewsModel> newsModels = new ArrayList<>(newsItems.size());
-
-    for (NewsItem newsItem : newsItems) {
-      newsModels.add(transform(newsItem));
-    }
-
-    return newsModels;
   }
 }

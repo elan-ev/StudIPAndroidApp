@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
  * @author joern
  */
 public class UserEntityWrapperTest {
-  UserEntityWrapper userEntityWrapper;
+  private UserEntityWrapper userEntityWrapper;
 
   @Before public void setUp() throws Exception {
     userEntityWrapper = new UserEntityWrapper();
