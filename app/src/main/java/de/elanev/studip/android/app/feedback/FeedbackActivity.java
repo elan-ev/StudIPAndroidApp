@@ -124,7 +124,7 @@ public class FeedbackActivity extends BaseActivity implements AdapterView.OnItem
       intent.setData(Uri.parse("mailto:"));
 
       // Set the correct TO address for Intent
-      intent.putExtra(Intent.EXTRA_EMAIL, emailAddress);
+      intent.putExtra(Intent.EXTRA_EMAIL, new String[]{ emailAddress });
 
       // Generate subject string and add it to Intent
       String subjectField = String.format(getString(R.string.feedback_form_subject),
