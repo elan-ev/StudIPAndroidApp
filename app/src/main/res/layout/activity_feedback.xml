@@ -46,5 +46,21 @@
 
     </android.support.design.widget.TextInputLayout>
 
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true">
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="Die App wird nicht weiter entwickelt!"
+            android:layout_alignParentBottom="true"
+            android:background="@color/studip_mobile_red"
+            android:textColor="@color/primary_text_dark"
+            android:gravity="center"/>
+
+    </RelativeLayout>
+
 
 </LinearLayout>
