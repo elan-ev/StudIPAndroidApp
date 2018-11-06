@@ -1,5 +1,6 @@
 # Stud.IP Android App
-[![CircleCI](https://circleci.com/gh/elan-ev/StudIPAndroidApp.svg?style=svg)](https://circleci.com/gh/elan-ev/StudIPAndroidApp)
+
+> *This project is discontinued.*
 
 A mobile Stud.IP client application for the Android platform which utilizes the studip-rest.ip Rest-API Plugin [studip/studip-rest.ip][2]
 for communication with a Stud.IP backend.
